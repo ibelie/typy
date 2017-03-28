@@ -1,0 +1,20 @@
+
+set(CLASSES
+	"${_TYPY_DIR}/Fighter.cc"
+	"${_TYPY_DIR}/Vector2.cc"
+	"${_TYPY_DIR}/Fighter_Part2.cc"
+	"${_TYPY_DIR}/Empty.cc"
+	"${_TYPY_DIR}/Fighter_Part1.cc"
+	"${_TYPY_DIR}/VdesVector2.cc"
+	"${_TYPY_DIR}/VimpmP__sm4UToCagVQqZzKHQ.cc"
+	"${_TYPY_DIR}/ViPyType.cc"
+	"${_TYPY_DIR}/Vi.cc"
+	"${_TYPY_DIR}/VbyfiVector2.cc"
+	"${_TYPY_DIR}/VipfCS1hEiUnKAH2vnYWM13w.cc"
+	"${_TYPY_DIR}/VfpisVector2.cc"
+	"${_TYPY_DIR}/ViSlI3tNgu2aFVB8BXYUxf9w.cc"
+	"${_TYPY_DIR}/sq0t2631Zu6lArqg9rFtFlQ.cc"
+	"${_TYPY_DIR}/VfisVector2.cc"
+	"${_TYPY_DIR}/Vfs.cc"
+	"${_TYPY_DIR}/Corpus.cc"
+)

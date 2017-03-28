@@ -1,0 +1,3 @@
+/test/typy/build
+/typy/_typy.pyd
+*.pyc
