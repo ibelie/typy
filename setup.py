@@ -7,6 +7,7 @@ import os
 import sys
 import typy
 import warnings
+import setuptools
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
@@ -73,5 +74,5 @@ setup(
 		'Programming Language :: Python :: 2.7',
 		'Programming Language :: Python :: 3.5',
 	],
-	packages = ['typy'],
+	packages = list(setuptools.find_packages('.')),
 )
