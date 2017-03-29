@@ -488,10 +488,10 @@ def GenerateExtention(_typyDir = None, installDir = True):
 	import shutil
 	os.chdir(buildDir)
 	if os.name == 'nt':
-		os.system('cmake -G "Visual Studio 14 2015" -D_TYPY_DIR="%s" %s/../cpp' % (_typyDir.replace('\\', '/'), path.replace('\\', '/')))
+		os.system('cmake -G "Visual Studio 14 2015" -D_TYPY_DIR="%s" %s/cpp' % (_typyDir.replace('\\', '/'), path.replace('\\', '/')))
 		os.system('cmake --build . --config Release --target _typy')
 	else:
-		os.system('cmake -D_TYPY_DIR="%s" %s/../cpp' % (_typyDir, path))
+		os.system('cmake -D_TYPY_DIR="%s" %s/cpp' % (_typyDir, path))
 		os.system('cmake --build .')
 
 	if os.name == 'nt':

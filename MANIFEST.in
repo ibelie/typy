@@ -1,2 +1,2 @@
-recursive-include cpp *.h *.cc typy.cmake CMakeLists.txt
-recursive-include cpy *.h *.c
+recursive-include typy/cpp *.h *.cc typy.cmake CMakeLists.txt
+recursive-include typy/cpy *.h *.c
