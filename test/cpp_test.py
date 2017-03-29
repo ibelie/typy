@@ -526,3 +526,6 @@ def test_build():
 	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
 	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
 	print 'v1', fighterPy.v1, fighter.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
+
+	fighterPy.vd = fighterPy.sd
+	fighter.vd = fighter.sd

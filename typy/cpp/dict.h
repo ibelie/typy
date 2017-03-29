@@ -123,6 +123,19 @@ bool CheckAndSetDict(PyObject* arg, Dict<K, V>& value) {
 	return true;
 }
 
+template <typename K, typename V>
+bool CheckAndSetItems(PyObject* items, Dict<K, V>& value) {
+	value.Clear();
+	for (Py_ssize_t i = 0; i < PySequence_Size(items); ++i) {
+		PyObject* item = PySequence_GetItem(items, i);
+		if (::typy::dict::tp_AssSubscript<K, V>(&value,
+			PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 0)) == -1) {
+			return false;
+		}
+	}
+	return true;
+}
+
 namespace dict {
 
 static void SetKeyError(PyObject *arg) {

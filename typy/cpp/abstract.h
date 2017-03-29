@@ -161,6 +161,7 @@ bool CheckAndSet(PyObject* arg, List<T>*& value, const char* err) {
 
 template <typename K, typename V>
 bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
+	PyObject* items;
 	if (arg == Py_None) {
 		Clear(value);
 		return true;
@@ -170,6 +171,9 @@ bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
 	} else if (PyDict_Check(arg)) {
 		if (value == NULL) { value = new Dict<K, V>; }
 		return CheckAndSetDict(arg, *value);
+	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
+		if (value == NULL) { value = new Dict<K, V>; }
+		return CheckAndSetItems(items, *value);
 	} else {
 		FormatTypeError(arg, err);
 		return false;
