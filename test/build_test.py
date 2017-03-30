@@ -20,7 +20,8 @@ def setup():
 		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
 	os.system('python -B setup.py build')
-	shutil.copy('build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix), "test/")
+	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
+	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
 	from typy import pb, Instance, Python, List, Dict, Object, Integer, Float, Double, FixedPoint, Bytes, String, Enum
 

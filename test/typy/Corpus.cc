@@ -54,7 +54,7 @@ bool InitCorpus(PyObject* m) {
 	PyCFunctionObject* method = reinterpret_cast<PyCFunctionObject*>(
 		PyType_GenericAlloc(&PyCFunction_Type, 0));
 	method->m_ml = &CorpusMethod;
-	method->m_self = NULL;
+	method->m_self = m;
 	method->m_module = NULL;
 	PyModule_AddObject(m, CorpusMethod.ml_name, reinterpret_cast<PyObject*>(method));
 	return true;
