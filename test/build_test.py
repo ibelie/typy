@@ -9,18 +9,18 @@ def setup():
 	import shutil
 	from distutils.util import get_platform
 	os.chdir('..')
+	suffix = 'pyd' if os.name == 'nt' else 'so'
 	map(os.remove, [f for f in (
 		'typy/_typy.py',
 		'typy/_typy.pyc',
 		'test/_typy.py',
 		'test/_typy.pyc',
-		'test/_typyd.pyd',
-		'typy/_typyd.pyd',
-		'typy/_typy.pyd',
-		'typy/_typy.so',
+		'test/_typyd.%s' % suffix,
+		'typy/_typyd.%s' % suffix,
+		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
 	os.system('python -B setup.py build')
-	shutil.copy('build/lib.%s-%s/typy/_typyd.pyd' % (get_platform(), sys.version[0:3]), "test/")
+	shutil.copy('build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix), "test/")
 
 	from typy import pb, Instance, Python, List, Dict, Object, Integer, Float, Double, FixedPoint, Bytes, String, Enum
 

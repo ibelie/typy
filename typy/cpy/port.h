@@ -59,7 +59,7 @@ typedef unsigned __int64 uint64;
 
 #else
 
-typedef unsigned char byte
+typedef unsigned char byte;
 
 typedef signed char int8;
 typedef short int16;
