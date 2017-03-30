@@ -9,3 +9,4 @@ __version__ = '0.0.1'
 from Object import Object, MetaObject
 from Type import Type, Simple, Collection, Enum, Integer, Float, Double, FixedPoint, Boolean, Bytes, String, Instance, List, Dict, Python, pb
 from Cpp import GenerateExtention
+from Cpy import GenerateDescriptor

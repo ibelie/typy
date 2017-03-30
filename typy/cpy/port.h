@@ -1,3 +1,7 @@
+// Copyright 2017 ibelie, Chen Jie, Joungtao. All rights reserved.
+// Use of this source code is governed by The MIT License
+// that can be found in the LICENSE file.
+
 #ifndef IBELIE_UTILS_H__
 #define IBELIE_UTILS_H__
 
@@ -84,7 +88,7 @@ typedef unsigned long long uint64;
 #define INT32_MAX 0x7FFFFFFF
 #define INT32_MIN (-INT32_MAX - 1)
 #define INT64_MAX Ibl_LONGLONG(0x7FFFFFFFFFFFFFFF)
-#define INT64_MIN (-kint64max - 1)
+#define INT64_MIN (-INT64_MAX - 1)
 #define UINT32_MAX 0xFFFFFFFFu
 #define UINT64_MAX Ibl_ULONGLONG(0xFFFFFFFFFFFFFFFF)
 

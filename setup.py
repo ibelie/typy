@@ -53,11 +53,11 @@ setup(
 	author_email = 'joungtao@gmail.com',
 	license = 'MIT License',
 
-	# cmdclass = {'build_ext': typy_build_ext},
-	# ext_modules = [Extension('typy._cpy',
-	# 	sources = ['cpy/typy.c', 'c/tree.c', 'c/map.c', 'c/port.c'],
-	# 	include_dirs = ['cpy'],
-	# )],
+	cmdclass = {'build_ext': typy_build_ext},
+	ext_modules = [Extension('typy._typyd',
+		sources = ['typy/cpy/typy.c'],
+		include_dirs = ['cpy'],
+	)],
 
 	classifiers=[
 		'Development Status :: 3 - Alpha',

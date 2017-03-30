@@ -1,11 +1,19 @@
+// Copyright 2017 ibelie, Chen Jie, Joungtao. All rights reserved.
+// Use of this source code is governed by The MIT License
+// that can be found in the LICENSE file.
+
 #include "typy.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void FormatTypeError(PyObject* arg, const char* err) {
-	ScopedPyObjectPtr repr(PyObject_Repr(arg));
-	if (repr != NULL) {
-		PyErr_Format(PyExc_TypeError, "%s%.100s has type %.100s",
-			err, PyString_AsString(repr.get()), Py_TYPE(arg)->tp_name);
-	}
+	PyObject* repr = PyObject_Repr(arg);
+	if (!repr) { return; }
+	PyErr_Format(PyExc_TypeError, "%s%.100s has type %.100s",
+		err, PyString_AsString(repr), Py_TYPE(arg)->tp_name);
+	Py_DECREF(repr);
 }
 
 bool isDefaultEncodingUTF8 = false;
@@ -85,3 +93,7 @@ PyMODINIT_FUNC INITFUNC(void) {
 	return m;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif

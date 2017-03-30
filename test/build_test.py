@@ -1,12 +1,27 @@
 #-*- coding: utf-8 -*-
+# Copyright 2017 ibelie, Chen Jie, Joungtao. All rights reserved.
+# Use of this source code is governed by The MIT License
+# that can be found in the LICENSE file.
 
 def setup():
-	global pydFile
 	import os
-	if os.path.isfile('../typy/_typy.pyd'):
-		os.remove('../typy/_typy.pyd')
+	import sys
+	import shutil
+	from distutils.util import get_platform
+	os.chdir('..')
+	map(os.remove, [f for f in (
+		'typy/_typy.py',
+		'typy/_typy.pyc',
+		'test/_typy.py',
+		'test/_typy.pyc',
+		'test/_typyd.pyd',
+		'typy/_typyd.pyd',
+		'typy/_typy.pyd',
+		'typy/_typy.so',
+	) if os.path.isfile(f)])
+	os.system('python -B setup.py build')
+	shutil.copy('build/lib.%s-%s/typy/_typyd.pyd' % (get_platform(), sys.version[0:3]), "test/")
 
-def test_build():
 	from typy import pb, Instance, Python, List, Dict, Object, Integer, Float, Double, FixedPoint, Bytes, String, Enum
 
 	class Corpus(Enum):
@@ -17,6 +32,7 @@ def test_build():
 		NEWS = 4, "NEWS"
 		PRODUCTS = 5, "PRODUCTS"
 		VIDEO = 6, "VIDEO"
+	globals()['Corpus'] = Corpus
 
 
 	class PyType(object):
@@ -34,9 +50,11 @@ def test_build():
 			kwargs = eval(data)
 			for k, v in kwargs.iteritems():
 				setattr(self, k, v)
+	globals()['PyType'] = PyType
 
 
 	class Empty(Object): pass
+	globals()['Empty'] = Empty
 
 	class Vector2(Object):
 		x = pb.Float(default = 0.0, label = '坐标X')
@@ -79,6 +97,7 @@ def test_build():
 
 		def __add__(self, other):
 			return Vector2(x = self.x + other.x, y = self.y + other.y)
+	globals()['Vector2'] = Vector2
 
 	class Fighter_Part1(Object):
 		pos = pb.Instance(Vector2, label = '坐标')
@@ -91,6 +110,7 @@ def test_build():
 		pyd = pb.Dict(Integer, Python(PyType), label = 'pyd')
 		pyv1 = pb.Instance(Integer, Python(PyType), label = 'pyv1')
 		pyv2 = pb.Instance(Integer, Python(PyType), label = 'pyv2')
+	globals()['Fighter_Part1'] = Fighter_Part1
 
 	class Fighter_Part2(Fighter_Part1):
 		fl = pb.List(Float, label = 'fl')
@@ -100,6 +120,7 @@ def test_build():
 		sd = pb.Dict(Integer, String, label = 'sd')
 		el = pb.List(Corpus, label = 'el')
 		ed = pb.Dict(Integer, Corpus, label = 'ed')
+	globals()['Fighter_Part2'] = Fighter_Part2
 
 	class Fighter(Fighter_Part2):
 		v1 = pb.Instance(Integer, Float, Bytes, Vector2, label = 'v1')
@@ -117,8 +138,9 @@ def test_build():
 		flv = pb.Instance(Integer, List(Float), label = 'flv')
 		dv = pb.Instance(Integer, Dict(Integer, Float, String), label = 'dv')
 		fdv = pb.Instance(Integer, Dict(Integer, Float), label = 'fdv')
+	globals()['Fighter'] = Fighter
 
-
+def _build(_typy):
 	vPy = Vector2(
 		x = 123,
 		y = 45.6,
@@ -188,11 +210,6 @@ def test_build():
 
 	fighterPy2 = Fighter()
 
-	import os
-	from typy import GenerateExtention
-	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
-
-	from typy import _typy
 	_typy.setDefaultEncodingUTF8()
 	_typy.Corpus(Corpus.__enum__)
 	_typy.PyType(PyType)
@@ -529,3 +546,17 @@ def test_build():
 
 	fighterPy.vd = fighterPy.sd
 	fighter.vd = fighter.sd
+
+def test_cpp():
+	import os
+	from typy import GenerateExtention
+	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
+	from typy import _typy
+	_build(_typy)
+
+def test_cpy():
+	import os
+	from typy import GenerateDescriptor
+	GenerateDescriptor(os.path.dirname(__file__))
+	import _typy
+	_build(_typy)
