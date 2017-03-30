@@ -267,7 +267,7 @@ int tp_AssignItem(PyObject* self, PyObject* key, PyObject* value) {
 	} else {
 		result.reset(CallObject(self, "__setitem__", key, value));
 	}
-	return result == NULL? -1: 0;
+	return result == NULL ? -1 : 0;
 }
 
 int tp_Contains(PyObject* self, PyObject* member) {
@@ -461,7 +461,7 @@ BINARY_INPLACE(tp_nb_itruediv, "truediv", PyNumber_InPlaceTrueDivide)
 PyObject* tp_nb_long(PyObject* self) {
 	PyObject* result = CallObject(self, "__long__");
 	if (result == NULL) { PyErr_Clear(); return tp_nb_int(self); }
-	return result == NULL? tp_nb_int(self): result;
+	return result;
 }
 
 PyObject* bin_power(PyObject* v, PyObject* w) {

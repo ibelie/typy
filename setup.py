@@ -55,7 +55,7 @@ setup(
 
 	cmdclass = {'build_ext': typy_build_ext},
 	ext_modules = [Extension('typy._typyd',
-		sources = ['typy/cpy/typy.c'],
+		sources = ['typy/cpy/typy.c', 'typy/cpy/object.c'],
 		include_dirs = ['typy/cpy'],
 	)],
 

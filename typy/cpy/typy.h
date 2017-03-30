@@ -5,6 +5,8 @@
 #ifndef TYPY_TYPE_H__
 #define TYPY_TYPE_H__
 
+#define HAVE_ROUND
+
 #include "map.h"
 #include "Python.h"
 
@@ -33,17 +35,18 @@
 		(PyUnicode_Check(ob)? PyUnicode_AsUTF8(ob): PyBytes_AsString(ob))
 	#define PyString_AsStringAndSize(ob, charpp, sizep) \
 		(PyUnicode_Check(ob)? \
-			((*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep))) == NULL? -1: 0): \
+			(!(*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep)))? -1: 0): \
 			PyBytes_AsStringAndSize(ob, (charpp), (sizep)))
 	#endif
 #endif
+
+void FormatTypeError(PyObject* arg, const char* err);
 
 // ===================================================================
 
 #define TAG_TYPE_BITS 3
 #define TAG_TYPE_MASK ((1 << TAG_TYPE_BITS) - 1)
-#define MAKE_TAG(FIELD_NUMBER, TYPE) \
-	static_cast<uint32>(((FIELD_NUMBER) << TAG_TYPE_BITS) | (TYPE))
+#define MAKE_TAG(FIELD_NUMBER, TYPE) (uint32)(((FIELD_NUMBER) << TAG_TYPE_BITS) | (TYPE))
 #define MAX_TAG(TAG) MAKE_TAG(TAG, TAG_TYPE_MASK)
 
 enum WireType {
@@ -90,7 +93,19 @@ extern PyObject* kuint64max_py;
 typedef PyBytesObject* PyBytes;
 typedef PyUnicodeObject* PyString;
 
-void FormatTypeError(PyObject* arg, const char* err);
+typedef size_t TypeField
+
+typedef PyObject* (*GetPyObject)(TypeField);
+typedef bool (*CheckAndSet)(PyObject* arg, TypeField*, const char* err);                            \
+typedef bool (*Read)(TypeField*, byte*, size_t*);
+typedef void (*Write)(int, TypeField, byte*, size_t*);
+typedef void (*WriteTag)(int, TypeField, byte*, size_t*);
+typedef void (*CopyFrom)(TypeField*, TypeField);
+typedef void (*MergeFrom)(TypeField*, TypeField);
+typedef void (*Clear)(TypeField*);
+typedef int (*ByteSize)(int, TypeField);
+typedef int (*GetCachedSize)(int, TypeField);
+
 
 typedef struct {
 	PyObject_VAR_HEAD
@@ -104,6 +119,9 @@ typedef struct {
 
 typedef struct {
 	PyTypeObject py_type;
+	char py_name[1];
 } TypyTypeObject;
+
+extern TypyTypeObject templateTypeObject;
 
 #endif // TYPY_TYPE_H__

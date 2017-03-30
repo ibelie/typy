@@ -31,14 +31,70 @@ static PyObject* setDefaultEncodingUTF8(PyObject* m) {
 	Py_RETURN_NONE;
 }
 
-static PyObject* registerType(PyObject* m, PyObject* args) {
-	Py_RETURN_NONE;
+static PyObject* InitObject(PyObject* object, PyObject* args) {
+	PyObject* attrs = Py_None;
+	register PyTypeObject* type = (PyTypeObject*)object;
+	if (PyArg_ParseTuple(args, "|O", &attrs)) {
+		if (PyDict_Check(attrs)) {
+			PyObject *k, *v;
+			Py_ssize_t pos = 0;
+			while (PyDict_Next(attrs, &pos, &k, &v)) {
+				if (PyFunction_Check(v)) {
+					v = PyMethod_New(v, NULL, object);
+				}
+				PyDict_SetItem(type->tp_dict, k, v);
+			}
+			PyObject* metaclass = PyDict_GetItemString(attrs, "__metaclass__");
+			if (metaclass) { object->ob_type = (PyTypeObject*)metaclass; }
+		}
+	}
+	return object;
+}
+
+PyMethodDef InitObjectDef = { "InitObject", (PyCFunction)InitObject, METH_VARARGS,
+	"Initialize Object Type." };
+
+static PyObject* registerObject(PyObject* m, PyObject* args) {
+	char *name;
+	Py_ssize_t nameLen;
+	PyObject* type;
+	PyObject* attrs = Py_None;
+	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &attrs)) {
+		return NULL;
+	}
+	type = (PyObject*)malloc(sizeof(TypyTypeObject) + nameLen);
+	if (!type) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register out of memory %d.", sizeof(TypyTypeObject));
+		return NULL;
+	}
+	memcpy(type, &templateTypeObject, sizeof(TypyTypeObject));
+
+	register TypyTypeObject* typyType = (TypyTypeObject*)type;
+	typyType->py_type.tp_name = typyType->py_name;
+	memcpy(typyType->py_name, name, nameLen);
+	typyType->py_name[nameLen] = 0;
+
+	typyType->py_type.tp_basicsize = 0;
+
+	if (PyType_Ready((PyTypeObject*)type) < 0) {
+		free(type);
+		return NULL;
+	}
+	PyCFunctionObject* method = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
+	if (!method) {
+		free(type);
+		return NULL;
+	}
+	method->m_ml = &InitObjectDef;
+	method->m_self = type;
+	method->m_module = NULL;
+	return (PyObject*)method;
 }
 
 static PyMethodDef ModuleMethods[] = {
 	{"setDefaultEncodingUTF8", (PyCFunction)setDefaultEncodingUTF8, METH_NOARGS,
 		"sys.setdefaultencoding('utf-8') to get better performance for string."},
-	{"register", (PyCFunction)registerType, METH_VARARGS,
+	{"register", (PyCFunction)registerObject, METH_VARARGS,
 		"register typy with properties."},
 	{ NULL, NULL}
 };
@@ -85,9 +141,7 @@ PyMODINIT_FUNC INITFUNC(void) {
 #else
 	m = Py_InitModule3("_typyd", ModuleMethods, module_docstring);
 #endif
-	if (m == NULL) {
-		return INITFUNC_ERRORVAL;
-	}
+	if (!m) { return INITFUNC_ERRORVAL; }
 
 #if PY_MAJOR_VERSION >= 3
 	return m;
