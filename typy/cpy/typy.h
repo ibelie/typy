@@ -103,9 +103,9 @@ typedef bool      (*CheckAndSet)  (TypeField*, PyObject* arg, const char* err); 
 typedef void      (*CopyFrom)     (TypeField*, TypeField);
 typedef void      (*MergeFrom)    (TypeField*, TypeField);
 typedef void      (*Clear)        (TypeField*);
-typedef bool      (*Read)         (TypeField*, byte*, size_t*);
-typedef void      (*Write)        (int, TypeField, byte*, size_t*);
-typedef void      (*WriteTag)     (int, TypeField, byte*, size_t*);
+typedef bool      (*Read)         (TypeField*, byte**);
+typedef size_t    (*Write)        (int, TypeField, byte*);
+typedef size_t    (*WriteTag)     (int, TypeField, byte*);
 typedef size_t    (*ByteSize)     (size_t, TypeField);
 typedef size_t    (*GetCachedSize)(size_t, TypeField);
 
@@ -165,7 +165,13 @@ inline void Typy_MergeFrom(TypyObject* self, TypyObject* other) {
 	}
 }
 
-void Typy_Serialize(TypyObject* self, byte*);
+void Typy_Serialize(TypyObject* self, byte* output) {
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		output += Typy_TYPE(self)->ty_descriptor[i].ty_Write(i + 1, Typy_FIELD(self, i), output);
+	}
+}
+
 bool Typy_MergeFromString(TypyObject* self, byte*, size_t);
 
 inline size_t Typy_ByteSize(TypyObject* self) {
