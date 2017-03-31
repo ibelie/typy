@@ -62,7 +62,7 @@ bool CheckAndSetInteger(PyObject* arg, T& value, const char* err, PyObject* min,
 		if (!PyErr_Occurred()) {
 			ScopedPyObjectPtr s(PyObject_Str(arg));
 			if (s != NULL) {
-				PyErr_Format(PyExc_ValueError, "Value out of range: %s", PyString_AsString(s.get()));
+				PyErr_Format(PyExc_ValueError, "Value out of range: %.100s", PyString_AsString(s.get()));
 			}
 		}
 		return false;
@@ -184,14 +184,14 @@ static const char module_docstring[] =
 "It provides access to the protocol buffers C++ reflection API that\n"
 "implements the basic protocol buffer functions.";
 
-static PyObject* setDefaultEncodingUTF8(PyObject* m) {
+static PyObject* SetDefaultEncodingUTF8(PyObject* m) {
 	PyUnicode_SetDefaultEncoding("utf-8");
 	isDefaultEncodingUTF8 = true;
 	Py_RETURN_NONE;
 }
 
 static PyMethodDef ModuleMethods[] = {
-	{"setDefaultEncodingUTF8", (PyCFunction)::typy::setDefaultEncodingUTF8, METH_NOARGS,
+	{"setDefaultEncodingUTF8", (PyCFunction)::typy::SetDefaultEncodingUTF8, METH_NOARGS,
 		"sys.setdefaultencoding('utf-8') to get better performance for string."},
 	{ NULL, NULL}
 };
@@ -199,7 +199,7 @@ static PyMethodDef ModuleMethods[] = {
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef _module = {
 	PyModuleDef_HEAD_INIT,
-	"_typy",
+	#FULL_MODULE_NAME,
 	module_docstring,
 	-1,
 	ModuleMethods, /* m_methods */
@@ -208,10 +208,10 @@ static struct PyModuleDef _module = {
 	NULL,
 	NULL
 };
-#define INITFUNC PyInit__typy
+#define INITFUNC PyInit_##FULL_MODULE_NAME
 #define INITFUNC_ERRORVAL NULL
 #else // Python 2
-#define INITFUNC init_typy
+#define INITFUNC init##FULL_MODULE_NAME
 #define INITFUNC_ERRORVAL
 #endif
 
@@ -229,7 +229,7 @@ extern "C" {
 #if PY_MAJOR_VERSION >= 3
 		m = PyModule_Create(&_module);
 #else
-		m = Py_InitModule3("_typy", ModuleMethods, module_docstring);
+		m = Py_InitModule3(#FULL_MODULE_NAME, ModuleMethods, module_docstring);
 #endif
 		if (m == NULL) {
 			return INITFUNC_ERRORVAL;
@@ -307,7 +307,7 @@ PyObject* tp_Call(PyObject* self, PyObject* args, PyObject* kwargs) {
 PyObject* tp_Repr(PyObject* self) {
 	PyObject* result = CallObject(self, "__repr__");
 	if (result != NULL) { return result; }
-	return PyString_FromFormat("<typy.%s instance at %p>", Py_TYPE(self)->tp_name, self);
+	return PyString_FromFormat("<%s instance at %p>", Py_TYPE(self)->tp_name, self);
 }
 
 PyObject* tp_Str(PyObject* self) {

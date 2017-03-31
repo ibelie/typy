@@ -25,24 +25,46 @@ static const char module_docstring[] =
 "It provides access to the protocol buffers C++ reflection API that\n"
 "implements the basic protocol buffer functions.";
 
-static PyObject* setDefaultEncodingUTF8(PyObject* m) {
+static PyObject* SetDefaultEncodingUTF8(PyObject* m) {
 	PyUnicode_SetDefaultEncoding("utf-8");
 	isDefaultEncodingUTF8 = true;
 	Py_RETURN_NONE;
 }
 
-static PyObject* InitObject(PyObject* object, PyObject* args) {
+static PyTypeObject* _TypyTypeObject;
+
+static inline PyTypeObject* _CopyTypyTypeObject() {
+	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
+	if (!type) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Copy TypyTypeObject: out of memory %d.", sizeof(PyTypeObject));
+		return NULL;
+	}
+	memcpy(type, &TypyTypeObject, sizeof(PyTypeObject));
+	if (PyType_Ready(type) < 0) {
+		free(type);
+		return NULL;
+	}
+	return type;
+}
+
+static PyObject* InitObject(TypyType* type, PyObject* args) {
 	PyObject* attrs = Py_None;
-	register PyTypeObject* type = (PyTypeObject*)object;
 	if (PyArg_ParseTuple(args, "|O", &attrs)) {
 		if (PyDict_Check(attrs)) {
 			PyObject *k, *v;
 			Py_ssize_t pos = 0;
 			while (PyDict_Next(attrs, &pos, &k, &v)) {
+				if (type->py_type == _TypyTypeObject) {
+					type->py_type = _CopyTypyTypeObject();
+					if (!type->py_type) {
+						type->py_type = _TypyTypeObject;
+						return NULL;
+					}
+				}
 				if (PyFunction_Check(v)) {
 					v = PyMethod_New(v, NULL, object);
 				}
-				PyDict_SetItem(type->tp_dict, k, v);
+				PyDict_SetItem(type->py_type->tp_dict, k, v);
 			}
 			PyObject* metaclass = PyDict_GetItemString(attrs, "__metaclass__");
 			if (metaclass) { object->ob_type = (PyTypeObject*)metaclass; }
@@ -57,42 +79,37 @@ PyMethodDef InitObjectDef = { "InitObject", (PyCFunction)InitObject, METH_VARARG
 static PyObject* registerObject(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
-	PyObject* type;
+	TypyType* type;
 	PyObject* attrs = Py_None;
+	size_t ty_size = 1;
 	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &attrs)) {
 		return NULL;
 	}
-	type = (PyObject*)malloc(sizeof(TypyTypeObject) + nameLen);
+
+	type = (TypyType*)malloc(sizeof(TypyType) + sizeof(TypyDescriptor) * ty_size + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register out of memory %d.", sizeof(TypyTypeObject));
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register: out of memory %d.", sizeof(TypyType));
 		return NULL;
 	}
-	memcpy(type, &templateTypeObject, sizeof(TypyTypeObject));
 
-	register TypyTypeObject* typyType = (TypyTypeObject*)type;
-	typyType->py_type.tp_name = typyType->py_name;
-	memcpy(typyType->py_name, name, nameLen);
-	typyType->py_name[nameLen] = 0;
+	type->py_type = _TypyTypeObject;
+	type->ty_size = ty_size;
+	Ty_NAME(type)[nameLen] = 0;
+	memcpy(Ty_NAME(type), name, nameLen);
 
-	typyType->py_type.tp_basicsize = 0;
-
-	if (PyType_Ready((PyTypeObject*)type) < 0) {
-		free(type);
-		return NULL;
-	}
 	PyCFunctionObject* method = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
 	if (!method) {
 		free(type);
 		return NULL;
 	}
 	method->m_ml = &InitObjectDef;
-	method->m_self = type;
+	method->m_self = (PyObject*)type;
 	method->m_module = NULL;
 	return (PyObject*)method;
 }
 
 static PyMethodDef ModuleMethods[] = {
-	{"setDefaultEncodingUTF8", (PyCFunction)setDefaultEncodingUTF8, METH_NOARGS,
+	{"setDefaultEncodingUTF8", (PyCFunction)SetDefaultEncodingUTF8, METH_NOARGS,
 		"sys.setdefaultencoding('utf-8') to get better performance for string."},
 	{"register", (PyCFunction)registerObject, METH_VARARGS,
 		"register typy with properties."},
@@ -102,7 +119,7 @@ static PyMethodDef ModuleMethods[] = {
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef _module = {
 	PyModuleDef_HEAD_INIT,
-	"_typyd",
+	#FULL_MODULE_NAME,
 	module_docstring,
 	-1,
 	ModuleMethods, /* m_methods */
@@ -111,10 +128,10 @@ static struct PyModuleDef _module = {
 	NULL,
 	NULL
 };
-#define INITFUNC PyInit__typyd
+#define INITFUNC PyInit_##FULL_MODULE_NAME
 #define INITFUNC_ERRORVAL NULL
 #else // Python 2
-#define INITFUNC init_typyd
+#define INITFUNC init##FULL_MODULE_NAME
 #define INITFUNC_ERRORVAL
 #endif
 
@@ -139,9 +156,12 @@ PyMODINIT_FUNC INITFUNC(void) {
 #if PY_MAJOR_VERSION >= 3
 	m = PyModule_Create(&_module);
 #else
-	m = Py_InitModule3("_typyd", ModuleMethods, module_docstring);
+	m = Py_InitModule3(#FULL_MODULE_NAME, ModuleMethods, module_docstring);
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
+
+	_TypyTypeObject = _CopyTypyTypeObject();
+	if (!_TypyTypeObject) { return INITFUNC_ERRORVAL; }
 
 #if PY_MAJOR_VERSION >= 3
 	return m;

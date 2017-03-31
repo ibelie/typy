@@ -4,6 +4,154 @@
 
 #include "typy.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs) {
+	PyObject *k, *v;
+	Py_ssize_t pos = 0;
+	TypyObject* object = (TypyObject*)malloc(sizeof(TypyObject) + sizeof(TypeField) * type->ty_size);
+	PyObject_INIT(object, type->py_type);
+	if (kwargs != NULL) {
+		while (PyDict_Next(kwargs, &pos, &k, &v)) {
+			if (PyObject_SetAttr(object, k, v) == -1) {
+				break;
+			}
+		}
+	}
+	return object;
+}
+
+static void object_Dealloc(TypyObject* self) { Typy_Dealloc(self); }
+
+static PyObject* object_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
+
+PyObject* object_CopyFrom(TypyObject* self, PyObject* arg) {
+	if (self == arg) {
+		Py_RETURN_NONE;
+	}
+	if (Typy_TYPE(self) != Typy_TYPE(self)) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to CopyFrom() must be instance of same class: "
+			"expected %.100s got %.100s(%.100s).",
+			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(arg));
+		return NULL;
+	}
+	Typy_CopyFrom(self, arg);
+	Py_RETURN_NONE;
+}
+
+PyObject* object_MergeFrom(TypyObject* self, PyObject* arg) {
+	if (self == arg) {
+		Py_RETURN_NONE;
+	}
+	if (!PyObject_TypeCheck(arg, Py_TYPE(self))) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to MergeFrom() must be instance of same class: "
+			"expected %.100s got %.100s.",
+			Py_TYPE(self)->tp_name, Py_TYPE(arg)->tp_name);
+		return NULL;
+	}
+	Typy_MergeFrom(self, arg);
+	Py_RETURN_NONE;
+}
+
+PyObject* object_Serialize(TypyObject* self) {
+	T* object = static_cast<T*>(self);
+	int size = object->ByteSize();
+	if (size <= 0) {
+		return PyBytes_FromString("");
+	}
+	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
+	if (result == NULL) {
+		return NULL;
+	}
+	byte* buffer = (byte*)PyBytes_AS_STRING(result);
+	Typy_Serialize(self, buffer);
+	return result;
+}
+
+PyObject* object_MergeFromString(TypyObject* self, PyObject* arg) {
+	const void* data;
+	Py_ssize_t size;
+	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
+		return NULL;
+	}
+	CodedInputStream input(reinterpret_cast<const uint8*>(data), size);
+	bool success = static_cast<T*>(self)->MergePartialFromCodedStream(&input);
+	if (success) {
+		return PyInt_FromLong(input.CurrentPosition());
+	} else {
+		PyErr_Format(PyExc_RuntimeError, "Error parsing object");
+		return NULL;
+	}
+}
+
+PyObject* object_ParseFromString(TypyObject* self, PyObject* arg) {
+	static_cast<T*>(self)->Clear();
+	return object_MergeFromString(self, arg);
+}
+
+PyObject* object_SerializeProperty(TypyObject* self, PyObject* arg) {
+	T* object = static_cast<T*>(self);
+	if (arg == NULL || arg == Py_None) {
+		FormatTypeError(arg, "SerializeProperty expect property name, but ");
+		return NULL;
+	} else if (PyUnicode_Check(arg)) {
+		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
+		if (arg == NULL) { return NULL; }
+	} else if (PyBytes_Check(arg)) {
+		Py_INCREF(arg);
+	} else {
+		FormatTypeError(arg, "SerializeProperty expect property name, but ");
+		return NULL;
+	}
+
+	int tag = object->PropertyTag(PyBytes_AS_STRING(arg));
+	if (tag <= 0) {
+		FormatTypeError(arg, "SerializeProperty expect property name, but ");
+		Py_DECREF(arg);
+		return NULL;
+	}
+	int size = object->PropertyByteSize(tag);
+	if (size <= 0) {
+		PyErr_Format(PyExc_RuntimeError, "Error serializing object");
+		Py_DECREF(arg);
+		return NULL;
+	}
+	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
+	if (result == NULL) {
+		Py_DECREF(arg);
+		return NULL;
+	}
+	char* buffer = PyBytes_AS_STRING(result);
+	ArrayOutputStream out(reinterpret_cast<uint8*>(buffer), size);
+	CodedOutputStream coded_out(&out);
+	object->SerializeProperty(&coded_out, tag);
+	Py_DECREF(arg);
+	return result;
+}
+
+PyObject* object_DeserializeProperty(TypyObject* self, PyObject* arg) {
+	const void* data;
+	Py_ssize_t size;
+	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
+		return NULL;
+	}
+	T* object = static_cast<T*>(self);
+	CodedInputStream input(reinterpret_cast<const uint8*>(data), size);
+	int tag = object->DeserializeProperty(&input);
+	if (tag <= 0) {
+		PyErr_Format(PyExc_RuntimeError, "Error deserializing object");
+		return NULL;
+	} else {
+		return PyBytes_FromString(object->PropertyName(tag));
+	}
+}
+
+// ===================================================================
+
 static PyObject* CallObject(PyObject* self, const char *name) {
 	PyObject* method = PyDict_GetItemString(Py_TYPE(self)->tp_dict, name);
 	if (method && Py_TYPE(method) == &PyMethod_Type) {
@@ -50,153 +198,6 @@ static PyObject* CallObject2(PyObject* self, const char *name, PyObject* arg1, P
 	return NULL;
 }
 
-static void object_Dealloc(TypyObject* self) {
-	Py_TYPE(self)
-	delete static_cast<T*>(self);
-}
-
-static PyObject* tp_New(PyTypeObject* cls, PyObject* args, PyObject* kwargs) {
-	T* object = new T;
-	PyObject *k, *v;
-	Py_ssize_t pos = 0;
-	if (kwargs != NULL) {
-		while (PyDict_Next(kwargs, &pos, &k, &v)) {
-			if (PyObject_SetAttr(object, k, v) == -1) {
-				break;
-			}
-		}
-	}
-	return object;
-}
-
-static PyObject* tp_Clear(PyObject* self) {
-	static_cast<T*>(self)->Clear();
-	Py_RETURN_NONE;
-}
-
-static PyObject* tp_CopyFrom(PyObject* self, PyObject* arg) {
-	if (self == arg) {
-		Py_RETURN_NONE;
-	}
-	if (!PyObject_TypeCheck(arg, Py_TYPE(self))) {
-		PyErr_Format(PyExc_TypeError,
-			"Parameter to CopyFrom() must be instance of same class: "
-			"expected %s got %s.",
-			Py_TYPE(self)->tp_name, Py_TYPE(arg)->tp_name);
-		return NULL;
-	}
-	static_cast<T*>(self)->CopyFrom(*(static_cast<T*>(arg)));
-	Py_RETURN_NONE;
-}
-
-static PyObject* tp_MergeFrom(PyObject* self, PyObject* arg) {
-	if (self == arg) {
-		Py_RETURN_NONE;
-	}
-	if (!PyObject_TypeCheck(arg, Py_TYPE(self))) {
-		PyErr_Format(PyExc_TypeError,
-			"Parameter to MergeFrom() must be instance of same class: "
-			"expected %s got %s.",
-			Py_TYPE(self)->tp_name, Py_TYPE(arg)->tp_name);
-		return NULL;
-	}
-	static_cast<T*>(self)->MergeFrom(*(static_cast<T*>(arg)));
-	Py_RETURN_NONE;
-}
-
-static PyObject* tp_Serialize(PyObject* self) {
-	T* object = static_cast<T*>(self);
-	int size = object->ByteSize();
-	if (size <= 0) {
-		return PyBytes_FromString("");
-	}
-	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (result == NULL) {
-		return NULL;
-	}
-	char* buffer = PyBytes_AS_STRING(result);
-	object->SerializeWithCachedSizesToArray(reinterpret_cast<uint8*>(buffer));
-	return result;
-}
-
-static PyObject* tp_MergeFromString(PyObject* self, PyObject* arg) {
-	const void* data;
-	Py_ssize_t size;
-	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
-		return NULL;
-	}
-	CodedInputStream input(reinterpret_cast<const uint8*>(data), size);
-	bool success = static_cast<T*>(self)->MergePartialFromCodedStream(&input);
-	if (success) {
-		return PyInt_FromLong(input.CurrentPosition());
-	} else {
-		PyErr_Format(PyExc_RuntimeError, "Error parsing object");
-		return NULL;
-	}
-}
-
-static PyObject* tp_ParseFromString(PyObject* self, PyObject* arg) {
-	static_cast<T*>(self)->Clear();
-	return tp_MergeFromString(self, arg);
-}
-
-static PyObject* tp_SerializeProperty(PyObject* self, PyObject* arg) {
-	T* object = static_cast<T*>(self);
-	if (arg == NULL || arg == Py_None) {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		return NULL;
-	} else if (PyUnicode_Check(arg)) {
-		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
-		if (arg == NULL) { return NULL; }
-	} else if (PyBytes_Check(arg)) {
-		Py_INCREF(arg);
-	} else {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		return NULL;
-	}
-
-	int tag = object->PropertyTag(PyBytes_AS_STRING(arg));
-	if (tag <= 0) {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		Py_DECREF(arg);
-		return NULL;
-	}
-	int size = object->PropertyByteSize(tag);
-	if (size <= 0) {
-		PyErr_Format(PyExc_RuntimeError, "Error serializing object");
-		Py_DECREF(arg);
-		return NULL;
-	}
-	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (result == NULL) {
-		Py_DECREF(arg);
-		return NULL;
-	}
-	char* buffer = PyBytes_AS_STRING(result);
-	ArrayOutputStream out(reinterpret_cast<uint8*>(buffer), size);
-	CodedOutputStream coded_out(&out);
-	object->SerializeProperty(&coded_out, tag);
-	Py_DECREF(arg);
-	return result;
-}
-
-static PyObject* tp_DeserializeProperty(PyObject* self, PyObject* arg) {
-	const void* data;
-	Py_ssize_t size;
-	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
-		return NULL;
-	}
-	T* object = static_cast<T*>(self);
-	CodedInputStream input(reinterpret_cast<const uint8*>(data), size);
-	int tag = object->DeserializeProperty(&input);
-	if (tag <= 0) {
-		PyErr_Format(PyExc_RuntimeError, "Error deserializing object");
-		return NULL;
-	} else {
-		return PyBytes_FromString(object->PropertyName(tag));
-	}
-}
-
 static int half_cmp(PyObject* v, PyObject* w) {
 	ScopedPyObjectPtr result(CallObject(v, "__cmp__", w));
 	if (result == NULL || result.get() == Py_NotImplemented) {
@@ -207,7 +208,7 @@ static int half_cmp(PyObject* v, PyObject* w) {
 	}
 }
 
-static int tp_Compare(PyObject* v, PyObject* w) {
+static int object_Compare(PyObject* v, PyObject* w) {
 	int c = PyNumber_CoerceEx(&v, &w);
 	if (c < 0) {
 		return -2;
@@ -269,7 +270,7 @@ static PyObject* half_richcompare(PyObject* v, PyObject* w, int op) {
 	return result;
 }
 
-static PyObject* tp_Richcompare(PyObject* v, PyObject* w, int op) {
+static PyObject* object_Richcompare(PyObject* v, PyObject* w, int op) {
 	static int swapped_op[] = {Py_GT, Py_GE, Py_EQ, Py_NE, Py_LT, Py_LE};
 	if (PyObject_TypeCheck(v, &_Type)) {
 		return half_richcompare(v, w, op);
@@ -353,7 +354,7 @@ static PyObject* object_Call(PyObject* self, PyObject* args, PyObject* kwargs) {
 static PyObject* object_Repr(PyObject* self) {
 	PyObject* result = CallObject(self, "__repr__");
 	if (result) { return result; }
-	return PyString_FromFormat("<typy.%s instance at %p>", Py_TYPE(self)->tp_name, self);
+	return PyString_FromFormat("<" #FULL_MODULE_NAME ".%s instance at %p>", Typy_NAME(self), self);
 }
 
 static PyObject* object_Str(PyObject* self) {
@@ -638,48 +639,39 @@ static PySequenceMethods SqMethods = {
 	(objobjproc)object_Contains, /* sq_contains  */
 };
 
-PyTypeObject templateTypeObject = {
-	{
-		PyVarObject_HEAD_INIT(&PyType_Type, 0)
-		0,                                        /* tp_name           */
-		0,                                        /* tp_basicsize      */
-		0,                                        /* tp_itemsize       */
-		(destructor)tp_Dealloc,                   /* tp_dealloc        */
-		0,                                        /* tp_print          */
-		0,                                        /* tp_getattr        */
-		0,                                        /* tp_setattr        */
-		tp_Compare,                               /* tp_compare        */
-		(reprfunc)object_Repr,                    /* tp_repr           */
-		&NbMethods,                               /* tp_as_number      */
-		&SqMethods,                               /* tp_as_sequence    */
-		&MpMethods,                               /* tp_as_mapping     */
-		(hashfunc)object_Hash,                    /* tp_hash           */
-		object_Call,                              /* tp_call           */
-		(reprfunc)object_Str,                     /* tp_str            */
-		0,                                        /* tp_getattro       */
-		0,                                        /* tp_setattro       */
-		0,                                        /* tp_as_buffer      */
-		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags          */
-		"A Typy Object",                          /* tp_doc            */
-		0,                                        /* tp_traverse       */
-		0,                                        /* tp_clear          */
-		tp_Richcompare,                           /* tp_richcompare    */
-		0,                                        /* tp_weaklistoffset */
-		object_Getiter,                           /* tp_iter           */
-		0,                                        /* tp_iternext       */
-		Methods,                                  /* tp_methods        */
-		0,                                        /* tp_members        */
-		GetSet,                                   /* tp_getset         */
-		0,                                        /* tp_base           */
-		0,                                        /* tp_dict           */
-		0,                                        /* tp_descr_get      */
-		0,                                        /* tp_descr_set      */
-		0,                                        /* tp_dictoffset     */
-		0,                                        /* tp_init           */
-		0,                                        /* tp_alloc          */
-		tp_New,                                   /* tp_new            */
-	},
+PyTypeObject TypyTypeObject = {
+	PyVarObject_HEAD_INIT(&PyType_Type, 0)
+	0,                                        /* tp_name           */
+	0,                                        /* tp_basicsize      */
+	0,                                        /* tp_itemsize       */
+	(destructor)object_Dealloc,               /* tp_dealloc        */
+	0,                                        /* tp_print          */
+	0,                                        /* tp_getattr        */
+	0,                                        /* tp_setattr        */
+	object_Compare,                           /* tp_compare        */
+	(reprfunc)object_Repr,                    /* tp_repr           */
+	&NbMethods,                               /* tp_as_number      */
+	&SqMethods,                               /* tp_as_sequence    */
+	&MpMethods,                               /* tp_as_mapping     */
+	(hashfunc)object_Hash,                    /* tp_hash           */
+	object_Call,                              /* tp_call           */
+	(reprfunc)object_Str,                     /* tp_str            */
+	0,                                        /* tp_getattro       */
+	0,                                        /* tp_setattro       */
+	0,                                        /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags          */
+	"A Typy Object",                          /* tp_doc            */
+	0,                                        /* tp_traverse       */
+	0,                                        /* tp_clear          */
+	object_Richcompare,                       /* tp_richcompare    */
+	0,                                        /* tp_weaklistoffset */
+	object_Getiter,                           /* tp_iter           */
+	0,                                        /* tp_iternext       */
+	Methods,                                  /* tp_methods        */
+	0,                                        /* tp_members        */
+	GetSet,                                   /* tp_getset         */
 };
 
-
-TypyTypeObject templateTypeObject;
+#ifdef __cplusplus
+}
+#endif

@@ -10,8 +10,7 @@
 #include "map.h"
 #include "Python.h"
 
-#define FULL_MODULE_NAME "_typyd"
-#define FULL_NAME_LEN 7
+#define FULL_MODULE_NAME _typyd
 
 #ifndef PyVarObject_HEAD_INIT
 #define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
@@ -38,6 +37,10 @@
 			(!(*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep)))? -1: 0): \
 			PyBytes_AsStringAndSize(ob, (charpp), (sizep)))
 	#endif
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 void FormatTypeError(PyObject* arg, const char* err);
@@ -95,33 +98,106 @@ typedef PyUnicodeObject* PyString;
 
 typedef size_t TypeField
 
-typedef PyObject* (*GetPyObject)(TypeField);
-typedef bool (*CheckAndSet)(PyObject* arg, TypeField*, const char* err);                            \
-typedef bool (*Read)(TypeField*, byte*, size_t*);
-typedef void (*Write)(int, TypeField, byte*, size_t*);
-typedef void (*WriteTag)(int, TypeField, byte*, size_t*);
-typedef void (*CopyFrom)(TypeField*, TypeField);
-typedef void (*MergeFrom)(TypeField*, TypeField);
-typedef void (*Clear)(TypeField*);
-typedef int (*ByteSize)(int, TypeField);
-typedef int (*GetCachedSize)(int, TypeField);
+typedef PyObject* (*GetPyObject)  (TypeField);
+typedef bool      (*CheckAndSet)  (TypeField*, PyObject* arg, const char* err);                            \
+typedef void      (*CopyFrom)     (TypeField*, TypeField);
+typedef void      (*MergeFrom)    (TypeField*, TypeField);
+typedef void      (*Clear)        (TypeField*);
+typedef bool      (*Read)         (TypeField*, byte*, size_t*);
+typedef void      (*Write)        (int, TypeField, byte*, size_t*);
+typedef void      (*WriteTag)     (int, TypeField, byte*, size_t*);
+typedef size_t    (*ByteSize)     (size_t, TypeField);
+typedef size_t    (*GetCachedSize)(size_t, TypeField);
 
 
 typedef struct {
-	PyObject_VAR_HEAD
-	size_t fields[1];
+	GetPyObject   ty_GetPyObject;
+	CheckAndSet   ty_CheckAndSet;
+	CopyFrom      ty_CopyFrom;
+	MergeFrom     ty_MergeFrom;
+	Clear         ty_Clear;
+	Read          ty_Read;
+	Write         ty_Write;
+	WriteTag      ty_WriteTag;
+	ByteSize      ty_ByteSize;
+	GetCachedSize ty_GetCachedSize;
+} TypyDescriptor;
+
+typedef struct {
+	PyTypeObject* py_type;
+	size_t ty_size;
+	TypyDescriptor ty_descriptor[1];
+} TypyType;
+
+#define Ty_NAME(ty) (char*)(&ty->ty_descriptor[ty->ty_size])
+
+#define TypyObject_HEAD \
+    PyObject_HEAD       \
+    TypyType* ty_type;
+
+#define Typy_TYPE(ob) (((TypyObject*)(ob))->ty_type)
+#define Typy_SIZE(ob) (Typy_TYPE(ob)->ty_size)
+#define Typy_NAME(ob) Ty_NAME(Typy_TYPE(ob))
+#define Typy_FIELD(ob, i) (((TypyObject*)(ob))->ty_fields[i])
+
+PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs);
+
+inline void Typy_Clear(TypyObject* self) {
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		Typy_TYPE(self)->ty_descriptor[i].ty_Clear(&Typy_FIELD(self, i));
+	}
+}
+
+inline void Typy_Dealloc(TypyObject* self) { Typy_Clear(self); free(self); }
+
+inline void Typy_CopyFrom(TypyObject* self, TypyObject* other) {
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		Typy_TYPE(self)->ty_descriptor[i].ty_CopyFrom(&Typy_FIELD(self, i), Typy_FIELD(other, i));
+	}
+}
+
+inline void Typy_MergeFrom(TypyObject* self, TypyObject* other) {
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		Typy_TYPE(self)->ty_descriptor[i].ty_MergeFrom(&Typy_FIELD(self, i), Typy_FIELD(other, i));
+	}
+}
+
+void Typy_Serialize(TypyObject* self, byte*);
+bool Typy_MergeFromString(TypyObject* self, byte*, size_t);
+
+inline size_t Typy_ByteSize(TypyObject* self) {
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		Typy_TYPE(self)->ty_descriptor[i].ty_MergeFrom(&Typy_FIELD(self, i), Typy_FIELD(other, i));
+	}
+}
+
+char* Typy_PropertyName(int);
+void  Typy_SerializeProperty(byte*, int);
+int   Typy_DeserializeProperty(byte*, size_t);
+int   Typy_PropertyIndex(char*);
+int   Typy_PropertyByteSize(int);
+
+typedef struct {
+	TypyObject_HEAD
+	size_t ty_cached_size;
+	TypeField ty_fields[1];
 } TypyObject;
 
 typedef struct {
-	PyObject_VAR_HEAD
-	size_t value;
+	TypyObject_HEAD
+	TypeField ty_value;
+	int ty_tag;
+	size_t ty_cached_size;
 } TypyVariant;
 
-typedef struct {
-	PyTypeObject py_type;
-	char py_name[1];
-} TypyTypeObject;
+extern PyTypeObject TypyTypeObject;
 
-extern TypyTypeObject templateTypeObject;
+#ifdef __cplusplus
+}
+#endif
 
 #endif // TYPY_TYPE_H__

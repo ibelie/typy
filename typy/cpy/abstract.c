@@ -32,7 +32,7 @@ bool CheckAndSetInteger(PyObject* arg, T& value, const char* err, PyObject* min,
 		if (!PyErr_Occurred()) {
 			ScopedPyObjectPtr s(PyObject_Str(arg));
 			if (s != NULL) {
-				PyErr_Format(PyExc_ValueError, "Value out of range: %s", PyString_AsString(s.get()));
+				PyErr_Format(PyExc_ValueError, "Value out of range: %.100s", PyString_AsString(s.get()));
 			}
 		}
 		return false;

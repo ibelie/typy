@@ -79,7 +79,10 @@ VARIANT::VARIANT() : Message() {                                         \
 }                                                                        \
 VARIANT::~VARIANT() { Clear(); }                                         \
                                                                          \
-::std::string VARIANT::GetTypeName() const { return "_typy." #VARIANT; } \
+::std::string VARIANT::GetTypeName() const {                             \
+	return #FULL_MODULE_NAME "." #VARIANT;                               \
+}                                                                        \
+                                                                         \
 VARIANT* VARIANT::New() const { return new VARIANT; }                    \
 void VARIANT::CheckTypeAndMergeFrom(const MessageLite& from) {           \
 	MergeFrom(*::google::protobuf::down_cast<const VARIANT*>(&from));    \

@@ -56,7 +56,7 @@ public:                                                                  \
 #define TypyObjectBegin(OBJECT) \
 namespace typy {                                                               \
                                                                                \
-const char* OBJECT::FullName = FULL_MODULE_NAME "." #OBJECT;                   \
+const char* OBJECT::FullName = #FULL_MODULE_NAME "." #OBJECT;                  \
 const char* OBJECT::Name = OBJECT::FullName + FULL_NAME_LEN;                   \
                                                                                \
 char* OBJECT::PropertyName(int tag) {                                          \
@@ -169,7 +169,7 @@ public:
 		if (!PyObject_TypeCheck(arg, Py_TYPE(self))) {
 			PyErr_Format(PyExc_TypeError,
 				"Parameter to CopyFrom() must be instance of same class: "
-				"expected %s got %s.",
+				"expected %.100s got %.100s.",
 				Py_TYPE(self)->tp_name, Py_TYPE(arg)->tp_name);
 			return NULL;
 		}
@@ -184,7 +184,7 @@ public:
 		if (!PyObject_TypeCheck(arg, Py_TYPE(self))) {
 			PyErr_Format(PyExc_TypeError,
 				"Parameter to MergeFrom() must be instance of same class: "
-				"expected %s got %s.",
+				"expected %.100s got %.100s.",
 				Py_TYPE(self)->tp_name, Py_TYPE(arg)->tp_name);
 			return NULL;
 		}
