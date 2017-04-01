@@ -13,13 +13,13 @@
 #define SINGLE_ARG(...) __VA_ARGS__
 
 #ifndef true
-#define true  1
+#	define true  1
 #endif
 #ifndef false
-#define false 0
+#	define false 0
 #endif
 #ifndef bool
-#define bool byte
+#	define bool byte
 #endif
 
 #undef NULL
@@ -76,13 +76,22 @@ typedef unsigned long long uint64;
 // long long macros to be used because gcc and vc++ use different suffixes,
 // and different size specifiers in format strings
 #ifdef _MSC_VER
-#define Ibl_LONGLONG(x)  x##I64
-#define Ibl_ULONGLONG(x) x##UI64
-#define Ibl_LL_FORMAT "I64"  // As in printf("%I64d", ...)
+#	define Ibl_LONGLONG(x)  x##I64
+#	define Ibl_ULONGLONG(x) x##UI64
+#	define Ibl_LL_FORMAT "I64"  // As in printf("%I64d", ...)
 #else
-#define Ibl_LONGLONG(x)  x##LL
-#define Ibl_ULONGLONG(x) x##ULL
-#define Ibl_LL_FORMAT "ll"  // As in "%lld". Note that "q" is poor form also.
+#	define Ibl_LONGLONG(x)  x##LL
+#	define Ibl_ULONGLONG(x) x##ULL
+#	define Ibl_LL_FORMAT "ll"  // As in "%lld". Note that "q" is poor form also.
+#endif
+
+#ifdef _MSC_VER
+#	define Ibl_LITTLE_ENDIAN 1
+#else
+#	include <sys/param.h> // __BYTE_ORDER
+#	if ((defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)) || (defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN))
+#		define Ibl_LITTLE_ENDIAN 1
+#endif
 #endif
 
 #define INT32_MAX 0x7FFFFFFF
@@ -91,6 +100,9 @@ typedef unsigned long long uint64;
 #define INT64_MIN (-INT64_MAX - 1)
 #define UINT32_MAX 0xFFFFFFFFu
 #define UINT64_MAX Ibl_ULONGLONG(0xFFFFFFFFFFFFFFFF)
+
+#define Ibl_Max(a, b) ((a) > (b) ? (a) : (b))
+#define Ibl_Min(a, b) ((a) < (b) ? (a) : (b))
 
 typedef struct _bytes {
 	byte*  data;
@@ -168,7 +180,7 @@ inline IblAPI(int) IblUvarint(byte* buffer, size_t buf_len, uint64* x) {
 			*x = y | (uint64)(b) << s;
 			return i + 1;
 		}
-		y |= (uint64)(b & 0x7f) << s;
+		y |= (uint64)(b & 0x7F) << s;
 		s += 7;
 	}
 	*x = 0;

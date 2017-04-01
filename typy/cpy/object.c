@@ -333,7 +333,7 @@ static PyObject* object_Call(PyObject* self, PyObject* args, PyObject* kwargs) {
 static PyObject* object_Repr(PyObject* self) {
 	PyObject* result = CallObject(self, "__repr__");
 	if (result) { return result; }
-	return PyString_FromFormat("<" #FULL_MODULE_NAME ".%s instance at %p>", Typy_NAME(self), self);
+	return PyString_FromFormat("<" FULL_MODULE_NAME ".%s instance at %p>", Typy_NAME(self), self);
 }
 
 static PyObject* object_Str(PyObject* self) {

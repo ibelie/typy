@@ -14,9 +14,9 @@
 #include "VfisVector2.h"
 #include "VfpisVector2.h"
 #include "Vi.h"
+#include "Vi7dD6BPRQE1LZ8XQj04V6Mg.h"
 #include "ViPyType.h"
-#include "ViSlI3tNgu2aFVB8BXYUxf9w.h"
-#include "VimpmP__sm4UToCagVQqZzKHQ.h"
+#include "Vi__zxiaLfTra898A6_6whFCg.h"
 #include "VipfCS1hEiUnKAH2vnYWM13w.h"
 #include "sq0t2631Zu6lArqg9rFtFlQ.h"
 
@@ -24,7 +24,7 @@ TypyHeaderBegin(Fighter);
 	SINGLE_ARG(Dict<string, bytes >)* p_bd;
 	List< bytes >* p_bl;
 	SINGLE_ARG(Dict<int32, SINGLE_ARG(Dict<int32, VdesVector2 >) >)* p_dd;
-	VimpmP__sm4UToCagVQqZzKHQ* p_dv;
+	Vi__zxiaLfTra898A6_6whFCg* p_dv;
 	SINGLE_ARG(Dict<int32, Corpus >)* p_ed;
 	List< Corpus >* p_el;
 	SINGLE_ARG(Dict<int32, SINGLE_ARG(Dict<int32, float >) >)* p_fdd;
@@ -36,7 +36,7 @@ TypyHeaderBegin(Fighter);
 	bool p_isAwake;
 	SINGLE_ARG(Dict<int32, List< VdesVector2 > >)* p_ld;
 	List< VQYZcwhNx5__EgIiJ__uNsYGw >* p_ll;
-	ViSlI3tNgu2aFVB8BXYUxf9w* p_lv;
+	Vi7dD6BPRQE1LZ8XQj04V6Mg* p_lv;
 	Vi* p_nv;
 	Vector2* p_pos;
 	SINGLE_ARG(Dict<int32, float >)* p_posi;

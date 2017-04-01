@@ -358,7 +358,7 @@ PyMethodDef Dict<K, V>::Methods[] = {
 template <typename K, typename V>
 PyTypeObject Dict<K, V>::_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	FULL_NAME_STR ".Dict",                       /* tp_name           */
+	FULL_MODULE_NAME ".Dict",                    /* tp_name           */
 	sizeof(Dict<K, V>),                          /* tp_basicsize      */
 	0,                                           /* tp_itemsize       */
 	(destructor)::typy::dict::tp_Dealloc<K, V>,  /* tp_dealloc        */
@@ -405,7 +405,7 @@ PyMethodDef Dict<K, V>::IteratorMethods[] = {
 template <typename K, typename V>
 PyTypeObject Dict<K, V>::IterKey_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	FULL_NAME_STR ".Dict.KeyIterator",               /* tp_name           */
+	FULL_MODULE_NAME ".Dict.KeyIterator",            /* tp_name           */
 	sizeof(Dict<K, V>::Iterator),                    /* tp_basicsize      */
 	0,                                               /* tp_itemsize       */
 	(destructor)::typy::dict::iter_Dealloc<K, V>,    /* tp_dealloc        */
@@ -438,7 +438,7 @@ PyTypeObject Dict<K, V>::IterKey_Type = {
 template <typename K, typename V>
 PyTypeObject Dict<K, V>::IterItem_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	FULL_NAME_STR ".Dict.ItemIterator",              /* tp_name           */
+	FULL_MODULE_NAME ".Dict.ItemIterator",           /* tp_name           */
 	sizeof(Dict<K, V>::Iterator),                    /* tp_basicsize      */
 	0,                                               /* tp_itemsize       */
 	(destructor)::typy::dict::iter_Dealloc<K, V>,    /* tp_dealloc        */

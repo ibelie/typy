@@ -62,15 +62,16 @@ static PyObject* InitObject(TypyType* type, PyObject* args) {
 					}
 				}
 				if (PyFunction_Check(v)) {
-					v = PyMethod_New(v, NULL, object);
+					v = PyMethod_New(v, NULL, (PyObject*)type->py_type);
 				}
 				PyDict_SetItem(type->py_type->tp_dict, k, v);
 			}
 			PyObject* metaclass = PyDict_GetItemString(attrs, "__metaclass__");
-			if (metaclass) { object->ob_type = (PyTypeObject*)metaclass; }
+			if (metaclass) { type->py_type->ob_type = (PyTypeObject*)metaclass; }
 		}
 	}
-	return object;
+	//todo:!!!!!! method
+	return type;
 }
 
 PyMethodDef InitObjectDef = { "InitObject", (PyCFunction)InitObject, METH_VARARGS,
@@ -119,7 +120,7 @@ static PyMethodDef ModuleMethods[] = {
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef _module = {
 	PyModuleDef_HEAD_INIT,
-	#FULL_MODULE_NAME,
+	FULL_MODULE_NAME,
 	module_docstring,
 	-1,
 	ModuleMethods, /* m_methods */
@@ -128,10 +129,10 @@ static struct PyModuleDef _module = {
 	NULL,
 	NULL
 };
-#define INITFUNC PyInit_##FULL_MODULE_NAME
+#define INITFUNC PyInit__typyd
 #define INITFUNC_ERRORVAL NULL
 #else // Python 2
-#define INITFUNC init##FULL_MODULE_NAME
+#define INITFUNC init_typyd
 #define INITFUNC_ERRORVAL
 #endif
 
@@ -156,7 +157,7 @@ PyMODINIT_FUNC INITFUNC(void) {
 #if PY_MAJOR_VERSION >= 3
 	m = PyModule_Create(&_module);
 #else
-	m = Py_InitModule3(#FULL_MODULE_NAME, ModuleMethods, module_docstring);
+	m = Py_InitModule3(FULL_MODULE_NAME, ModuleMethods, module_docstring);
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
 

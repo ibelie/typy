@@ -28,7 +28,7 @@ public:
 	~Python() { Clear(); }
 
 	inline Python* New() const { return new Python; }
-	inline ::std::string GetTypeName() const { return FULL_NAME_STR ".Python"; }
+	inline ::std::string GetTypeName() const { return FULL_MODULE_NAME ".Python"; }
 	inline bool IsInitialized() const { return true; }
 	inline int GetCachedSize() const { return _cached_size; }
 
