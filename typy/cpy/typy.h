@@ -78,7 +78,8 @@ typedef size_t    (*ByteSize)     (int, TypeField);
 
 
 typedef struct {
-	size_t        ty_tagsize;
+	byte          ty_tagsize;
+	uint32        ty_tag;
 	WireType      ty_WireType;
 	GetPyObject   ty_GetPyObject;
 	CheckAndSet   ty_CheckAndSet;
@@ -96,6 +97,7 @@ typedef struct {
 	PyObject*      ty_new;
 	IblMap         ty_field2index;
 	char**         ty_index2field;
+	uint32         ty_cutoff;
 	size_t         ty_size;
 	TypyDescriptor ty_descriptor[1];
 } TypyType;
@@ -144,6 +146,7 @@ inline void Typy_CopyFrom(TypyObject* self, TypyObject* from) {
 inline size_t Typy_ByteSize(TypyObject* self) {
 	register size_t size = 0, i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
+		if (!Typy_DESCRIPTOR(self, i).ty_tag) { continue; }
 		size += Typy_DESCRIPTOR(self, i).ty_ByteSize(Typy_DESCRIPTOR(self, i).ty_tagsize, Typy_FIELD(self, i));
 	}
 	self->ty_cached_size = size;
@@ -153,7 +156,8 @@ inline size_t Typy_ByteSize(TypyObject* self) {
 inline void Typy_SerializeString(TypyObject* self, byte* output) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		output += Typy_DESCRIPTOR(self, i).ty_Write(i + 1, Typy_FIELD(self, i), output);
+		if (!Typy_DESCRIPTOR(self, i).ty_tag) { continue; }
+		output += Typy_DESCRIPTOR(self, i).ty_Write(Typy_DESCRIPTOR(self, i).ty_tag, Typy_FIELD(self, i), output);
 	}
 }
 
@@ -161,7 +165,7 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 	uint32 tag;
 	size_t remain = length;
 	for (;;) {
-		if (!Typy_ReadTag(&input, &remain, &tag, TAG_CUTOFF(Typy_SIZE(self) + 1))) {
+		if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->ty_cutoff)) {
 			goto handle_unusual;
 		}
 		register int index = TAG_INDEX(tag);
@@ -199,6 +203,7 @@ inline int Typy_PropertyIndex(TypyObject* self, char* key) {
 }
 
 inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
+	if (!Typy_DESCRIPTOR(self, index).ty_tag) { return 0; }
 	register size_t size = Typy_DESCRIPTOR(self, index).ty_ByteSize(Typy_DESCRIPTOR(self, index).ty_tagsize, Typy_FIELD(self, index));
 	if (size == 0) {
 		return Typy_DESCRIPTOR(self, index).ty_tagsize;
@@ -208,15 +213,16 @@ inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 }
 
 inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
-	if (Typy_DESCRIPTOR(self, index).ty_Write(index + 1, Typy_FIELD(self, index), output) <= 0) {
-		Typy_WriteTag(output, index + 1);
+	if (!Typy_DESCRIPTOR(self, index).ty_tag) { return; }
+	if (Typy_DESCRIPTOR(self, index).ty_Write(Typy_DESCRIPTOR(self, index).ty_tag, Typy_FIELD(self, index), output) <= 0) {
+		Typy_WriteTag(output, Typy_DESCRIPTOR(self, index).ty_tag);
 	}
 }
 
 inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
-	if (!Typy_ReadTag(&input, &remain, &tag, TAG_CUTOFF(Typy_SIZE(self) + 1))) {
+	if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->ty_cutoff)) {
 		return -1;
 	}
 	register int index = TAG_INDEX(tag);
