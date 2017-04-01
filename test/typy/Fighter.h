@@ -7,6 +7,7 @@
 
 #include "Corpus.h"
 #include "PyType.h"
+#include "VQYZcwhNx5__EgIiJ__uNsYGw.h"
 #include "VbyfiVector2.h"
 #include "VdesVector2.h"
 #include "Vector2.h"
@@ -34,6 +35,7 @@ TypyHeaderBegin(Fighter);
 	float p_hp;
 	bool p_isAwake;
 	SINGLE_ARG(Dict<int32, List< VdesVector2 > >)* p_ld;
+	List< VQYZcwhNx5__EgIiJ__uNsYGw >* p_ll;
 	ViSlI3tNgu2aFVB8BXYUxf9w* p_lv;
 	Vi* p_nv;
 	Vector2* p_pos;

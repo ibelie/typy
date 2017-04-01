@@ -201,6 +201,8 @@ class List(Collection):
 			self.elementType = toType(elementType[0])
 		else:
 			self.elementType = toType(elementType)
+		if isinstance(self.elementType, List):
+			self.elementType = Instance(self.elementType)
 		super(List, self).__init__(**metadata)
 
 	def __str__(self):

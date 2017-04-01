@@ -17,7 +17,8 @@
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 
 #define SINGLE_ARG(...) __VA_ARGS__
-#define FULL_MODULE_NAME _typy
+#define FULL_MODULE_NAME(PREFIX) PREFIX##_typy
+#define FULL_NAME_STR "_typy"
 #define FULL_NAME_LEN 6
 
 #ifndef PyVarObject_HEAD_INIT
@@ -289,7 +290,7 @@ public:
 		typename Type<K>::KeyType key;
 		typename Type<V>::ValueType value;
 
-		::std::string GetTypeName() const { return #FULL_MODULE_NAME ".Dict.Entry"; }
+		::std::string GetTypeName() const { return FULL_NAME_STR ".Dict.Entry"; }
 		Entry* New() const { return new Entry; }
 		bool IsInitialized() const { return true; }
 

@@ -31,10 +31,10 @@
 		#error "Python 3.0 - 3.2 are not supported."
 	#else
 	#define PyString_AsString(ob) \
-		(PyUnicode_Check(ob)? PyUnicode_AsUTF8(ob): PyBytes_AsString(ob))
+		(PyUnicode_Check(ob) ? PyUnicode_AsUTF8(ob) : PyBytes_AsString(ob))
 	#define PyString_AsStringAndSize(ob, charpp, sizep) \
-		(PyUnicode_Check(ob)? \
-			(!(*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep)))? -1: 0): \
+		(PyUnicode_Check(ob) ? \
+			(!(*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep)))? -1 : 0) : \
 			PyBytes_AsStringAndSize(ob, (charpp), (sizep)))
 	#endif
 #endif
@@ -96,6 +96,10 @@ extern PyObject* kuint64max_py;
 typedef PyBytesObject* PyBytes;
 typedef PyUnicodeObject* PyString;
 
+IblMap_KEY_STRING(TypyFieldMap,
+	int index;
+);
+
 typedef size_t TypeField
 
 typedef PyObject* (*GetPyObject)  (TypeField);
@@ -105,12 +109,11 @@ typedef void      (*MergeFrom)    (TypeField*, TypeField);
 typedef void      (*Clear)        (TypeField*);
 typedef bool      (*Read)         (TypeField*, byte**);
 typedef size_t    (*Write)        (int, TypeField, byte*);
-typedef size_t    (*WriteTag)     (int, TypeField, byte*);
 typedef size_t    (*ByteSize)     (size_t, TypeField);
-typedef size_t    (*GetCachedSize)(size_t, TypeField);
 
 
 typedef struct {
+	size_t        ty_tagsize;
 	GetPyObject   ty_GetPyObject;
 	CheckAndSet   ty_CheckAndSet;
 	CopyFrom      ty_CopyFrom;
@@ -118,14 +121,14 @@ typedef struct {
 	Clear         ty_Clear;
 	Read          ty_Read;
 	Write         ty_Write;
-	WriteTag      ty_WriteTag;
 	ByteSize      ty_ByteSize;
-	GetCachedSize ty_GetCachedSize;
 } TypyDescriptor;
 
 typedef struct {
-	PyTypeObject* py_type;
-	size_t ty_size;
+	PyTypeObject*  py_type;
+	TypyFieldMap   ty_field2index;
+	char**         ty_index2field;
+	size_t         ty_size;
 	TypyDescriptor ty_descriptor[1];
 } TypyType;
 
@@ -139,53 +142,92 @@ typedef struct {
 #define Typy_SIZE(ob) (Typy_TYPE(ob)->ty_size)
 #define Typy_NAME(ob) Ty_NAME(Typy_TYPE(ob))
 #define Typy_FIELD(ob, i) (((TypyObject*)(ob))->ty_fields[i])
-
-PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs);
+#define Typy_DESCRIPTOR(ob, i) (Typy_TYPE(ob)->ty_descriptor[i])
 
 inline void Typy_Clear(TypyObject* self) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_TYPE(self)->ty_descriptor[i].ty_Clear(&Typy_FIELD(self, i));
+		Typy_DESCRIPTOR(self, i).ty_Clear(&Typy_FIELD(self, i));
 	}
 }
 
-inline void Typy_Dealloc(TypyObject* self) { Typy_Clear(self); free(self); }
-
-inline void Typy_CopyFrom(TypyObject* self, TypyObject* other) {
+inline void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
+	if (other == self) { return; }
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_TYPE(self)->ty_descriptor[i].ty_CopyFrom(&Typy_FIELD(self, i), Typy_FIELD(other, i));
+		Typy_DESCRIPTOR(self, i).ty_MergeFrom(&Typy_FIELD(self, i), Typy_FIELD(from, i));
 	}
 }
 
-inline void Typy_MergeFrom(TypyObject* self, TypyObject* other) {
-	register size_t i;
-	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_TYPE(self)->ty_descriptor[i].ty_MergeFrom(&Typy_FIELD(self, i), Typy_FIELD(other, i));
-	}
+inline void Typy_CopyFrom(TypyObject* self, TypyObject* from) {
+	if (other == self) { return; }
+	Typy_Clear(self);
+	Typy_MergeFrom(self, from);
 }
-
-void Typy_Serialize(TypyObject* self, byte* output) {
-	register size_t i;
-	for (i = 0; i < Typy_SIZE(self); i++) {
-		output += Typy_TYPE(self)->ty_descriptor[i].ty_Write(i + 1, Typy_FIELD(self, i), output);
-	}
-}
-
-bool Typy_MergeFromString(TypyObject* self, byte*, size_t);
 
 inline size_t Typy_ByteSize(TypyObject* self) {
+	register size_t size, i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		size += Typy_DESCRIPTOR(self, i).ty_ByteSize(Typy_DESCRIPTOR(self, i).ty_tagsize, Typy_FIELD(self, i));
+	}
+	self->ty_cached_size = size;
+	return size;
+}
+
+inline void Typy_SerializeString(TypyObject* self, byte* output) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_TYPE(self)->ty_descriptor[i].ty_MergeFrom(&Typy_FIELD(self, i), Typy_FIELD(other, i));
+		output += Typy_DESCRIPTOR(self, i).ty_Write(i + 1, Typy_FIELD(self, i), output);
 	}
 }
 
-char* Typy_PropertyName(int);
-void  Typy_SerializeProperty(byte*, int);
-int   Typy_DeserializeProperty(byte*, size_t);
-int   Typy_PropertyIndex(char*);
-int   Typy_PropertyByteSize(int);
+inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length);
+
+inline char* Typy_PropertyName(TypyObject* self, int index) {
+	if (index < 0 || index > Typy_SIZE(self)) {
+		return NULL;
+	} else {
+		return Typy_TYPE(self)->ty_index2field[index];
+	}
+}
+
+inline int Typy_PropertyIndex(TypyObject* self, char* key) {
+	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(Typy_TYPE(self)->ty_field2index, key);
+	if (field) {
+		return field->index;
+	} else {
+		return -1;
+	}
+}
+
+inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
+	register size_t size = Typy_DESCRIPTOR(self, index).ty_ByteSize(Typy_DESCRIPTOR(self, index).ty_tagsize, Typy_FIELD(self, index));
+	if (size == 0) {
+		return Typy_DESCRIPTOR(self, index).ty_tagsize;
+	} else {
+		return size;
+	}
+}
+
+inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
+	if (Typy_DESCRIPTOR(self, index).ty_Write(index + 1, Typy_FIELD(self, index), output) <= 0) {
+		IblPutUvarint(output, index + 1);
+	}
+}
+
+inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length);
+
+PyObject* Typy_New(TypyType*, PyObject*, PyObject*);
+PyObject* Py_CopyFrom(TypyObject*, PyObject*);
+PyObject* Py_MergeFrom(TypyObject*, PyObject*);
+PyObject* Py_SerializeString(TypyObject*);
+PyObject* Py_MergeFromString(TypyObject*, PyObject*);
+PyObject* Py_DeserializeProperty(TypyObject*, PyObject*);
+PyObject* Py_SerializeProperty(TypyObject*, PyObject*);
+
+inline void Typy_Dealloc(TypyObject* self) { Typy_Clear(self); free(self); }
+inline PyObject* Py_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
+inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Clear(self); Py_MergeFromString(self, arg); }
 
 typedef struct {
 	TypyObject_HEAD

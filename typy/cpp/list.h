@@ -455,7 +455,7 @@ PyMethodDef List<T>::Methods[] = {
 template <typename T>
 PyTypeObject List<T>::_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	#FULL_MODULE_NAME ".List",               /* tp_name           */
+	FULL_NAME_STR ".List",                   /* tp_name           */
 	sizeof(List<T>),                         /* tp_basicsize      */
 	0,                                       /* tp_itemsize       */
 	(destructor)::typy::list::tp_Dealloc<T>, /* tp_dealloc        */
@@ -502,7 +502,7 @@ PyMethodDef List<T>::IteratorMethods[] = {
 template <typename T>
 PyTypeObject List<T>::Iterator_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	#FULL_MODULE_NAME ".List.Iterator",           /* tp_name           */
+	FULL_NAME_STR ".List.Iterator",               /* tp_name           */
 	sizeof(List<T>::Iterator),                    /* tp_basicsize      */
 	0,                                            /* tp_itemsize       */
 	(destructor)::typy::list::iter_Dealloc<T>,    /* tp_dealloc        */

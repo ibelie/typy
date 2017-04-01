@@ -56,7 +56,7 @@ public:                                                                  \
 #define TypyObjectBegin(OBJECT) \
 namespace typy {                                                               \
                                                                                \
-const char* OBJECT::FullName = #FULL_MODULE_NAME "." #OBJECT;                  \
+const char* OBJECT::FullName = FULL_NAME_STR "." #OBJECT;                      \
 const char* OBJECT::Name = OBJECT::FullName + FULL_NAME_LEN;                   \
                                                                                \
 char* OBJECT::PropertyName(int tag) {                                          \

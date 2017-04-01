@@ -199,7 +199,7 @@ static PyMethodDef ModuleMethods[] = {
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef _module = {
 	PyModuleDef_HEAD_INIT,
-	#FULL_MODULE_NAME,
+	FULL_NAME_STR,
 	module_docstring,
 	-1,
 	ModuleMethods, /* m_methods */
@@ -208,10 +208,10 @@ static struct PyModuleDef _module = {
 	NULL,
 	NULL
 };
-#define INITFUNC PyInit_##FULL_MODULE_NAME
+#define INITFUNC FULL_MODULE_NAME(PyInit_)
 #define INITFUNC_ERRORVAL NULL
 #else // Python 2
-#define INITFUNC init##FULL_MODULE_NAME
+#define INITFUNC FULL_MODULE_NAME(init)
 #define INITFUNC_ERRORVAL
 #endif
 
@@ -229,7 +229,7 @@ extern "C" {
 #if PY_MAJOR_VERSION >= 3
 		m = PyModule_Create(&_module);
 #else
-		m = Py_InitModule3(#FULL_MODULE_NAME, ModuleMethods, module_docstring);
+		m = Py_InitModule3(FULL_NAME_STR, ModuleMethods, module_docstring);
 #endif
 		if (m == NULL) {
 			return INITFUNC_ERRORVAL;

@@ -23,11 +23,7 @@ PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs) {
 	return object;
 }
 
-static void object_Dealloc(TypyObject* self) { Typy_Dealloc(self); }
-
-static PyObject* object_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
-
-PyObject* object_CopyFrom(TypyObject* self, PyObject* arg) {
+PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
 	if (self == arg) {
 		Py_RETURN_NONE;
 	}
@@ -42,7 +38,7 @@ PyObject* object_CopyFrom(TypyObject* self, PyObject* arg) {
 	Py_RETURN_NONE;
 }
 
-PyObject* object_MergeFrom(TypyObject* self, PyObject* arg) {
+PyObject* Py_MergeFrom(TypyObject* self, PyObject* arg) {
 	if (self == arg) {
 		Py_RETURN_NONE;
 	}
@@ -57,44 +53,32 @@ PyObject* object_MergeFrom(TypyObject* self, PyObject* arg) {
 	Py_RETURN_NONE;
 }
 
-PyObject* object_Serialize(TypyObject* self) {
-	T* object = static_cast<T*>(self);
-	int size = object->ByteSize();
+PyObject* Py_SerializeString(TypyObject* self) {
+	size_t size = Typy_ByteSize(self);
 	if (size <= 0) {
 		return PyBytes_FromString("");
 	}
 	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (result == NULL) {
-		return NULL;
-	}
-	byte* buffer = (byte*)PyBytes_AS_STRING(result);
-	Typy_Serialize(self, buffer);
+	if (result == NULL) { return NULL; }
+	Typy_SerializeString(self, (byte*)PyBytes_AS_STRING(result));
 	return result;
 }
 
-PyObject* object_MergeFromString(TypyObject* self, PyObject* arg) {
+PyObject* Py_MergeFromString(TypyObject* self, PyObject* arg) {
 	const void* data;
 	Py_ssize_t size;
 	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
 		return NULL;
 	}
-	CodedInputStream input(reinterpret_cast<const uint8*>(data), size);
-	bool success = static_cast<T*>(self)->MergePartialFromCodedStream(&input);
-	if (success) {
-		return PyInt_FromLong(input.CurrentPosition());
+	if ((size = Typy_MergeFromString(self, (byte*)data, size)) > 0) {
+		return PyInt_FromLong(size);
 	} else {
 		PyErr_Format(PyExc_RuntimeError, "Error parsing object");
 		return NULL;
 	}
 }
 
-PyObject* object_ParseFromString(TypyObject* self, PyObject* arg) {
-	static_cast<T*>(self)->Clear();
-	return object_MergeFromString(self, arg);
-}
-
-PyObject* object_SerializeProperty(TypyObject* self, PyObject* arg) {
-	T* object = static_cast<T*>(self);
+PyObject* Py_SerializeProperty(TypyObject* self, PyObject* arg) {
 	if (arg == NULL || arg == Py_None) {
 		FormatTypeError(arg, "SerializeProperty expect property name, but ");
 		return NULL;
@@ -108,45 +92,40 @@ PyObject* object_SerializeProperty(TypyObject* self, PyObject* arg) {
 		return NULL;
 	}
 
-	int tag = object->PropertyTag(PyBytes_AS_STRING(arg));
-	if (tag <= 0) {
+	register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(arg));
+	if (index < 0) {
 		FormatTypeError(arg, "SerializeProperty expect property name, but ");
 		Py_DECREF(arg);
 		return NULL;
 	}
-	int size = object->PropertyByteSize(tag);
+	register size_t size = Typy_PropertyByteSize(self, index);
 	if (size <= 0) {
 		PyErr_Format(PyExc_RuntimeError, "Error serializing object");
 		Py_DECREF(arg);
 		return NULL;
 	}
-	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
+	register PyObject* result = PyBytes_FromStringAndSize(NULL, size);
 	if (result == NULL) {
 		Py_DECREF(arg);
 		return NULL;
 	}
-	char* buffer = PyBytes_AS_STRING(result);
-	ArrayOutputStream out(reinterpret_cast<uint8*>(buffer), size);
-	CodedOutputStream coded_out(&out);
-	object->SerializeProperty(&coded_out, tag);
+	Typy_SerializeProperty(self, (byte*)PyBytes_AS_STRING(result), index);
 	Py_DECREF(arg);
 	return result;
 }
 
-PyObject* object_DeserializeProperty(TypyObject* self, PyObject* arg) {
+PyObject* Py_DeserializeProperty(TypyObject* self, PyObject* arg) {
 	const void* data;
 	Py_ssize_t size;
 	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
 		return NULL;
 	}
-	T* object = static_cast<T*>(self);
-	CodedInputStream input(reinterpret_cast<const uint8*>(data), size);
-	int tag = object->DeserializeProperty(&input);
-	if (tag <= 0) {
+	register int index = Typy_DeserializeProperty(self, (byte*)data, size);
+	if (index < 0) {
 		PyErr_Format(PyExc_RuntimeError, "Error deserializing object");
 		return NULL;
 	} else {
-		return PyBytes_FromString(object->PropertyName(tag));
+		return PyBytes_FromString(Typy_PropertyName(self, index));
 	}
 }
 
@@ -561,21 +540,21 @@ static PyObject* object_nb_ipow(PyObject* v, PyObject* w, PyObject* z) {
 }
 
 static PyMethodDef Methods[] = {
-	{ "Clear", (PyCFunction)object_Clear, METH_NOARGS,
+	{ "Clear", (PyCFunction)Py_Clear, METH_NOARGS,
 		"Clears the object." },
-	{ "CopyFrom", (PyCFunction)object_CopyFrom, METH_O,
+	{ "CopyFrom", (PyCFunction)Py_CopyFrom, METH_O,
 		"Copies a protocol object into the current object." },
-	{ "MergeFrom", (PyCFunction)object_MergeFrom, METH_O,
+	{ "MergeFrom", (PyCFunction)Py_MergeFrom, METH_O,
 		"Merges a protocol object into the current object." },
-	{ "MergeFromString", (PyCFunction)object_MergeFromString, METH_O,
+	{ "MergeFromString", (PyCFunction)Py_MergeFromString, METH_O,
 		"Merges a serialized object into the current object." },
-	{ "ParseFromString", (PyCFunction)object_ParseFromString, METH_O,
+	{ "ParseFromString", (PyCFunction)Py_ParseFromPyString, METH_O,
 		"Parses a serialized object into the current object." },
-	{ "SerializeToString", (PyCFunction)object_Serialize, METH_NOARGS,
+	{ "SerializeToString", (PyCFunction)Py_SerializeString, METH_NOARGS,
 		"Serializes the object to a string, only for initialized objects." },
-	{ "SerializeProperty", (PyCFunction)object_SerializeProperty, METH_O,
+	{ "SerializeProperty", (PyCFunction)Py_SerializeProperty, METH_O,
 		"Serializes property to a string." },
-	{ "DeserializeProperty", (PyCFunction)object_DeserializeProperty, METH_O,
+	{ "DeserializeProperty", (PyCFunction)Py_DeserializeProperty, METH_O,
 		"Deserialize property from a string and return name of the property." },
 	{ NULL, NULL}
 };
@@ -644,7 +623,7 @@ PyTypeObject TypyTypeObject = {
 	0,                                        /* tp_name           */
 	0,                                        /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
-	(destructor)object_Dealloc,               /* tp_dealloc        */
+	(destructor)Typy_Dealloc,                 /* tp_dealloc        */
 	0,                                        /* tp_print          */
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */

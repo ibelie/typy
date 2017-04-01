@@ -151,10 +151,11 @@ except ImportError:
 					field['message_type'] = Hacker.PythonDescriptor(p.elementType.pyType)
 					protoType.field[-1].type_name = field['message_type'].full_name
 				elif isinstance(p.elementType, Instance):
-					if len(p.elementType.pyType) == 1:
+					if len(p.elementType.pyType) < 1: pass
+					elif len(p.elementType.pyType) == 1 and not isinstance(p.elementType.pyType[0], List):
 						field['message_type'] = MetaObject.Objects[p.elementType.pyType[0].__name__].DESCRIPTOR
 						protoType.field[-1].type_name = field['message_type'].full_name
-					elif len(p.elementType.pyType) > 1:
+					else:
 						assistName = '%s.%sVariant' % (name, a.title())
 						field['message_type'] = [assistName] + _msgFields(assistName,
 							{'Enum' if isEnum(vp) else vp.__name__: toType(vp) for vp in p.elementType.pyType if vp is not None}, MSG_TYPE_VARIANT, protoType.nested_type)

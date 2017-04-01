@@ -121,6 +121,7 @@ def setup():
 		sd = pb.Dict(Integer, String, label = 'sd')
 		el = pb.List(Corpus, label = 'el')
 		ed = pb.Dict(Integer, Corpus, label = 'ed')
+		ll = pb.List(List(Float), label = 'll')
 	globals()['Fighter_Part2'] = Fighter_Part2
 
 	class Fighter(Fighter_Part2):
@@ -188,6 +189,7 @@ def _build(_typy):
 	fighterPy.el.append(Corpus.NEWS)
 	fighterPy.el.append(Corpus.VIDEO)
 	fighterPy.ed = {789: Corpus.WEB, 567: Corpus.IMAGES}
+	fighterPy.ll = [[12.3, 1.23], [1.234, 12.34, 123.4]]
 	fighterPy.vl = [123, "adsf"]
 	fighterPy.vl.append(vPy)
 	fighterPy.vl.append(345.123)
@@ -332,6 +334,7 @@ def _build(_typy):
 	fighter.el.append(Corpus.NEWS)
 	fighter.el.append(Corpus.VIDEO)
 	fighter.ed = {789: Corpus.WEB, 567: Corpus.IMAGES}
+	fighter.ll = [[12.3, 1.23], [1.234, 12.34, 123.4]]
 	fighter.vl = [123, "adsf"]
 	fighter.vl.append(v)
 	fighter.vl.append(345.123)
@@ -413,6 +416,11 @@ def _build(_typy):
 	print "sd[231]\t", "\t", fighter.sd[231], "\t", fighterPy.sd[231], "\t", fighter2.sd[231], "\t", fighterPy2.sd[231], "\t", fighter3.sd[231]
 	print "ed[789]\t", "\t", fighter.ed[789], "\t", fighterPy.ed[789], "\t", fighter2.ed[789], "\t", fighterPy2.ed[789], "\t", fighter3.ed[789]
 	print "ed[567]\t", "\t", fighter.ed[567], "\t", fighterPy.ed[567], "\t", fighter2.ed[567], "\t", fighterPy2.ed[567], "\t", fighter3.ed[567]
+	print "ll[0][0]\t", "\t", fighter.ll[0][0], "\t", fighterPy.ll[0][0], "\t", fighter2.ll[0][0], "\t", fighterPy2.ll[0][0], "\t", fighter3.ll[0][0]
+	print "ll[0][1]\t", "\t", fighter.ll[0][1], "\t", fighterPy.ll[0][1], "\t", fighter2.ll[0][1], "\t", fighterPy2.ll[0][1], "\t", fighter3.ll[0][1]
+	print "ll[1][0]\t", "\t", fighter.ll[1][0], "\t", fighterPy.ll[1][0], "\t", fighter2.ll[1][0], "\t", fighterPy2.ll[1][0], "\t", fighter3.ll[1][0]
+	print "ll[1][1]\t", "\t", fighter.ll[1][1], "\t", fighterPy.ll[1][1], "\t", fighter2.ll[1][1], "\t", fighterPy2.ll[1][1], "\t", fighter3.ll[1][1]
+	print "ll[1][2]\t", "\t", fighter.ll[1][2], "\t", fighterPy.ll[1][2], "\t", fighter2.ll[1][2], "\t", fighterPy2.ll[1][2], "\t", fighter3.ll[1][2]
 	print "v1\t", "\t", fighter.v1, " ", fighterPy.v1, " ", fighter2.v1, " ", fighterPy2.v1, " ", fighter3.v1
 	print "v2\t", "\t", fighter.v2, " ", fighterPy.v2, " ", fighter2.v2, " ", fighterPy2.v2, " ", fighter3.v2
 	print "v3.x\t", "\t", fighter.v3.x, "\t", fighterPy.v3.x, "\t", fighter2.v3.x, "\t", fighterPy2.v3.x, "\t", fighter3.v3.x
@@ -549,7 +557,6 @@ def _build(_typy):
 	fighter.vd = fighter.sd
 
 def test_cpp():
-	return
 	import os
 	from typy import GenerateExtention
 	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
@@ -557,6 +564,7 @@ def test_cpp():
 	_build(_typy)
 
 def test_cpy():
+	return
 	import os
 	from typy import GenerateDescriptor
 	GenerateDescriptor(os.path.dirname(__file__))

@@ -206,12 +206,13 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 		if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
 			ref_types.add('#include "%s.h"' % _shortName(p.pyType[0].__name__))
 			return p.pyType[0].__name__, '*', p.pyType[0].__name__
-		elif len(p.pyType) > 1 and (nesting or pb in p.____keywords__):
+		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
+			pass
+		else:
 			variant = _RecordVariant(p.pyType, variants)
 			ref_types.add('#include "%s.h"' % variant)
 			return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
-		else:
-			return 'Python<PyObject>', '*', 'Python<PyObject>'
+		return 'Python<PyObject>', '*', 'Python<PyObject>'
 	elif isinstance(p, List):
 		if isinstance(p.elementType, Collection):
 			print "[Cpp] Warning: List element can not be Collection type."

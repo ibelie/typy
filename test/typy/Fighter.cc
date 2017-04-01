@@ -26,6 +26,7 @@ void Fighter::Clear() {
 	::typy::Clear(p_hp);
 	::typy::Clear(p_isAwake);
 	::typy::Clear(p_ld);
+	::typy::Clear(p_ll);
 	::typy::Clear(p_lv);
 	::typy::Clear(p_nv);
 	::typy::Clear(p_pos);
@@ -62,6 +63,7 @@ void Fighter::MergeFrom(const Fighter& from) {
 	::typy::MergeFrom(p_hp, from.p_hp);
 	::typy::MergeFrom(p_isAwake, from.p_isAwake);
 	::typy::MergeFrom(p_ld, from.p_ld);
+	::typy::MergeFrom(p_ll, from.p_ll);
 	::typy::MergeFrom(p_lv, from.p_lv);
 	::typy::MergeFrom(p_nv, from.p_nv);
 	::typy::MergeFrom(p_pos, from.p_pos);
@@ -97,24 +99,25 @@ void Fighter::SerializeWithCachedSizes(CodedOutputStream* output) const {
 	::typy::Write(12, p_hp, output);
 	::typy::Write(13, p_isAwake, output);
 	::typy::Write(14, p_ld, output);
-	::typy::Write(15, p_lv, output);
-	::typy::Write(16, p_nv, output);
-	::typy::Write(17, p_pos, output);
-	::typy::Write(18, p_posi, output);
-	::typy::Write(19, p_posl, output);
-	::typy::Write(20, p_poss, output);
-	::typy::Write(21, p_pyd, output);
-	::typy::Write(22, p_pyl, output);
-	::typy::Write(23, p_pyv1, output);
-	::typy::Write(24, p_pyv2, output);
-	::typy::Write(25, p_sd, output);
-	::typy::Write(26, p_sl, output);
-	::typy::Write(27, p_v1, output);
-	::typy::Write(28, p_v2, output);
-	::typy::Write(29, p_v3, output);
-	::typy::Write(30, p_v4, output);
-	::typy::Write(31, p_vd, output);
-	::typy::Write(32, p_vl, output);
+	::typy::Write(15, p_ll, output);
+	::typy::Write(16, p_lv, output);
+	::typy::Write(17, p_nv, output);
+	::typy::Write(18, p_pos, output);
+	::typy::Write(19, p_posi, output);
+	::typy::Write(20, p_posl, output);
+	::typy::Write(21, p_poss, output);
+	::typy::Write(22, p_pyd, output);
+	::typy::Write(23, p_pyl, output);
+	::typy::Write(24, p_pyv1, output);
+	::typy::Write(25, p_pyv2, output);
+	::typy::Write(26, p_sd, output);
+	::typy::Write(27, p_sl, output);
+	::typy::Write(28, p_v1, output);
+	::typy::Write(29, p_v2, output);
+	::typy::Write(30, p_v3, output);
+	::typy::Write(31, p_v4, output);
+	::typy::Write(32, p_vd, output);
+	::typy::Write(33, p_vl, output);
 }
 
 int Fighter::ByteSize() const {
@@ -133,7 +136,8 @@ int Fighter::ByteSize() const {
 	::typy::ByteSize(total_size, 1, p_hp);
 	::typy::ByteSize(total_size, 1, p_isAwake);
 	::typy::ByteSize(total_size, 1, p_ld);
-	::typy::ByteSize(total_size, 1, p_lv);
+	::typy::ByteSize(total_size, 1, p_ll);
+	::typy::ByteSize(total_size, 2, p_lv);
 	::typy::ByteSize(total_size, 2, p_nv);
 	::typy::ByteSize(total_size, 2, p_pos);
 	::typy::ByteSize(total_size, 2, p_posi);
@@ -158,7 +162,7 @@ int Fighter::ByteSize() const {
 }
 
 bool Fighter::MergePartialFromCodedStream(CodedInputStream* input) {
-	BEGINE_READ_CASE(32)
+	BEGINE_READ_CASE(33)
 	FIRST_READ_REPEATED_OBJECT_CASE(1, p_bd, SINGLE_ARG(Dict<string, bytes >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
 	NEXT_READ_NORMAL_CASE(2, p_bl, bytes)
 	NEXT_READ_REPEATED_OBJECT_CASE(3, p_dd, SINGLE_ARG(Dict<int32, SINGLE_ARG(Dict<int32, VdesVector2 >) >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
@@ -172,31 +176,32 @@ bool Fighter::MergePartialFromCodedStream(CodedInputStream* input) {
 	NEXT_READ_NORMAL_CASE(11, p_flv, sq0t2631Zu6lArqg9rFtFlQ)
 	NEXT_READ_NORMAL_CASE(12, p_hp, float)
 	NEXT_READ_NORMAL_CASE(13, p_isAwake, bool)
-	NEXT_READ_REPEATED_OBJECT_CASE(14, p_ld, SINGLE_ARG(Dict<int32, List< VdesVector2 > >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
-	NEXT_READ_NORMAL_CASE(15, p_lv, ViSlI3tNgu2aFVB8BXYUxf9w)
-	NEXT_READ_NORMAL_CASE(16, p_nv, Vi)
-	NEXT_READ_NORMAL_CASE(17, p_pos, Vector2)
-	NEXT_READ_REPEATED_OBJECT_CASE(18, p_posi, SINGLE_ARG(Dict<int32, float >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
-	NEXT_READ_REPEATED_OBJECT_CASE(19, p_posl, Vector2, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
-	NEXT_READ_REPEATED_OBJECT_CASE(20, p_poss, SINGLE_ARG(Dict<int32, Vector2 >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
-	NEXT_READ_REPEATED_OBJECT_CASE(21, p_pyd, SINGLE_ARG(Dict<int32, Python<Shadow_PyType> >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
-	NEXT_READ_REPEATED_OBJECT_CASE(22, p_pyl, Python<Shadow_PyType>, PREV_IS_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
-	NEXT_READ_NORMAL_CASE(23, p_pyv1, ViPyType)
-	NEXT_READ_NORMAL_CASE(24, p_pyv2, ViPyType)
-	NEXT_READ_REPEATED_OBJECT_CASE(25, p_sd, SINGLE_ARG(Dict<int32, string >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
-	NEXT_READ_NORMAL_CASE(26, p_sl, string)
-	NEXT_READ_NORMAL_CASE(27, p_v1, VbyfiVector2)
-	NEXT_READ_NORMAL_CASE(28, p_v2, VfisVector2)
-	NEXT_READ_NORMAL_CASE(29, p_v3, VfisVector2)
-	NEXT_READ_NORMAL_CASE(30, p_v4, VfisVector2)
-	NEXT_READ_REPEATED_OBJECT_CASE(31, p_vd, SINGLE_ARG(Dict<int32, VdesVector2 >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
-	NEXT_READ_REPEATED_OBJECT_CASE(32, p_vl, VfpisVector2, PREV_IS_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(14, p_ld, SINGLE_ARG(Dict<int32, List< VdesVector2 > >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(15, p_ll, VQYZcwhNx5__EgIiJ__uNsYGw, PREV_IS_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
+	NEXT_READ_NORMAL_CASE(16, p_lv, ViSlI3tNgu2aFVB8BXYUxf9w)
+	NEXT_READ_NORMAL_CASE(17, p_nv, Vi)
+	NEXT_READ_NORMAL_CASE(18, p_pos, Vector2)
+	NEXT_READ_REPEATED_OBJECT_CASE(19, p_posi, SINGLE_ARG(Dict<int32, float >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(20, p_posl, Vector2, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(21, p_poss, SINGLE_ARG(Dict<int32, Vector2 >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(22, p_pyd, SINGLE_ARG(Dict<int32, Python<Shadow_PyType> >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(23, p_pyl, Python<Shadow_PyType>, PREV_IS_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
+	NEXT_READ_NORMAL_CASE(24, p_pyv1, ViPyType)
+	NEXT_READ_NORMAL_CASE(25, p_pyv2, ViPyType)
+	NEXT_READ_REPEATED_OBJECT_CASE(26, p_sd, SINGLE_ARG(Dict<int32, string >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
+	NEXT_READ_NORMAL_CASE(27, p_sl, string)
+	NEXT_READ_NORMAL_CASE(28, p_v1, VbyfiVector2)
+	NEXT_READ_NORMAL_CASE(29, p_v2, VfisVector2)
+	NEXT_READ_NORMAL_CASE(30, p_v3, VfisVector2)
+	NEXT_READ_NORMAL_CASE(31, p_v4, VfisVector2)
+	NEXT_READ_REPEATED_OBJECT_CASE(32, p_vd, SINGLE_ARG(Dict<int32, VdesVector2 >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(33, p_vl, VfpisVector2, PREV_IS_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
 	END_READ_CASE()
 }
 
 // ===================================================================
 
-const int Fighter::PropertyCount = 32;
+const int Fighter::PropertyCount = 33;
 char* Fighter::Properties[] = {
 	"bd",
 	"bl",
@@ -212,6 +217,7 @@ char* Fighter::Properties[] = {
 	"hp",
 	"isAwake",
 	"ld",
+	"ll",
 	"lv",
 	"nv",
 	"pos",
@@ -249,24 +255,25 @@ int Fighter::PropertyByteSize(int tag) const {
 		case 12: ::typy::ByteSize(size, 1, p_hp); if (size == 0) { size = 1; } break;
 		case 13: ::typy::ByteSize(size, 1, p_isAwake); if (size == 0) { size = 1; } break;
 		case 14: ::typy::ByteSize(size, 1, p_ld); if (size == 0) { size = 1; } break;
-		case 15: ::typy::ByteSize(size, 1, p_lv); if (size == 0) { size = 1; } break;
-		case 16: ::typy::ByteSize(size, 2, p_nv); if (size == 0) { size = 2; } break;
-		case 17: ::typy::ByteSize(size, 2, p_pos); if (size == 0) { size = 2; } break;
-		case 18: ::typy::ByteSize(size, 2, p_posi); if (size == 0) { size = 2; } break;
-		case 19: ::typy::ByteSize(size, 2, p_posl); if (size == 0) { size = 2; } break;
-		case 20: ::typy::ByteSize(size, 2, p_poss); if (size == 0) { size = 2; } break;
-		case 21: ::typy::ByteSize(size, 2, p_pyd); if (size == 0) { size = 2; } break;
-		case 22: ::typy::ByteSize(size, 2, p_pyl); if (size == 0) { size = 2; } break;
-		case 23: ::typy::ByteSize(size, 2, p_pyv1); if (size == 0) { size = 2; } break;
-		case 24: ::typy::ByteSize(size, 2, p_pyv2); if (size == 0) { size = 2; } break;
-		case 25: ::typy::ByteSize(size, 2, p_sd); if (size == 0) { size = 2; } break;
-		case 26: ::typy::ByteSize(size, 2, p_sl); if (size == 0) { size = 2; } break;
-		case 27: ::typy::ByteSize(size, 2, p_v1); if (size == 0) { size = 2; } break;
-		case 28: ::typy::ByteSize(size, 2, p_v2); if (size == 0) { size = 2; } break;
-		case 29: ::typy::ByteSize(size, 2, p_v3); if (size == 0) { size = 2; } break;
-		case 30: ::typy::ByteSize(size, 2, p_v4); if (size == 0) { size = 2; } break;
-		case 31: ::typy::ByteSize(size, 2, p_vd); if (size == 0) { size = 2; } break;
-		case 32: ::typy::ByteSize(size, 2, p_vl); if (size == 0) { size = 2; } break;
+		case 15: ::typy::ByteSize(size, 1, p_ll); if (size == 0) { size = 1; } break;
+		case 16: ::typy::ByteSize(size, 2, p_lv); if (size == 0) { size = 2; } break;
+		case 17: ::typy::ByteSize(size, 2, p_nv); if (size == 0) { size = 2; } break;
+		case 18: ::typy::ByteSize(size, 2, p_pos); if (size == 0) { size = 2; } break;
+		case 19: ::typy::ByteSize(size, 2, p_posi); if (size == 0) { size = 2; } break;
+		case 20: ::typy::ByteSize(size, 2, p_posl); if (size == 0) { size = 2; } break;
+		case 21: ::typy::ByteSize(size, 2, p_poss); if (size == 0) { size = 2; } break;
+		case 22: ::typy::ByteSize(size, 2, p_pyd); if (size == 0) { size = 2; } break;
+		case 23: ::typy::ByteSize(size, 2, p_pyl); if (size == 0) { size = 2; } break;
+		case 24: ::typy::ByteSize(size, 2, p_pyv1); if (size == 0) { size = 2; } break;
+		case 25: ::typy::ByteSize(size, 2, p_pyv2); if (size == 0) { size = 2; } break;
+		case 26: ::typy::ByteSize(size, 2, p_sd); if (size == 0) { size = 2; } break;
+		case 27: ::typy::ByteSize(size, 2, p_sl); if (size == 0) { size = 2; } break;
+		case 28: ::typy::ByteSize(size, 2, p_v1); if (size == 0) { size = 2; } break;
+		case 29: ::typy::ByteSize(size, 2, p_v2); if (size == 0) { size = 2; } break;
+		case 30: ::typy::ByteSize(size, 2, p_v3); if (size == 0) { size = 2; } break;
+		case 31: ::typy::ByteSize(size, 2, p_v4); if (size == 0) { size = 2; } break;
+		case 32: ::typy::ByteSize(size, 2, p_vd); if (size == 0) { size = 2; } break;
+		case 33: ::typy::ByteSize(size, 2, p_vl); if (size == 0) { size = 2; } break;
 	}
 	return size;
 }
@@ -358,111 +365,117 @@ void Fighter::SerializeProperty(CodedOutputStream* output, int tag) const {
 		}
 		break;
 	case 15:
-		::typy::Write(15, p_lv, output);
+		::typy::Write(15, p_ll, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(15, p_lv, output);
+			::typy::WriteTag(15, p_ll, output);
 		}
 		break;
 	case 16:
-		::typy::Write(16, p_nv, output);
+		::typy::Write(16, p_lv, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(16, p_nv, output);
+			::typy::WriteTag(16, p_lv, output);
 		}
 		break;
 	case 17:
-		::typy::Write(17, p_pos, output);
+		::typy::Write(17, p_nv, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(17, p_pos, output);
+			::typy::WriteTag(17, p_nv, output);
 		}
 		break;
 	case 18:
-		::typy::Write(18, p_posi, output);
+		::typy::Write(18, p_pos, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(18, p_posi, output);
+			::typy::WriteTag(18, p_pos, output);
 		}
 		break;
 	case 19:
-		::typy::Write(19, p_posl, output);
+		::typy::Write(19, p_posi, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(19, p_posl, output);
+			::typy::WriteTag(19, p_posi, output);
 		}
 		break;
 	case 20:
-		::typy::Write(20, p_poss, output);
+		::typy::Write(20, p_posl, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(20, p_poss, output);
+			::typy::WriteTag(20, p_posl, output);
 		}
 		break;
 	case 21:
-		::typy::Write(21, p_pyd, output);
+		::typy::Write(21, p_poss, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(21, p_pyd, output);
+			::typy::WriteTag(21, p_poss, output);
 		}
 		break;
 	case 22:
-		::typy::Write(22, p_pyl, output);
+		::typy::Write(22, p_pyd, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(22, p_pyl, output);
+			::typy::WriteTag(22, p_pyd, output);
 		}
 		break;
 	case 23:
-		::typy::Write(23, p_pyv1, output);
+		::typy::Write(23, p_pyl, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(23, p_pyv1, output);
+			::typy::WriteTag(23, p_pyl, output);
 		}
 		break;
 	case 24:
-		::typy::Write(24, p_pyv2, output);
+		::typy::Write(24, p_pyv1, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(24, p_pyv2, output);
+			::typy::WriteTag(24, p_pyv1, output);
 		}
 		break;
 	case 25:
-		::typy::Write(25, p_sd, output);
+		::typy::Write(25, p_pyv2, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(25, p_sd, output);
+			::typy::WriteTag(25, p_pyv2, output);
 		}
 		break;
 	case 26:
-		::typy::Write(26, p_sl, output);
+		::typy::Write(26, p_sd, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(26, p_sl, output);
+			::typy::WriteTag(26, p_sd, output);
 		}
 		break;
 	case 27:
-		::typy::Write(27, p_v1, output);
+		::typy::Write(27, p_sl, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(27, p_v1, output);
+			::typy::WriteTag(27, p_sl, output);
 		}
 		break;
 	case 28:
-		::typy::Write(28, p_v2, output);
+		::typy::Write(28, p_v1, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(28, p_v2, output);
+			::typy::WriteTag(28, p_v1, output);
 		}
 		break;
 	case 29:
-		::typy::Write(29, p_v3, output);
+		::typy::Write(29, p_v2, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(29, p_v3, output);
+			::typy::WriteTag(29, p_v2, output);
 		}
 		break;
 	case 30:
-		::typy::Write(30, p_v4, output);
+		::typy::Write(30, p_v3, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(30, p_v4, output);
+			::typy::WriteTag(30, p_v3, output);
 		}
 		break;
 	case 31:
-		::typy::Write(31, p_vd, output);
+		::typy::Write(31, p_v4, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(31, p_vd, output);
+			::typy::WriteTag(31, p_v4, output);
 		}
 		break;
 	case 32:
-		::typy::Write(32, p_vl, output);
+		::typy::Write(32, p_vd, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(32, p_vl, output);
+			::typy::WriteTag(32, p_vd, output);
+		}
+		break;
+	case 33:
+		::typy::Write(33, p_vl, output);
+		if (output->ByteCount() <= 0) {
+			::typy::WriteTag(33, p_vl, output);
 		}
 		break;
 	}
@@ -494,24 +507,25 @@ int Fighter::DeserializeProperty(CodedInputStream* input) {
 		case 12: ::typy::Clear(p_hp); break;
 		case 13: ::typy::Clear(p_isAwake); break;
 		case 14: ::typy::Clear(p_ld); break;
-		case 15: ::typy::Clear(p_lv); break;
-		case 16: ::typy::Clear(p_nv); break;
-		case 17: ::typy::Clear(p_pos); break;
-		case 18: ::typy::Clear(p_posi); break;
-		case 19: ::typy::Clear(p_posl); break;
-		case 20: ::typy::Clear(p_poss); break;
-		case 21: ::typy::Clear(p_pyd); break;
-		case 22: ::typy::Clear(p_pyl); break;
-		case 23: ::typy::Clear(p_pyv1); break;
-		case 24: ::typy::Clear(p_pyv2); break;
-		case 25: ::typy::Clear(p_sd); break;
-		case 26: ::typy::Clear(p_sl); break;
-		case 27: ::typy::Clear(p_v1); break;
-		case 28: ::typy::Clear(p_v2); break;
-		case 29: ::typy::Clear(p_v3); break;
-		case 30: ::typy::Clear(p_v4); break;
-		case 31: ::typy::Clear(p_vd); break;
-		case 32: ::typy::Clear(p_vl); break;
+		case 15: ::typy::Clear(p_ll); break;
+		case 16: ::typy::Clear(p_lv); break;
+		case 17: ::typy::Clear(p_nv); break;
+		case 18: ::typy::Clear(p_pos); break;
+		case 19: ::typy::Clear(p_posi); break;
+		case 20: ::typy::Clear(p_posl); break;
+		case 21: ::typy::Clear(p_poss); break;
+		case 22: ::typy::Clear(p_pyd); break;
+		case 23: ::typy::Clear(p_pyl); break;
+		case 24: ::typy::Clear(p_pyv1); break;
+		case 25: ::typy::Clear(p_pyv2); break;
+		case 26: ::typy::Clear(p_sd); break;
+		case 27: ::typy::Clear(p_sl); break;
+		case 28: ::typy::Clear(p_v1); break;
+		case 29: ::typy::Clear(p_v2); break;
+		case 30: ::typy::Clear(p_v3); break;
+		case 31: ::typy::Clear(p_v4); break;
+		case 32: ::typy::Clear(p_vd); break;
+		case 33: ::typy::Clear(p_vl); break;
 	}
 
 	if (!tagInput.ExpectAtEnd()) {
@@ -536,6 +550,7 @@ TYPY_GETSET(Fighter, p_flv, Variant(Integer, List));
 TYPY_GETSET(Fighter, p_hp, float);
 TYPY_GETSET(Fighter, p_isAwake, bool);
 TYPY_GETSET(Fighter, p_ld, Dict(int32 -> List< VdesVector2 >));
+TYPY_GETSET(Fighter, p_ll, List(VQYZcwhNx5__EgIiJ__uNsYGw));
 TYPY_GETSET(Fighter, p_lv, Variant(Integer, List));
 TYPY_GETSET(Fighter, p_nv, Variant(Integer));
 TYPY_GETSET(Fighter, p_pos, Vector2);
@@ -570,6 +585,7 @@ template <> PyGetSetDef Object<Fighter>::GetSet[] = {
 	{"hp", (getter)Get_p_hp, (setter)Set_p_hp, "Property hp"},
 	{"isAwake", (getter)Get_p_isAwake, (setter)Set_p_isAwake, "Property isAwake"},
 	{"ld", (getter)Get_p_ld, (setter)Set_p_ld, "Property ld"},
+	{"ll", (getter)Get_p_ll, (setter)Set_p_ll, "Property ll"},
 	{"lv", (getter)Get_p_lv, (setter)Set_p_lv, "Property lv"},
 	{"nv", (getter)Get_p_nv, (setter)Set_p_nv, "Property nv"},
 	{"pos", (getter)Get_p_pos, (setter)Set_p_pos, "Property pos"},

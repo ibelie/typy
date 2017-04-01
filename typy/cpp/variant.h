@@ -80,7 +80,7 @@ VARIANT::VARIANT() : Message() {                                         \
 VARIANT::~VARIANT() { Clear(); }                                         \
                                                                          \
 ::std::string VARIANT::GetTypeName() const {                             \
-	return #FULL_MODULE_NAME "." #VARIANT;                               \
+	return FULL_NAME_STR "." #VARIANT;                                   \
 }                                                                        \
                                                                          \
 VARIANT* VARIANT::New() const { return new VARIANT; }                    \
