@@ -22,7 +22,4 @@ setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
 Vector2 = _typyd.register('Vector2', (
 	('x', 1, 0),
 ))
-
-print Vector2, Vector2()
-
 """

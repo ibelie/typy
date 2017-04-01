@@ -11,9 +11,9 @@ extern "C" {
 PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
-	TypyObject* object = (TypyObject*)malloc(sizeof(TypyObject) + sizeof(TypeField) * type->ty_size);
+	PyObject* object = (PyObject*)malloc(sizeof(TypyObject) + sizeof(TypeField) * type->ty_size);
 	PyObject_INIT(object, type->py_type);
-	if (kwargs != NULL) {
+	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
 			if (PyObject_SetAttr(object, k, v) == -1) {
 				break;
@@ -24,32 +24,34 @@ PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
-	if (self == arg) {
+	register TypyObject* from = (TypyObject*)arg;
+	if (self == from) {
 		Py_RETURN_NONE;
 	}
-	if (Typy_TYPE(self) != Typy_TYPE(self)) {
+	if (Typy_TYPE(self) != Typy_TYPE(from)) {
 		PyErr_Format(PyExc_TypeError,
 			"Parameter to CopyFrom() must be instance of same class: "
 			"expected %.100s got %.100s(%.100s).",
-			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(arg));
+			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(from));
 		return NULL;
 	}
-	Typy_CopyFrom(self, arg);
+	Typy_CopyFrom(self, from);
 	Py_RETURN_NONE;
 }
 
 PyObject* Py_MergeFrom(TypyObject* self, PyObject* arg) {
-	if (self == arg) {
+	register TypyObject* from = (TypyObject*)arg;
+	if (self == from) {
 		Py_RETURN_NONE;
 	}
-	if (!PyObject_TypeCheck(arg, Py_TYPE(self))) {
+	if (Typy_TYPE(self) != Typy_TYPE(from)) {
 		PyErr_Format(PyExc_TypeError,
-			"Parameter to MergeFrom() must be instance of same class: "
-			"expected %.100s got %.100s.",
-			Py_TYPE(self)->tp_name, Py_TYPE(arg)->tp_name);
+			"Parameter to CopyFrom() must be instance of same class: "
+			"expected %.100s got %.100s(%.100s).",
+			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(from));
 		return NULL;
 	}
-	Typy_MergeFrom(self, arg);
+	Typy_MergeFrom(self, from);
 	Py_RETURN_NONE;
 }
 
@@ -59,7 +61,7 @@ PyObject* Py_SerializeString(TypyObject* self) {
 		return PyBytes_FromString("");
 	}
 	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (result == NULL) { return NULL; }
+	if (!result) { return NULL; }
 	Typy_SerializeString(self, (byte*)PyBytes_AS_STRING(result));
 	return result;
 }
@@ -79,12 +81,12 @@ PyObject* Py_MergeFromString(TypyObject* self, PyObject* arg) {
 }
 
 PyObject* Py_SerializeProperty(TypyObject* self, PyObject* arg) {
-	if (arg == NULL || arg == Py_None) {
+	if (!arg || arg == Py_None) {
 		FormatTypeError(arg, "SerializeProperty expect property name, but ");
 		return NULL;
 	} else if (PyUnicode_Check(arg)) {
 		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
-		if (arg == NULL) { return NULL; }
+		if (!arg) { return NULL; }
 	} else if (PyBytes_Check(arg)) {
 		Py_INCREF(arg);
 	} else {
@@ -105,7 +107,7 @@ PyObject* Py_SerializeProperty(TypyObject* self, PyObject* arg) {
 		return NULL;
 	}
 	register PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (result == NULL) {
+	if (!result) {
 		Py_DECREF(arg);
 		return NULL;
 	}
@@ -178,11 +180,13 @@ static PyObject* CallObject2(PyObject* self, const char *name, PyObject* arg1, P
 }
 
 static int half_cmp(PyObject* v, PyObject* w) {
-	ScopedPyObjectPtr result(CallObject(v, "__cmp__", w));
-	if (result == NULL || result.get() == Py_NotImplemented) {
+	PyObject* result = CallObject1(v, "__cmp__", w);
+	if (!result || result == Py_NotImplemented) {
+		Py_XDECREF(result);
 		return -2;
 	} else {
-		long l = PyInt_AsLong(result.get());
+		long l = PyInt_AsLong(result);
+		Py_DECREF(result);
 		return l < 0 ? -1 : l > 0 ? 1 : 0;
 	}
 }
@@ -192,7 +196,7 @@ static int object_Compare(PyObject* v, PyObject* w) {
 	if (c < 0) {
 		return -2;
 	} else if (c == 0) {
-		if (!PyObject_TypeCheck(v, &_Type) && !PyObject_TypeCheck(w, &_Type)) {
+		if (!Typy_TypeCheck(v) && !Typy_TypeCheck(w)) {
 			c = PyObject_Compare(v, w);
 			Py_DECREF(v);
 			Py_DECREF(w);
@@ -204,7 +208,7 @@ static int object_Compare(PyObject* v, PyObject* w) {
 		Py_INCREF(w);
 	}
 
-	if (PyObject_TypeCheck(v, &_Type)) {
+	if (Typy_TypeCheck(v)) {
 		c = half_cmp(v, w);
 		if (c <= 1) {
 			Py_DECREF(v);
@@ -212,7 +216,7 @@ static int object_Compare(PyObject* v, PyObject* w) {
 			return c;
 		}
 	}
-	if (PyObject_TypeCheck(w, &_Type)) {
+	if (Typy_TypeCheck(w)) {
 		c = half_cmp(w, v);
 		if (c <= 1) {
 			Py_DECREF(v);
@@ -235,8 +239,8 @@ static PyObject* half_richcompare(PyObject* v, PyObject* w, int op) {
 		"__gt__",
 		"__ge__",
 	};
-	PyObject* result = CallObject(v, name_op[op], w);
-	if (result == NULL) {
+	PyObject* result = CallObject1(v, name_op[op], w);
+	if (!result) {
 		if (op == 2) {
 			return v == w ? Py_True : Py_False;
 		} else if (op == 3) {
@@ -251,9 +255,9 @@ static PyObject* half_richcompare(PyObject* v, PyObject* w, int op) {
 
 static PyObject* object_Richcompare(PyObject* v, PyObject* w, int op) {
 	static int swapped_op[] = {Py_GT, Py_GE, Py_EQ, Py_NE, Py_LT, Py_LE};
-	if (PyObject_TypeCheck(v, &_Type)) {
+	if (Typy_TypeCheck(v)) {
 		return half_richcompare(v, w, op);
-	} else if (PyObject_TypeCheck(w, &_Type)) {
+	} else if (Typy_TypeCheck(w)) {
 		return half_richcompare(w, v, swapped_op[op]);
 	}
 	Py_INCREF(Py_NotImplemented);
@@ -618,9 +622,9 @@ static PySequenceMethods SqMethods = {
 	(objobjproc)object_Contains, /* sq_contains  */
 };
 
-PyTypeObject TypyTypeObject = {
-	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	0,                                        /* tp_name           */
+PyTypeObject BaseTypyTypeObject = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	FULL_MODULE_NAME ".BaseObject",           /* tp_name           */
 	0,                                        /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
 	(destructor)Typy_Dealloc,                 /* tp_dealloc        */
@@ -647,8 +651,6 @@ PyTypeObject TypyTypeObject = {
 	object_Getiter,                           /* tp_iter           */
 	0,                                        /* tp_iternext       */
 	Methods,                                  /* tp_methods        */
-	0,                                        /* tp_members        */
-	GetSet,                                   /* tp_getset         */
 };
 
 #ifdef __cplusplus

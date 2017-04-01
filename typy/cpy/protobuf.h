@@ -11,11 +11,11 @@
 
 #define TAG_TYPE_BITS 3
 #define TAG_TYPE_MASK ((1 << TAG_TYPE_BITS) - 1)
-#define MAKE_TAG(FIELD_NUMBER, TYPE) (uint32)(((FIELD_NUMBER) << TAG_TYPE_BITS) | (TYPE))
+#define MAKE_TAG(FIELD_NUMBER, TYPE) ((uint32)(((FIELD_NUMBER) << TAG_TYPE_BITS) | (TYPE)))
 #define MAX_TAG(TAG) MAKE_TAG(TAG, TAG_TYPE_MASK)
 #define TAG_CUTOFF(TAG) (MAX_TAG(TAG) <= 0x7F ? 0x7F : (MAX_TAG(TAG) <= 0x3FFF ? 0x3FFF : MAX_TAG(TAG)))
-#define TAG_INDEX(TAG) (size_t)(((TAG) >> TAG_TYPE_BITS) - 1)
-#define TAG_WIRETYPE(TAG) (WireType)((TAG) & TAG_TYPE_MASK)
+#define TAG_INDEX(TAG) ((size_t)(((TAG) >> TAG_TYPE_BITS) - 1))
+#define TAG_WIRETYPE(TAG) ((WireType)((TAG) & TAG_TYPE_MASK))
 
 #ifdef __cplusplus
 extern "C" {

@@ -93,13 +93,14 @@ typedef struct {
 
 typedef struct {
 	PyTypeObject*  py_type;
+	PyObject*      ty_new;
 	IblMap         ty_field2index;
 	char**         ty_index2field;
 	size_t         ty_size;
 	TypyDescriptor ty_descriptor[1];
 } TypyType;
 
-#define Ty_NAME(ty) (char*)(ty->ty_descriptor + ty->ty_size)
+#define Ty_NAME(ty) ((char*)(&((ty)->ty_descriptor[(ty)->ty_size])))
 
 #define TypyObject_HEAD \
     PyObject_HEAD       \
@@ -117,6 +118,7 @@ typedef struct {
 #define Typy_FIELD(ob, i) (((TypyObject*)(ob))->ty_fields[i])
 #define Typy_DESCRIPTOR(ob, i) (Typy_TYPE(ob)->ty_descriptor[i])
 #define Typy_WIRETYPE(ob, i) (Typy_DESCRIPTOR(ob, i).ty_WireType)
+#define Typy_TypeCheck(ob) PyObject_TypeCheck(ob, TypyTypeObject)
 
 inline void Typy_Clear(TypyObject* self) {
 	register size_t i;
@@ -140,7 +142,7 @@ inline void Typy_CopyFrom(TypyObject* self, TypyObject* from) {
 }
 
 inline size_t Typy_ByteSize(TypyObject* self) {
-	register size_t size, i;
+	register size_t size = 0, i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		size += Typy_DESCRIPTOR(self, i).ty_ByteSize(Typy_DESCRIPTOR(self, i).ty_tagsize, Typy_FIELD(self, i));
 	}
@@ -242,7 +244,7 @@ PyObject* Py_SerializeProperty(TypyObject*, PyObject*);
 
 inline void Typy_Dealloc(TypyObject* self) { Typy_Clear(self); free(self); }
 inline PyObject* Py_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
-inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Clear(self); Py_MergeFromString(self, arg); }
+inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Clear(self); return Py_MergeFromString(self, arg); }
 
 typedef struct {
 	TypyObject_HEAD
@@ -251,7 +253,8 @@ typedef struct {
 	size_t ty_cached_size;
 } TypyVariant;
 
-extern PyTypeObject TypyTypeObject;
+extern PyTypeObject BaseTypyTypeObject;
+extern PyTypeObject* TypyTypeObject;
 
 #ifdef __cplusplus
 }

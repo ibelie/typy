@@ -17,6 +17,7 @@ void FormatTypeError(PyObject* arg, const char* err) {
 }
 
 bool isDefaultEncodingUTF8 = false;
+PyTypeObject* TypyTypeObject = NULL;
 
 static const char module_docstring[] =
 "python-proto2 is a module that can be used to enhance proto2 Python API\n"
@@ -31,15 +32,14 @@ static PyObject* SetDefaultEncodingUTF8(PyObject* m) {
 	Py_RETURN_NONE;
 }
 
-static PyTypeObject* _TypyTypeObject;
-
-static inline PyTypeObject* _CopyTypyTypeObject() {
+static inline PyTypeObject* _InheritTypyTypeObject() {
 	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Copy TypyTypeObject: out of memory %d.", sizeof(PyTypeObject));
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Inherit TypyTypeObject: out of memory %d.", sizeof(PyTypeObject));
 		return NULL;
 	}
-	memcpy(type, &TypyTypeObject, sizeof(PyTypeObject));
+	memcpy(type, &BaseTypyTypeObject, sizeof(PyTypeObject));
+	type->tp_base = TypyTypeObject;
 	if (PyType_Ready(type) < 0) {
 		free(type);
 		return NULL;
@@ -54,10 +54,10 @@ static PyObject* InitObject(TypyType* type, PyObject* args) {
 			PyObject *k, *v;
 			Py_ssize_t pos = 0;
 			while (PyDict_Next(attrs, &pos, &k, &v)) {
-				if (type->py_type == _TypyTypeObject) {
-					type->py_type = _CopyTypyTypeObject();
+				if (type->py_type == TypyTypeObject) {
+					type->py_type = _InheritTypyTypeObject();
 					if (!type->py_type) {
-						type->py_type = _TypyTypeObject;
+						type->py_type = TypyTypeObject;
 						return NULL;
 					}
 				}
@@ -70,12 +70,14 @@ static PyObject* InitObject(TypyType* type, PyObject* args) {
 			if (metaclass) { type->py_type->ob_type = (PyTypeObject*)metaclass; }
 		}
 	}
-	//todo:!!!!!! method
-	return type;
+	return type->ty_new;
 }
 
 PyMethodDef InitObjectDef = { "InitObject", (PyCFunction)InitObject, METH_VARARGS,
 	"Initialize Object Type." };
+
+PyMethodDef NewObjectDef = { "NewObject", (PyCFunction)Typy_New, METH_VARARGS | METH_KEYWORDS,
+	"Create Object Type." };
 
 static PyObject* registerObject(PyObject* m, PyObject* args) {
 	char *name;
@@ -93,14 +95,25 @@ static PyObject* registerObject(PyObject* m, PyObject* args) {
 		return NULL;
 	}
 
-	type->py_type = _TypyTypeObject;
+	type->py_type = TypyTypeObject;
 	type->ty_size = ty_size;
 	Ty_NAME(type)[nameLen] = 0;
 	memcpy(Ty_NAME(type), name, nameLen);
 
-	PyCFunctionObject* method = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
+	register PyCFunctionObject* newMethod = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
+	if (!newMethod) {
+		free(type);
+		return NULL;
+	}
+	newMethod->m_ml = &NewObjectDef;
+	newMethod->m_self = (PyObject*)type;
+	newMethod->m_module = NULL;
+	type->ty_new = (PyObject*)newMethod;
+
+	register PyCFunctionObject* method = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
 	if (!method) {
 		free(type);
+		Py_DECREF(newMethod);
 		return NULL;
 	}
 	method->m_ml = &InitObjectDef;
@@ -161,8 +174,9 @@ PyMODINIT_FUNC INITFUNC(void) {
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
 
-	_TypyTypeObject = _CopyTypyTypeObject();
-	if (!_TypyTypeObject) { return INITFUNC_ERRORVAL; }
+	BaseTypyTypeObject.ob_type = &PyType_Type;
+	TypyTypeObject = _InheritTypyTypeObject();
+	if (!TypyTypeObject) { return INITFUNC_ERRORVAL; }
 
 #if PY_MAJOR_VERSION >= 3
 	return m;

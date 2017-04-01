@@ -143,6 +143,8 @@ def setup():
 	globals()['Fighter'] = Fighter
 
 def _build(_typy):
+	global Vector2, Fighter, Corpus, PyType, Empty
+
 	vPy = Vector2(
 		x = 123,
 		y = 45.6,
@@ -570,3 +572,4 @@ def test_cpy():
 	GenerateDescriptor(os.path.dirname(__file__))
 	import _typy
 	_build(_typy)
+	return
