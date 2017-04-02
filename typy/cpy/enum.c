@@ -40,7 +40,7 @@ PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
-static PyObject* Enum_Initialize(TypyEnum* type, PyObject* args) {
+static PyObject* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
 	long key;
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
@@ -62,7 +62,7 @@ static PyObject* Enum_Initialize(TypyEnum* type, PyObject* args) {
 	return (PyObject*)type;
 }
 
-void Enum_Dealloc(TypyEnum* type) {
+void TypyEnum_Dealloc(TypyEnum* type) {
 	if (type->enum_map) {
 		register TypyEnumMap item;
 		register IblMap_Item iter;
@@ -75,7 +75,7 @@ void Enum_Dealloc(TypyEnum* type) {
 	free(type);
 }
 
-static PyObject* Enum_Repr(TypyEnum* type) {
+static PyObject* TypyEnum_Repr(TypyEnum* type) {
 	return PyString_FromFormat("<Enum '" FULL_MODULE_NAME ".%s'>", type->enum_name);
 }
 
@@ -84,18 +84,18 @@ PyTypeObject TypyEnumType = {
 	FULL_MODULE_NAME ".Enum",                 /* tp_name           */
 	sizeof(TypyEnum),                         /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
-	(destructor)Enum_Dealloc,                 /* tp_dealloc        */
+	(destructor)TypyEnum_Dealloc,             /* tp_dealloc        */
 	0,                                        /* tp_print          */
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */
 	0,                                        /* tp_compare        */
-	(reprfunc)Enum_Repr,                      /* tp_repr           */
+	(reprfunc)TypyEnum_Repr,                  /* tp_repr           */
 	0,                                        /* tp_as_number      */
 	0,                                        /* tp_as_sequence    */
 	0,                                        /* tp_as_mapping     */
 	PyObject_HashNotImplemented,              /* tp_hash           */
-	(ternaryfunc)Enum_Initialize,             /* tp_call           */
-	(reprfunc)Enum_Repr,                      /* tp_str            */
+	(ternaryfunc)TypyEnum_Initialize,         /* tp_call           */
+	(reprfunc)TypyEnum_Repr,                  /* tp_str            */
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */

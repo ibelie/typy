@@ -12,6 +12,10 @@ PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
 	PyObject* object = (PyObject*)calloc(1, sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+	if (!object) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc Object: out of memory %d.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+		return NULL;
+	}
 	PyObject_INIT(object, type->py_type);
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
@@ -187,9 +191,9 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyMetaObject* type;
-	PyObject* attrs = Py_None;
+	PyObject* descriptors = Py_None;
 	size_t meta_size = 1;
-	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &attrs)) {
+	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptors)) {
 		return NULL;
 	}
 
@@ -238,7 +242,7 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 PyTypeObject TypyMetaObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaType",            /* tp_name           */
-	0,                                       /* tp_basicsize      */
+	sizeof(TypyMetaObject),                  /* tp_basicsize      */
 	0,                                       /* tp_itemsize       */
 	(destructor)TypyMeta_Dealloc,            /* tp_dealloc        */
 	0,                                       /* tp_print          */

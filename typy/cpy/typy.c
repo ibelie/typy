@@ -40,6 +40,10 @@ static PyMethodDef ModuleMethods[] = {
 		"register typy Variant with properties."},
 	{"Enum", (PyCFunction)Typy_RegisterEnum, METH_VARARGS,
 		"register typy Enum with properties."},
+	{"List", (PyCFunction)Typy_RegisterList, METH_VARARGS,
+		"register typy List with properties."},
+	{"Dict", (PyCFunction)Typy_RegisterDict, METH_VARARGS,
+		"register typy Dict with properties."},
 	{"Python", (PyCFunction)Typy_RegisterPython, METH_VARARGS,
 		"register typy Python with properties."},
 	{"FixedPoint", (PyCFunction)Typy_RegisterFixedPoint, METH_VARARGS,
@@ -93,6 +97,14 @@ PyMODINIT_FUNC INITFUNC(void) {
 
 	TypyEnumType.ob_type = &PyType_Type;
 	if (PyType_Ready(&TypyEnumType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyPythonType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyPythonType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyFixedPointType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyFixedPointType) < 0) {
 		return INITFUNC_ERRORVAL;
 	}
 

@@ -22,19 +22,18 @@ extern PyTypeObject TypyVariantType;
 extern PyTypeObject TypyMetaVariantType;
 PyObject* Typy_RegisterVariant(PyObject*, PyObject*);
 
-PyObject* Variant_New(TypyMetaObject*, PyObject*, PyObject*);
-PyObject* Variant_toPyObject(TypyVariant*);
-bool      Variant_fromPyObject(TypyVariant*, PyObject*);
-void      Variant_Dealloc(TypyVariant*);
+PyObject* TypyVariant_New(TypyMetaObject*, PyObject*, PyObject*);
+PyObject* TypyVariant_toPyObject(TypyVariant*);
+bool      TypyVariant_fromPyObject(TypyVariant*, PyObject*);
 
-inline void Variant_Clear(TypyVariant* self) {
+inline void TypyVariant_Clear(TypyVariant* self) {
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return; }
 	Typy_METHOD(self, i, Clear, &Typy_FIELD(self, i));
 	self->variant_index = -1;
 }
 
-inline size_t Variant_ByteSize(TypyVariant* self) {
+inline size_t TypyVariant_ByteSize(TypyVariant* self) {
 	register size_t size = 0;
 	register int i = self->variant_index;
 	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
@@ -44,13 +43,13 @@ inline size_t Variant_ByteSize(TypyVariant* self) {
 	return size;
 }
 
-inline void Variant_SerializeString(TypyVariant* self, byte* output) {
+inline void TypyVariant_SerializeString(TypyVariant* self, byte* output) {
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return; }
 	output += Typy_METHOD(self, i, Write, Typy_ARGS(Typy_TAG(self, i), Typy_FIELD(self, i), output));
 }
 
-inline size_t Variant_MergeFromString(TypyVariant* self, byte* input, size_t length) {
+inline size_t TypyVariant_MergeFromString(TypyVariant* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
 	if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
@@ -59,12 +58,12 @@ inline size_t Variant_MergeFromString(TypyVariant* self, byte* input, size_t len
 	register int index = TAG_INDEX(tag);
 	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return 0; }
 	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
-		Variant_Clear(self);
+		TypyVariant_Clear(self);
 		if (!Typy_METHOD(self, index, Read, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
 			return 0;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
-		Variant_Clear(self);
+		TypyVariant_Clear(self);
 		if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
 			return 0;
 		}

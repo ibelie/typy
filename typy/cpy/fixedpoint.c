@@ -28,11 +28,11 @@ PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
-void FixedPoint_Dealloc(TypyFixedPoint* type) {
+void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
 	free(type);
 }
 
-static PyObject* FixedPoint_Repr(TypyFixedPoint* type) {
+static PyObject* TypyFixedPoint_Repr(TypyFixedPoint* type) {
 	return PyString_FromFormat("<type '" FULL_MODULE_NAME ".FixedPoint' precision(%d) floor(%d)>",
 		type->fixedpoint_precision, type->fixedpoint_floor);
 }
@@ -42,18 +42,18 @@ PyTypeObject TypyFixedPointType = {
 	FULL_MODULE_NAME ".FixedPoint",           /* tp_name           */
 	sizeof(TypyFixedPoint),                   /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
-	(destructor)FixedPoint_Dealloc,           /* tp_dealloc        */
+	(destructor)TypyFixedPoint_Dealloc,       /* tp_dealloc        */
 	0,                                        /* tp_print          */
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */
 	0,                                        /* tp_compare        */
-	(reprfunc)FixedPoint_Repr,                /* tp_repr           */
+	(reprfunc)TypyFixedPoint_Repr,            /* tp_repr           */
 	0,                                        /* tp_as_number      */
 	0,                                        /* tp_as_sequence    */
 	0,                                        /* tp_as_mapping     */
 	PyObject_HashNotImplemented,              /* tp_hash           */
 	0,                                        /* tp_call           */
-	(reprfunc)FixedPoint_Repr,                /* tp_str            */
+	(reprfunc)TypyFixedPoint_Repr,            /* tp_str            */
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */

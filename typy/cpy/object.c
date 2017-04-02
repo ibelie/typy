@@ -500,7 +500,7 @@ static PySequenceMethods SqMethods = {
 PyTypeObject BaseTypyObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".BaseObject",           /* tp_name           */
-	0,                                        /* tp_basicsize      */
+	sizeof(TypyObject),                       /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
 	(destructor)Typy_Dealloc,                 /* tp_dealloc        */
 	0,                                        /* tp_print          */

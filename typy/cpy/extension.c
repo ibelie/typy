@@ -30,7 +30,7 @@ PyObject* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
-static PyObject* Python_Initialize(TypyPython* type, PyObject* args) {
+static PyObject* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 	PyObject* python_type = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &python_type)) {
 		Py_XDECREF(type->python_type);
@@ -41,12 +41,12 @@ static PyObject* Python_Initialize(TypyPython* type, PyObject* args) {
 	return (PyObject*)type;
 }
 
-void Python_Dealloc(TypyPython* type) {
+void TypyPython_Dealloc(TypyPython* type) {
 	Py_XDECREF(type->python_type);
 	free(type);
 }
 
-static PyObject* Python_Repr(TypyPython* type) {
+static PyObject* TypyPython_Repr(TypyPython* type) {
 	return PyString_FromFormat("<Python '" FULL_MODULE_NAME ".%s'>", type->python_name);
 }
 
@@ -55,18 +55,18 @@ PyTypeObject TypyPythonType = {
 	FULL_MODULE_NAME ".Python",               /* tp_name           */
 	sizeof(TypyPython),                       /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
-	(destructor)Python_Dealloc,               /* tp_dealloc        */
+	(destructor)TypyPython_Dealloc,           /* tp_dealloc        */
 	0,                                        /* tp_print          */
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */
 	0,                                        /* tp_compare        */
-	(reprfunc)Python_Repr,                    /* tp_repr           */
+	(reprfunc)TypyPython_Repr,                /* tp_repr           */
 	0,                                        /* tp_as_number      */
 	0,                                        /* tp_as_sequence    */
 	0,                                        /* tp_as_mapping     */
 	PyObject_HashNotImplemented,              /* tp_hash           */
-	(ternaryfunc)Python_Initialize,           /* tp_call           */
-	(reprfunc)Python_Repr,                    /* tp_str            */
+	(ternaryfunc)TypyPython_Initialize,       /* tp_call           */
+	(reprfunc)TypyPython_Repr,                /* tp_str            */
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */

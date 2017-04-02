@@ -12,9 +12,9 @@ PyObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyMetaObject* type;
-	PyObject* attrs = Py_None;
+	PyObject* descriptors = Py_None;
 	size_t meta_size = 1;
-	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &attrs)) {
+	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptors)) {
 		return NULL;
 	}
 
@@ -49,49 +49,53 @@ PyObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
-PyObject* Variant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
+PyObject* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject* variant = (PyObject*)calloc(1, sizeof(TypyVariant));
+	if (!variant) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc Variant: out of memory %d.", sizeof(TypyVariant));
+		return NULL;
+	}
 	PyObject_INIT(variant, &TypyVariantType);
 	((TypyVariant*)variant)->variant_index = -1;
 	return variant;
 }
 
-PyObject* Variant_toPyObject(TypyVariant* self) {
-	/* todo: Variant_toPyObject */
+PyObject* TypyVariant_toPyObject(TypyVariant* self) {
+	/* todo: TypyVariant_toPyObject */
 	Py_RETURN_NONE;
 }
 
-bool Variant_fromPyObject(TypyVariant* self, PyObject* from) {
-	/* todo: Variant_fromPyObject */
+bool TypyVariant_fromPyObject(TypyVariant* self, PyObject* from) {
+	/* todo: TypyVariant_fromPyObject */
 	return false;
 }
 
-void Variant_Dealloc(TypyVariant* self) {
-	Variant_Clear(self);
+static void TypyVariant_Dealloc(TypyVariant* self) {
+	TypyVariant_Clear(self);
 	free(self);
 }
 
-static PyObject* Variant_Repr(TypyMetaObject* type) {
+static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
 	return PyString_FromFormat("<Variant '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
 }
 
 PyTypeObject TypyMetaVariantType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaVariant",         /* tp_name           */
-	0,                                       /* tp_basicsize      */
+	sizeof(TypyMetaObject),                  /* tp_basicsize      */
 	0,                                       /* tp_itemsize       */
 	(destructor)TypyMeta_Dealloc,            /* tp_dealloc        */
 	0,                                       /* tp_print          */
 	0,                                       /* tp_getattr        */
 	0,                                       /* tp_setattr        */
 	0,                                       /* tp_compare        */
-	(reprfunc)Variant_Repr,                  /* tp_repr           */
+	(reprfunc)TypyVariant_Repr,              /* tp_repr           */
 	0,                                       /* tp_as_number      */
 	0,                                       /* tp_as_sequence    */
 	0,                                       /* tp_as_mapping     */
 	PyObject_HashNotImplemented,             /* tp_hash           */
-	(ternaryfunc)Variant_New,                /* tp_call           */
-	(reprfunc)Variant_Repr,                  /* tp_str            */
+	(ternaryfunc)TypyVariant_New,            /* tp_call           */
+	(reprfunc)TypyVariant_Repr,              /* tp_str            */
 	0,                                       /* tp_getattro       */
 	0,                                       /* tp_setattro       */
 	0,                                       /* tp_as_buffer      */
@@ -104,7 +108,7 @@ PyTypeObject TypyVariantType = {
 	FULL_MODULE_NAME ".Variant",              /* tp_name           */
 	sizeof(TypyVariant),                      /* tp_basicsize      */
 	0,                                        /* tp_itemsize       */
-	(destructor)Variant_Dealloc,              /* tp_dealloc        */
+	(destructor)TypyVariant_Dealloc,          /* tp_dealloc        */
 	0,                                        /* tp_print          */
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */

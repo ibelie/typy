@@ -18,6 +18,12 @@ print PyType
 FixedPoint_3_5 = _typyd.FixedPoint(3, 5)
 print FixedPoint_3_5
 
+# Listxxx = _typyd.List('Listxxx', (1, 2, 3))
+# print Listxxx
+
+# Dictxxx = _typyd.Dict('Dictxxx', (1, 2, 3), (1, 2, 3))
+# print Dictxxx
+
 
 Fighter = _typyd.Object('Fighter', (
 	("bd", 9, 1, 1, 2, True),
