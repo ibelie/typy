@@ -5,7 +5,7 @@
 #include "typy.h"
 
 
-ty_GetPyObject = {
+abstract_GetPyObject = {
 /* TYPE_ENUM       */
 /* TYPE_INT32      */
 /* TYPE_INT64      */
@@ -24,35 +24,35 @@ ty_GetPyObject = {
 /* TYPE_PYTHON     */
 };
 
-ty_CheckAndSet = {
+abstract_CheckAndSet = {
 
 };
 
-ty_CopyFrom = {
+abstract_CopyFrom = {
 
 };
 
-ty_MergeFrom = {
+abstract_MergeFrom = {
 
 };
 
-ty_Clear = {
+abstract_Clear = {
 
 };
 
-ty_Read = {
+abstract_Read = {
 
 };
 
-ty_ReadPacked = {
+abstract_ReadPacked = {
 
 };
 
-ty_Write = {
+abstract_Write = {
 
 };
 
-ty_ByteSize = {
+abstract_ByteSize = {
 
 };
 

@@ -55,7 +55,13 @@ setup(
 
 	cmdclass = {'build_ext': typy_build_ext},
 	ext_modules = [Extension('typy._typyd',
-		sources = ['typy/cpy/typy.c', 'typy/cpy/object.c', 'typy/cpy/map.c', 'typy/cpy/tree.c'],
+		sources = [
+			'typy/cpy/typy.c',
+			'typy/cpy/object.c',
+			'typy/cpy/metaobject.c',
+			'typy/cpy/map.c',
+			'typy/cpy/tree.c',
+		],
 		include_dirs = ['typy/cpy'],
 	)],
 

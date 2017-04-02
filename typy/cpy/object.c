@@ -8,131 +8,6 @@
 extern "C" {
 #endif
 
-PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
-	PyObject *k, *v;
-	Py_ssize_t pos = 0;
-	PyObject* object = (PyObject*)malloc(sizeof(TypyObject) + sizeof(TypyField) * type->ty_size);
-	PyObject_INIT(object, type->py_type);
-	if (kwargs) {
-		while (PyDict_Next(kwargs, &pos, &k, &v)) {
-			if (PyObject_SetAttr(object, k, v) == -1) {
-				break;
-			}
-		}
-	}
-	return object;
-}
-
-PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
-	register TypyObject* from = (TypyObject*)arg;
-	if (self == from) {
-		Py_RETURN_NONE;
-	}
-	if (Typy_TYPE(self) != Typy_TYPE(from)) {
-		PyErr_Format(PyExc_TypeError,
-			"Parameter to CopyFrom() must be instance of same class: "
-			"expected %.100s got %.100s(%.100s).",
-			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(from));
-		return NULL;
-	}
-	Typy_CopyFrom(self, from);
-	Py_RETURN_NONE;
-}
-
-PyObject* Py_MergeFrom(TypyObject* self, PyObject* arg) {
-	register TypyObject* from = (TypyObject*)arg;
-	if (self == from) {
-		Py_RETURN_NONE;
-	}
-	if (Typy_TYPE(self) != Typy_TYPE(from)) {
-		PyErr_Format(PyExc_TypeError,
-			"Parameter to CopyFrom() must be instance of same class: "
-			"expected %.100s got %.100s(%.100s).",
-			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(from));
-		return NULL;
-	}
-	Typy_MergeFrom(self, from);
-	Py_RETURN_NONE;
-}
-
-PyObject* Py_SerializeString(TypyObject* self) {
-	size_t size = Typy_ByteSize(self);
-	if (size <= 0) {
-		return PyBytes_FromString("");
-	}
-	PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (!result) { return NULL; }
-	Typy_SerializeString(self, (byte*)PyBytes_AS_STRING(result));
-	return result;
-}
-
-PyObject* Py_MergeFromString(TypyObject* self, PyObject* arg) {
-	const void* data;
-	Py_ssize_t size;
-	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
-		return NULL;
-	}
-	if ((size = Typy_MergeFromString(self, (byte*)data, size)) > 0) {
-		return PyInt_FromLong(size);
-	} else {
-		PyErr_Format(PyExc_RuntimeError, "Error parsing object");
-		return NULL;
-	}
-}
-
-PyObject* Py_SerializeProperty(TypyObject* self, PyObject* arg) {
-	if (!arg || arg == Py_None) {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		return NULL;
-	} else if (PyUnicode_Check(arg)) {
-		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
-		if (!arg) { return NULL; }
-	} else if (PyBytes_Check(arg)) {
-		Py_INCREF(arg);
-	} else {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		return NULL;
-	}
-
-	register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(arg));
-	if (index < 0) {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		Py_DECREF(arg);
-		return NULL;
-	}
-	register size_t size = Typy_PropertyByteSize(self, index);
-	if (size <= 0) {
-		PyErr_Format(PyExc_RuntimeError, "Error serializing object");
-		Py_DECREF(arg);
-		return NULL;
-	}
-	register PyObject* result = PyBytes_FromStringAndSize(NULL, size);
-	if (!result) {
-		Py_DECREF(arg);
-		return NULL;
-	}
-	Typy_SerializeProperty(self, (byte*)PyBytes_AS_STRING(result), index);
-	Py_DECREF(arg);
-	return result;
-}
-
-PyObject* Py_DeserializeProperty(TypyObject* self, PyObject* arg) {
-	const void* data;
-	Py_ssize_t size;
-	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
-		return NULL;
-	}
-	register int index = Typy_DeserializeProperty(self, (byte*)data, size);
-	if (index < 0) {
-		PyErr_Format(PyExc_RuntimeError, "Error deserializing object");
-		return NULL;
-	} else {
-		return PyBytes_FromString(Typy_PropertyName(self, index));
-	}
-}
-
-// ===================================================================
-
 static PyObject* CallObject(PyObject* self, const char *name) {
 	PyObject* method = PyDict_GetItemString(Py_TYPE(self)->tp_dict, name);
 	if (method && Py_TYPE(method) == &PyMethod_Type) {
@@ -622,7 +497,7 @@ static PySequenceMethods SqMethods = {
 	(objobjproc)object_Contains, /* sq_contains  */
 };
 
-PyTypeObject BaseTypyTypeObject = {
+PyTypeObject BaseTypyObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".BaseObject",           /* tp_name           */
 	0,                                        /* tp_basicsize      */
