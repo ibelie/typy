@@ -85,7 +85,7 @@ def _GenerateObject(name, cls, codes, variants):
 		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, 0, 0, wire_type, field_type, typy_type)))
 
 	codes.append("""
-%s = _typyd.register('%s', (
+%s = _typyd.Object('%s', (
 	%s
 ))
 print %s, %s()
@@ -114,6 +114,11 @@ TYPY_PY__ = ur"""#-*- coding: utf-8 -*-
 
 import _typyd
 setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
+
+asdf = _typyd.Variant('asdf', (
+	(1, 2, 3),
+))
+print asdf, asdf()
 
 %s
 """

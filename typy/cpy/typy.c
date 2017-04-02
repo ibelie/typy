@@ -34,8 +34,10 @@ static PyObject* SetDefaultEncodingUTF8(PyObject* m) {
 static PyMethodDef ModuleMethods[] = {
 	{"setDefaultEncodingUTF8", (PyCFunction)SetDefaultEncodingUTF8, METH_NOARGS,
 		"sys.setdefaultencoding('utf-8') to get better performance for string."},
-	{"register", (PyCFunction)Typy_RegisterObject, METH_VARARGS,
-		"register typy with properties."},
+	{"Object", (PyCFunction)Typy_RegisterObject, METH_VARARGS,
+		"register typy Object with properties."},
+	{"Variant", (PyCFunction)Typy_RegisterVariant, METH_VARARGS,
+		"register typy Variant with properties."},
 	{ NULL, NULL}
 };
 
@@ -83,8 +85,20 @@ PyMODINIT_FUNC INITFUNC(void) {
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
 
-	TypyMetaObjectType.ob_type = &PyType_Type;
+	TypyVariantType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyVariantType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyMetaVariantType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyMetaVariantType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+
 	BaseTypyObjectType.ob_type = &PyType_Type;
+	TypyMetaObjectType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyMetaObjectType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
 	TypyObjectType = _InheritTypyObjectType();
 	if (!TypyObjectType) { return INITFUNC_ERRORVAL; }
 

@@ -4,8 +4,13 @@
 import _typyd
 setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
 
+asdf = _typyd.Variant('asdf', (
+	(1, 2, 3),
+))
+print asdf, asdf()
 
-Fighter = _typyd.register('Fighter', (
+
+Fighter = _typyd.Object('Fighter', (
 	("bd", 9, 1, 1, 2, True),
 	("bl", 17, 1, 1, 2, True),
 	("dd", 25, 1, 1, 2, True),
@@ -42,7 +47,7 @@ Fighter = _typyd.register('Fighter', (
 ))
 print Fighter, Fighter()
 
-Vector2 = _typyd.register('Vector2', (
+Vector2 = _typyd.Object('Vector2', (
 	("b", 9, 1, 1, 2, True),
 	("e", 17, 1, 1, 2, True),
 	("i", 25, 1, 1, 2, True),
@@ -54,7 +59,7 @@ Vector2 = _typyd.register('Vector2', (
 ))
 print Vector2, Vector2()
 
-Fighter_Part2 = _typyd.register('Fighter_Part2', (
+Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	("bd", 9, 1, 1, 2, True),
 	("bl", 17, 1, 1, 2, True),
 	("ed", 25, 1, 1, 2, True),
@@ -76,12 +81,12 @@ Fighter_Part2 = _typyd.register('Fighter_Part2', (
 ))
 print Fighter_Part2, Fighter_Part2()
 
-Empty = _typyd.register('Empty', (
+Empty = _typyd.Object('Empty', (
 	
 ))
 print Empty, Empty()
 
-Fighter_Part1 = _typyd.register('Fighter_Part1', (
+Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	("hp", 9, 1, 1, 2, True),
 	("isAwake", 17, 1, 1, 2, True),
 	("pos", 25, 1, 1, 2, True),

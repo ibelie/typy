@@ -11,7 +11,7 @@ extern "C" {
 PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
-	PyObject* object = (PyObject*)malloc(sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+	PyObject* object = (PyObject*)calloc(1, sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 	PyObject_INIT(object, type->py_type);
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
@@ -135,10 +135,10 @@ PyObject* Py_DeserializeProperty(TypyObject* self, PyObject* arg) {
 
 PyTypeObject* TypyObjectType = NULL;
 
-static void MetaObject_Dealloc(TypyMetaObject* type) {
+void TypyMeta_Dealloc(TypyMetaObject* type) {
 	Py_XDECREF(type->meta_new);
 	if (type->py_type != TypyObjectType) {
-		Py_DECREF(type->py_type);
+		Py_XDECREF(type->py_type);
 	}
 	if (type->meta_index2field) {
 		free(type->meta_index2field);
@@ -175,6 +175,10 @@ static PyObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
 	return type->meta_new;
 }
 
+static PyObject* MetaObject_Repr(TypyMetaObject* type) {
+	return PyString_FromFormat("<MetaObject '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
+}
+
 static PyMethodDef TypyNewDef = { "TypyNew", (PyCFunction)Typy_New, METH_VARARGS | METH_KEYWORDS,
 	"Create Object Type." };
 
@@ -191,7 +195,7 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
 	type = (TypyMetaObject*)malloc(size);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register: out of memory %d.", size);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: out of memory %d.", size);
 		return NULL;
 	}
 
@@ -200,6 +204,7 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	Meta_NAME(type)[nameLen] = 0;
 	memcpy(Meta_NAME(type), name, nameLen);
 	PyObject_INIT(type, &TypyMetaObjectType);
+	/* todo: Typy_RegisterObject */
 	type->meta_index2field = NULL;
 	type->meta_field2index = NULL;
 
@@ -219,23 +224,23 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 PyTypeObject TypyMetaObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaType",            /* tp_name           */
-	sizeof(TypyMetaObjectType),              /* tp_basicsize      */
+	0,                                       /* tp_basicsize      */
 	0,                                       /* tp_itemsize       */
-	(destructor)MetaObject_Dealloc,          /* tp_dealloc        */
+	(destructor)TypyMeta_Dealloc,            /* tp_dealloc        */
 	0,                                       /* tp_print          */
 	0,                                       /* tp_getattr        */
 	0,                                       /* tp_setattr        */
 	0,                                       /* tp_compare        */
-	0,                                       /* tp_repr           */
+	(reprfunc)MetaObject_Repr,               /* tp_repr           */
 	0,                                       /* tp_as_number      */
 	0,                                       /* tp_as_sequence    */
 	0,                                       /* tp_as_mapping     */
 	PyObject_HashNotImplemented,             /* tp_hash           */
 	(ternaryfunc)MetaObject_Initialize,      /* tp_call           */
-	0,                                       /* tp_str            */
+	(reprfunc)MetaObject_Repr,               /* tp_str            */
 	0,                                       /* tp_getattro       */
 	0,                                       /* tp_setattro       */
 	0,                                       /* tp_as_buffer      */
 	Py_TPFLAGS_DEFAULT,                      /* tp_flags          */
-	"The Typy metaclass",                    /* tp_doc            */
+	"The Typy Object Metaclass",             /* tp_doc            */
 };

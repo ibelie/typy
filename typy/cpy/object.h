@@ -55,6 +55,8 @@ typedef struct {
 	TypyDescriptor meta_descriptor[1];
 } TypyMetaObject;
 
+void TypyMeta_Dealloc(TypyMetaObject*);
+
 #define Meta_NAME(meta) ((char*)(&((meta)->meta_descriptor[(meta)->meta_size])))
 
 #define TypyObject_HEAD \
@@ -107,6 +109,11 @@ inline void Typy_Clear(TypyObject* self) {
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		Typy_METHOD(self, i, Clear, &Typy_FIELD(self, i));
 	}
+}
+
+inline void Typy_Dealloc(TypyObject* self) {
+	Typy_Clear(self);
+	free(self);
 }
 
 inline void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
@@ -228,7 +235,6 @@ PyObject* Py_MergeFromString(TypyObject*, PyObject*);
 PyObject* Py_DeserializeProperty(TypyObject*, PyObject*);
 PyObject* Py_SerializeProperty(TypyObject*, PyObject*);
 
-inline void Typy_Dealloc(TypyObject* self) { Typy_Clear(self); free(self); }
 inline PyObject* Py_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
 inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Clear(self); return Py_MergeFromString(self, arg); }
 
