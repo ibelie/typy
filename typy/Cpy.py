@@ -120,5 +120,8 @@ asdf = _typyd.Variant('asdf', (
 ))
 print asdf, asdf()
 
+Corpus = _typyd.Enum('Corpus')
+print Corpus
+
 %s
 """

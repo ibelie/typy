@@ -21,7 +21,7 @@ PyObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
 	type = (TypyMetaObject*)malloc(size);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: out of memory %d.", size);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: MetaObject out of memory %d.", size);
 		return NULL;
 	}
 
@@ -32,8 +32,19 @@ PyObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	memcpy(Meta_NAME(type), name, nameLen);
 	PyObject_INIT(type, &TypyMetaVariantType);
 	/* todo: Typy_RegisterVariant */
-	type->meta_index2field = NULL;
-	type->meta_field2index = NULL;
+	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
+	if (!type->meta_index2field) {
+		free(type);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: index2field out of memory %d.", meta_size * sizeof(char*));
+		return NULL;
+	}
+	type->meta_field2index = TypyFieldMap_New();
+	if (!type->meta_field2index) {
+		free(type->meta_index2field);
+		free(type);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: field2index out of memory.");
+		return NULL;
+	}
 
 	return (PyObject*)type;
 }

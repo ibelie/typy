@@ -2,8 +2,8 @@
 // Use of this source code is governed by The MIT License
 // that can be found in the LICENSE file.
 
-#ifndef TYPY_ENUM_H__
-#define TYPY_ENUM_H__
+#ifndef TYPY_VARIANT_H__
+#define TYPY_VARIANT_H__
 
 #include "typy.h"
 
@@ -77,4 +77,4 @@ inline size_t Variant_MergeFromString(TypyVariant* self, byte* input, size_t len
 }
 #endif
 
-#endif // TYPY_TYPE_H__
+#endif // TYPY_VARIANT_H__

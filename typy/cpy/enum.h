@@ -14,10 +14,14 @@ extern "C" {
 typedef struct {
 	PyObject_HEAD
 	IblMap enum_map;
+	char   enum_name[1];
 } TypyEnum;
+
+extern PyTypeObject TypyEnumType;
+PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // TYPY_TYPE_H__
+#endif // TYPY_ENUM_H__

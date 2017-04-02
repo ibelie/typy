@@ -146,14 +146,15 @@ void TypyMeta_Dealloc(TypyMetaObject* type) {
 	if (type->meta_field2index) {
 		IblMap_Free(type->meta_field2index);
 	}
+	free(type);
 }
 
 static PyObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
+	PyObject *k, *v;
+	Py_ssize_t pos = 0;
 	PyObject* attrs = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &attrs)) {
 		if (PyDict_Check(attrs)) {
-			PyObject *k, *v;
-			Py_ssize_t pos = 0;
 			while (PyDict_Next(attrs, &pos, &k, &v)) {
 				if (type->py_type == TypyObjectType) {
 					type->py_type = _InheritTypyObjectType();
@@ -167,7 +168,7 @@ static PyObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
 				}
 				PyDict_SetItem(type->py_type->tp_dict, k, v);
 			}
-			PyObject* metaclass = PyDict_GetItemString(attrs, "__metaclass__");
+			register PyObject* metaclass = PyDict_GetItemString(attrs, "__metaclass__");
 			if (metaclass) { type->py_type->ob_type = (PyTypeObject*)metaclass; }
 		}
 	}
@@ -195,7 +196,7 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
 	type = (TypyMetaObject*)malloc(size);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: out of memory %d.", size);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: MetaObject out of memory %d.", size);
 		return NULL;
 	}
 
@@ -205,11 +206,24 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	memcpy(Meta_NAME(type), name, nameLen);
 	PyObject_INIT(type, &TypyMetaObjectType);
 	/* todo: Typy_RegisterObject */
-	type->meta_index2field = NULL;
-	type->meta_field2index = NULL;
+	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
+	if (!type->meta_index2field) {
+		free(type);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: index2field out of memory %d.", meta_size * sizeof(char*));
+		return NULL;
+	}
+	type->meta_field2index = TypyFieldMap_New();
+	if (!type->meta_field2index) {
+		free(type->meta_index2field);
+		free(type);
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: field2index out of memory.");
+		return NULL;
+	}
 
 	register PyCFunctionObject* meta_new = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
 	if (!meta_new) {
+		IblMap_Free(type->meta_field2index);
+		free(type->meta_index2field);
 		free(type);
 		return NULL;
 	}

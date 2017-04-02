@@ -2,8 +2,8 @@
 // Use of this source code is governed by The MIT License
 // that can be found in the LICENSE file.
 
-#ifndef TYPY_ENUM_H__
-#define TYPY_ENUM_H__
+#ifndef TYPY_FIXEDPOINT_H__
+#define TYPY_FIXEDPOINT_H__
 
 #include "typy.h"
 
@@ -21,4 +21,4 @@ typedef struct {
 }
 #endif
 
-#endif // TYPY_TYPE_H__
+#endif // TYPY_FIXEDPOINT_H__

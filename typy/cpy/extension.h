@@ -2,8 +2,8 @@
 // Use of this source code is governed by The MIT License
 // that can be found in the LICENSE file.
 
-#ifndef TYPY_ENUM_H__
-#define TYPY_ENUM_H__
+#ifndef TYPY_PYTHON_H__
+#define TYPY_PYTHON_H__
 
 #include "typy.h"
 
@@ -20,4 +20,4 @@ typedef struct {
 }
 #endif
 
-#endif // TYPY_TYPE_H__
+#endif // TYPY_PYTHON_H__

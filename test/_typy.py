@@ -9,6 +9,9 @@ asdf = _typyd.Variant('asdf', (
 ))
 print asdf, asdf()
 
+Corpus = _typyd.Enum('Corpus')
+print Corpus
+
 
 Fighter = _typyd.Object('Fighter', (
 	("bd", 9, 1, 1, 2, True),
