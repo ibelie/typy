@@ -11,7 +11,7 @@ extern "C" {
 PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
-	PyObject* object = (PyObject*)malloc(sizeof(TypyObject) + sizeof(TypeField) * type->ty_size);
+	PyObject* object = (PyObject*)malloc(sizeof(TypyObject) + sizeof(TypyField) * type->ty_size);
 	PyObject_INIT(object, type->py_type);
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {

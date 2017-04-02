@@ -64,17 +64,18 @@ IblMap_KEY_STRING(TypyFieldMap,
 	int index;
 );
 
-typedef size_t TypeField;
+typedef void*  TypeType;
+typedef size_t TypyField;
 
-typedef PyObject* (*GetPyObject)  (TypeField);
-typedef bool      (*CheckAndSet)  (TypeField*, PyObject* arg, const char* err);                            \
-typedef void      (*CopyFrom)     (TypeField*, TypeField);
-typedef void      (*MergeFrom)    (TypeField*, TypeField);
-typedef void      (*Clear)        (TypeField*);
-typedef bool      (*Read)         (TypeField*, byte**, size_t*);
-typedef bool      (*ReadPacked)   (TypeField*, byte**, size_t*);
-typedef size_t    (*Write)        (int, TypeField, byte*);
-typedef size_t    (*ByteSize)     (int, TypeField);
+typedef PyObject* (*GetPyObject)  (TypeType, TypyField);
+typedef bool      (*CheckAndSet)  (TypeType, TypyField*, PyObject* arg, const char* err);                            \
+typedef void      (*CopyFrom)     (TypeType, TypyField*, TypyField);
+typedef void      (*MergeFrom)    (TypeType, TypyField*, TypyField);
+typedef void      (*Clear)        (TypeType, TypyField*);
+typedef bool      (*Read)         (TypeType, TypyField*, byte**, size_t*);
+typedef bool      (*ReadPacked)   (TypeType, TypyField*, byte**, size_t*);
+typedef size_t    (*Write)        (TypeType, int, TypyField, byte*);
+typedef size_t    (*ByteSize)     (TypeType, int, TypyField);
 
 #define MAX_FIELD_TYPE 16
 
@@ -91,6 +92,7 @@ extern ByteSize ty_ByteSize[MAX_FIELD_TYPE];
 typedef struct {
 	byte          ty_tagsize;
 	uint32        ty_tag;
+	TypeType      ty_type;
 	WireType      ty_WireType;
 	GetPyObject   ty_GetPyObject;
 	CheckAndSet   ty_CheckAndSet;
@@ -123,7 +125,7 @@ typedef struct {
 typedef struct {
 	TypyObject_HEAD
 	size_t ty_cached_size;
-	TypeField ty_fields[1];
+	TypyField ty_fields[1];
 } TypyObject;
 
 #define Typy_TYPE(ob) (((TypyObject*)(ob))->ty_type)
@@ -131,13 +133,19 @@ typedef struct {
 #define Typy_NAME(ob) Ty_NAME(Typy_TYPE(ob))
 #define Typy_FIELD(ob, i) (((TypyObject*)(ob))->ty_fields[i])
 #define Typy_DESCRIPTOR(ob, i) (Typy_TYPE(ob)->ty_descriptor[i])
-#define Typy_WIRETYPE(ob, i) (Typy_DESCRIPTOR(ob, i).ty_WireType)
 #define Typy_TypeCheck(ob) PyObject_TypeCheck(ob, TypyTypeObject)
+
+#define Typy_ARGS(...) __VA_ARGS__
+#define Typy_TAG(ob, i) (Typy_DESCRIPTOR(ob, i).ty_tag)
+#define Typy_TAGSIZE(ob, i) (Typy_DESCRIPTOR(ob, i).ty_tagsize)
+#define Typy_WIRETYPE(ob, i) (Typy_DESCRIPTOR(ob, i).ty_WireType)
+#define Typy_METHOD(ob, i, NAME, ARGS) \
+	(Typy_DESCRIPTOR(ob, i).ty_##NAME(Typy_DESCRIPTOR(ob, i).ty_type, ARGS))
 
 inline void Typy_Clear(TypyObject* self) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_DESCRIPTOR(self, i).ty_Clear(&Typy_FIELD(self, i));
+		Typy_METHOD(self, i, Clear, &Typy_FIELD(self, i));
 	}
 }
 
@@ -145,7 +153,7 @@ inline void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
 	if (from == self) { return; }
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_DESCRIPTOR(self, i).ty_MergeFrom(&Typy_FIELD(self, i), Typy_FIELD(from, i));
+		Typy_METHOD(self, i, MergeFrom, Typy_ARGS(&Typy_FIELD(self, i), Typy_FIELD(from, i)));
 	}
 }
 
@@ -158,8 +166,8 @@ inline void Typy_CopyFrom(TypyObject* self, TypyObject* from) {
 inline size_t Typy_ByteSize(TypyObject* self) {
 	register size_t size = 0, i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		if (!Typy_DESCRIPTOR(self, i).ty_tag) { continue; }
-		size += Typy_DESCRIPTOR(self, i).ty_ByteSize(Typy_DESCRIPTOR(self, i).ty_tagsize, Typy_FIELD(self, i));
+		if (!Typy_TAG(self, i)) { continue; }
+		size += Typy_METHOD(self, i, ByteSize, Typy_ARGS(Typy_TAGSIZE(self, i), Typy_FIELD(self, i)));
 	}
 	self->ty_cached_size = size;
 	return size;
@@ -168,8 +176,8 @@ inline size_t Typy_ByteSize(TypyObject* self) {
 inline void Typy_SerializeString(TypyObject* self, byte* output) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		if (!Typy_DESCRIPTOR(self, i).ty_tag) { continue; }
-		output += Typy_DESCRIPTOR(self, i).ty_Write(Typy_DESCRIPTOR(self, i).ty_tag, Typy_FIELD(self, i), output);
+		if (!Typy_TAG(self, i)) { continue; }
+		output += Typy_METHOD(self, i, Write, Typy_ARGS(Typy_TAG(self, i), Typy_FIELD(self, i), output));
 	}
 }
 
@@ -183,11 +191,11 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 		register int index = TAG_INDEX(tag);
 		if (index < 0 || (size_t)index >= Typy_SIZE(self)) { goto handle_unusual; }
 		if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
-			if (!Typy_DESCRIPTOR(self, index).ty_Read(&Typy_FIELD(self, index), &input, &remain)) {
+			if (!Typy_METHOD(self, index, Read, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
 				return 0;
 			}
 		} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
-			if (!Typy_DESCRIPTOR(self, index).ty_ReadPacked(&Typy_FIELD(self, index), &input, &remain)) {
+			if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
 				return 0;
 			}
 		}
@@ -215,19 +223,19 @@ inline int Typy_PropertyIndex(TypyObject* self, char* key) {
 }
 
 inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
-	if (!Typy_DESCRIPTOR(self, index).ty_tag) { return 0; }
-	register size_t size = Typy_DESCRIPTOR(self, index).ty_ByteSize(Typy_DESCRIPTOR(self, index).ty_tagsize, Typy_FIELD(self, index));
+	if (!Typy_TAG(self, index)) { return 0; }
+	register size_t size = Typy_METHOD(self, index, ByteSize, Typy_ARGS(Typy_TAGSIZE(self, index), Typy_FIELD(self, index)));
 	if (size == 0) {
-		return Typy_DESCRIPTOR(self, index).ty_tagsize;
+		return Typy_TAGSIZE(self, index);
 	} else {
 		return size;
 	}
 }
 
 inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
-	if (!Typy_DESCRIPTOR(self, index).ty_tag) { return; }
-	if (Typy_DESCRIPTOR(self, index).ty_Write(Typy_DESCRIPTOR(self, index).ty_tag, Typy_FIELD(self, index), output) <= 0) {
-		Typy_WriteTag(output, Typy_DESCRIPTOR(self, index).ty_tag);
+	if (!Typy_TAG(self, index)) { return; }
+	if (Typy_METHOD(self, index, Write, Typy_ARGS(Typy_TAG(self, index), Typy_FIELD(self, index), output)) <= 0) {
+		Typy_WriteTag(output, Typy_TAG(self, index));
 	}
 }
 
@@ -239,13 +247,13 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 	}
 	register int index = TAG_INDEX(tag);
 	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return -1; }
-	Typy_DESCRIPTOR(self, index).ty_Clear(&Typy_FIELD(self, index));
+	Typy_METHOD(self, index, Clear, &Typy_FIELD(self, index));
 	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
-		if (!Typy_DESCRIPTOR(self, index).ty_Read(&Typy_FIELD(self, index), &input, &remain)) {
+		if (!Typy_METHOD(self, index, Read, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
 			return -1;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
-		if (!Typy_DESCRIPTOR(self, index).ty_ReadPacked(&Typy_FIELD(self, index), &input, &remain)) {
+		if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
 			return -1;
 		}
 	}
@@ -266,7 +274,7 @@ inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Cl
 
 typedef struct {
 	TypyObject_HEAD
-	TypeField ty_value;
+	TypyField ty_value;
 	int ty_index;
 	size_t ty_cached_size;
 } TypyVariant;
