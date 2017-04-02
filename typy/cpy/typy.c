@@ -34,7 +34,7 @@ static PyObject* SetDefaultEncodingUTF8(PyObject* m) {
 
 // ===================================================================
 
-static void ty_Dealloc(TypyType* type) {
+static void MetaObject_Dealloc(TypyMetaObject* type) {
 	Py_XDECREF(type->ty_new);
 	if (type->py_type != TypyTypeObject) {
 		Py_DECREF(type->py_type);
@@ -62,7 +62,7 @@ static inline PyTypeObject* _InheritTypyTypeObject() {
 	return type;
 }
 
-static PyObject* ty_Initialize(TypyType* type, PyObject* args) {
+static PyObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
 	PyObject* attrs = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &attrs)) {
 		if (PyDict_Check(attrs)) {
@@ -89,12 +89,12 @@ static PyObject* ty_Initialize(TypyType* type, PyObject* args) {
 	return type->ty_new;
 }
 
-static PyTypeObject TypyMetaType = {
+static PyTypeObject TypyMetaObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaType",            /* tp_name           */
-	sizeof(TypyType),                        /* tp_basicsize      */
+	sizeof(TypyMetaObjectType),              /* tp_basicsize      */
 	0,                                       /* tp_itemsize       */
-	(destructor)ty_Dealloc,                  /* tp_dealloc        */
+	(destructor)MetaObject_Dealloc,          /* tp_dealloc        */
 	0,                                       /* tp_print          */
 	0,                                       /* tp_getattr        */
 	0,                                       /* tp_setattr        */
@@ -104,7 +104,7 @@ static PyTypeObject TypyMetaType = {
 	0,                                       /* tp_as_sequence    */
 	0,                                       /* tp_as_mapping     */
 	PyObject_HashNotImplemented,             /* tp_hash           */
-	(ternaryfunc)ty_Initialize,              /* tp_call           */
+	(ternaryfunc)MetaObject_Initialize,      /* tp_call           */
 	0,                                       /* tp_str            */
 	0,                                       /* tp_getattro       */
 	0,                                       /* tp_setattro       */
@@ -121,16 +121,17 @@ PyMethodDef TypyNewDef = { "TypyNew", (PyCFunction)Typy_New, METH_VARARGS | METH
 static PyObject* registerObject(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
-	TypyType* type;
+	TypyMetaObject* type;
 	PyObject* attrs = Py_None;
 	size_t ty_size = 1;
 	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &attrs)) {
 		return NULL;
 	}
 
-	type = (TypyType*)malloc(sizeof(TypyType) + sizeof(TypyDescriptor) * ty_size + nameLen);
+	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * ty_size + nameLen;
+	type = (TypyMetaObject*)malloc(size);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register: out of memory %d.", sizeof(TypyType));
+		PyErr_Format(PyExc_RuntimeError, "[typyd] Register: out of memory %d.", size);
 		return NULL;
 	}
 
@@ -138,7 +139,9 @@ static PyObject* registerObject(PyObject* m, PyObject* args) {
 	type->ty_size = ty_size;
 	Ty_NAME(type)[nameLen] = 0;
 	memcpy(Ty_NAME(type), name, nameLen);
-	PyObject_INIT(type, &TypyMetaType);
+	PyObject_INIT(type, &TypyMetaObjectType);
+	type->ty_index2field = NULL;
+	type->ty_field2index = NULL;
 
 	register PyCFunctionObject* ty_new = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
 	if (!ty_new) {
@@ -205,7 +208,7 @@ PyMODINIT_FUNC INITFUNC(void) {
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
 
-	TypyMetaType.ob_type = &PyType_Type;
+	TypyMetaObjectType.ob_type = &PyType_Type;
 	BaseTypyTypeObject.ob_type = &PyType_Type;
 	TypyTypeObject = _InheritTypyTypeObject();
 	if (!TypyTypeObject) { return INITFUNC_ERRORVAL; }

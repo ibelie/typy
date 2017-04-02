@@ -572,4 +572,3 @@ def test_cpy():
 	GenerateDescriptor(os.path.dirname(__file__))
 	import _typy
 	_build(_typy)
-	return

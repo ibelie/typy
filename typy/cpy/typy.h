@@ -112,13 +112,13 @@ typedef struct {
 	uint32         ty_cutoff;
 	size_t         ty_size;
 	TypyDescriptor ty_descriptor[1];
-} TypyType;
+} TypyMetaObject;
 
 #define Ty_NAME(ty) ((char*)(&((ty)->ty_descriptor[(ty)->ty_size])))
 
 #define TypyObject_HEAD \
     PyObject_HEAD       \
-    TypyType* ty_type;
+    TypyMetaObject* ty_type;
 
 typedef struct {
 	TypyObject_HEAD
@@ -252,7 +252,7 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 	return index;
 }
 
-PyObject* Typy_New(TypyType*, PyObject*, PyObject*);
+PyObject* Typy_New(TypyMetaObject*, PyObject*, PyObject*);
 PyObject* Py_CopyFrom(TypyObject*, PyObject*);
 PyObject* Py_MergeFrom(TypyObject*, PyObject*);
 PyObject* Py_SerializeString(TypyObject*);

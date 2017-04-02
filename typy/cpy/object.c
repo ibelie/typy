@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-PyObject* Typy_New(TypyType* type, PyObject* args, PyObject* kwargs) {
+PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
 	PyObject* object = (PyObject*)malloc(sizeof(TypyObject) + sizeof(TypeField) * type->ty_size);
