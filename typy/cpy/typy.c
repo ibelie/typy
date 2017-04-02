@@ -32,6 +32,21 @@ static PyObject* SetDefaultEncodingUTF8(PyObject* m) {
 	Py_RETURN_NONE;
 }
 
+// ===================================================================
+
+static void ty_Dealloc(TypyType* type) {
+	Py_XDECREF(type->ty_new);
+	if (type->py_type != TypyTypeObject) {
+		Py_DECREF(type->py_type);
+	}
+	if (type->ty_index2field) {
+		free(type->ty_index2field);
+	}
+	if (type->ty_field2index) {
+		IblMap_Free(type->ty_field2index);
+	}
+}
+
 static inline PyTypeObject* _InheritTypyTypeObject() {
 	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
 	if (!type) {
@@ -47,7 +62,7 @@ static inline PyTypeObject* _InheritTypyTypeObject() {
 	return type;
 }
 
-static PyObject* InitObject(TypyType* type, PyObject* args) {
+static PyObject* ty_Initialize(TypyType* type, PyObject* args) {
 	PyObject* attrs = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &attrs)) {
 		if (PyDict_Check(attrs)) {
@@ -70,13 +85,37 @@ static PyObject* InitObject(TypyType* type, PyObject* args) {
 			if (metaclass) { type->py_type->ob_type = (PyTypeObject*)metaclass; }
 		}
 	}
+	Py_INCREF(type->ty_new);
 	return type->ty_new;
 }
 
-PyMethodDef InitObjectDef = { "InitObject", (PyCFunction)InitObject, METH_VARARGS,
-	"Initialize Object Type." };
+static PyTypeObject TypyMetaType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	FULL_MODULE_NAME ".MetaType",            /* tp_name           */
+	sizeof(TypyType),                        /* tp_basicsize      */
+	0,                                       /* tp_itemsize       */
+	(destructor)ty_Dealloc,                  /* tp_dealloc        */
+	0,                                       /* tp_print          */
+	0,                                       /* tp_getattr        */
+	0,                                       /* tp_setattr        */
+	0,                                       /* tp_compare        */
+	0,                                       /* tp_repr           */
+	0,                                       /* tp_as_number      */
+	0,                                       /* tp_as_sequence    */
+	0,                                       /* tp_as_mapping     */
+	PyObject_HashNotImplemented,             /* tp_hash           */
+	(ternaryfunc)ty_Initialize,              /* tp_call           */
+	0,                                       /* tp_str            */
+	0,                                       /* tp_getattro       */
+	0,                                       /* tp_setattro       */
+	0,                                       /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,                      /* tp_flags          */
+	"The Typy metaclass",                    /* tp_doc            */
+};
 
-PyMethodDef NewObjectDef = { "NewObject", (PyCFunction)Typy_New, METH_VARARGS | METH_KEYWORDS,
+// ===================================================================
+
+PyMethodDef TypyNewDef = { "TypyNew", (PyCFunction)Typy_New, METH_VARARGS | METH_KEYWORDS,
 	"Create Object Type." };
 
 static PyObject* registerObject(PyObject* m, PyObject* args) {
@@ -99,27 +138,19 @@ static PyObject* registerObject(PyObject* m, PyObject* args) {
 	type->ty_size = ty_size;
 	Ty_NAME(type)[nameLen] = 0;
 	memcpy(Ty_NAME(type), name, nameLen);
+	PyObject_INIT(type, &TypyMetaType);
 
-	register PyCFunctionObject* newMethod = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
-	if (!newMethod) {
+	register PyCFunctionObject* ty_new = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
+	if (!ty_new) {
 		free(type);
 		return NULL;
 	}
-	newMethod->m_ml = &NewObjectDef;
-	newMethod->m_self = (PyObject*)type;
-	newMethod->m_module = NULL;
-	type->ty_new = (PyObject*)newMethod;
+	ty_new->m_ml = &TypyNewDef;
+	ty_new->m_self = (PyObject*)type;
+	ty_new->m_module = NULL;
+	type->ty_new = (PyObject*)ty_new;
 
-	register PyCFunctionObject* method = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
-	if (!method) {
-		free(type);
-		Py_DECREF(newMethod);
-		return NULL;
-	}
-	method->m_ml = &InitObjectDef;
-	method->m_self = (PyObject*)type;
-	method->m_module = NULL;
-	return (PyObject*)method;
+	return (PyObject*)type;
 }
 
 static PyMethodDef ModuleMethods[] = {
@@ -174,6 +205,7 @@ PyMODINIT_FUNC INITFUNC(void) {
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
 
+	TypyMetaType.ob_type = &PyType_Type;
 	BaseTypyTypeObject.ob_type = &PyType_Type;
 	TypyTypeObject = _InheritTypyTypeObject();
 	if (!TypyTypeObject) { return INITFUNC_ERRORVAL; }

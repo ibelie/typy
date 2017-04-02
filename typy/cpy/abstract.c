@@ -4,36 +4,58 @@
 
 #include "typy.h"
 
-typedef enum {
-	TYPE_DOUBLE         = 1,
-	TYPE_FLOAT          = 2,
-	TYPE_INT64          = 3,
-	TYPE_UINT64         = 4,
-	TYPE_INT32          = 5,
-	TYPE_FIXED64        = 6,
-	TYPE_FIXED32        = 7,
-	TYPE_BOOL           = 8,
-	TYPE_STRING         = 9,
-	TYPE_GROUP          = 10,
-	TYPE_MESSAGE        = 11,
-	TYPE_BYTES          = 12,
-	TYPE_UINT32         = 13,
-	TYPE_ENUM           = 14,
-	TYPE_SFIXED32       = 15,
-	TYPE_SFIXED64       = 16,
-	TYPE_SINT32         = 17,
-	TYPE_SINT64         = 18,
-	MAX_FIELD_TYPE      = 18,
-} FieldType;
 
-PyObject* GetBytes(const ::std::string& value) {
-	PyObject* result = PyUnicode_DecodeUTF8(value.c_str(), value.length(), NULL);
-	if (result == NULL) {
-		PyErr_Clear();
-		result = PyBytes_FromStringAndSize(value.c_str(), value.length());
-	}
-	return result;
-}
+ty_GetPyObject = {
+/* TYPE_ENUM       */
+/* TYPE_INT32      */
+/* TYPE_INT64      */
+/* TYPE_UINT32     */
+/* TYPE_UINT64     */
+/* TYPE_DOUBLE     */
+/* TYPE_FLOAT      */
+/* TYPE_BOOL       */
+/* TYPE_BYTES      */
+/* TYPE_STRING     */
+/* TYPE_OBJECT     */
+/* TYPE_VARIANT    */
+/* TYPE_LIST       */
+/* TYPE_DICT       */
+/* TYPE_FIXEDPOINT */
+/* TYPE_PYTHON     */
+};
+
+ty_CheckAndSet = {
+
+};
+
+ty_CopyFrom = {
+
+};
+
+ty_MergeFrom = {
+
+};
+
+ty_Clear = {
+
+};
+
+ty_Read = {
+
+};
+
+ty_ReadPacked = {
+
+};
+
+ty_Write = {
+
+};
+
+ty_ByteSize = {
+
+};
+
 
 template <typename T>
 bool CheckAndSetInteger(PyObject* arg, T& value, const char* err, PyObject* min, PyObject* max) {

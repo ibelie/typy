@@ -76,6 +76,17 @@ typedef bool      (*ReadPacked)   (TypeField*, byte**, size_t*);
 typedef size_t    (*Write)        (int, TypeField, byte*);
 typedef size_t    (*ByteSize)     (int, TypeField);
 
+#define MAX_FIELD_TYPE 16
+
+extern GetPyObject ty_GetPyObject[MAX_FIELD_TYPE];
+extern CheckAndSet ty_CheckAndSet[MAX_FIELD_TYPE];
+extern CopyFrom ty_CopyFrom[MAX_FIELD_TYPE];
+extern MergeFrom ty_MergeFrom[MAX_FIELD_TYPE];
+extern Clear ty_Clear[MAX_FIELD_TYPE];
+extern Read ty_Read[MAX_FIELD_TYPE];
+extern ReadPacked ty_ReadPacked[MAX_FIELD_TYPE];
+extern Write ty_Write[MAX_FIELD_TYPE];
+extern ByteSize ty_ByteSize[MAX_FIELD_TYPE];
 
 typedef struct {
 	byte          ty_tagsize;
@@ -93,6 +104,7 @@ typedef struct {
 } TypyDescriptor;
 
 typedef struct {
+	PyObject_HEAD
 	PyTypeObject*  py_type;
 	PyObject*      ty_new;
 	IblMap         ty_field2index;

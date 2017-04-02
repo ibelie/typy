@@ -5,11 +5,29 @@
 
 from Cpp import _RecordVariant
 
+TYPE_ENUM       = 0
+TYPE_INT32      = 1
+TYPE_INT64      = 2
+TYPE_UINT32     = 3
+TYPE_UINT64     = 4
+TYPE_DOUBLE     = 5
+TYPE_FLOAT      = 6
+TYPE_BOOL       = 7
+TYPE_BYTES      = 8
+TYPE_STRING     = 9
+TYPE_OBJECT     = 10
+TYPE_VARIANT    = 11
+TYPE_LIST       = 12
+TYPE_DICT       = 13
+TYPE_FIXEDPOINT = 14
+TYPE_PYTHON     = 15
+MAX_FIELD_TYPE  = 16
+
 def _GetCpyFromTypy(p, nesting = False):
-	return 1, 2, 3
+	return 1, 2, 'True'
 	from Object import MetaObject
-	from Type import pb, Enum, Simple, Instance, List, Dict, Collection
-	from Type import FixedPoint, Python
+	from Type import pb, Enum, Simple, Instance, List, Dict, Collection, FixedPoint, Python
+	from typy.google.protobuf.internal import wire_format
 	if isinstance(p, Enum):
 		enums[p.pyType.__name__] = p.pyType
 		ref_types.add('#include "%s.h"' % _shortName(p.pyType.__name__))
@@ -51,23 +69,27 @@ def _GetCpyFromTypy(p, nesting = False):
 
 def _GenerateObject(name, cls, codes, variants):
 	from typy.google.protobuf.internal.encoder import _TagSize
+	from typy.google.protobuf.internal.wire_format import PackTag
 	from Object import SortedMessage
 	from Type import pb
 
-	tag = 0
 	fields = []
-	for a, p in SortedMessage(cls.____properties__):
-		if pb in p.____keywords__:
-			tag += 1
-			fields.append(repr((tag, _TagSize(tag), a) + _GetCpyFromTypy(p)))
-		else:
-			fields.append(repr((0, 0, a) + _GetCpyFromTypy(p)))
+	sortedProperties = SortedMessage(cls.____properties__)
+	for i, (a, p) in enumerate(sortedProperties):
+		if pb not in p.____keywords__: continue
+		wire_type, field_type, typy_type = _GetCpyFromTypy(p)
+		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
+	for i, (a, p) in enumerate(sortedProperties):
+		if pb in p.____keywords__: continue
+		wire_type, field_type, typy_type = _GetCpyFromTypy(p)
+		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, 0, 0, wire_type, field_type, typy_type)))
 
 	codes.append("""
 %s = _typyd.register('%s', (
 	%s
 ))
-""" % (name, name, ',\n\t'.join(fields)))
+print %s, %s()
+""" % (name, name, '\n\t'.join(fields), name, name))
 
 
 def GenerateDescriptor(_typyDir = None):
