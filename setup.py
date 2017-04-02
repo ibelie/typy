@@ -61,6 +61,8 @@ setup(
 			'typy/cpy/metaobject.c',
 			'typy/cpy/variant.c',
 			'typy/cpy/enum.c',
+			'typy/cpy/extension.c',
+			'typy/cpy/fixedpoint.c',
 			'typy/cpy/map.c',
 			'typy/cpy/tree.c',
 		],

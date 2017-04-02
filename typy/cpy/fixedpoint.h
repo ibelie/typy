@@ -14,8 +14,11 @@ extern "C" {
 typedef struct {
 	PyObject_HEAD
 	uint8 fixedpoint_precision;
-	uint8 fixedpoint_loor;
+	uint8 fixedpoint_floor;
 } TypyFixedPoint;
+
+extern PyTypeObject TypyFixedPointType;
+PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args);
 
 #ifdef __cplusplus
 }

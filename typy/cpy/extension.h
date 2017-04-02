@@ -14,7 +14,11 @@ extern "C" {
 typedef struct {
 	PyObject_HEAD
 	PyTypeObject* python_type;
+	char          python_name[1];
 } TypyPython;
+
+extern PyTypeObject TypyPythonType;
+PyObject* Typy_RegisterPython(PyObject* m, PyObject* args);
 
 #ifdef __cplusplus
 }

@@ -40,6 +40,10 @@ static PyMethodDef ModuleMethods[] = {
 		"register typy Variant with properties."},
 	{"Enum", (PyCFunction)Typy_RegisterEnum, METH_VARARGS,
 		"register typy Enum with properties."},
+	{"Python", (PyCFunction)Typy_RegisterPython, METH_VARARGS,
+		"register typy Python with properties."},
+	{"FixedPoint", (PyCFunction)Typy_RegisterFixedPoint, METH_VARARGS,
+		"register typy FixedPoint with properties."},
 	{ NULL, NULL}
 };
 

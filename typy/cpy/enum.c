@@ -64,6 +64,12 @@ static PyObject* Enum_Initialize(TypyEnum* type, PyObject* args) {
 
 void Enum_Dealloc(TypyEnum* type) {
 	if (type->enum_map) {
+		register TypyEnumMap item;
+		register IblMap_Item iter;
+		for (iter = IblMap_Begin(type->enum_map); iter; iter = IblMap_Next(type->enum_map, iter)) {
+			item = (TypyEnumMap)iter;
+			Py_DECREF(item->python);
+		}
 		IblMap_Free(type->enum_map);
 	}
 	free(type);

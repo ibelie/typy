@@ -123,5 +123,11 @@ print asdf, asdf()
 Corpus = _typyd.Enum('Corpus')
 print Corpus
 
+PyType = _typyd.Python('PyType')
+print PyType
+
+FixedPoint_3_5 = _typyd.FixedPoint(3, 5)
+print FixedPoint_3_5
+
 %s
 """
