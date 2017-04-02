@@ -9,9 +9,10 @@ extern "C" {
 #endif
 
 PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
-	uint8 precision, _floor;
+	uint8 precision;
+	int32 _floor;
 	TypyFixedPoint* type;
-	if (!PyArg_ParseTuple(args, "bb", &precision, &_floor)) {
+	if (!PyArg_ParseTuple(args, "bl", &precision, &_floor)) {
 		return NULL;
 	}
 

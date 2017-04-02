@@ -23,51 +23,70 @@ TYPE_FIXEDPOINT = 14
 TYPE_PYTHON     = 15
 MAX_FIELD_TYPE  = 16
 
-def _GetCpyFromTypy(p, nesting = False):
-	return 1, 2, 'True'
+def _GetCpyFromTypy(p, codes, types, nesting = False):
 	from Object import MetaObject
-	from Type import pb, Enum, Simple, Instance, List, Dict, Collection, FixedPoint, Python
+	from Type import pb, Enum, Integer, Float, Double, Boolean, String, Bytes
+	from Type import Instance, List, Dict, Collection, FixedPoint, Python
 	from typy.google.protobuf.internal import wire_format
 	if isinstance(p, Enum):
-		enums[p.pyType.__name__] = p.pyType
-		ref_types.add('#include "%s.h"' % _shortName(p.pyType.__name__))
-		return p.pyType.__name__, '', p.pyType.__name__
+		if p.pyType.__name__ not in types:
+			codes.append("""
+%s = _typyd.Enum("%s")""" % (p.pyType.__name__, p.pyType.__name__))
+			types.add(p.pyType.__name__)
+		return wire_format.WIRETYPE_VARINT, TYPE_ENUM, p.pyType.__name__
 	elif isinstance(p, FixedPoint):
-		fixedpoint = 'SINGLE_ARG(FixedPoint<%d, %d>)' % (p.precision, p.floor)
-		return fixedpoint, '', fixedpoint
-	elif isinstance(p, Simple):
-		return p.pbType, '', p.pbType
+		fixedpoint = 'FixedPoint_%d_%s%d' % (p.precision, '' if p.floor > 0 else 's', p.floor if p.floor > 0 else -p.floor)
+		if fixedpoint not in types:
+			codes.append("""
+%s = _typyd.FixedPoint(%d, %d)""" % (fixedpoint, p.precision, p.floor))
+			types.add(fixedpoint)
+		return wire_format.WIRETYPE_VARINT, TYPE_FIXEDPOINT, fixedpoint
 	elif isinstance(p, Python):
-		pythons.add(p.pyType.__name__)
-		ref_types.add('#include "%s.h"' % _shortName(p.pyType.__name__))
-		return 'Python<Shadow_%s>' % p.pyType.__name__, '*', 'Python<Shadow_%s>' % p.pyType.__name__
-	elif isinstance(p, Instance):
-		if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
-			ref_types.add('#include "%s.h"' % _shortName(p.pyType[0].__name__))
-			return p.pyType[0].__name__, '*', p.pyType[0].__name__
-		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
-			pass
-		else:
-			variant = _RecordVariant(p.pyType, variants)
-			ref_types.add('#include "%s.h"' % variant)
-			return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
-		return 'Python<PyObject>', '*', 'Python<PyObject>'
-	elif isinstance(p, List):
-		if isinstance(p.elementType, Collection):
-			print "[Cpp] Warning: List element can not be Collection type."
-		name, _, _ = _GetCppFromTypy(p.elementType, enums, pythons, variants, ref_types, container_inits, True)
-		container_inits.add('PyType_Ready(&List< %s >::_Type) >= 0 && PyType_Ready(&List< %s >::Iterator_Type) >= 0' % (name, name))
-		return 'List< %s >' % name, '*', 'List(%s)' % name
-	elif isinstance(p, Dict):
-		if not isinstance(p.keyType, Simple):
-			print "[Cpp] Warning: Dict key must be Simple type."
-		kName, _, _ = _GetCppFromTypy(p.keyType, enums, pythons, variants, ref_types, container_inits, True)
-		vName, _, _ = _GetCppFromTypy(p.valueType, enums, pythons, variants, ref_types, container_inits, True)
-		container_inits.add('PyType_Ready(&Dict<%s, %s >::_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterKey_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterItem_Type) >= 0' % (kName, vName, kName, vName, kName, vName))
-		return 'SINGLE_ARG(Dict<%s, %s >)' % (kName, vName), '*', 'Dict(%s -> %s)' % (kName, vName)
+		if p.pyType.__name__ not in types:
+			codes.append("""
+%s = _typyd.Python("%s")""" % (p.pyType.__name__, p.pyType.__name__))
+			types.add(p.pyType.__name__)
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_PYTHON, p.pyType.__name__
+	elif isinstance(p, Integer):
+		return wire_format.WIRETYPE_VARINT, TYPE_INT32, ''
+	elif isinstance(p, Float):
+		return wire_format.WIRETYPE_FIXED32, TYPE_FLOAT, ''
+	elif isinstance(p, Double):
+		return wire_format.WIRETYPE_FIXED64, TYPE_DOUBLE, ''
+	elif isinstance(p, Boolean):
+		return wire_format.WIRETYPE_VARINT, TYPE_BOOL, ''
+	elif isinstance(p, String):
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_STRING, ''
+	elif isinstance(p, Bytes):
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_BYTES, ''
+	return 1, 2, 'True'
+	# elif isinstance(p, Instance):
+	# 	if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
+	# 		ref_types.add('#include "%s.h"' % _shortName(p.pyType[0].__name__))
+	# 		return p.pyType[0].__name__, '*', p.pyType[0].__name__
+	# 	elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
+	# 		pass
+	# 	else:
+	# 		variant = _RecordVariant(p.pyType, variants)
+	# 		ref_types.add('#include "%s.h"' % variant)
+	# 		return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
+	# 	return 'Python<PyObject>', '*', 'Python<PyObject>'
+	# elif isinstance(p, List):
+	# 	if isinstance(p.elementType, Collection):
+	# 		print "[Cpp] Warning: List element can not be Collection type."
+	# 	name, _, _ = _GetCppFromTypy(p.elementType, enums, pythons, variants, ref_types, container_inits, True)
+	# 	container_inits.add('PyType_Ready(&List< %s >::_Type) >= 0 && PyType_Ready(&List< %s >::Iterator_Type) >= 0' % (name, name))
+	# 	return 'List< %s >' % name, '*', 'List(%s)' % name
+	# elif isinstance(p, Dict):
+	# 	if not isinstance(p.keyType, Simple):
+	# 		print "[Cpp] Warning: Dict key must be Simple type."
+	# 	kName, _, _ = _GetCppFromTypy(p.keyType, enums, pythons, variants, ref_types, container_inits, True)
+	# 	vName, _, _ = _GetCppFromTypy(p.valueType, enums, pythons, variants, ref_types, container_inits, True)
+	# 	container_inits.add('PyType_Ready(&Dict<%s, %s >::_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterKey_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterItem_Type) >= 0' % (kName, vName, kName, vName, kName, vName))
+	# 	return 'SINGLE_ARG(Dict<%s, %s >)' % (kName, vName), '*', 'Dict(%s -> %s)' % (kName, vName)
 
 
-def _GenerateObject(name, cls, codes, variants):
+def _GenerateObject(name, cls, codes, types):
 	from typy.google.protobuf.internal.encoder import _TagSize
 	from typy.google.protobuf.internal.wire_format import PackTag
 	from Object import SortedMessage
@@ -77,19 +96,17 @@ def _GenerateObject(name, cls, codes, variants):
 	sortedProperties = SortedMessage(cls.____properties__)
 	for i, (a, p) in enumerate(sortedProperties):
 		if pb not in p.____keywords__: continue
-		wire_type, field_type, typy_type = _GetCpyFromTypy(p)
+		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
 		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
 	for i, (a, p) in enumerate(sortedProperties):
 		if pb in p.____keywords__: continue
-		wire_type, field_type, typy_type = _GetCpyFromTypy(p)
+		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
 		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, 0, 0, wire_type, field_type, typy_type)))
 
 	codes.append("""
 %s = _typyd.Object('%s', (
 	%s
-))
-print %s, %s()
-""" % (name, name, '\n\t'.join(fields), name, name))
+))""" % (name, name, '\n\t'.join(fields)))
 
 
 def GenerateDescriptor(_typyDir = None):
@@ -101,9 +118,9 @@ def GenerateDescriptor(_typyDir = None):
 
 	from Object import MetaObject
 	codes = []
-	variants = {}
+	types = set()
 	for name, cls in MetaObject.Objects.iteritems():
-		_GenerateObject(name, cls, codes, variants)
+		_GenerateObject(name, cls, codes, types)
 
 
 	with codecs.open(path, 'w', 'utf-8') as f:
@@ -114,26 +131,5 @@ TYPY_PY__ = ur"""#-*- coding: utf-8 -*-
 
 import _typyd
 setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
-
-asdf = _typyd.Variant('asdf', (
-	(1, 2, 3),
-))
-print asdf, asdf()
-
-Corpus = _typyd.Enum('Corpus')
-print Corpus
-
-PyType = _typyd.Python('PyType')
-print PyType
-
-FixedPoint_3_5 = _typyd.FixedPoint(3, 5)
-print FixedPoint_3_5
-
-Listxxx = _typyd.List('Listxxx', (1, 2, 3))
-print Listxxx
-
-Dictxxx = _typyd.Dict('Dictxxx', (1, 2, 3), (1, 2, 3))
-print Dictxxx
-
 %s
 """
