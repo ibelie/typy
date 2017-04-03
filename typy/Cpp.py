@@ -144,11 +144,11 @@ def _VariantSetter(properties):
 	return from_py_fields
 
 
-def _shortName(name):
+def _shortName(prefix, name):
 	import hashlib
 	import base64
 	if len(name) > 25:
-		name = 's' + base64.b64encode(hashlib.md5(name).digest())[:-2].replace('+', '__').replace('/', '_')
+		name = prefix + base64.b64encode(hashlib.md5(name).digest())[:-2].replace('+', '__').replace('/', '_')
 	return name
 
 def _compareWrite(path, content):
@@ -161,7 +161,7 @@ def _compareWrite(path, content):
 	with codecs.open(path, 'w', 'utf-8') as f:
 		f.write(content)
 
-def _RecordVariant(types, variants):
+def _RecordVariant(types):
 	import hashlib
 	import base64
 	from Type import toType, isEnum, List, Dict
@@ -180,10 +180,9 @@ def _RecordVariant(types, variants):
 	properties = {'Enum' if isEnum(p) else p.__name__: toType(p) for p in types if p is not None}
 	name = sorted([k for k in properties.iterkeys() if k in shortName], key = lambda k: shortName[k]) + \
 		sorted([k for k in properties.iterkeys() if k not in shortName])
-	name = _shortName('V%s' % ''.join([base64.b64encode(hashlib.md5(str(properties[k])).digest())[:-2].replace('+', '__').replace('/', '_')
+	name = _shortName('V', 'V%s' % ''.join([base64.b64encode(hashlib.md5(str(properties[k])).digest())[:-2].replace('+', '__').replace('/', '_')
 		if isinstance(properties[k], (List, Dict)) else shortName.get(k, k) for k in name]))
-	variants[name] = properties
-	return name
+	return name, properties
 
 def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nesting = False):
 	from Object import MetaObject
@@ -191,7 +190,7 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 	from Type import FixedPoint, Python
 	if isinstance(p, Enum):
 		enums[p.pyType.__name__] = p.pyType
-		ref_types.add('#include "%s.h"' % _shortName(p.pyType.__name__))
+		ref_types.add('#include "%s.h"' % _shortName('E', p.pyType.__name__))
 		return p.pyType.__name__, '', p.pyType.__name__
 	elif isinstance(p, FixedPoint):
 		fixedpoint = 'SINGLE_ARG(FixedPoint<%d, %d>)' % (p.precision, p.floor)
@@ -200,16 +199,17 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 		return p.pbType, '', p.pbType
 	elif isinstance(p, Python):
 		pythons.add(p.pyType.__name__)
-		ref_types.add('#include "%s.h"' % _shortName(p.pyType.__name__))
+		ref_types.add('#include "%s.h"' % _shortName('P', p.pyType.__name__))
 		return 'Python<Shadow_%s>' % p.pyType.__name__, '*', 'Python<Shadow_%s>' % p.pyType.__name__
 	elif isinstance(p, Instance):
 		if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
-			ref_types.add('#include "%s.h"' % _shortName(p.pyType[0].__name__))
+			ref_types.add('#include "%s.h"' % _shortName('O', p.pyType[0].__name__))
 			return p.pyType[0].__name__, '*', p.pyType[0].__name__
 		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
 			pass
 		else:
-			variant = _RecordVariant(p.pyType, variants)
+			variant, vprops = _RecordVariant(p.pyType)
+			variants[variant] = vprops
 			ref_types.add('#include "%s.h"' % variant)
 			return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
 		return 'Python<PyObject>', '*', 'Python<PyObject>'
@@ -294,11 +294,11 @@ def _GenerateEnum(path, name, cls):
 		enum_value_set.append('case %s:' % v.name)
 
 	if SWITCH_GENERATE_ENUM:
-		_compareWrite(path + '%s.h' % _shortName(name), TYPY_ENUM_H__ % (
+		_compareWrite(path + '%s.h' % _shortName('E', name), TYPY_ENUM_H__ % (
 			name, name, name, '\n\t'.join(enum_values), name, name, name))
 
-		_compareWrite(path + '%s.cc' % _shortName(name), TYPY_ENUM_CC__ % (
-			_shortName(name), name,
+		_compareWrite(path + '%s.cc' % _shortName('E', name), TYPY_ENUM_CC__ % (
+			_shortName('E', name), name,
 			'\n'.join(enum_py_values), name,
 			'\n\t\t\t'.join(enum_py_value_inits1), name, name, name, name, name, name,
 			'\n\t'.join(enum_py_value_inits2), name, name,
@@ -403,11 +403,11 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 		read_fields.append('return true;')
 
 	if SWITCH_GENERATE_OBJECT:
-		_compareWrite(path + '%s.h' % _shortName(name), TYPY_OBJECT_CLS_H__ % (name, name,
+		_compareWrite(path + '%s.h' % _shortName('O', name), TYPY_OBJECT_CLS_H__ % (name, name,
 			'\n'.join(sorted(ref_types)), name, '\n\t'.join(header_fields), name, name))
 
-		_compareWrite(path + '%s.cc' % _shortName(name), TYPY_OBJECT_CLS_CC__ % (
-			_shortName(name), name, name, name, name, name, first_fields, name,
+		_compareWrite(path + '%s.cc' % _shortName('O', name), TYPY_OBJECT_CLS_CC__ % (
+			_shortName('O', name), name, name, name, name, name, first_fields, name,
 			'\n\t'.join(clear_fields), name, name,
 			'\n\t'.join(merge_fields), name,
 			'\n\t'.join(write_fields), name,
@@ -432,8 +432,8 @@ def _GenerateCpp(path):
 	variants = {}
 	pythons = set()
 	for name, cls in MetaObject.Objects.iteritems():
-		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % _shortName(name))
-		object_types.append('#include "%s.h"' % _shortName(name))
+		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % _shortName('O', name))
+		object_types.append('#include "%s.h"' % _shortName('O', name))
 		object_inits.append('Object<%s>::Init(m)' % name)
 		_GenerateObject(path, name, cls, container_inits, enums, pythons, variants)
 
@@ -445,17 +445,17 @@ def _GenerateCpp(path):
 		variants = nesting_variants
 
 	for name, cls in enums.iteritems():
-		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % _shortName(name))
-		object_types.append('#include "%s.h"' % _shortName(name))
+		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % _shortName('E', name))
+		object_types.append('#include "%s.h"' % _shortName('E', name))
 		object_inits.append('Init%s(m)' % name)
 		_GenerateEnum(path, name, cls)
 
 	python_types = []
 	python_inits = []
 	for name in pythons:
-		python_types.append('#include "%s.h"' % _shortName(name))
+		python_types.append('#include "%s.h"' % _shortName('P', name))
 		python_inits.append('Python<Shadow_%s>::Init(m, "%s")' % (name, name))
-		_compareWrite(path + '%s.h' % _shortName(name), TYPY_PYTHON_CLS_H__ % (name, name, name, name))
+		_compareWrite(path + '%s.h' % _shortName('P', name), TYPY_PYTHON_CLS_H__ % (name, name, name, name))
 
 	if SWITCH_GENERATE_ALL:
 		_compareWrite(path + 'all.cc', TYPY_ALL_CC__ % (

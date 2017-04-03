@@ -18,7 +18,7 @@
 #include "ViPyType.h"
 #include "Vi__zxiaLfTra898A6_6whFCg.h"
 #include "VipfCS1hEiUnKAH2vnYWM13w.h"
-#include "sq0t2631Zu6lArqg9rFtFlQ.h"
+#include "Vq0t2631Zu6lArqg9rFtFlQ.h"
 
 TypyHeaderBegin(Fighter);
 	SINGLE_ARG(Dict<string, bytes >)* p_bd;
@@ -31,7 +31,7 @@ TypyHeaderBegin(Fighter);
 	VipfCS1hEiUnKAH2vnYWM13w* p_fdv;
 	List< float >* p_fl;
 	SINGLE_ARG(Dict<int32, List< float > >)* p_fld;
-	sq0t2631Zu6lArqg9rFtFlQ* p_flv;
+	Vq0t2631Zu6lArqg9rFtFlQ* p_flv;
 	float p_hp;
 	bool p_isAwake;
 	SINGLE_ARG(Dict<int32, List< VdesVector2 > >)* p_ld;
