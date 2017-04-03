@@ -20,11 +20,28 @@
 extern "C" {
 #endif
 
-inline bool Typy_ReadVarint(byte** buffer, size_t* buf_len, uint64* x) {
+inline bool Typy_ReadVarint32(byte** buffer, size_t* buf_len, uint32* x) {
+	uint64 y;
+	register int size = IblUvarint(*buffer, *buf_len, &y);
+	if (size >= 0) {
+		*buffer += size;
+		*buf_len += size;
+		*x = (uint32)y;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+inline bool Typy_ReadVarint64(byte** buffer, size_t* buf_len, uint64* x) {
 	register int size = IblUvarint(*buffer, *buf_len, x);
-	*buffer += size >= 0 ? size : 0;
-	*buf_len -= size >= 0 ? size : 0;
-	return size >= 0;
+	if (size >= 0) {
+		*buffer += size;
+		*buf_len += size;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 inline bool Typy_Read64(byte** buffer, size_t* buf_len, uint64* x) {
@@ -92,6 +109,9 @@ inline size_t Typy_WriteTag(byte* buffer, uint32 tag) {
 	buffer[i] = (byte)tag;
 	return i + 1;
 }
+
+#define Typy_WriteVariant32 Typy_WriteTag
+#define Typy_WriteVariant64 IblPutUvarint
 
 inline bool _Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag) {
 	if ((*buf_len) >= MaxVarintLen || !((*buffer)[(*buf_len) - 1] & 0x80)) {
@@ -189,13 +209,13 @@ inline bool Typy_SkipField(byte** buffer, size_t* buf_len, uint32 tag) {
 	uint64 value;
 	switch (TAG_WIRETYPE(tag)) {
 		case WIRETYPE_VARINT:
-			return Typy_ReadVarint(buffer, buf_len, &value);
+			return Typy_ReadVarint64(buffer, buf_len, &value);
 		case WIRETYPE_FIXED64:
 			return Typy_Read64(buffer, buf_len, &value);
 		case WIRETYPE_FIXED32:
 			return Typy_Read32(buffer, buf_len, (uint32*)&value);
 		case WIRETYPE_LENGTH_DELIMITED:
-			if (!Typy_ReadVarint(buffer, buf_len, &value)) { return false; }
+			if (!Typy_ReadVarint64(buffer, buf_len, &value)) { return false; }
 			register uint32 length = (uint32)value;
 			if (*buf_len < length) { return false; }
 			*buffer += length;

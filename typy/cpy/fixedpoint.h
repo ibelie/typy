@@ -18,7 +18,7 @@ typedef struct {
 } TypyFixedPoint;
 
 extern PyTypeObject TypyFixedPointType;
-PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args);
+PyObject* Typy_RegisterFixedPoint(PyObject*, PyObject*);
 
 #ifdef __cplusplus
 }

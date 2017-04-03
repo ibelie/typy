@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-IblMap_KEY_NUMERIC(TypyEnumMap, long,
+IblMap_KEY_NUMERIC(TypyEnumMap, TypyField,
 	PyObject* python;
 );
 
@@ -40,15 +40,51 @@ PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
+PyObject* TypyEnum_GetPyObject(TypyEnum* type, TypyField value) {
+	register TypyEnumMap item = (TypyEnumMap)IblMap_Get(type->enum_map, &value);
+	if (!item || !item->python) { Py_RETURN_NONE; }
+	Py_INCREF(item->python);
+	return item->python;
+}
+
+bool TypyEnum_CheckAndSet(TypyEnum* type, TypyField* value, PyObject* arg, const char* err) {
+	TypyField i = (TypyField)PyInt_AsLong(arg);
+	if (PyErr_Occurred()) { return false; }
+	register TypyEnumMap item = (TypyEnumMap)IblMap_Get(type->enum_map, &i);
+	if (!item || !item->python) { return false; }
+	*value = (TypyField)i;
+	return true;
+}
+
+bool TypyEnum_Read(TypyEnum* type, TypyField* value, byte** input, size_t* length) {
+	return Typy_ReadVarint32(input, length, value);
+}
+
+size_t TypyEnum_Write(TypyEnum* type, int tag, TypyField value, byte* output) {
+	register size_t size = 0;
+	if (value != 0) {
+		size = Typy_WriteTag(output, tag);
+		size += Typy_WriteVariant32(output + size, (uint32)value);
+	}
+	return size;
+}
+
+size_t TypyEnum_ByteSize(TypyEnum* type, int tagsize, TypyField value) {
+	if (value != 0) {
+		return tagsize + IblSizeVarint((uint64)value);
+	}
+	return 0;
+}
+
 static PyObject* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
-	long key;
+	TypyField key;
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
 	PyObject* enums = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &enums)) {
 		if (PyDict_Check(enums)) {
 			while (PyDict_Next(enums, &pos, &k, &v)) {
-				key = PyInt_AsLong(k);
+				key = (TypyField)PyInt_AsLong(k);
 				if (PyErr_Occurred()) {
 					return NULL;
 				}

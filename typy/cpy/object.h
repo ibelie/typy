@@ -19,7 +19,7 @@ typedef void*  TypeType;
 typedef size_t TypyField;
 
 typedef PyObject* (*GetPyObject)  (TypeType, TypyField);
-typedef bool      (*CheckAndSet)  (TypeType, TypyField*, PyObject* arg, const char* err);                            \
+typedef bool      (*CheckAndSet)  (TypeType, TypyField*, PyObject*, const char*);
 typedef void      (*CopyFrom)     (TypeType, TypyField*, TypyField);
 typedef void      (*MergeFrom)    (TypeType, TypyField*, TypyField);
 typedef void      (*Clear)        (TypeType, TypyField*);
@@ -181,7 +181,7 @@ inline char* Typy_PropertyName(TypyObject* self, int index) {
 }
 
 inline int Typy_PropertyIndex(TypyObject* self, char* key) {
-	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(Typy_TYPE(self)->meta_field2index, key);
+	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(Typy_TYPE(self)->meta_field2index, &key);
 	if (field) {
 		return field->index;
 	} else {

@@ -30,7 +30,7 @@ typedef struct {
 
 extern PyTypeObject TypyDictType;
 extern PyTypeObject TypyMetaDictType;
-PyObject* Typy_RegisterDict(PyObject* m, PyObject* args);
+PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 
 #define TypyKey_DESCRIPTOR(ob) ((ob)->dict_type->key_descriptor)
 #define TypyKey_TAG(ob) (TypyKey_DESCRIPTOR(ob).desc_tag)

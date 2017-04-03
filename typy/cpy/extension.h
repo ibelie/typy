@@ -18,7 +18,7 @@ typedef struct {
 } TypyPython;
 
 extern PyTypeObject TypyPythonType;
-PyObject* Typy_RegisterPython(PyObject* m, PyObject* args);
+PyObject* Typy_RegisterPython(PyObject*, PyObject*);
 
 #ifdef __cplusplus
 }

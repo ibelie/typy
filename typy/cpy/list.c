@@ -35,8 +35,45 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 	free(type);
 }
 
+bool TypyList_Read(TypyMetaList* type, TypyField* value, byte** input, size_t* length) {
+	TypyField item;
+	register TypyList* list = (TypyList*)(*value);
+	if (list == NULL) {
+		list = (TypyList*)TypyList_New(type, NULL, NULL);
+		*value = (TypyField)list;
+	}
+	if (!TypyList_METHOD(list, Read, Typy_ARGS(&item, input, length))) {
+		return false;
+	}
+	return TypyList_Append(list, item);
+}
+
+bool TypyList_ReadPacked(TypyMetaList* type, TypyField* value, byte** input, size_t* length) {
+	uint32 i, size;
+	if (!Typy_ReadVarint32(input, length, &size)) {
+		return false;
+	}
+	register TypyList* list = (TypyList*)(*value);
+	if (list == NULL) {
+		list = (TypyList*)TypyList_New(type, NULL, NULL);
+		*value = (TypyField)list;
+	} else {
+		TypyList_Clear(list);
+	}
+	TypyList_EnsureSize(list, (size_t)size);
+	for (i = 0; i < size; i ++) {
+		if (!TypyList_METHOD(list, Read, Typy_ARGS(&list->list_items[i], input, length))) {
+			return false;
+		}
+	}
+	return true;
+}
+
 static void TypyList_Dealloc(TypyList* self) {
 	TypyList_Clear(self);
+	if (self->list_items) {
+		free(self->list_items);
+	}
 	free(self);
 }
 

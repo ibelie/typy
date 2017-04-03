@@ -6,54 +6,202 @@
 
 
 abstract_GetPyObject = {
-/* TYPE_ENUM       */
-/* TYPE_INT32      */
-/* TYPE_INT64      */
-/* TYPE_UINT32     */
-/* TYPE_UINT64     */
-/* TYPE_DOUBLE     */
-/* TYPE_FLOAT      */
-/* TYPE_BOOL       */
-/* TYPE_BYTES      */
-/* TYPE_STRING     */
-/* TYPE_OBJECT     */
-/* TYPE_VARIANT    */
-/* TYPE_LIST       */
-/* TYPE_DICT       */
-/* TYPE_FIXEDPOINT */
-/* TYPE_PYTHON     */
+	TypyEnum_GetPyObject, /* TYPE_ENUM       */
+	/* TYPE_INT32      */
+	/* TYPE_INT64      */
+	/* TYPE_UINT32     */
+	/* TYPE_UINT64     */
+	/* TYPE_DOUBLE     */
+	/* TYPE_FLOAT      */
+	/* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
+
+//=============================================================================
 
 abstract_CheckAndSet = {
-
+	TypyEnum_CheckAndSet, /* TYPE_ENUM       */
+	/* TYPE_INT32      */
+	/* TYPE_INT64      */
+	/* TYPE_UINT32     */
+	/* TYPE_UINT64     */
+	/* TYPE_DOUBLE     */
+	/* TYPE_FLOAT      */
+	/* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
+
+//=============================================================================
+
+static void Numeric_CopyFrom(TypeType type, TypyField* lvalue, TypyField rvalue) {
+	*lvalue = rvalue;
+}
 
 abstract_CopyFrom = {
-
+	Numeric_CopyFrom, /* TYPE_ENUM       */
+	Numeric_CopyFrom, /* TYPE_INT32      */
+	Numeric_CopyFrom, /* TYPE_INT64      */
+	Numeric_CopyFrom, /* TYPE_UINT32     */
+	Numeric_CopyFrom, /* TYPE_UINT64     */
+	Numeric_CopyFrom, /* TYPE_DOUBLE     */
+	Numeric_CopyFrom, /* TYPE_FLOAT      */
+	Numeric_CopyFrom, /* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
+
+//=============================================================================
+
+static void Numeric_MergeFrom(TypeType type, TypyField* lvalue, TypyField rvalue) {
+	if (rvalue != 0) { *lvalue = rvalue; }
+}
 
 abstract_MergeFrom = {
-
+	Numeric_MergeFrom, /* TYPE_ENUM       */
+	Numeric_MergeFrom, /* TYPE_INT32      */
+	Numeric_MergeFrom, /* TYPE_INT64      */
+	Numeric_MergeFrom, /* TYPE_UINT32     */
+	Numeric_MergeFrom, /* TYPE_UINT64     */
+	Numeric_MergeFrom, /* TYPE_DOUBLE     */
+	Numeric_MergeFrom, /* TYPE_FLOAT      */
+	Numeric_MergeFrom, /* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
+
+//=============================================================================
+
+static void Numeric_Clear(TypeType type, TypyField* value) {
+	*value = 0;
+}
 
 abstract_Clear = {
-
+	Numeric_Clear, /* TYPE_ENUM       */
+	Numeric_Clear, /* TYPE_INT32      */
+	Numeric_Clear, /* TYPE_INT64      */
+	Numeric_Clear, /* TYPE_UINT32     */
+	Numeric_Clear, /* TYPE_UINT64     */
+	Numeric_Clear, /* TYPE_DOUBLE     */
+	Numeric_Clear, /* TYPE_FLOAT      */
+	/* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
+
+//=============================================================================
 
 abstract_Read = {
-
+	TypyEnum_Read, /* TYPE_ENUM       */
+	               /* TYPE_INT32      */
+	               /* TYPE_INT64      */
+	               /* TYPE_UINT32     */
+	               /* TYPE_UINT64     */
+	               /* TYPE_DOUBLE     */
+	               /* TYPE_FLOAT      */
+	               /* TYPE_BOOL       */
+	               /* TYPE_BYTES      */
+	               /* TYPE_STRING     */
+	               /* TYPE_OBJECT     */
+	               /* TYPE_VARIANT    */
+	TypyList_Read, /* TYPE_LIST       */
+	               /* TYPE_DICT       */
+	               /* TYPE_FIXEDPOINT */
+	               /* TYPE_PYTHON     */
 };
+
+//=============================================================================
 
 abstract_ReadPacked = {
-
+	NULL,                /* TYPE_ENUM       */
+	NULL,                /* TYPE_INT32      */
+	NULL,                /* TYPE_INT64      */
+	NULL,                /* TYPE_UINT32     */
+	NULL,                /* TYPE_UINT64     */
+	NULL,                /* TYPE_DOUBLE     */
+	NULL,                /* TYPE_FLOAT      */
+	NULL,                /* TYPE_BOOL       */
+	NULL,                /* TYPE_BYTES      */
+	NULL,                /* TYPE_STRING     */
+	NULL,                /* TYPE_OBJECT     */
+	NULL,                /* TYPE_VARIANT    */
+	TypyList_ReadPacked, /* TYPE_LIST       */
+	NULL,                /* TYPE_DICT       */
+	NULL,                /* TYPE_FIXEDPOINT */
+	NULL,                /* TYPE_PYTHON     */
 };
+
+//=============================================================================
 
 abstract_Write = {
-
+	TypyEnum_Write, /* TYPE_ENUM       */
+	/* TYPE_INT32      */
+	/* TYPE_INT64      */
+	/* TYPE_UINT32     */
+	/* TYPE_UINT64     */
+	/* TYPE_DOUBLE     */
+	/* TYPE_FLOAT      */
+	/* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
 
-abstract_ByteSize = {
+//=============================================================================
 
+abstract_ByteSize = {
+	TypyEnum_ByteSize, /* TYPE_ENUM       */
+	/* TYPE_INT32      */
+	/* TYPE_INT64      */
+	/* TYPE_UINT32     */
+	/* TYPE_UINT64     */
+	/* TYPE_DOUBLE     */
+	/* TYPE_FLOAT      */
+	/* TYPE_BOOL       */
+	/* TYPE_BYTES      */
+	/* TYPE_STRING     */
+	/* TYPE_OBJECT     */
+	/* TYPE_VARIANT    */
+	/* TYPE_LIST       */
+	/* TYPE_DICT       */
+	/* TYPE_FIXEDPOINT */
+	/* TYPE_PYTHON     */
 };
 
 

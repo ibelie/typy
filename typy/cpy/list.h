@@ -27,7 +27,7 @@ typedef struct {
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
-PyObject* Typy_RegisterList(PyObject* m, PyObject* args);
+PyObject* Typy_RegisterList(PyObject*, PyObject*);
 
 #define TypyList_DESCRIPTOR(ob) ((ob)->list_type->list_descriptor)
 #define TypyList_TAG(ob) (TypyList_DESCRIPTOR(ob).desc_tag)
@@ -47,6 +47,14 @@ inline PyObject* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwar
 	return list;
 }
 
+inline size_t TypyList_Size(TypyList* self) {
+	return self->list_size;
+}
+
+inline void TypyList_EnsureSize(TypyList* self, size_t size) {
+	/* todo: TypyList_EnsureSize */
+}
+
 inline void TypyList_Clear(TypyList* self) {
 	register size_t i;
 	for (i = 0; i < self->list_size; i++) {
@@ -55,17 +63,25 @@ inline void TypyList_Clear(TypyList* self) {
 	self->list_size = 0;
 }
 
-inline void TypyList_Insert(TypyList* self) {
+inline bool TypyList_Insert(TypyList* self, size_t offset, TypyField item) {
 	/* todo: TypyList_Insert */
+	return false;
 }
 
-inline void TypyList_CheckAndSet(TypyList* self) {
-	/* todo: TypyList_CheckAndSet */
+inline bool TypyList_Append(TypyList* self, TypyField item) {
+	return TypyList_Insert(self, self->list_size, item);
 }
 
-inline void TypyList_Remove(TypyList* self) {
+inline void TypyList_CheckAndSetList(TypyList* self, TypyList* value) {
+	/* todo: TypyList_CheckAndSetList */
+}
+
+inline void TypyList_Remove(TypyList* self, size_t offset) {
 	/* todo: TypyList_Remove */
 }
+
+bool TypyList_Read(TypyMetaList*, TypyField*, byte**, size_t*);
+bool TypyList_ReadPacked(TypyMetaList*, TypyField*, byte**, size_t*);
 
 #ifdef __cplusplus
 }
