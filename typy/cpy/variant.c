@@ -60,18 +60,29 @@ PyObject* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs
 	return variant;
 }
 
-PyObject* TypyVariant_toPyObject(TypyVariant* self) {
-	/* todo: TypyVariant_toPyObject */
+PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
+	/* todo: TypyVariant_GetPyObject */
 	Py_RETURN_NONE;
 }
 
-bool TypyVariant_fromPyObject(TypyVariant* self, PyObject* from) {
-	/* todo: TypyVariant_fromPyObject */
-	return false;
+bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject* arg, const char* err) {
+	if (arg == Py_None) {
+		Py_XDECREF(*value);
+		*value = NULL;
+		return true;
+	}
+	register TypyVariant* self = *value;
+	if (!self) {
+		self = (TypyVariant*)TypyVariant_New(type, NULL, NULL);
+		*value = self;
+	}
+	/* todo: TypyVariant_CheckAndSet */
+	return true;
 }
 
 size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {
 	register TypyVariant* self = *value;
+	if (!self) { return 0; }
 	register int i = self->variant_index;
 	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
 		register size_t size = Typy_METHOD(self, i, ByteSize, Typy_TAGSIZE(self, i));
@@ -84,7 +95,7 @@ size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsi
 
 size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byte* output) {
 	register TypyVariant* self = *value;
-	if (self->variant_size <= 0) { return 0;}
+	if (!self || self->variant_size <= 0) { return 0;}
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return 0; }
 	register size_t size = Typy_WriteTag(output, tag);

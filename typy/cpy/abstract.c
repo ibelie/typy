@@ -33,7 +33,7 @@ GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
 	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_BYTES      */
 	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_STRING     */
 	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_OBJECT     */
-	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_VARIANT    */
+	(GetPyObject)TypyVariant_GetPyObject,    /* TYPE_VARIANT    */
 	(GetPyObject)TypyList_GetPyObject,       /* TYPE_LIST       */
 	(GetPyObject)TypyDict_GetPyObject,       /* TYPE_DICT       */
 	(GetPyObject)TypyFixedPoint_GetPyObject, /* TYPE_FIXEDPOINT */
@@ -151,6 +151,7 @@ static bool TypyString_CheckAndSet(TypeType t, PyString* value, PyObject* arg, c
 		return true;
 	} else if (PyUnicode_Check(arg)) {
 		Py_DECREF(*value);
+		Py_INCREF(arg);
 		*value = (PyString)arg;
 		return true;
 	}
@@ -177,7 +178,6 @@ static bool TypyBytes_CheckAndSet(TypeType t, PyBytes* value, PyObject* arg, con
 	}
 	Py_DECREF(*value);
 	*value = (PyBytes)arg;
-	Py_DECREF(arg);
 	return true;
 }
 
@@ -192,8 +192,8 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 	(CheckAndSet)TypyBool_CheckAndSet,       /* TYPE_BOOL       */
 	(CheckAndSet)TypyBytes_CheckAndSet,      /* TYPE_BYTES      */
 	(CheckAndSet)TypyString_CheckAndSet,     /* TYPE_STRING     */
-	(CheckAndSet)0,                          /* TYPE_OBJECT     */
-	(CheckAndSet)0,                          /* TYPE_VARIANT    */
+	(CheckAndSet)TypyObject_CheckAndSet,     /* TYPE_OBJECT     */
+	(CheckAndSet)TypyVariant_CheckAndSet,    /* TYPE_VARIANT    */
 	(CheckAndSet)0,                          /* TYPE_LIST       */
 	(CheckAndSet)0,                          /* TYPE_DICT       */
 	(CheckAndSet)TypyFixedPoint_CheckAndSet, /* TYPE_FIXEDPOINT */

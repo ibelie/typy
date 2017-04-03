@@ -27,6 +27,22 @@ PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	return object;
 }
 
+bool TypyObject_CheckAndSet(TypyMetaObject* type, TypyObject** value, PyObject* arg, const char* err) {
+	if (arg == Py_None) {
+		Py_XDECREF(*value);
+		*value = NULL;
+		return true;
+	}
+	if (!Typy_TypeCheck(arg) || Typy_TYPE(arg) != type) {
+		FormatTypeError(arg, err);
+		return false;
+	}
+	Py_XDECREF(*value);
+	Py_INCREF(arg);
+	*value = (TypyObject*)arg;
+	return true;
+}
+
 size_t TypyObject_ByteSize(TypyMetaObject* type, TypyObject** value, int tagsize) {
 	register size_t size = Typy_ByteSize(*value);
 	(*value)->object_size = size;
