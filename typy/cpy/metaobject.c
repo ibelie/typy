@@ -27,6 +27,33 @@ PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	return object;
 }
 
+size_t TypyObject_ByteSize(TypyMetaObject* type, TypyObject** value, int tagsize) {
+	register size_t size = Typy_ByteSize(*value);
+	(*value)->object_size = size;
+	return size ? tagsize + IblSizeVarint(size) + size : 0;
+}
+
+size_t TypyObject_Write(TypyMetaObject* type, TypyObject** value, int tag, byte* output) {
+	register TypyObject* self = *value;
+	if (self->object_size <= 0) { return 0;}
+	register size_t size = Typy_WriteTag(output, tag);
+	size += IblPutUvarint(output + size, self->object_size);
+	Typy_SerializeString(self, output + size);
+	return size + self->object_size;
+}
+
+bool TypyObject_Read(TypyMetaObject* type, TypyObject** value, byte** input, size_t* length) {
+	register TypyObject* self = *value;
+	if (!self) {
+		self = (TypyObject*)Typy_New(type, NULL, NULL);
+		*value = self;
+	}
+	register size_t size = Typy_MergeFromString(self, *input, *length);
+	*input += size;
+	*length -= size;
+	return size > 0;
+}
+
 PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
 	register TypyObject* from = (TypyObject*)arg;
 	if (self == from) {

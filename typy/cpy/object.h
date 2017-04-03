@@ -65,6 +65,7 @@ void TypyMeta_Dealloc(TypyMetaObject*);
 
 typedef struct {
 	TypyObject_HEAD
+	size_t    object_size;
 	TypyField object_fields[1];
 } TypyObject;
 
@@ -227,13 +228,17 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 	return index;
 }
 
-PyObject* Typy_New(TypyMetaObject*, PyObject*, PyObject*);
-PyObject* Py_CopyFrom(TypyObject*, PyObject*);
-PyObject* Py_MergeFrom(TypyObject*, PyObject*);
-PyObject* Py_SerializeString(TypyObject*);
-PyObject* Py_MergeFromString(TypyObject*, PyObject*);
-PyObject* Py_DeserializeProperty(TypyObject*, PyObject*);
-PyObject* Py_SerializeProperty(TypyObject*, PyObject*);
+PyObject* Typy_New            (TypyMetaObject*, PyObject*, PyObject*);
+size_t    TypyObject_ByteSize (TypyMetaObject*, TypyObject**, int);
+size_t    TypyObject_Write    (TypyMetaObject*, TypyObject**, int, byte*);
+bool      TypyObject_Read     (TypyMetaObject*, TypyObject**, byte**, size_t*);
+
+PyObject* Py_CopyFrom            (TypyObject*, PyObject*);
+PyObject* Py_MergeFrom           (TypyObject*, PyObject*);
+PyObject* Py_SerializeString     (TypyObject*);
+PyObject* Py_MergeFromString     (TypyObject*, PyObject*);
+PyObject* Py_DeserializeProperty (TypyObject*, PyObject*);
+PyObject* Py_SerializeProperty   (TypyObject*, PyObject*);
 
 inline PyObject* Py_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
 inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Clear(self); return Py_MergeFromString(self, arg); }

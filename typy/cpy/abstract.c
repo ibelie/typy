@@ -319,6 +319,7 @@ static bool TypyBytes_Read(TypeType t, PyBytes* value, byte** input, size_t* len
 	memcpy(PyBytes_AS_STRING(bytes), *input, size);
 	*input += size;
 	*length -= size;
+	Py_XDECREF(*value);
 	*value = bytes;
 	return true;
 }
@@ -335,6 +336,7 @@ static bool TypyString_Read(TypeType t, PyString* value, byte** input, size_t* l
 	memcpy(PyBytes_AS_STRING(bytes), *input, size);
 	*input += size;
 	*length -= size;
+	Py_XDECREF(*value);
 	*value = (PyString)PyUnicode_FromEncodedObject(bytes, "utf-8", NULL);
 	Py_DECREF(bytes);
 	return true;
@@ -351,8 +353,8 @@ Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)Typy_ReadByte,       /* TYPE_BOOL       */
 	(Read)TypyBytes_Read,      /* TYPE_BYTES      */
 	(Read)TypyString_Read,     /* TYPE_STRING     */
-	(Read)0,                   /* TYPE_OBJECT     */
-	(Read)0,                   /* TYPE_VARIANT    */
+	(Read)TypyObject_Read,     /* TYPE_OBJECT     */
+	(Read)TypyVariant_Read,    /* TYPE_VARIANT    */
 	(Read)TypyList_Read,       /* TYPE_LIST       */
 	(Read)0,                   /* TYPE_DICT       */
 	(Read)TypyField_Read,      /* TYPE_FIXEDPOINT */
@@ -464,8 +466,8 @@ Write abstract_Write[MAX_FIELD_TYPE] = {
 	(Write)TypyBool_Write,       /* TYPE_BOOL       */
 	(Write)TypyBytes_Write,      /* TYPE_BYTES      */
 	(Write)TypyString_Write,     /* TYPE_STRING     */
-	(Write)0,                    /* TYPE_OBJECT     */
-	(Write)0,                    /* TYPE_VARIANT    */
+	(Write)TypyObject_Write,     /* TYPE_OBJECT     */
+	(Write)TypyVariant_Write,    /* TYPE_VARIANT    */
 	(Write)0,                    /* TYPE_LIST       */
 	(Write)0,                    /* TYPE_DICT       */
 	(Write)TypyFixedPoint_Write, /* TYPE_FIXEDPOINT */
@@ -530,8 +532,8 @@ ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyBool_ByteSize,       /* TYPE_BOOL       */
 	(ByteSize)TypyBytes_ByteSize,      /* TYPE_BYTES      */
 	(ByteSize)TypyString_ByteSize,     /* TYPE_STRING     */
-	(ByteSize)0,                       /* TYPE_OBJECT     */
-	(ByteSize)0,                       /* TYPE_VARIANT    */
+	(ByteSize)TypyObject_ByteSize,     /* TYPE_OBJECT     */
+	(ByteSize)TypyVariant_ByteSize,    /* TYPE_VARIANT    */
 	(ByteSize)0,                       /* TYPE_LIST       */
 	(ByteSize)0,                       /* TYPE_DICT       */
 	(ByteSize)TypyFixedPoint_ByteSize, /* TYPE_FIXEDPOINT */

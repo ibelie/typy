@@ -70,6 +70,56 @@ bool TypyVariant_fromPyObject(TypyVariant* self, PyObject* from) {
 	return false;
 }
 
+size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {
+	register TypyVariant* self = *value;
+	register int i = self->variant_index;
+	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
+		register size_t size = Typy_METHOD(self, i, ByteSize, Typy_TAGSIZE(self, i));
+		self->variant_size = size;
+		return tagsize + IblSizeVarint(size) + size;
+	}
+	self->variant_size = 0;
+	return 0;
+}
+
+size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byte* output) {
+	register TypyVariant* self = *value;
+	if (self->variant_size <= 0) { return 0;}
+	register int i = self->variant_index;
+	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return 0; }
+	register size_t size = Typy_WriteTag(output, tag);
+	size += IblPutUvarint(output + size, self->variant_size);
+	size += Typy_METHOD(self, i, Write, Typy_ARGS(Typy_TAG(self, i), output + size));
+	return size;
+}
+
+bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, size_t* length) {
+	uint32 tag;
+	register TypyVariant* self = *value;
+	if (!self) {
+		self = (TypyVariant*)TypyVariant_New(type, NULL, NULL);
+		*value = self;
+	}
+	if (!Typy_ReadTag(input, length, &tag, Typy_TYPE(self)->meta_cutoff)) {
+		return false;
+	}
+	register int index = TAG_INDEX(tag);
+	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return false; }
+	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
+		TypyVariant_Clear(self);
+		if (!Typy_METHOD(self, index, Read, Typy_ARGS(input, length))) {
+			return false;
+		}
+	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
+		TypyVariant_Clear(self);
+		if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(input, length))) {
+			return false;
+		}
+	}
+	self->variant_index = index;
+	return true;
+}
+
 static void TypyVariant_Dealloc(TypyVariant* self) {
 	TypyVariant_Clear(self);
 	free(self);
