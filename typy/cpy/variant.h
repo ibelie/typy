@@ -14,7 +14,6 @@ extern "C" {
 typedef struct {
 	TypyObject_HEAD
 	int       variant_index;
-	size_t    variant_cached_size;
 	TypyField variant_value;
 } TypyVariant;
 
@@ -29,7 +28,7 @@ bool      TypyVariant_fromPyObject(TypyVariant*, PyObject*);
 inline void TypyVariant_Clear(TypyVariant* self) {
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return; }
-	Typy_METHOD(self, i, Clear, &Typy_FIELD(self, i));
+	Typy_METHOD_NOARG(self, i, Clear);
 	self->variant_index = -1;
 }
 
@@ -37,16 +36,15 @@ inline size_t TypyVariant_ByteSize(TypyVariant* self) {
 	register size_t size = 0;
 	register int i = self->variant_index;
 	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
-		size = Typy_METHOD(self, i, ByteSize, Typy_ARGS(Typy_TAGSIZE(self, i), Typy_FIELD(self, i)));
+		size = Typy_METHOD(self, i, ByteSize, Typy_TAGSIZE(self, i));
 	}
-	self->variant_cached_size = size;
 	return size;
 }
 
 inline void TypyVariant_SerializeString(TypyVariant* self, byte* output) {
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return; }
-	output += Typy_METHOD(self, i, Write, Typy_ARGS(Typy_TAG(self, i), Typy_FIELD(self, i), output));
+	output += Typy_METHOD(self, i, Write, Typy_ARGS(Typy_TAG(self, i), output));
 }
 
 inline size_t TypyVariant_MergeFromString(TypyVariant* self, byte* input, size_t length) {
@@ -59,12 +57,12 @@ inline size_t TypyVariant_MergeFromString(TypyVariant* self, byte* input, size_t
 	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return 0; }
 	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
 		TypyVariant_Clear(self);
-		if (!Typy_METHOD(self, index, Read, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
+		if (!Typy_METHOD(self, index, Read, Typy_ARGS(&input, &remain))) {
 			return 0;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
 		TypyVariant_Clear(self);
-		if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(&Typy_FIELD(self, index), &input, &remain))) {
+		if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(&input, &remain))) {
 			return 0;
 		}
 	}

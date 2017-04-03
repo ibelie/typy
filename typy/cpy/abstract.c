@@ -360,6 +360,10 @@ abstract_Write = {
 
 //=============================================================================
 
+static size_t TypyInt32_ByteSize(TypeType t, int32* value, int tagsize) {
+
+}
+
 abstract_ByteSize = {
 	TypyEnum_ByteSize,       /* TYPE_ENUM       */
 	                         /* TYPE_INT32      */

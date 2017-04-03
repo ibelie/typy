@@ -59,9 +59,9 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 	return true;
 }
 
-size_t TypyPython_Write(TypyPython* type, int tag, PyObject* value, byte* output) {
-	if (value) {
-		register PyObject* data = PyObject_CallMethod(value, "Serialize", NULL);
+size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* output) {
+	if (*value) {
+		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
 		if (!data) { return 0; }
 		register size_t size = Typy_WriteTag(output, tag);
 		size += Typy_WriteVariant32(output + size, (uint32)PyBytes_GET_SIZE(data));
@@ -71,9 +71,9 @@ size_t TypyPython_Write(TypyPython* type, int tag, PyObject* value, byte* output
 	return 0;
 }
 
-size_t TypyPython_ByteSize(TypyPython* type, int tagsize, PyObject* value) {
-	if (value) {
-		register PyObject* s = PyObject_CallMethod(value, "ByteSize", NULL);
+size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
+	if (*value) {
+		register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
 		if (!s) { return 0; }
 		register long size = PyInt_AsLong(s);
 		return tagsize + IblSizeVarint((uint64)size) + size;

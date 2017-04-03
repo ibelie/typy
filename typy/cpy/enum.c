@@ -60,18 +60,18 @@ bool TypyEnum_Read(TypyEnum* type, TypyField* value, byte** input, size_t* lengt
 	return Typy_ReadVarint32(input, length, value);
 }
 
-size_t TypyEnum_Write(TypyEnum* type, int tag, TypyField value, byte* output) {
+size_t TypyEnum_Write(TypyEnum* type, TypyField* value, int tag, byte* output) {
 	register size_t size = 0;
-	if (value != 0) {
+	if (*value) {
 		size = Typy_WriteTag(output, tag);
-		size += Typy_WriteVariant32(output + size, (uint32)value);
+		size += Typy_WriteVariant32(output + size, *value);
 	}
 	return size;
 }
 
-size_t TypyEnum_ByteSize(TypyEnum* type, int tagsize, TypyField value) {
-	if (value != 0) {
-		return tagsize + IblSizeVarint((uint64)value);
+size_t TypyEnum_ByteSize(TypyEnum* type, TypyField* value, int tagsize) {
+	if (*value) {
+		return tagsize + IblSizeVarint(*value);
 	}
 	return 0;
 }

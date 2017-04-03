@@ -28,11 +28,11 @@ inline TypyField TypyFixedPoint_fromDouble(TypyFixedPoint* type, double value) {
 	return (TypyField)((value - type->fixedpoint_floor) * type->fixedpoint_precision);
 }
 
-PyObject* TypyFixedPoint_GetPyObject(TypyFixedPoint*, TypyField*);
-bool      TypyFixedPoint_CheckAndSet(TypyFixedPoint*, TypyField*, PyObject*, const char*);
-bool      TypyFixedPoint_Read(TypyFixedPoint*, TypyField*, byte**, size_t*);
-size_t    TypyFixedPoint_Write(TypyFixedPoint*, int, TypyField, byte*);
-size_t    TypyFixedPoint_ByteSize(TypyFixedPoint*, int, TypyField);
+PyObject* TypyFixedPoint_GetPyObject (TypyFixedPoint*, TypyField*);
+bool      TypyFixedPoint_CheckAndSet (TypyFixedPoint*, TypyField*, PyObject*, const char*);
+bool      TypyFixedPoint_Read        (TypyFixedPoint*, TypyField*, byte**, size_t*);
+size_t    TypyFixedPoint_Write       (TypyFixedPoint*, TypyField*, int, byte*);
+size_t    TypyFixedPoint_ByteSize    (TypyFixedPoint*, TypyField*, int);
 
 #ifdef __cplusplus
 }
