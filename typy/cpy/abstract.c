@@ -13,7 +13,7 @@ static PyObject* TypyBool_GetPyObject   (TypeType t, bool* v)   { return PyBool_
 static PyObject* TypyDouble_GetPyObject (TypeType t, double* v) { return PyFloat_FromDouble(*v); }
 static PyObject* TypyFloat_GetPyObject  (TypeType t, float* v)  { return PyFloat_FromDouble(*v); }
 
-static PyObject* TypyObject_GetPyObject(TypeType type, PyObject** value) {
+static PyObject* TypyPyObject_GetPyObject(TypeType type, PyObject** value) {
 	if (!(*value)) {
 		Py_RETURN_NONE;
 	}
@@ -30,14 +30,14 @@ GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
 	(GetPyObject)TypyDouble_GetPyObject,     /* TYPE_DOUBLE     */
 	(GetPyObject)TypyFloat_GetPyObject,      /* TYPE_FLOAT      */
 	(GetPyObject)TypyBool_GetPyObject,       /* TYPE_BOOL       */
-	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_BYTES      */
-	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_STRING     */
-	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_OBJECT     */
-	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_VARIANT    */
+	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_BYTES      */
+	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_STRING     */
+	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_OBJECT     */
+	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_VARIANT    */
 	(GetPyObject)TypyList_GetPyObject,       /* TYPE_LIST       */
 	(GetPyObject)TypyDict_GetPyObject,       /* TYPE_DICT       */
 	(GetPyObject)TypyFixedPoint_GetPyObject, /* TYPE_FIXEDPOINT */
-	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_PYTHON     */
+	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -206,7 +206,7 @@ static void TypyNumeric_CopyFrom(TypeType type, TypyField* lvalue, TypyField rva
 	*lvalue = rvalue;
 }
 
-static void TypyObject_CopyFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
+static void TypyPyObject_CopyFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
 	Py_XDECREF(*lvalue);
 	if (!rvalue) { *lvalue = NULL; return; }
 	Py_INCREF(rvalue);
@@ -214,22 +214,22 @@ static void TypyObject_CopyFrom(TypeType type, PyObject** lvalue, PyObject* rval
 }
 
 CopyFrom abstract_CopyFrom[MAX_FIELD_TYPE] = {
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_ENUM       */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_INT32      */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_INT64      */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_UINT32     */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_UINT64     */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_DOUBLE     */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_FLOAT      */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_BOOL       */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_BYTES      */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_STRING     */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_OBJECT     */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_VARIANT    */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_LIST       */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_DICT       */
-	(CopyFrom)TypyNumeric_CopyFrom, /* TYPE_FIXEDPOINT */
-	(CopyFrom)TypyObject_CopyFrom,  /* TYPE_PYTHON     */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_ENUM       */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_INT32      */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_INT64      */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_UINT32     */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_UINT64     */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_DOUBLE     */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FLOAT      */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_BOOL       */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_BYTES      */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_STRING     */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_OBJECT     */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_VARIANT    */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_LIST       */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_DICT       */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FIXEDPOINT */
+	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -238,7 +238,7 @@ static void TypyNumeric_MergeFrom(TypeType type, TypyField* lvalue, TypyField rv
 	if (rvalue != 0) { *lvalue = rvalue; }
 }
 
-static void TypyObject_MergeFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
+static void TypyPyObject_MergeFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
 	if (rvalue != 0) {
 		Py_XDECREF(*lvalue);
 		Py_INCREF(rvalue);
@@ -247,22 +247,22 @@ static void TypyObject_MergeFrom(TypeType type, PyObject** lvalue, PyObject* rva
 }
 
 MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_ENUM       */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_INT32      */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_INT64      */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_UINT32     */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_UINT64     */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_DOUBLE     */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_FLOAT      */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_BOOL       */
-	(MergeFrom)TypyObject_MergeFrom,  /* TYPE_BYTES      */
-	(MergeFrom)TypyObject_MergeFrom,  /* TYPE_STRING     */
-	(MergeFrom)0,                     /* TYPE_OBJECT     */
-	(MergeFrom)0,                     /* TYPE_VARIANT    */
-	(MergeFrom)0,                     /* TYPE_LIST       */
-	(MergeFrom)0,                     /* TYPE_DICT       */
-	(MergeFrom)TypyNumeric_MergeFrom, /* TYPE_FIXEDPOINT */
-	(MergeFrom)TypyObject_MergeFrom,  /* TYPE_PYTHON     */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_ENUM       */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_INT32      */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_INT64      */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_UINT32     */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_UINT64     */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_DOUBLE     */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_FLOAT      */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_BOOL       */
+	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_BYTES      */
+	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_STRING     */
+	(MergeFrom)TypyObject_MergeFrom,   /* TYPE_OBJECT     */
+	(MergeFrom)TypyVariant_MergeFrom,  /* TYPE_VARIANT    */
+	(MergeFrom)0,                      /* TYPE_LIST       */
+	(MergeFrom)0,                      /* TYPE_DICT       */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_FIXEDPOINT */
+	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -271,28 +271,28 @@ static void TypyNumeric_Clear(TypeType type, TypyField* value) {
 	*value = 0;
 }
 
-static void TypyObject_Clear(TypeType type, PyObject** value) {
+static void TypyPyObject_Clear(TypeType type, PyObject** value) {
 	Py_XDECREF(value);
 	*value = 0;
 }
 
 Clear abstract_Clear[MAX_FIELD_TYPE] = {
-	(Clear)TypyNumeric_Clear, /* TYPE_ENUM       */
-	(Clear)TypyNumeric_Clear, /* TYPE_INT32      */
-	(Clear)TypyNumeric_Clear, /* TYPE_INT64      */
-	(Clear)TypyNumeric_Clear, /* TYPE_UINT32     */
-	(Clear)TypyNumeric_Clear, /* TYPE_UINT64     */
-	(Clear)TypyNumeric_Clear, /* TYPE_DOUBLE     */
-	(Clear)TypyNumeric_Clear, /* TYPE_FLOAT      */
-	(Clear)TypyNumeric_Clear, /* TYPE_BOOL       */
-	(Clear)TypyObject_Clear,  /* TYPE_BYTES      */
-	(Clear)TypyObject_Clear,  /* TYPE_STRING     */
-	(Clear)TypyObject_Clear,  /* TYPE_OBJECT     */
-	(Clear)TypyObject_Clear,  /* TYPE_VARIANT    */
-	(Clear)TypyObject_Clear,  /* TYPE_LIST       */
-	(Clear)TypyObject_Clear,  /* TYPE_DICT       */
-	(Clear)TypyNumeric_Clear, /* TYPE_FIXEDPOINT */
-	(Clear)TypyObject_Clear,  /* TYPE_PYTHON     */
+	(Clear)TypyNumeric_Clear,  /* TYPE_ENUM       */
+	(Clear)TypyNumeric_Clear,  /* TYPE_INT32      */
+	(Clear)TypyNumeric_Clear,  /* TYPE_INT64      */
+	(Clear)TypyNumeric_Clear,  /* TYPE_UINT32     */
+	(Clear)TypyNumeric_Clear,  /* TYPE_UINT64     */
+	(Clear)TypyNumeric_Clear,  /* TYPE_DOUBLE     */
+	(Clear)TypyNumeric_Clear,  /* TYPE_FLOAT      */
+	(Clear)TypyNumeric_Clear,  /* TYPE_BOOL       */
+	(Clear)TypyPyObject_Clear, /* TYPE_BYTES      */
+	(Clear)TypyPyObject_Clear, /* TYPE_STRING     */
+	(Clear)TypyPyObject_Clear, /* TYPE_OBJECT     */
+	(Clear)TypyPyObject_Clear, /* TYPE_VARIANT    */
+	(Clear)TypyPyObject_Clear, /* TYPE_LIST       */
+	(Clear)TypyPyObject_Clear, /* TYPE_DICT       */
+	(Clear)TypyNumeric_Clear,  /* TYPE_FIXEDPOINT */
+	(Clear)TypyPyObject_Clear, /* TYPE_PYTHON     */
 };
 
 //=============================================================================

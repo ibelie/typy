@@ -54,6 +54,16 @@ bool TypyObject_Read(TypyMetaObject* type, TypyObject** value, byte** input, siz
 	return size > 0;
 }
 
+void TypyObject_MergeFrom(TypyMetaObject* type, TypyObject** lvalue, TypyObject* rvalue) {
+	if (!rvalue) { return; }
+	register TypyObject* self = *lvalue;
+	if (!self) {
+		self = (TypyObject*)Typy_New(type, NULL, NULL);
+		*lvalue = self;
+	}
+	Typy_MergeFrom(self, rvalue);
+}
+
 PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
 	register TypyObject* from = (TypyObject*)arg;
 	if (self == from) {

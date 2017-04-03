@@ -26,6 +26,7 @@ PyObject* TypyVariant_New          (TypyMetaObject*, PyObject*, PyObject*);
 size_t    TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
 size_t    TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
 bool      TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
+void      TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);
 
 PyObject* TypyVariant_toPyObject   (TypyVariant*);
 bool      TypyVariant_fromPyObject (TypyVariant*, PyObject*);

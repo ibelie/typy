@@ -120,6 +120,21 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 	return true;
 }
 
+void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVariant* rvalue) {
+	if (!rvalue || rvalue->variant_index < 0 || (size_t)rvalue->variant_index >= Typy_SIZE(rvalue)) {
+		return;
+	}
+	register TypyVariant* self = *lvalue;
+	if (!self) {
+		self = (TypyVariant*)TypyVariant_New(type, NULL, NULL);
+		*lvalue = self;
+	}
+	if (self->variant_index != rvalue->variant_index) {
+		TypyVariant_Clear(self);
+	}
+	Typy_METHOD(self, self->variant_index, MergeFrom, Typy_FIELD(rvalue, self->variant_index));
+}
+
 static void TypyVariant_Dealloc(TypyVariant* self) {
 	TypyVariant_Clear(self);
 	free(self);

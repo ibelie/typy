@@ -228,10 +228,11 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 	return index;
 }
 
-PyObject* Typy_New            (TypyMetaObject*, PyObject*, PyObject*);
-size_t    TypyObject_ByteSize (TypyMetaObject*, TypyObject**, int);
-size_t    TypyObject_Write    (TypyMetaObject*, TypyObject**, int, byte*);
-bool      TypyObject_Read     (TypyMetaObject*, TypyObject**, byte**, size_t*);
+PyObject* Typy_New             (TypyMetaObject*, PyObject*, PyObject*);
+size_t    TypyObject_ByteSize  (TypyMetaObject*, TypyObject**, int);
+size_t    TypyObject_Write     (TypyMetaObject*, TypyObject**, int, byte*);
+bool      TypyObject_Read      (TypyMetaObject*, TypyObject**, byte**, size_t*);
+void      TypyObject_MergeFrom (TypyMetaObject*, TypyObject**, TypyObject*);
 
 PyObject* Py_CopyFrom            (TypyObject*, PyObject*);
 PyObject* Py_MergeFrom           (TypyObject*, PyObject*);
