@@ -36,11 +36,11 @@ static void MetaDict_Dealloc(TypyMetaDict* type) {
 	free(type);
 }
 
-PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyField* value) {
+PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
 	register PyObject* dict = (PyObject*)(*value);
-	if (dict == NULL) {
+	if (!dict) {
 		dict = TypyDict_New(type, NULL, NULL);
-		*value = (TypyField)dict;
+		*value = (TypyDict*)dict;
 	}
 	Py_INCREF(dict);
 	return dict;

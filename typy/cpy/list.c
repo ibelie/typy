@@ -35,22 +35,22 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 	free(type);
 }
 
-PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyField* value) {
+PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
 	register PyObject* list = (PyObject*)(*value);
-	if (list == NULL) {
+	if (!list) {
 		list = TypyList_New(type, NULL, NULL);
-		*value = (TypyField)list;
+		*value = (TypyList*)list;
 	}
 	Py_INCREF(list);
 	return list;
 }
 
-bool TypyList_Read(TypyMetaList* type, TypyField* value, byte** input, size_t* length) {
+bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
 	TypyField item;
-	register TypyList* list = (TypyList*)(*value);
-	if (list == NULL) {
+	register TypyList* list = *value;
+	if (!list) {
 		list = (TypyList*)TypyList_New(type, NULL, NULL);
-		*value = (TypyField)list;
+		*value = list;
 	}
 	if (!TypyList_METHOD(list, Read, Typy_ARGS(&item, input, length))) {
 		return false;
@@ -58,15 +58,15 @@ bool TypyList_Read(TypyMetaList* type, TypyField* value, byte** input, size_t* l
 	return TypyList_Append(list, item);
 }
 
-bool TypyList_ReadPacked(TypyMetaList* type, TypyField* value, byte** input, size_t* length) {
+bool TypyList_ReadPacked(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
 	uint32 i, size;
 	if (!Typy_ReadVarint32(input, length, &size)) {
 		return false;
 	}
-	register TypyList* list = (TypyList*)(*value);
-	if (list == NULL) {
+	register TypyList* list = *value;
+	if (!list) {
 		list = (TypyList*)TypyList_New(type, NULL, NULL);
-		*value = (TypyField)list;
+		*value = list;
 	} else {
 		TypyList_Clear(list);
 	}

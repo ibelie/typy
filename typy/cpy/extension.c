@@ -30,6 +30,57 @@ PyObject* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
+bool TypyPython_CheckAndSet(TypyPython* type, PyObject** value, PyObject* arg, const char* err) {
+	if (arg == Py_None) {
+		Py_XDECREF(*value);
+		return true;
+	} else if (PyObject_TypeCheck(arg, type->python_type)) {
+		Py_INCREF(arg);
+		*value = arg;
+		return true;
+	} else {
+		FormatTypeError(arg, err);
+		return false;
+	}
+}
+
+bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* length) {
+	uint32 size;
+	if (!Typy_ReadVarint32(input, length, &size)) {
+		return false;
+	}
+	register PyObject* data = PyBytes_FromStringAndSize(*input, size);
+	if (!(*value)) {
+		*value = PyType_GenericAlloc(type->python_type, 0);
+	}
+	if (*value) {
+		Py_XDECREF(PyObject_CallMethod(*value, "Deserialize", "O", data));
+	}
+	return true;
+}
+
+size_t TypyPython_Write(TypyPython* type, int tag, PyObject* value, byte* output) {
+	if (value) {
+		register PyObject* data = PyObject_CallMethod(value, "Serialize", NULL);
+		if (!data) { return 0; }
+		register size_t size = Typy_WriteTag(output, tag);
+		size += Typy_WriteVariant32(output + size, (uint32)PyBytes_GET_SIZE(data));
+		memcpy(output + size, PyBytes_AS_STRING(data), PyBytes_GET_SIZE(data));
+		return size + PyBytes_GET_SIZE(data);
+	}
+	return 0;
+}
+
+size_t TypyPython_ByteSize(TypyPython* type, int tagsize, PyObject* value) {
+	if (value) {
+		register PyObject* s = PyObject_CallMethod(value, "ByteSize", NULL);
+		if (!s) { return 0; }
+		register long size = PyInt_AsLong(s);
+		return tagsize + IblSizeVarint((uint64)size) + size;
+	}
+	return 0;
+}
+
 static PyObject* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 	PyObject* python_type = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &python_type)) {

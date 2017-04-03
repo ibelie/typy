@@ -29,6 +29,38 @@ PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
+PyObject* TypyFixedPoint_GetPyObject(TypyFixedPoint* type, TypyField* value) {
+	return PyFloat_FromDouble(TypyFixedPoint_toDouble(type, *value));
+}
+
+bool TypyFixedPoint_CheckAndSet(TypyFixedPoint* type, TypyField* value, PyObject* arg, const char* err) {
+	if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
+		FormatTypeError(arg, err);
+		return false;
+	}
+	*value = TypyFixedPoint_fromDouble(type, PyFloat_AsDouble(arg));
+	return true;
+}
+
+bool TypyFixedPoint_Read(TypyFixedPoint* type, TypyField* value, byte** input, size_t* length) {
+	return Typy_ReadVarint32(input, length, value);
+}
+
+size_t TypyFixedPoint_Write(TypyFixedPoint* type, int tag, TypyField value, byte* output) {
+	register TypyField _floor = -type->fixedpoint_floor * type->fixedpoint_precision;
+	register size_t size = 0;
+	if (value != _floor) {
+		size = Typy_WriteTag(output, tag);
+		size += Typy_WriteVariant32(output + size, value);
+	}
+	return size;
+}
+
+size_t TypyFixedPoint_ByteSize(TypyFixedPoint* type, int tagsize, TypyField value) {
+	return value ? tagsize + IblSizeVarint(value) : 0;
+}
+
+
 void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
 	free(type);
 }

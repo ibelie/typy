@@ -20,6 +20,11 @@ typedef struct {
 extern PyTypeObject TypyPythonType;
 PyObject* Typy_RegisterPython(PyObject*, PyObject*);
 
+bool   TypyPython_CheckAndSet(TypyPython*, PyObject**, PyObject*, const char*);
+bool   TypyPython_Read(TypyPython*, PyObject**, byte**, size_t*);
+size_t TypyPython_Write(TypyPython*, int, PyObject*, byte*);
+size_t TypyPython_ByteSize(TypyPython*, int, PyObject*);
+
 #ifdef __cplusplus
 }
 #endif

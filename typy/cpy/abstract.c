@@ -5,43 +5,44 @@
 #include "typy.h"
 
 
-static PyObject* TypyInt32_GetPyObject(TypeType t, TypyField* v) { return PyInt_FromLong(*v); }
-static PyObject* TypyInt64_GetPyObject(TypeType t, TypyField* v) { return PyLong_FromLongLong(*v); }
-static PyObject* TypyUint32_GetPyObject(TypeType t, TypyField* v) { return PyInt_FromSize_t(*v); }
-static PyObject* TypyUint64_GetPyObject(TypeType t, TypyField* v) { return PyLong_FromUnsignedLongLong(*v); }
-static PyObject* TypyFloat_GetPyObject(TypeType t, TypyField* v) { return PyFloat_FromDouble(*v); }
-static PyObject* TypyBool_GetPyObject(TypeType t, TypyField* v) { return PyBool_FromLong(*v); }
+static PyObject* TypyInt32_GetPyObject(TypeType t, int32* v) { return PyInt_FromLong(*v); }
+static PyObject* TypyInt64_GetPyObject(TypeType t, int64* v) { return PyLong_FromLongLong(*v); }
+static PyObject* TypyUint32_GetPyObject(TypeType t, uint32* v) { return PyInt_FromSize_t(*v); }
+static PyObject* TypyUint64_GetPyObject(TypeType t, uint64* v) { return PyLong_FromUnsignedLongLong(*v); }
+static PyObject* TypyBool_GetPyObject(TypeType t, bool* v) { return PyBool_FromLong(*v); }
+static PyObject* TypyDouble_GetPyObject(TypeType t, double* v) { return PyFloat_FromDouble(*v); }
+static PyObject* TypyFloat_GetPyObject(TypeType t, float* v) { PyFloat_FromDouble(*v); }
 
-static PyObject* TypyObject_GetPyObject(TypeType type, TypyField* value) {
-	if (!*value) {
+static PyObject* TypyObject_GetPyObject(TypeType type, PyObject** value) {
+	if (!(*value)) {
 		Py_RETURN_NONE;
 	}
 	Py_INCREF(*value);
-	return (PyObject*)(*value);
+	return *value;
 }
 
 abstract_GetPyObject = {
-	TypyEnum_GetPyObject,   /* TYPE_ENUM       */
-	TypyInt32_GetPyObject,  /* TYPE_INT32      */
-	TypyInt64_GetPyObject,  /* TYPE_INT64      */
-	TypyUint32_GetPyObject, /* TYPE_UINT32     */
-	TypyUint64_GetPyObject, /* TYPE_UINT64     */
-	TypyFloat_GetPyObject,  /* TYPE_DOUBLE     */
-	TypyFloat_GetPyObject,  /* TYPE_FLOAT      */
-	TypyBool_GetPyObject,   /* TYPE_BOOL       */
-	TypyObject_GetPyObject, /* TYPE_BYTES      */
-	TypyObject_GetPyObject, /* TYPE_STRING     */
-	TypyObject_GetPyObject, /* TYPE_OBJECT     */
-	TypyObject_GetPyObject, /* TYPE_VARIANT    */
-	TypyList_GetPyObject,   /* TYPE_LIST       */
-	TypyDict_GetPyObject,   /* TYPE_DICT       */
-	TypyFloat_GetPyObject,  /* TYPE_FIXEDPOINT */
-	TypyObject_GetPyObject, /* TYPE_PYTHON     */
+	TypyEnum_GetPyObject,       /* TYPE_ENUM       */
+	TypyInt32_GetPyObject,      /* TYPE_INT32      */
+	TypyInt64_GetPyObject,      /* TYPE_INT64      */
+	TypyUint32_GetPyObject,     /* TYPE_UINT32     */
+	TypyUint64_GetPyObject,     /* TYPE_UINT64     */
+	TypyDouble_GetPyObject,     /* TYPE_DOUBLE     */
+	TypyFloat_GetPyObject,      /* TYPE_FLOAT      */
+	TypyBool_GetPyObject,       /* TYPE_BOOL       */
+	TypyObject_GetPyObject,     /* TYPE_BYTES      */
+	TypyObject_GetPyObject,     /* TYPE_STRING     */
+	TypyObject_GetPyObject,     /* TYPE_OBJECT     */
+	TypyObject_GetPyObject,     /* TYPE_VARIANT    */
+	TypyList_GetPyObject,       /* TYPE_LIST       */
+	TypyDict_GetPyObject,       /* TYPE_DICT       */
+	TypyFixedPoint_GetPyObject, /* TYPE_FIXEDPOINT */
+	TypyObject_GetPyObject,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
-static bool CheckAndSetInteger(TypyField* value, PyObject* arg, const char* err, PyObject* min, PyObject* max) {
+static bool CheckAndSetInteger(int64* value, PyObject* arg, const char* err, PyObject* min, PyObject* max) {
 	bool is_long = PyLong_Check(arg);
 #if PY_MAJOR_VERSION < 3
 	if (!PyInt_Check(arg) && !is_long) {
@@ -57,63 +58,84 @@ static bool CheckAndSetInteger(TypyField* value, PyObject* arg, const char* err,
 	if (PyObject_RichCompareBool(min, arg, Py_LE) != 1 || PyObject_RichCompareBool(max, arg, Py_GE) != 1) {
 #endif
 		if (!PyErr_Occurred()) {
-			ScopedPyObjectPtr s(PyObject_Str(arg));
-			if (s != NULL) {
-				PyErr_Format(PyExc_ValueError, "Value out of range: %.100s", PyString_AsString(s.get()));
+			register PyObject* s = PyObject_Str(arg);
+			if (s) {
+				PyErr_Format(PyExc_ValueError, "Value out of range: %.100s", PyString_AsString(s));
+				Py_DECREF(s);
 			}
 		}
 		return false;
 	}
 #if PY_MAJOR_VERSION < 3
 	if (!is_long) {
-		*value = (TypyField)PyInt_AsLong(arg);
+		*value = PyInt_AsLong(arg);
 	} else  // NOLINT
 #endif
 	{
 		if (min == kPythonZero) {
-			*value = (TypyField)PyLong_AsUnsignedLongLong(arg);
+			*value = PyLong_AsUnsignedLongLong(arg);
 		} else {
-			*value = (TypyField)PyLong_AsLongLong(arg);
+			*value = PyLong_AsLongLong(arg);
 		}
 	}
 	return true;
 }
 
-static bool TypyInt32_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
-	return CheckAndSetInteger(value, arg, err, kint32min_py, kint32max_py);
+static bool TypyInt32_CheckAndSet(TypeType t, int32* value, PyObject* arg, const char* err) {
+	TypyField v;
+	if (CheckAndSetInteger(&v, arg, err, kint32min_py, kint32max_py)) {
+		*value = (int32)v;
+		return true;
+	}
+	return false;
 }
 
-static bool TypyInt64_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
-	return CheckAndSetInteger(value, arg, err, kint64min_py, kint64max_py);
+static bool TypyInt64_CheckAndSet(TypeType t, int64* value, PyObject* arg, const char* err) {
+	TypyField v;
+	if (CheckAndSetInteger(&v, arg, err, kint64min_py, kint64max_py)) {
+		*value = (int64)v;
+		return true;
+	}
+	return false;
 }
 
-static bool TypyUint32_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
-	return CheckAndSetInteger<uint32>(value, arg, err, kPythonZero, kuint32max_py);
+static bool TypyUint32_CheckAndSet(TypeType t, uint32* value, PyObject* arg, const char* err) {
+	TypyField v;
+	if (CheckAndSetInteger(&v, arg, err, kPythonZero, kuint32max_py)) {
+		*value = (uint32)v;
+		return true;
+	}
+	return false;
 }
 
-static bool TypyUint64_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
-	return CheckAndSetInteger<uint64>(value, arg, err, kPythonZero, kuint64max_py);
+static bool TypyUint64_CheckAndSet(TypeType t, uint64* value, PyObject* arg, const char* err) {
+	TypyField v;
+	if (CheckAndSetInteger(&v, arg, err, kPythonZero, kuint64max_py)) {
+		*value = (uint64)v;
+		return true;
+	}
+	return false;
 }
 
-static bool TypyDouble_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
+static bool TypyDouble_CheckAndSet(TypeType t, double* value, PyObject* arg, const char* err) {
 	if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
 		FormatTypeError(arg, err);
 		return false;
 	}
-	*value = (TypyField)PyFloat_AsDouble(arg);
+	*value = PyFloat_AsDouble(arg);
 	return true;
 }
 
-static bool TypyFloat_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
+static bool TypyFloat_CheckAndSet(TypeType t, float* value, PyObject* arg, const char* err) {
 	if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
 		FormatTypeError(arg, err);
 		return false;
 	}
-	*value = (TypyField)((float)PyFloat_AsDouble(arg));
+	*value = (float)PyFloat_AsDouble(arg);
 	return true;
 }
 
-static bool TypyBool_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
+static bool TypyBool_CheckAndSet(TypeType t, bool* value, PyObject* arg, const char* err) {
 	if (!PyInt_Check(arg) && !PyBool_Check(arg) && !PyLong_Check(arg)) {
 		FormatTypeError(arg, err);
 		return false;
@@ -122,31 +144,31 @@ static bool TypyBool_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, co
 	return true;
 }
 
-static bool TypyString_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
+static bool TypyString_CheckAndSet(TypeType t, PyString* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
 		Py_DECREF(*value);
 		*value = NULL;
 		return true;
 	} else if (PyUnicode_Check(arg)) {
 		Py_DECREF(*value);
-		*value = (TypyField)arg;
+		*value = (PyString)arg;
 		return true;
 	}
-	register TypyField s = (TypyField)PyUnicode_FromEncodedObject(arg, "utf-8", NULL);
+	register PyString s = (PyString)PyUnicode_FromEncodedObject(arg, "utf-8", NULL);
 	if (!s) { return false; }
 	Py_DECREF(*value);
 	*value = s;
 	return true;
 }
 
-static bool TypyBytes_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, const char* err) {
+static bool TypyBytes_CheckAndSet(TypeType t, PyBytes* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
 		Py_DECREF(*value);
 		*value = NULL;
 		return true;
 	} else if (PyUnicode_Check(arg)) {
 		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
-		if (arg == NULL) { return false; }
+		if (!arg) { return false; }
 	} else if (PyBytes_Check(arg)) {
 		Py_INCREF(arg);
 	} else {
@@ -154,28 +176,28 @@ static bool TypyBytes_CheckAndSet(TypeType t, TypyField* value, PyObject* arg, c
 		return false;
 	}
 	Py_DECREF(*value);
-	*value = (TypyField)arg;
+	*value = (PyBytes)arg;
 	Py_DECREF(arg);
 	return true;
 }
 
 abstract_CheckAndSet = {
-	TypyEnum_CheckAndSet,   /* TYPE_ENUM       */
-	TypyInt32_CheckAndSet,  /* TYPE_INT32      */
-	TypyInt64_CheckAndSet,  /* TYPE_INT64      */
-	TypyUint32_CheckAndSet, /* TYPE_UINT32     */
-	TypyUint64_CheckAndSet, /* TYPE_UINT64     */
-	TypyDouble_CheckAndSet, /* TYPE_DOUBLE     */
-	TypyFloat_CheckAndSet,  /* TYPE_FLOAT      */
-	TypyBool_CheckAndSet,   /* TYPE_BOOL       */
-	TypyBytes_CheckAndSet,  /* TYPE_BYTES      */
-	TypyString_CheckAndSet, /* TYPE_STRING     */
+	TypyEnum_CheckAndSet,       /* TYPE_ENUM       */
+	TypyInt32_CheckAndSet,      /* TYPE_INT32      */
+	TypyInt64_CheckAndSet,      /* TYPE_INT64      */
+	TypyUint32_CheckAndSet,     /* TYPE_UINT32     */
+	TypyUint64_CheckAndSet,     /* TYPE_UINT64     */
+	TypyDouble_CheckAndSet,     /* TYPE_DOUBLE     */
+	TypyFloat_CheckAndSet,      /* TYPE_FLOAT      */
+	TypyBool_CheckAndSet,       /* TYPE_BOOL       */
+	TypyBytes_CheckAndSet,      /* TYPE_BYTES      */
+	TypyString_CheckAndSet,     /* TYPE_STRING     */
 	/* TYPE_OBJECT     */
 	/* TYPE_VARIANT    */
 	/* TYPE_LIST       */
 	/* TYPE_DICT       */
-	/* TYPE_FIXEDPOINT */
-	/* TYPE_PYTHON     */
+	TypyFixedPoint_CheckAndSet, /* TYPE_FIXEDPOINT */
+	TypyPython_CheckAndSet,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -184,7 +206,7 @@ static void TypyNumeric_CopyFrom(TypeType type, TypyField* lvalue, TypyField rva
 	*lvalue = rvalue;
 }
 
-static void TypyObject_CopyFrom(TypeType type, TypyField* lvalue, TypyField rvalue) {
+static void TypyObject_CopyFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
 	Py_XDECREF(*lvalue);
 	if (!rvalue) { *lvalue = NULL; return; }
 	Py_INCREF(rvalue);
@@ -216,6 +238,14 @@ static void TypyNumeric_MergeFrom(TypeType type, TypyField* lvalue, TypyField rv
 	if (rvalue != 0) { *lvalue = rvalue; }
 }
 
+static void TypyObject_MergeFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
+	if (rvalue != 0) {
+		Py_XDECREF(*lvalue);
+		Py_INCREF(rvalue);
+		*lvalue = rvalue;
+	}
+}
+
 abstract_MergeFrom = {
 	TypyNumeric_MergeFrom, /* TYPE_ENUM       */
 	TypyNumeric_MergeFrom, /* TYPE_INT32      */
@@ -225,14 +255,14 @@ abstract_MergeFrom = {
 	TypyNumeric_MergeFrom, /* TYPE_DOUBLE     */
 	TypyNumeric_MergeFrom, /* TYPE_FLOAT      */
 	TypyNumeric_MergeFrom, /* TYPE_BOOL       */
-	/* TYPE_BYTES      */
-	/* TYPE_STRING     */
+	TypyObject_MergeFrom,  /* TYPE_BYTES      */
+	TypyObject_MergeFrom,  /* TYPE_STRING     */
 	/* TYPE_OBJECT     */
 	/* TYPE_VARIANT    */
 	/* TYPE_LIST       */
 	/* TYPE_DICT       */
 	TypyNumeric_MergeFrom, /* TYPE_FIXEDPOINT */
-	/* TYPE_PYTHON     */
+	TypyObject_MergeFrom,  /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -241,7 +271,7 @@ static void TypyNumeric_Clear(TypeType type, TypyField* value) {
 	*value = 0;
 }
 
-static void TypyObject_Clear(TypeType type, TypyField* value) {
+static void TypyObject_Clear(TypeType type, PyObject** value) {
 	Py_XDECREF(value);
 	*value = 0;
 }
@@ -268,22 +298,22 @@ abstract_Clear = {
 //=============================================================================
 
 abstract_Read = {
-	TypyEnum_Read, /* TYPE_ENUM       */
-	               /* TYPE_INT32      */
-	               /* TYPE_INT64      */
-	               /* TYPE_UINT32     */
-	               /* TYPE_UINT64     */
-	               /* TYPE_DOUBLE     */
-	               /* TYPE_FLOAT      */
-	               /* TYPE_BOOL       */
-	               /* TYPE_BYTES      */
-	               /* TYPE_STRING     */
-	               /* TYPE_OBJECT     */
-	               /* TYPE_VARIANT    */
-	TypyList_Read, /* TYPE_LIST       */
-	               /* TYPE_DICT       */
-	               /* TYPE_FIXEDPOINT */
-	               /* TYPE_PYTHON     */
+	TypyEnum_Read,       /* TYPE_ENUM       */
+	                     /* TYPE_INT32      */
+	                     /* TYPE_INT64      */
+	                     /* TYPE_UINT32     */
+	                     /* TYPE_UINT64     */
+	                     /* TYPE_DOUBLE     */
+	                     /* TYPE_FLOAT      */
+	                     /* TYPE_BOOL       */
+	                     /* TYPE_BYTES      */
+	                     /* TYPE_STRING     */
+	                     /* TYPE_OBJECT     */
+	                     /* TYPE_VARIANT    */
+	TypyList_Read,       /* TYPE_LIST       */
+	                     /* TYPE_DICT       */
+	TypyFixedPoint_Read, /* TYPE_FIXEDPOINT */
+	TypyPython_Read,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -310,41 +340,41 @@ abstract_ReadPacked = {
 //=============================================================================
 
 abstract_Write = {
-	TypyEnum_Write, /* TYPE_ENUM       */
-	/* TYPE_INT32      */
-	/* TYPE_INT64      */
-	/* TYPE_UINT32     */
-	/* TYPE_UINT64     */
-	/* TYPE_DOUBLE     */
-	/* TYPE_FLOAT      */
-	/* TYPE_BOOL       */
-	/* TYPE_BYTES      */
-	/* TYPE_STRING     */
-	/* TYPE_OBJECT     */
-	/* TYPE_VARIANT    */
-	/* TYPE_LIST       */
-	/* TYPE_DICT       */
-	/* TYPE_FIXEDPOINT */
-	/* TYPE_PYTHON     */
+	TypyEnum_Write,       /* TYPE_ENUM       */
+	                      /* TYPE_INT32      */
+	                      /* TYPE_INT64      */
+	                      /* TYPE_UINT32     */
+	                      /* TYPE_UINT64     */
+	                      /* TYPE_DOUBLE     */
+	                      /* TYPE_FLOAT      */
+	                      /* TYPE_BOOL       */
+	                      /* TYPE_BYTES      */
+	                      /* TYPE_STRING     */
+	                      /* TYPE_OBJECT     */
+	                      /* TYPE_VARIANT    */
+	                      /* TYPE_LIST       */
+	                      /* TYPE_DICT       */
+	TypyFixedPoint_Write, /* TYPE_FIXEDPOINT */
+	TypyPython_Write,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
 abstract_ByteSize = {
-	TypyEnum_ByteSize, /* TYPE_ENUM       */
-	/* TYPE_INT32      */
-	/* TYPE_INT64      */
-	/* TYPE_UINT32     */
-	/* TYPE_UINT64     */
-	/* TYPE_DOUBLE     */
-	/* TYPE_FLOAT      */
-	/* TYPE_BOOL       */
-	/* TYPE_BYTES      */
-	/* TYPE_STRING     */
-	/* TYPE_OBJECT     */
-	/* TYPE_VARIANT    */
-	/* TYPE_LIST       */
-	/* TYPE_DICT       */
-	/* TYPE_FIXEDPOINT */
-	/* TYPE_PYTHON     */
+	TypyEnum_ByteSize,       /* TYPE_ENUM       */
+	                         /* TYPE_INT32      */
+	                         /* TYPE_INT64      */
+	                         /* TYPE_UINT32     */
+	                         /* TYPE_UINT64     */
+	                         /* TYPE_DOUBLE     */
+	                         /* TYPE_FLOAT      */
+	                         /* TYPE_BOOL       */
+	                         /* TYPE_BYTES      */
+	                         /* TYPE_STRING     */
+	                         /* TYPE_OBJECT     */
+	                         /* TYPE_VARIANT    */
+	                         /* TYPE_LIST       */
+	                         /* TYPE_DICT       */
+	TypyFixedPoint_ByteSize, /* TYPE_FIXEDPOINT */
+	TypyPython_ByteSize,     /* TYPE_PYTHON     */
 };

@@ -52,7 +52,7 @@ bool TypyEnum_CheckAndSet(TypyEnum* type, TypyField* value, PyObject* arg, const
 	if (PyErr_Occurred()) { return false; }
 	register TypyEnumMap item = (TypyEnumMap)IblMap_Get(type->enum_map, &i);
 	if (!item || !item->python) { return false; }
-	*value = (TypyField)i;
+	*value = i;
 	return true;
 }
 
