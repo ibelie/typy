@@ -5,13 +5,13 @@
 #include "typy.h"
 
 
-static PyObject* TypyInt32_GetPyObject(TypeType t, int32* v) { return PyInt_FromLong(*v); }
-static PyObject* TypyInt64_GetPyObject(TypeType t, int64* v) { return PyLong_FromLongLong(*v); }
-static PyObject* TypyUint32_GetPyObject(TypeType t, uint32* v) { return PyInt_FromSize_t(*v); }
-static PyObject* TypyUint64_GetPyObject(TypeType t, uint64* v) { return PyLong_FromUnsignedLongLong(*v); }
-static PyObject* TypyBool_GetPyObject(TypeType t, bool* v) { return PyBool_FromLong(*v); }
-static PyObject* TypyDouble_GetPyObject(TypeType t, double* v) { return PyFloat_FromDouble(*v); }
-static PyObject* TypyFloat_GetPyObject(TypeType t, float* v) { PyFloat_FromDouble(*v); }
+static PyObject* TypyInt32_GetPyObject  (TypeType t, int32* v)  { return PyInt_FromLong(*v); }
+static PyObject* TypyInt64_GetPyObject  (TypeType t, int64* v)  { return PyLong_FromLongLong(*v); }
+static PyObject* TypyUint32_GetPyObject (TypeType t, uint32* v) { return PyInt_FromSize_t(*v); }
+static PyObject* TypyUint64_GetPyObject (TypeType t, uint64* v) { return PyLong_FromUnsignedLongLong(*v); }
+static PyObject* TypyBool_GetPyObject   (TypeType t, bool* v)   { return PyBool_FromLong(*v); }
+static PyObject* TypyDouble_GetPyObject (TypeType t, double* v) { return PyFloat_FromDouble(*v); }
+static PyObject* TypyFloat_GetPyObject  (TypeType t, float* v)  { return PyFloat_FromDouble(*v); }
 
 static PyObject* TypyObject_GetPyObject(TypeType type, PyObject** value) {
 	if (!(*value)) {
@@ -297,22 +297,32 @@ abstract_Clear = {
 
 //=============================================================================
 
+static bool TypyField_Read(TypeType t, TypyField* value, byte** input, size_t* length) {
+	uint64 data;
+	if (Typy_ReadVarint64(input, length, &data)) {
+		*value = (TypyField)data;
+		return true;
+	} else {
+		return false;
+	}
+}
+
 abstract_Read = {
-	TypyEnum_Read,       /* TYPE_ENUM       */
-	                     /* TYPE_INT32      */
-	                     /* TYPE_INT64      */
-	                     /* TYPE_UINT32     */
-	                     /* TYPE_UINT64     */
-	                     /* TYPE_DOUBLE     */
-	                     /* TYPE_FLOAT      */
-	                     /* TYPE_BOOL       */
+	TypyField_Read,      /* TYPE_ENUM       */
+	Typy_ReadVarint32,   /* TYPE_INT32      */
+	Typy_ReadVarint64,   /* TYPE_INT64      */
+	Typy_ReadVarint32,   /* TYPE_UINT32     */
+	Typy_ReadVarint64,   /* TYPE_UINT64     */
+	Typy_Read64,         /* TYPE_DOUBLE     */
+	Typy_Read32,         /* TYPE_FLOAT      */
+	Typy_ReadByte,       /* TYPE_BOOL       */
 	                     /* TYPE_BYTES      */
 	                     /* TYPE_STRING     */
 	                     /* TYPE_OBJECT     */
 	                     /* TYPE_VARIANT    */
 	TypyList_Read,       /* TYPE_LIST       */
 	                     /* TYPE_DICT       */
-	TypyFixedPoint_Read, /* TYPE_FIXEDPOINT */
+	TypyField_Read,      /* TYPE_FIXEDPOINT */
 	TypyPython_Read,     /* TYPE_PYTHON     */
 };
 
@@ -339,15 +349,45 @@ abstract_ReadPacked = {
 
 //=============================================================================
 
+#define WRITE(NAME, TYPE) \
+static size_t NAME(TypeType t, TYPE* value, int tag, byte* output) { \
+	register size_t size = 0;                                        \
+	if (*value) {                                                    \
+		size = Typy_WriteTag(output, tag);                           \
+		size += IblPutUvarint(output + size, *value);                \
+	}                                                                \
+	return size;                                                     \
+}
+WRITE(TypyEnum_Write,   TypyField)
+WRITE(TypyInt32_Write,  int32)
+WRITE(TypyInt64_Write,  int64)
+WRITE(TypyUint32_Write, uint32)
+WRITE(TypyUint64_Write, uint64)
+#undef WRITE
+
+#define WRITE(NAME, TYPE, WRITER) \
+static size_t NAME(TypeType t, TYPE* value, int tag, byte* output) { \
+	register size_t size = 0;                                        \
+	if (*value) {                                                    \
+		size = Typy_WriteTag(output, tag);                           \
+		size += WRITER(output + size, value);                        \
+	}                                                                \
+	return size;                                                     \
+}
+WRITE(TypyDouble_Write, Typy_Write64)
+WRITE(TypyFloat_Write,  Typy_Write32)
+WRITE(TypyBool_Write,   Typy_WriteByte)
+#undef WRITE
+
 abstract_Write = {
 	TypyEnum_Write,       /* TYPE_ENUM       */
-	                      /* TYPE_INT32      */
-	                      /* TYPE_INT64      */
-	                      /* TYPE_UINT32     */
-	                      /* TYPE_UINT64     */
-	                      /* TYPE_DOUBLE     */
-	                      /* TYPE_FLOAT      */
-	                      /* TYPE_BOOL       */
+	TypyInt32_Write,      /* TYPE_INT32      */
+	TypyInt64_Write,      /* TYPE_INT64      */
+	TypyUint32_Write,     /* TYPE_UINT32     */
+	TypyUint64_Write,     /* TYPE_UINT64     */
+	TypyDouble_Write,     /* TYPE_DOUBLE     */
+	TypyFloat_Write,      /* TYPE_FLOAT      */
+	TypyBool_Write,       /* TYPE_BOOL       */
 	                      /* TYPE_BYTES      */
 	                      /* TYPE_STRING     */
 	                      /* TYPE_OBJECT     */
@@ -360,19 +400,36 @@ abstract_Write = {
 
 //=============================================================================
 
-static size_t TypyInt32_ByteSize(TypeType t, int32* value, int tagsize) {
-
+#define BYTESIZE(NAME, TYPE) \
+static size_t NAME(TypeType t, TYPE* value, int tagsize) { \
+	return *value ? tagsize + IblSizeVarint(*value) : 0;   \
 }
+BYTESIZE(TypyEnum_ByteSize,       TypyField)
+BYTESIZE(TypyInt32_ByteSize,      int32)
+BYTESIZE(TypyInt64_ByteSize,      int64)
+BYTESIZE(TypyUint32_ByteSize,     uint32)
+BYTESIZE(TypyUint64_ByteSize,     uint64)
+BYTESIZE(TypyFixedPoint_ByteSize, TypyField)
+#undef BYTESIZE
+
+#define BYTESIZE(NAME, TYPE) \
+static size_t NAME(TypeType t, TYPE* value, int tagsize) { \
+	return *value ? tagsize + sizeof(TYPE) : 0;            \
+}
+BYTESIZE(TypyDouble_ByteSize, double)
+BYTESIZE(TypyFloat_ByteSize,  float)
+BYTESIZE(TypyBool_ByteSize,   bool)
+#undef BYTESIZE
 
 abstract_ByteSize = {
 	TypyEnum_ByteSize,       /* TYPE_ENUM       */
-	                         /* TYPE_INT32      */
-	                         /* TYPE_INT64      */
-	                         /* TYPE_UINT32     */
-	                         /* TYPE_UINT64     */
-	                         /* TYPE_DOUBLE     */
-	                         /* TYPE_FLOAT      */
-	                         /* TYPE_BOOL       */
+	TypyInt32_ByteSize,      /* TYPE_INT32      */
+	TypyInt64_ByteSize,      /* TYPE_INT64      */
+	TypyUint32_ByteSize,     /* TYPE_UINT32     */
+	TypyUint64_ByteSize,     /* TYPE_UINT64     */
+	TypyDouble_ByteSize,     /* TYPE_DOUBLE     */
+	TypyFloat_ByteSize,      /* TYPE_FLOAT      */
+	TypyBool_ByteSize,       /* TYPE_BOOL       */
 	                         /* TYPE_BYTES      */
 	                         /* TYPE_STRING     */
 	                         /* TYPE_OBJECT     */

@@ -56,26 +56,6 @@ bool TypyEnum_CheckAndSet(TypyEnum* type, TypyField* value, PyObject* arg, const
 	return true;
 }
 
-bool TypyEnum_Read(TypyEnum* type, TypyField* value, byte** input, size_t* length) {
-	return Typy_ReadVarint32(input, length, value);
-}
-
-size_t TypyEnum_Write(TypyEnum* type, TypyField* value, int tag, byte* output) {
-	register size_t size = 0;
-	if (*value) {
-		size = Typy_WriteTag(output, tag);
-		size += Typy_WriteVariant32(output + size, *value);
-	}
-	return size;
-}
-
-size_t TypyEnum_ByteSize(TypyEnum* type, TypyField* value, int tagsize) {
-	if (*value) {
-		return tagsize + IblSizeVarint(*value);
-	}
-	return 0;
-}
-
 static PyObject* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
 	TypyField key;
 	PyObject *k, *v;

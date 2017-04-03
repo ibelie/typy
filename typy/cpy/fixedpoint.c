@@ -42,24 +42,15 @@ bool TypyFixedPoint_CheckAndSet(TypyFixedPoint* type, TypyField* value, PyObject
 	return true;
 }
 
-bool TypyFixedPoint_Read(TypyFixedPoint* type, TypyField* value, byte** input, size_t* length) {
-	return Typy_ReadVarint32(input, length, value);
-}
-
 size_t TypyFixedPoint_Write(TypyFixedPoint* type, TypyField* value, int tag, byte* output) {
 	register TypyField _floor = -type->fixedpoint_floor * type->fixedpoint_precision;
 	register size_t size = 0;
 	if (*value != _floor) {
 		size = Typy_WriteTag(output, tag);
-		size += Typy_WriteVariant32(output + size, *value);
+		size += IblPutUvarint(output + size, *value);
 	}
 	return size;
 }
-
-size_t TypyFixedPoint_ByteSize(TypyFixedPoint* type, TypyField* value, int tagsize) {
-	return value ? tagsize + IblSizeVarint(*value) : 0;
-}
-
 
 void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
 	free(type);

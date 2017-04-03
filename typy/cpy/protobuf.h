@@ -20,6 +20,13 @@
 extern "C" {
 #endif
 
+inline bool Typy_ReadByte(byte** buffer, size_t* buf_len, byte* x) {
+	if (*buf_len < 1) { return false; }
+	*x = (*buffer++)[0];
+	*buf_len--;
+	return true;
+}
+
 inline bool Typy_ReadVarint32(byte** buffer, size_t* buf_len, uint32* x) {
 	uint64 y;
 	register int size = IblUvarint(*buffer, *buf_len, &y);
@@ -99,6 +106,42 @@ inline bool Typy_Read32(byte** buffer, size_t* buf_len, uint32* x) {
 	return true;
 }
 
+inline size_t Typy_WriteByte(byte* buffer, byte* value) {
+	buffer[0] = *value;
+	return sizeof(*value);
+}
+
+inline size_t Typy_Write32(byte* buffer, uint32* value) {
+#ifdef Ibl_LITTLE_ENDIAN
+	memcpy(buffer, value, sizeof(*value));
+#else
+	buffer[0] = (byte)(*value);
+	buffer[1] = (byte)(*value >>  8);
+	buffer[2] = (byte)(*value >> 16);
+	buffer[3] = (byte)(*value >> 24);
+#endif
+	return sizeof(value);
+}
+
+inline size_t Typy_Write64(byte* buffer, uint64* value) {
+#ifdef Ibl_LITTLE_ENDIAN
+	memcpy(buffer, value, sizeof(*value));
+#else
+	uint32 part0 = (uint32)(*value);
+	uint32 part1 = (uint32)(*value >> 32);
+
+	buffer[0] = (byte)(part0);
+	buffer[1] = (byte)(part0 >>  8);
+	buffer[2] = (byte)(part0 >> 16);
+	buffer[3] = (byte)(part0 >> 24);
+	buffer[4] = (byte)(part1);
+	buffer[5] = (byte)(part1 >>  8);
+	buffer[6] = (byte)(part1 >> 16);
+	buffer[7] = (byte)(part1 >> 24);
+#endif
+	return sizeof(*value);
+}
+
 inline size_t Typy_WriteTag(byte* buffer, uint32 tag) {
 	register size_t i = 0;
 	while (tag >= 0x80) {
@@ -109,9 +152,6 @@ inline size_t Typy_WriteTag(byte* buffer, uint32 tag) {
 	buffer[i] = (byte)tag;
 	return i + 1;
 }
-
-#define Typy_WriteVariant32 Typy_WriteTag
-#define Typy_WriteVariant64 IblPutUvarint
 
 inline bool _Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag) {
 	if ((*buf_len) >= MaxVarintLen || !((*buffer)[(*buf_len) - 1] & 0x80)) {
