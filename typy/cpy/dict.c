@@ -24,8 +24,8 @@ PyObject* Typy_RegisterDict(PyObject* m, PyObject* args) {
 		return NULL;
 	}
 
-	type->entry_name[nameLen] = 0;
-	memcpy(type->entry_name, name, nameLen);
+	type->dict_name[nameLen] = 0;
+	memcpy(type->dict_name, name, nameLen);
 	PyObject_INIT(type, &TypyMetaDictType);
 	/* todo: Typy_RegisterDict */
 
@@ -42,7 +42,7 @@ static void TypyDict_Dealloc(TypyDict* self) {
 }
 
 static PyObject* TypyDict_Repr(TypyMetaDict* type) {
-	return PyString_FromFormat("<Dict '" FULL_MODULE_NAME ".%s'>", type->entry_name);
+	return PyString_FromFormat("<Dict '" FULL_MODULE_NAME ".%s'>", type->dict_name);
 }
 
 PyTypeObject TypyMetaDictType = {

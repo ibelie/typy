@@ -19,7 +19,7 @@ typedef struct {
 	PyObject_HEAD
 	TypyDescriptor key_descriptor;
 	TypyDescriptor value_descriptor;
-	char           entry_name[1];
+	char           dict_name[1];
 } TypyMetaDict;
 
 typedef struct {

@@ -3,7 +3,7 @@
 # Use of this source code is governed by The MIT License
 # that can be found in the LICENSE file.
 
-from Cpp import _RecordVariant
+from Cpp import _RecordNesting
 
 TYPE_ENUM       = 0
 TYPE_INT32      = 1
@@ -23,15 +23,34 @@ TYPE_FIXEDPOINT = 14
 TYPE_PYTHON     = 15
 MAX_FIELD_TYPE  = 16
 
+def _GenerateVariant(name, properties, codes, types):
+	from typy.google.protobuf.internal.encoder import _TagSize
+	from typy.google.protobuf.internal.wire_format import PackTag
+	from Object import SortedMessage
+	from Type import Type
+
+	fields = []
+	for i, (a, p) in enumerate(SortedMessage(properties)):
+		if not isinstance(p, Type):
+			print "[Cpp] Warning: Variant type expect Typy, but get %s %s." % (a, p)
+		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
+		fields.append("""
+	('%s', %d, %d, %d, %d, %s),""" % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
+
+	codes.append("""
+%s = _typyd.Variant('%s', (
+	%s
+))""" % (name, name, ''.join(fields)))
+
 def _GetCpyFromTypy(p, codes, types, nesting = False):
 	from Object import MetaObject
 	from Type import pb, Enum, Integer, Float, Double, Boolean, String, Bytes
-	from Type import Instance, List, Dict, Collection, FixedPoint, Python
+	from Type import Instance, List, Dict, FixedPoint, Python
 	from typy.google.protobuf.internal import wire_format
 	if isinstance(p, Enum):
 		if p.pyType.__name__ not in types:
 			codes.append("""
-%s = _typyd.Enum("%s")""" % (p.pyType.__name__, p.pyType.__name__))
+%s = _typyd.Enum('%s')""" % (p.pyType.__name__, p.pyType.__name__))
 			types.add(p.pyType.__name__)
 		return wire_format.WIRETYPE_VARINT, TYPE_ENUM, p.pyType.__name__
 	elif isinstance(p, FixedPoint):
@@ -44,7 +63,7 @@ def _GetCpyFromTypy(p, codes, types, nesting = False):
 	elif isinstance(p, Python):
 		if p.pyType.__name__ not in types:
 			codes.append("""
-%s = _typyd.Python("%s")""" % (p.pyType.__name__, p.pyType.__name__))
+%s = _typyd.Python('%s')""" % (p.pyType.__name__, p.pyType.__name__))
 			types.add(p.pyType.__name__)
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_PYTHON, p.pyType.__name__
 	elif isinstance(p, Integer):
@@ -59,31 +78,43 @@ def _GetCpyFromTypy(p, codes, types, nesting = False):
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_STRING, ''
 	elif isinstance(p, Bytes):
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_BYTES, ''
-	return 1, 2, 'True'
-	# elif isinstance(p, Instance):
-	# 	if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
-	# 		ref_types.add('#include "%s.h"' % _shortName(p.pyType[0].__name__))
-	# 		return p.pyType[0].__name__, '*', p.pyType[0].__name__
-	# 	elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
-	# 		pass
-	# 	else:
-	# 		variant = _RecordVariant(p.pyType, variants)
-	# 		ref_types.add('#include "%s.h"' % variant)
-	# 		return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
-	# 	return 'Python<PyObject>', '*', 'Python<PyObject>'
-	# elif isinstance(p, List):
-	# 	if isinstance(p.elementType, Collection):
-	# 		print "[Cpp] Warning: List element can not be Collection type."
-	# 	name, _, _ = _GetCppFromTypy(p.elementType, enums, pythons, variants, ref_types, container_inits, True)
-	# 	container_inits.add('PyType_Ready(&List< %s >::_Type) >= 0 && PyType_Ready(&List< %s >::Iterator_Type) >= 0' % (name, name))
-	# 	return 'List< %s >' % name, '*', 'List(%s)' % name
-	# elif isinstance(p, Dict):
-	# 	if not isinstance(p.keyType, Simple):
-	# 		print "[Cpp] Warning: Dict key must be Simple type."
-	# 	kName, _, _ = _GetCppFromTypy(p.keyType, enums, pythons, variants, ref_types, container_inits, True)
-	# 	vName, _, _ = _GetCppFromTypy(p.valueType, enums, pythons, variants, ref_types, container_inits, True)
-	# 	container_inits.add('PyType_Ready(&Dict<%s, %s >::_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterKey_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterItem_Type) >= 0' % (kName, vName, kName, vName, kName, vName))
-	# 	return 'SINGLE_ARG(Dict<%s, %s >)' % (kName, vName), '*', 'Dict(%s -> %s)' % (kName, vName)
+	elif isinstance(p, Instance):
+		if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
+			if p.pyType[0].__name__ not in types:
+				_GenerateObject(p.pyType[0].__name__, MetaObject.Objects[p.pyType[0].__name__], codes, types)
+			return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_OBJECT, p.pyType[0].__name__
+		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
+			pass
+		else:
+			variant, properties = _RecordNesting('V', p.pyType)
+			if variant not in types:
+				_GenerateVariant(variant, properties, codes, types)
+				types.add(variant)
+			return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_VARIANT, variant
+		if 'PyObject' not in types:
+			codes.append("""
+PyObject = _typyd.Python('PyObject')""")
+			types.add('PyObject')
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_PYTHON, 'PyObject'
+	elif isinstance(p, List):
+		list_type, _ = _RecordNesting('L', [p.elementType])
+		if list_type not in types:
+			wire_type, field_type, typy_type = _GetCpyFromTypy(p.elementType, codes, types, True)
+			codes.append("""
+%s = _typyd.List('%s', (%d, %d, %s))""" % (list_type, list_type, wire_type, field_type, typy_type))
+			types.add(list_type)
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_LIST, list_type
+	elif isinstance(p, Dict):
+		dict_type, _ = _RecordNesting('D', [p.keyType, p.valueType])
+		if dict_type not in types:
+			key_wire_type, key_field_type, key_typy_type = _GetCpyFromTypy(p.keyType, codes, types, True)
+			value_wire_type, value_field_type, value_typy_type = _GetCpyFromTypy(p.valueType, codes, types, True)
+			codes.append("""
+%s = _typyd.Dict('%s', (%d, %d, %s), (%d, %d, %s))""" % (dict_type, dict_type,
+				key_wire_type, key_field_type, key_typy_type,
+				value_wire_type, value_field_type, value_typy_type))
+			types.add(dict_type)
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_DICT, dict_type
 
 
 def _GenerateObject(name, cls, codes, types):
@@ -97,16 +128,18 @@ def _GenerateObject(name, cls, codes, types):
 	for i, (a, p) in enumerate(sortedProperties):
 		if pb not in p.____keywords__: continue
 		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
-		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
+		fields.append("""
+	('%s', %d, %d, %d, %d, %s),""" % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
 	for i, (a, p) in enumerate(sortedProperties):
 		if pb in p.____keywords__: continue
 		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
-		fields.append('("%s", %d, %d, %d, %d, %s),' % ((a, 0, 0, wire_type, field_type, typy_type)))
+		fields.append("""
+	('%s', %d, %d, %d, %d, %s),""" % ((a, 0, 0, wire_type, field_type, typy_type)))
 
 	codes.append("""
 %s = _typyd.Object('%s', (
 	%s
-))""" % (name, name, '\n\t'.join(fields)))
+))""" % (name, name, ''.join(fields)))
 
 
 def GenerateDescriptor(_typyDir = None):
@@ -120,7 +153,8 @@ def GenerateDescriptor(_typyDir = None):
 	codes = []
 	types = set()
 	for name, cls in MetaObject.Objects.iteritems():
-		_GenerateObject(name, cls, codes, types)
+		if name not in types:
+			_GenerateObject(name, cls, codes, types)
 
 
 	with codecs.open(path, 'w', 'utf-8') as f:

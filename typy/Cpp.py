@@ -144,13 +144,6 @@ def _VariantSetter(properties):
 	return from_py_fields
 
 
-def _shortName(prefix, name):
-	import hashlib
-	import base64
-	if len(name) > 25:
-		name = prefix + base64.b64encode(hashlib.md5(name).digest())[:-2].replace('+', '__').replace('/', '_')
-	return name
-
 def _compareWrite(path, content):
 	import os
 	import codecs
@@ -161,7 +154,14 @@ def _compareWrite(path, content):
 	with codecs.open(path, 'w', 'utf-8') as f:
 		f.write(content)
 
-def _RecordVariant(types):
+def _shortName(prefix, name):
+	import hashlib
+	import base64
+	if len(name) > 25:
+		name = prefix + base64.b64encode(hashlib.md5(name).digest())[:-2].replace('+', '__').replace('/', '_')
+	return name
+
+def _RecordNesting(prefix, types):
 	import hashlib
 	import base64
 	from Type import toType, isEnum, List, Dict
@@ -180,8 +180,8 @@ def _RecordVariant(types):
 	properties = {'Enum' if isEnum(p) else p.__name__: toType(p) for p in types if p is not None}
 	name = sorted([k for k in properties.iterkeys() if k in shortName], key = lambda k: shortName[k]) + \
 		sorted([k for k in properties.iterkeys() if k not in shortName])
-	name = _shortName('V', 'V%s' % ''.join([base64.b64encode(hashlib.md5(str(properties[k])).digest())[:-2].replace('+', '__').replace('/', '_')
-		if isinstance(properties[k], (List, Dict)) else shortName.get(k, k) for k in name]))
+	name = _shortName(prefix, '%s%s' % (prefix, ''.join([base64.b64encode(hashlib.md5(str(properties[k])).digest())[:-2].replace('+', '__').replace('/', '_')
+		if isinstance(properties[k], (List, Dict)) else shortName.get(k, k) for k in name])))
 	return name, properties
 
 def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nesting = False):
@@ -208,8 +208,8 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
 			pass
 		else:
-			variant, vprops = _RecordVariant(p.pyType)
-			variants[variant] = vprops
+			variant, properties = _RecordNesting('V', p.pyType)
+			variants[variant] = properties
 			ref_types.add('#include "%s.h"' % variant)
 			return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
 		return 'Python<PyObject>', '*', 'Python<PyObject>'
