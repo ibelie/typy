@@ -65,6 +65,7 @@ void FormatTypeError(PyObject* arg, const char* err);
 #include "extension.h"
 #include "list.h"
 #include "dict.h"
+#include "abstract.h"
 
 #ifdef __cplusplus
 }

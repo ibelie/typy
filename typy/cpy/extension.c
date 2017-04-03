@@ -64,7 +64,7 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
 		if (!data) { return 0; }
 		register size_t size = Typy_WriteTag(output, tag);
-		size += IblPutUvarint(output + size, (uint32)PyBytes_GET_SIZE(data));
+		size += IblPutUvarint(output + size, (uint64)PyBytes_GET_SIZE(data));
 		memcpy(output + size, PyBytes_AS_STRING(data), PyBytes_GET_SIZE(data));
 		return size + PyBytes_GET_SIZE(data);
 	}
