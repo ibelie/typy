@@ -90,6 +90,8 @@ inline void TypyDict_CheckAndSet(TypyDict* self) {
 	/* todo: TypyDict_CheckAndSet */
 }
 
+PyObject* TypyDict_GetPyObject(TypyMetaDict*, TypyField*);
+
 #ifdef __cplusplus
 }
 #endif

@@ -80,8 +80,9 @@ inline void TypyList_Remove(TypyList* self, size_t offset) {
 	/* todo: TypyList_Remove */
 }
 
-bool TypyList_Read(TypyMetaList*, TypyField*, byte**, size_t*);
-bool TypyList_ReadPacked(TypyMetaList*, TypyField*, byte**, size_t*);
+PyObject* TypyList_GetPyObject(TypyMetaList*, TypyField*);
+bool      TypyList_Read(TypyMetaList*, TypyField*, byte**, size_t*);
+bool      TypyList_ReadPacked(TypyMetaList*, TypyField*, byte**, size_t*);
 
 #ifdef __cplusplus
 }

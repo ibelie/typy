@@ -40,8 +40,8 @@ PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 	return (PyObject*)type;
 }
 
-PyObject* TypyEnum_GetPyObject(TypyEnum* type, TypyField value) {
-	register TypyEnumMap item = (TypyEnumMap)IblMap_Get(type->enum_map, &value);
+PyObject* TypyEnum_GetPyObject(TypyEnum* type, TypyField* value) {
+	register TypyEnumMap item = (TypyEnumMap)IblMap_Get(type->enum_map, value);
 	if (!item || !item->python) { Py_RETURN_NONE; }
 	Py_INCREF(item->python);
 	return item->python;

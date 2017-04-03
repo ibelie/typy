@@ -20,7 +20,7 @@ typedef struct {
 extern PyTypeObject TypyEnumType;
 PyObject* Typy_RegisterEnum(PyObject*, PyObject*);
 
-PyObject* TypyEnum_GetPyObject(TypyEnum*, TypyField);
+PyObject* TypyEnum_GetPyObject(TypyEnum*, TypyField*);
 bool      TypyEnum_CheckAndSet(TypyEnum*, TypyField*, PyObject*, const char*);
 bool      TypyEnum_Read(TypyEnum*, TypyField*, byte**, size_t*);
 size_t    TypyEnum_Write(TypyEnum*, int, TypyField, byte*);

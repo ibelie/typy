@@ -35,6 +35,16 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 	free(type);
 }
 
+PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyField* value) {
+	register PyObject* list = (PyObject*)(*value);
+	if (list == NULL) {
+		list = TypyList_New(type, NULL, NULL);
+		*value = (TypyField)list;
+	}
+	Py_INCREF(list);
+	return list;
+}
+
 bool TypyList_Read(TypyMetaList* type, TypyField* value, byte** input, size_t* length) {
 	TypyField item;
 	register TypyList* list = (TypyList*)(*value);

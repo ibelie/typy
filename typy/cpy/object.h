@@ -18,7 +18,7 @@ IblMap_KEY_STRING(TypyFieldMap,
 typedef void*  TypeType;
 typedef size_t TypyField;
 
-typedef PyObject* (*GetPyObject)  (TypeType, TypyField);
+typedef PyObject* (*GetPyObject)  (TypeType, TypyField*);
 typedef bool      (*CheckAndSet)  (TypeType, TypyField*, PyObject*, const char*);
 typedef void      (*CopyFrom)     (TypeType, TypyField*, TypyField);
 typedef void      (*MergeFrom)    (TypeType, TypyField*, TypyField);
