@@ -119,6 +119,36 @@ size_t TypyList_ByteSize(TypyMetaList* type, TypyList** value, int tagsize) {
 	return size;
 }
 
+bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, const char* err) {
+	if (!arg || arg == Py_None) {
+		Py_XDECREF(*value);
+		*value = NULL;
+		return true;
+	} else if (PyObject_TypeCheck(arg, &TypyListType) && TypyList_TYPE(arg) == type) {
+		Py_XDECREF(*value);
+		Py_INCREF(arg);
+		*value = (TypyList*)arg;
+		return true;
+	} else if (PySequence_Check(arg)) {
+		TypyList_FromValueOrNew(self, value, type);
+		return TypyList_CheckAndSetList(type, self, arg);
+	} else {
+		FormatTypeError(arg, err);
+		return false;
+	}
+}
+
+void TypyList_MergeFrom(TypyMetaList* type, TypyList** lvalue, TypyList* rvalue) {
+	if (!rvalue) { return; }
+	TypyList_FromValueOrNew(self, lvalue, type);
+	register TypyField* offset = TypyList_EnsureSize(self, rvalue->list_length);
+	if (!offset) { return; }
+	register size_t i;
+	for (i = 0; i < rvalue->list_length; i++) {
+		MetaList_MERGEFROM(type, offset++, rvalue->list_items[i]);
+	}
+}
+
 static void TypyList_Dealloc(TypyList* self) {
 	TypyList_Clear(self);
 	if (self->list_items) {

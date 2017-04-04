@@ -81,11 +81,16 @@ inline void TypyDict_Del(TypyDict* self) {
 	/* todo: TypyDict_Del */
 }
 
-inline void TypyDict_CheckAndSet(TypyDict* self) {
-	/* todo: TypyDict_CheckAndSet */
+inline void TypyDict_CheckAndSetDict(TypyDict* self) {
+	/* todo: TypyDict_CheckAndSetDict */
 }
 
-PyObject* TypyDict_GetPyObject(TypyMetaDict*, TypyDict**);
+PyObject* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
+bool      TypyDict_CheckAndSet (TypyMetaDict*, TypyDict**, PyObject*, const char*);
+bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);
+void      TypyDict_MergeFrom   (TypyMetaDict*, TypyDict**, TypyDict*);
+size_t    TypyDict_Write       (TypyMetaDict*, TypyDict**, int, byte*);
+size_t    TypyDict_ByteSize    (TypyMetaDict*, TypyDict**, int);
 
 #ifdef __cplusplus
 }

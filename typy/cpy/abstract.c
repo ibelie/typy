@@ -195,7 +195,7 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 	(CheckAndSet)TypyString_CheckAndSet,     /* TYPE_STRING     */
 	(CheckAndSet)TypyObject_CheckAndSet,     /* TYPE_OBJECT     */
 	(CheckAndSet)TypyVariant_CheckAndSet,    /* TYPE_VARIANT    */
-	(CheckAndSet)0,                          /* TYPE_LIST       */
+	(CheckAndSet)TypyList_CheckAndSet,       /* TYPE_LIST       */
 	(CheckAndSet)0,                          /* TYPE_DICT       */
 	(CheckAndSet)TypyPython_CheckAndSet,     /* TYPE_PYTHON     */
 };
@@ -260,7 +260,7 @@ MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_STRING     */
 	(MergeFrom)TypyObject_MergeFrom,   /* TYPE_OBJECT     */
 	(MergeFrom)TypyVariant_MergeFrom,  /* TYPE_VARIANT    */
-	(MergeFrom)0,                      /* TYPE_LIST       */
+	(MergeFrom)TypyList_MergeFrom,     /* TYPE_LIST       */
 	(MergeFrom)0,                      /* TYPE_DICT       */
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_PYTHON     */
 };

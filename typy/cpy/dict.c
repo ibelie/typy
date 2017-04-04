@@ -36,15 +36,40 @@ static void MetaDict_Dealloc(TypyMetaDict* type) {
 	free(type);
 }
 
-PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
-	register PyObject* dict = (PyObject*)(*value);
-	if (!dict) {
-		dict = TypyDict_New(type, NULL, NULL);
-		*value = (TypyDict*)dict;
+#define TypyDict_FromValueOrNew(s, v, t) \
+	register TypyDict* s = *(v);                    \
+	if (!s) {                                       \
+		s = (TypyDict*)TypyDict_New(t, NULL, NULL); \
+		if (!s) { return false; }                   \
+		*(v) = s;                                   \
 	}
-	Py_INCREF(dict);
-	return dict;
+
+PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
+	TypyDict_FromValueOrNew(self, value, type);
+	Py_INCREF(self);
+	return (PyObject*)self;
 }
+
+bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict**, PyObject*, const char*) {
+	return false;
+}
+
+bool TypyDict_Read(TypyMetaDict*, TypyDict**, byte**, size_t*) {
+	return false;
+}
+
+void TypyDict_MergeFrom(TypyMetaDict*, TypyDict**, TypyDict*) {
+
+}
+
+size_t TypyDict_Write(TypyMetaDict*, TypyDict**, int, byte*) {
+	return 0;
+}
+
+size_t TypyDict_ByteSize(TypyMetaDict*, TypyDict**, int) {
+	return 0;
+}
+
 
 static void TypyDict_Dealloc(TypyDict* self) {
 	TypyDict_Clear(self);

@@ -26,6 +26,8 @@ typedef struct {
 	(abstract_Write[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (t), (o)))
 #define MetaList_BYTESIZE(m, f, t) \
 	(abstract_ByteSize[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (t)))
+#define MetaList_MERGEFROM(m, l, r) \
+	(abstract_MergeFrom[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (l), (r)))
 #define MetaList_IsPrimitive(m) (MetaList_DESC(m).desc_FieldType < MAX_PRIMITIVE_TYPE)
 
 typedef struct {
@@ -45,6 +47,7 @@ inline void MetaList_Clear(TypyMetaList* type, TypyList* self) {
 	self->list_length = 0;
 }
 #define TypyList_Clear(ob) MetaList_Clear((ob)->list_type, (ob))
+#define TypyList_TYPE(ob) (((TypyList*)(ob))->list_type)
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
@@ -71,7 +74,7 @@ inline bool TypyList_Insert(TypyList* self, size_t offset, TypyField item) {
 	return false;
 }
 
-inline void TypyList_CheckAndSetList(TypyList* self, TypyList* value) {
+inline bool TypyList_CheckAndSetList(TypyMetaList* type, TypyList* self, PyObject* value) {
 	/* todo: TypyList_CheckAndSetList */
 }
 
@@ -80,7 +83,9 @@ inline void TypyList_Remove(TypyList* self, size_t offset) {
 }
 
 PyObject* TypyList_GetPyObject (TypyMetaList*, TypyList**);
+bool      TypyList_CheckAndSet (TypyMetaList*, TypyList**, PyObject*, const char*);
 bool      TypyList_Read        (TypyMetaList*, TypyList**, byte**, size_t*);
+void      TypyList_MergeFrom   (TypyMetaList*, TypyList**, TypyList*);
 size_t    TypyList_Write       (TypyMetaList*, TypyList**, int, byte*);
 size_t    TypyList_ByteSize    (TypyMetaList*, TypyList**, int);
 
