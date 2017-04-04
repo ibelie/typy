@@ -50,23 +50,23 @@ inline void CopyFrom(FIXEDPOINT& lvalue, const double& rvalue) {
 }
 
 template <int precision, int floor>
-inline void Clear(FIXEDPOINT& value) { value = 0; }
+inline void Clear(FIXEDPOINT& value) { value = floor; }
 
 template <int precision, int floor>
 inline void MergeFrom(FIXEDPOINT& lvalue, const double& rvalue) {
-	if (rvalue != 0) { CopyFrom(lvalue, rvalue); }
+	if (rvalue != floor) { CopyFrom(lvalue, rvalue); }
 }
 
 template <int precision, int floor>
 inline void ByteSize(int& total, int tagsize, const FIXEDPOINT& value) {
-	int v = int(value * FIXEDPOINT::Precision);
-	if (v != 0) { total += tagsize + WireFormatLite::Int32Size(v - floor * FIXEDPOINT::Precision); }
+	int v = int((value - floor) * FIXEDPOINT::Precision);
+	if (v != 0) { total += tagsize + WireFormatLite::Int32Size(v); }
 }
 
 template <int precision, int floor>
 inline void Write(int field_number, const FIXEDPOINT& value, CodedOutputStream* output) {
-	int v = int(value * FIXEDPOINT::Precision);
-	if (v != 0) { WireFormatLite::WriteInt32(field_number, v - floor * FIXEDPOINT::Precision, output); }
+	int v = int((value - floor) * FIXEDPOINT::Precision);
+	if (v != 0) { WireFormatLite::WriteInt32(field_number, v, output); }
 }
 
 template <int precision, int floor>

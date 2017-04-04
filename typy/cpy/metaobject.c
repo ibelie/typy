@@ -44,17 +44,25 @@ bool TypyObject_CheckAndSet(TypyMetaObject* type, TypyObject** value, PyObject* 
 }
 
 size_t TypyObject_ByteSize(TypyMetaObject* type, TypyObject** value, int tagsize) {
-	register size_t size = Typy_ByteSize(*value);
-	(*value)->object_size = size;
-	return size ? tagsize + IblSizeVarint(size) + size : 0;
+	register TypyObject* self = *value;
+	register size_t size = 0;
+	if (self) {
+		size = Typy_ByteSize(self);
+		self->object_size = size;
+	}
+	return tagsize + IblSizeVarint(size) + size;
 }
 
 size_t TypyObject_Write(TypyMetaObject* type, TypyObject** value, int tag, byte* output) {
 	register TypyObject* self = *value;
-	if (self->object_size <= 0) { return 0;}
-	register size_t size = Typy_WriteTag(output, tag);
+	register size_t size = 0;
+	if (tag) {
+		size += Typy_WriteTag(output, tag);
+	}
 	size += IblPutUvarint(output + size, self->object_size);
-	Typy_SerializeString(self, output + size);
+	if (self->object_size) {
+		Typy_SerializeString(self, output + size);
+	}
 	return size + self->object_size;
 }
 
@@ -62,6 +70,7 @@ bool TypyObject_Read(TypyMetaObject* type, TypyObject** value, byte** input, siz
 	register TypyObject* self = *value;
 	if (!self) {
 		self = (TypyObject*)Typy_New(type, NULL, NULL);
+		if (!self) { return false; }
 		*value = self;
 	}
 	register size_t size = Typy_MergeFromString(self, *input, *length);
@@ -75,6 +84,7 @@ void TypyObject_MergeFrom(TypyMetaObject* type, TypyObject** lvalue, TypyObject*
 	register TypyObject* self = *lvalue;
 	if (!self) {
 		self = (TypyObject*)Typy_New(type, NULL, NULL);
+		if (!self) { return; }
 		*lvalue = self;
 	}
 	Typy_MergeFrom(self, rvalue);

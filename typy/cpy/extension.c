@@ -60,25 +60,30 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 }
 
 size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* output) {
+	register size_t size = 0;
+	if (tag) {
+		size += Typy_WriteTag(output, tag);
+	}
 	if (*value) {
 		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
-		if (!data) { return 0; }
-		register size_t size = Typy_WriteTag(output, tag);
-		size += IblPutUvarint(output + size, (uint64)PyBytes_GET_SIZE(data));
-		memcpy(output + size, PyBytes_AS_STRING(data), PyBytes_GET_SIZE(data));
-		return size + PyBytes_GET_SIZE(data);
+		if (data) {
+			register size_t length = PyBytes_GET_SIZE(data);
+			size += IblPutUvarint(output + size, length);
+			memcpy(output + size, PyBytes_AS_STRING(data), length);
+			return size + length;
+		}
 	}
-	return 0;
+	output[size] = 0;
+	return size + 1;
 }
 
 size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
+	register size_t size = 0;
 	if (*value) {
 		register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
-		if (!s) { return 0; }
-		register long size = PyInt_AsLong(s);
-		return tagsize + IblSizeVarint((uint64)size) + size;
+		if (s) { size = PyInt_AsLong(s); }
 	}
-	return 0;
+	return tagsize + IblSizeVarint(size) + size;
 }
 
 static PyObject* TypyPython_Initialize(TypyPython* type, PyObject* args) {

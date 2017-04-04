@@ -5,15 +5,15 @@
 #include "typy.h"
 
 
-static PyObject* TypyInt32_GetPyObject  (TypeType t, int32* v)  { return PyInt_FromLong(*v); }
-static PyObject* TypyInt64_GetPyObject  (TypeType t, int64* v)  { return PyLong_FromLongLong(*v); }
-static PyObject* TypyUint32_GetPyObject (TypeType t, uint32* v) { return PyInt_FromSize_t(*v); }
-static PyObject* TypyUint64_GetPyObject (TypeType t, uint64* v) { return PyLong_FromUnsignedLongLong(*v); }
-static PyObject* TypyBool_GetPyObject   (TypeType t, bool* v)   { return PyBool_FromLong(*v); }
-static PyObject* TypyDouble_GetPyObject (TypeType t, double* v) { return PyFloat_FromDouble(*v); }
-static PyObject* TypyFloat_GetPyObject  (TypeType t, float* v)  { return PyFloat_FromDouble(*v); }
+static PyObject* TypyInt32_GetPyObject  (TypyType t, int32* v)  { return PyInt_FromLong(*v); }
+static PyObject* TypyInt64_GetPyObject  (TypyType t, int64* v)  { return PyLong_FromLongLong(*v); }
+static PyObject* TypyUint32_GetPyObject (TypyType t, uint32* v) { return PyInt_FromSize_t(*v); }
+static PyObject* TypyUint64_GetPyObject (TypyType t, uint64* v) { return PyLong_FromUnsignedLongLong(*v); }
+static PyObject* TypyBool_GetPyObject   (TypyType t, bool* v)   { return PyBool_FromLong(*v); }
+static PyObject* TypyDouble_GetPyObject (TypyType t, double* v) { return PyFloat_FromDouble(*v); }
+static PyObject* TypyFloat_GetPyObject  (TypyType t, float* v)  { return PyFloat_FromDouble(*v); }
 
-static PyObject* TypyPyObject_GetPyObject(TypeType type, PyObject** value) {
+static PyObject* TypyPyObject_GetPyObject(TypyType type, PyObject** value) {
 	if (!(*value)) {
 		Py_RETURN_NONE;
 	}
@@ -27,6 +27,7 @@ GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
 	(GetPyObject)TypyInt64_GetPyObject,      /* TYPE_INT64      */
 	(GetPyObject)TypyUint32_GetPyObject,     /* TYPE_UINT32     */
 	(GetPyObject)TypyUint64_GetPyObject,     /* TYPE_UINT64     */
+	(GetPyObject)TypyFixedPoint_GetPyObject, /* TYPE_FIXEDPOINT */
 	(GetPyObject)TypyDouble_GetPyObject,     /* TYPE_DOUBLE     */
 	(GetPyObject)TypyFloat_GetPyObject,      /* TYPE_FLOAT      */
 	(GetPyObject)TypyBool_GetPyObject,       /* TYPE_BOOL       */
@@ -36,7 +37,6 @@ GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
 	(GetPyObject)TypyVariant_GetPyObject,    /* TYPE_VARIANT    */
 	(GetPyObject)TypyList_GetPyObject,       /* TYPE_LIST       */
 	(GetPyObject)TypyDict_GetPyObject,       /* TYPE_DICT       */
-	(GetPyObject)TypyFixedPoint_GetPyObject, /* TYPE_FIXEDPOINT */
 	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_PYTHON     */
 };
 
@@ -81,7 +81,7 @@ static bool CheckAndSetInteger(int64* value, PyObject* arg, const char* err, PyO
 	return true;
 }
 
-static bool TypyInt32_CheckAndSet(TypeType t, int32* value, PyObject* arg, const char* err) {
+static bool TypyInt32_CheckAndSet(TypyType t, int32* value, PyObject* arg, const char* err) {
 	int64 v;
 	if (CheckAndSetInteger(&v, arg, err, kint32min_py, kint32max_py)) {
 		*value = (int32)v;
@@ -90,7 +90,7 @@ static bool TypyInt32_CheckAndSet(TypeType t, int32* value, PyObject* arg, const
 	return false;
 }
 
-static bool TypyInt64_CheckAndSet(TypeType t, int64* value, PyObject* arg, const char* err) {
+static bool TypyInt64_CheckAndSet(TypyType t, int64* value, PyObject* arg, const char* err) {
 	int64 v;
 	if (CheckAndSetInteger(&v, arg, err, kint64min_py, kint64max_py)) {
 		*value = (int64)v;
@@ -99,7 +99,7 @@ static bool TypyInt64_CheckAndSet(TypeType t, int64* value, PyObject* arg, const
 	return false;
 }
 
-static bool TypyUint32_CheckAndSet(TypeType t, uint32* value, PyObject* arg, const char* err) {
+static bool TypyUint32_CheckAndSet(TypyType t, uint32* value, PyObject* arg, const char* err) {
 	int64 v;
 	if (CheckAndSetInteger(&v, arg, err, kPythonZero, kuint32max_py)) {
 		*value = (uint32)v;
@@ -108,7 +108,7 @@ static bool TypyUint32_CheckAndSet(TypeType t, uint32* value, PyObject* arg, con
 	return false;
 }
 
-static bool TypyUint64_CheckAndSet(TypeType t, uint64* value, PyObject* arg, const char* err) {
+static bool TypyUint64_CheckAndSet(TypyType t, uint64* value, PyObject* arg, const char* err) {
 	int64 v;
 	if (CheckAndSetInteger(&v, arg, err, kPythonZero, kuint64max_py)) {
 		*value = (uint64)v;
@@ -117,7 +117,7 @@ static bool TypyUint64_CheckAndSet(TypeType t, uint64* value, PyObject* arg, con
 	return false;
 }
 
-static bool TypyDouble_CheckAndSet(TypeType t, double* value, PyObject* arg, const char* err) {
+static bool TypyDouble_CheckAndSet(TypyType t, double* value, PyObject* arg, const char* err) {
 	if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
 		FormatTypeError(arg, err);
 		return false;
@@ -126,7 +126,7 @@ static bool TypyDouble_CheckAndSet(TypeType t, double* value, PyObject* arg, con
 	return true;
 }
 
-static bool TypyFloat_CheckAndSet(TypeType t, float* value, PyObject* arg, const char* err) {
+static bool TypyFloat_CheckAndSet(TypyType t, float* value, PyObject* arg, const char* err) {
 	if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
 		FormatTypeError(arg, err);
 		return false;
@@ -135,7 +135,7 @@ static bool TypyFloat_CheckAndSet(TypeType t, float* value, PyObject* arg, const
 	return true;
 }
 
-static bool TypyBool_CheckAndSet(TypeType t, bool* value, PyObject* arg, const char* err) {
+static bool TypyBool_CheckAndSet(TypyType t, bool* value, PyObject* arg, const char* err) {
 	if (!PyInt_Check(arg) && !PyBool_Check(arg) && !PyLong_Check(arg)) {
 		FormatTypeError(arg, err);
 		return false;
@@ -144,7 +144,7 @@ static bool TypyBool_CheckAndSet(TypeType t, bool* value, PyObject* arg, const c
 	return true;
 }
 
-static bool TypyString_CheckAndSet(TypeType t, PyString* value, PyObject* arg, const char* err) {
+static bool TypyString_CheckAndSet(TypyType t, PyString* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
 		Py_DECREF(*value);
 		*value = NULL;
@@ -162,7 +162,7 @@ static bool TypyString_CheckAndSet(TypeType t, PyString* value, PyObject* arg, c
 	return true;
 }
 
-static bool TypyBytes_CheckAndSet(TypeType t, PyBytes* value, PyObject* arg, const char* err) {
+static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
 		Py_DECREF(*value);
 		*value = NULL;
@@ -187,6 +187,7 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 	(CheckAndSet)TypyInt64_CheckAndSet,      /* TYPE_INT64      */
 	(CheckAndSet)TypyUint32_CheckAndSet,     /* TYPE_UINT32     */
 	(CheckAndSet)TypyUint64_CheckAndSet,     /* TYPE_UINT64     */
+	(CheckAndSet)TypyFixedPoint_CheckAndSet, /* TYPE_FIXEDPOINT */
 	(CheckAndSet)TypyDouble_CheckAndSet,     /* TYPE_DOUBLE     */
 	(CheckAndSet)TypyFloat_CheckAndSet,      /* TYPE_FLOAT      */
 	(CheckAndSet)TypyBool_CheckAndSet,       /* TYPE_BOOL       */
@@ -196,17 +197,16 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 	(CheckAndSet)TypyVariant_CheckAndSet,    /* TYPE_VARIANT    */
 	(CheckAndSet)0,                          /* TYPE_LIST       */
 	(CheckAndSet)0,                          /* TYPE_DICT       */
-	(CheckAndSet)TypyFixedPoint_CheckAndSet, /* TYPE_FIXEDPOINT */
 	(CheckAndSet)TypyPython_CheckAndSet,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
-static void TypyNumeric_CopyFrom(TypeType type, TypyField* lvalue, TypyField rvalue) {
+static void TypyNumeric_CopyFrom(TypyType type, TypyField* lvalue, TypyField rvalue) {
 	*lvalue = rvalue;
 }
 
-static void TypyPyObject_CopyFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
+static void TypyPyObject_CopyFrom(TypyType type, PyObject** lvalue, PyObject* rvalue) {
 	Py_XDECREF(*lvalue);
 	if (!rvalue) { *lvalue = NULL; return; }
 	Py_INCREF(rvalue);
@@ -219,6 +219,7 @@ CopyFrom abstract_CopyFrom[MAX_FIELD_TYPE] = {
 	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_INT64      */
 	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_UINT32     */
 	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_UINT64     */
+	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FIXEDPOINT */
 	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_DOUBLE     */
 	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FLOAT      */
 	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_BOOL       */
@@ -228,17 +229,16 @@ CopyFrom abstract_CopyFrom[MAX_FIELD_TYPE] = {
 	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_VARIANT    */
 	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_LIST       */
 	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_DICT       */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FIXEDPOINT */
 	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
-static void TypyNumeric_MergeFrom(TypeType type, TypyField* lvalue, TypyField rvalue) {
+static void TypyNumeric_MergeFrom(TypyType type, TypyField* lvalue, TypyField rvalue) {
 	if (rvalue != 0) { *lvalue = rvalue; }
 }
 
-static void TypyPyObject_MergeFrom(TypeType type, PyObject** lvalue, PyObject* rvalue) {
+static void TypyPyObject_MergeFrom(TypyType type, PyObject** lvalue, PyObject* rvalue) {
 	if (rvalue != 0) {
 		Py_XDECREF(*lvalue);
 		Py_INCREF(rvalue);
@@ -252,6 +252,7 @@ MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_INT64      */
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_UINT32     */
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_UINT64     */
+	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_FIXEDPOINT */
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_DOUBLE     */
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_FLOAT      */
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_BOOL       */
@@ -261,17 +262,16 @@ MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
 	(MergeFrom)TypyVariant_MergeFrom,  /* TYPE_VARIANT    */
 	(MergeFrom)0,                      /* TYPE_LIST       */
 	(MergeFrom)0,                      /* TYPE_DICT       */
-	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_FIXEDPOINT */
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
-static void TypyNumeric_Clear(TypeType type, TypyField* value) {
+static void TypyNumeric_Clear(TypyType type, TypyField* value) {
 	*value = 0;
 }
 
-static void TypyPyObject_Clear(TypeType type, PyObject** value) {
+static void TypyPyObject_Clear(TypyType type, PyObject** value) {
 	Py_XDECREF(value);
 	*value = 0;
 }
@@ -282,6 +282,7 @@ Clear abstract_Clear[MAX_FIELD_TYPE] = {
 	(Clear)TypyNumeric_Clear,  /* TYPE_INT64      */
 	(Clear)TypyNumeric_Clear,  /* TYPE_UINT32     */
 	(Clear)TypyNumeric_Clear,  /* TYPE_UINT64     */
+	(Clear)TypyNumeric_Clear,  /* TYPE_FIXEDPOINT */
 	(Clear)TypyNumeric_Clear,  /* TYPE_DOUBLE     */
 	(Clear)TypyNumeric_Clear,  /* TYPE_FLOAT      */
 	(Clear)TypyNumeric_Clear,  /* TYPE_BOOL       */
@@ -291,13 +292,12 @@ Clear abstract_Clear[MAX_FIELD_TYPE] = {
 	(Clear)TypyPyObject_Clear, /* TYPE_VARIANT    */
 	(Clear)TypyPyObject_Clear, /* TYPE_LIST       */
 	(Clear)TypyPyObject_Clear, /* TYPE_DICT       */
-	(Clear)TypyNumeric_Clear,  /* TYPE_FIXEDPOINT */
 	(Clear)TypyPyObject_Clear, /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
-static bool TypyField_Read(TypeType t, TypyField* value, byte** input, size_t* length) {
+static bool TypyField_Read(TypyType t, TypyField* value, byte** input, size_t* length) {
 	uint64 data;
 	if (Typy_ReadVarint64(input, length, &data)) {
 		*value = (TypyField)data;
@@ -307,7 +307,7 @@ static bool TypyField_Read(TypeType t, TypyField* value, byte** input, size_t* l
 	}
 }
 
-static bool TypyBytes_Read(TypeType t, PyBytes* value, byte** input, size_t* length) {
+static bool TypyBytes_Read(TypyType t, PyBytes* value, byte** input, size_t* length) {
 	uint32 size;
 	if (!Typy_ReadVarint32(input, length, &size)) {
 		return false;
@@ -324,7 +324,7 @@ static bool TypyBytes_Read(TypeType t, PyBytes* value, byte** input, size_t* len
 	return true;
 }
 
-static bool TypyString_Read(TypeType t, PyString* value, byte** input, size_t* length) {
+static bool TypyString_Read(TypyType t, PyString* value, byte** input, size_t* length) {
 	uint32 size;
 	if (!Typy_ReadVarint32(input, length, &size)) {
 		return false;
@@ -348,6 +348,7 @@ Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)Typy_ReadVarint64,   /* TYPE_INT64      */
 	(Read)Typy_ReadVarint32,   /* TYPE_UINT32     */
 	(Read)Typy_ReadVarint64,   /* TYPE_UINT64     */
+	(Read)TypyField_Read,      /* TYPE_FIXEDPOINT */
 	(Read)Typy_Read64,         /* TYPE_DOUBLE     */
 	(Read)Typy_Read32,         /* TYPE_FLOAT      */
 	(Read)Typy_ReadByte,       /* TYPE_BOOL       */
@@ -357,55 +358,34 @@ Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)TypyVariant_Read,    /* TYPE_VARIANT    */
 	(Read)TypyList_Read,       /* TYPE_LIST       */
 	(Read)0,                   /* TYPE_DICT       */
-	(Read)TypyField_Read,      /* TYPE_FIXEDPOINT */
 	(Read)TypyPython_Read,     /* TYPE_PYTHON     */
-};
-
-ReadPacked abstract_ReadPacked[MAX_FIELD_TYPE] = {
-	NULL,                            /* TYPE_ENUM       */
-	NULL,                            /* TYPE_INT32      */
-	NULL,                            /* TYPE_INT64      */
-	NULL,                            /* TYPE_UINT32     */
-	NULL,                            /* TYPE_UINT64     */
-	NULL,                            /* TYPE_DOUBLE     */
-	NULL,                            /* TYPE_FLOAT      */
-	NULL,                            /* TYPE_BOOL       */
-	NULL,                            /* TYPE_BYTES      */
-	NULL,                            /* TYPE_STRING     */
-	NULL,                            /* TYPE_OBJECT     */
-	NULL,                            /* TYPE_VARIANT    */
-	(ReadPacked)TypyList_ReadPacked, /* TYPE_LIST       */
-	NULL,                            /* TYPE_DICT       */
-	NULL,                            /* TYPE_FIXEDPOINT */
-	NULL,                            /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
 #define WRITE(NAME, TYPE) \
-static size_t NAME(TypeType t, TYPE* value, int tag, byte* output) { \
+static size_t NAME(TypyType t, TYPE* value, int tag, byte* output) { \
 	register size_t size = 0;                                        \
-	if (*value) {                                                    \
-		size = Typy_WriteTag(output, tag);                           \
-		size += IblPutUvarint(output + size, *value);                \
+	if (tag) {                                                       \
+		size += Typy_WriteTag(output, tag);                          \
 	}                                                                \
-	return size;                                                     \
+	return size + IblPutUvarint(output + size, *value);              \
 }
-WRITE(TypyEnum_Write,   TypyField)
-WRITE(TypyInt32_Write,  int32)
-WRITE(TypyInt64_Write,  int64)
-WRITE(TypyUint32_Write, uint32)
-WRITE(TypyUint64_Write, uint64)
+WRITE(TypyEnum_Write,       TypyField)
+WRITE(TypyInt32_Write,      int32)
+WRITE(TypyInt64_Write,      int64)
+WRITE(TypyUint32_Write,     uint32)
+WRITE(TypyUint64_Write,     uint64)
+WRITE(TypyFixedPoint_Write, TypyField)
 #undef WRITE
 
 #define WRITE(NAME, TYPE, PARAMTYPE, WRITER) \
-static size_t NAME(TypeType t, TYPE* value, int tag, byte* output) { \
+static size_t NAME(TypyType t, TYPE* value, int tag, byte* output) { \
 	register size_t size = 0;                                        \
-	if (*value) {                                                    \
-		size = Typy_WriteTag(output, tag);                           \
-		size += WRITER(output + size, (PARAMTYPE*)value);            \
+	if (tag) {                                                       \
+		size += Typy_WriteTag(output, tag);                          \
 	}                                                                \
-	return size;                                                     \
+	return size + WRITER(output + size, (PARAMTYPE*)value);          \
 }
 WRITE(TypyDouble_Write, double, uint64, Typy_Write64)
 WRITE(TypyFloat_Write,  float,  uint32, Typy_Write32)
@@ -423,36 +403,43 @@ inline PyObject* _DecodeString(PyString value) {
 	return result;
 }
 
-static size_t TypyBytes_Write(TypeType t, PyBytes* value, int tag, byte* output) {
+static size_t TypyBytes_Write(TypyType t, PyBytes* value, int tag, byte* output) {
 	register size_t size = 0;
+	if (tag) {
+		size += Typy_WriteTag(output, tag);
+	}
 	if (*value) {
 		Py_ssize_t length = PyBytes_GET_SIZE(*value);
 		if (length > 0) {
-			size = Typy_WriteTag(output, tag);
-			size += IblPutUvarint(output + size, (uint64)length);
+			size += IblPutUvarint(output + size, length);
 			memcpy(output + size, PyBytes_AS_STRING(*value), length);
 			return size + length;
 		}
 	}
-	return 0;
+	output[size] = 0;
+	return size + 1;
 }
 
-static size_t TypyString_Write(TypeType t, PyString* value, int tag, byte* output) {
+static size_t TypyString_Write(TypyType t, PyString* value, int tag, byte* output) {
 	register size_t size = 0;
+	if (tag) {
+		size += Typy_WriteTag(output, tag);
+	}
 	if (*value) {
 		register PyObject* bytes = _DecodeString(*value);
-		if (!bytes) { return 0; }
-		Py_ssize_t length = PyBytes_GET_SIZE(bytes);
-		if (length > 0) {
-			size = Typy_WriteTag(output, tag);
-			size += IblPutUvarint(output + size, (uint64)length);
-			memcpy(output + size, PyBytes_AS_STRING(bytes), length);
+		if (bytes) {
+			Py_ssize_t length = PyBytes_GET_SIZE(bytes);
+			if (length > 0) {
+				size += IblPutUvarint(output + size, length);
+				memcpy(output + size, PyBytes_AS_STRING(bytes), length);
+				Py_DECREF(bytes);
+				return size + length;
+			}
 			Py_DECREF(bytes);
-			return size + length;
 		}
-		Py_DECREF(bytes);
 	}
-	return 0;
+	output[size] = 0;
+	return size + 1;
 }
 
 Write abstract_Write[MAX_FIELD_TYPE] = {
@@ -461,6 +448,7 @@ Write abstract_Write[MAX_FIELD_TYPE] = {
 	(Write)TypyInt64_Write,      /* TYPE_INT64      */
 	(Write)TypyUint32_Write,     /* TYPE_UINT32     */
 	(Write)TypyUint64_Write,     /* TYPE_UINT64     */
+	(Write)TypyFixedPoint_Write, /* TYPE_FIXEDPOINT */
 	(Write)TypyDouble_Write,     /* TYPE_DOUBLE     */
 	(Write)TypyFloat_Write,      /* TYPE_FLOAT      */
 	(Write)TypyBool_Write,       /* TYPE_BOOL       */
@@ -468,17 +456,16 @@ Write abstract_Write[MAX_FIELD_TYPE] = {
 	(Write)TypyString_Write,     /* TYPE_STRING     */
 	(Write)TypyObject_Write,     /* TYPE_OBJECT     */
 	(Write)TypyVariant_Write,    /* TYPE_VARIANT    */
-	(Write)0,                    /* TYPE_LIST       */
+	(Write)TypyList_Write,       /* TYPE_LIST       */
 	(Write)0,                    /* TYPE_DICT       */
-	(Write)TypyFixedPoint_Write, /* TYPE_FIXEDPOINT */
 	(Write)TypyPython_Write,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
 
 #define BYTESIZE(NAME, TYPE) \
-static size_t NAME(TypeType t, TYPE* value, int tagsize) { \
-	return *value ? tagsize + IblSizeVarint(*value) : 0;   \
+static size_t NAME(TypyType t, TYPE* value, int tagsize) { \
+	return tagsize + IblSizeVarint(*value);                \
 }
 BYTESIZE(TypyEnum_ByteSize,       TypyField)
 BYTESIZE(TypyInt32_ByteSize,      int32)
@@ -489,36 +476,32 @@ BYTESIZE(TypyFixedPoint_ByteSize, TypyField)
 #undef BYTESIZE
 
 #define BYTESIZE(NAME, TYPE) \
-static size_t NAME(TypeType t, TYPE* value, int tagsize) { \
-	return *value ? tagsize + sizeof(TYPE) : 0;            \
+static size_t NAME(TypyType t, TYPE* value, int tagsize) { \
+	return tagsize + sizeof(TYPE);                         \
 }
 BYTESIZE(TypyDouble_ByteSize, double)
 BYTESIZE(TypyFloat_ByteSize,  float)
 BYTESIZE(TypyBool_ByteSize,   bool)
 #undef BYTESIZE
 
-static size_t TypyBytes_ByteSize(TypeType t, PyBytes* value, int tagsize) {
+static size_t TypyBytes_ByteSize(TypyType t, PyBytes* value, int tagsize) {
+	register size_t size = 0;
 	if (*value) {
-		register Py_ssize_t size = PyBytes_GET_SIZE(*value);
-		if (size > 0) {
-			return tagsize + IblSizeVarint((uint64)size) + size;
-		}
+		size = PyBytes_GET_SIZE(*value);
 	}
-	return 0;
+	return tagsize + IblSizeVarint((uint64)size) + size;
 }
 
-static size_t TypyString_ByteSize(TypeType t, PyString* value, int tagsize) {
+static size_t TypyString_ByteSize(TypyType t, PyString* value, int tagsize) {
+	register size_t size = 0;
 	if (*value) {
 		register PyObject* bytes = _DecodeString(*value);
-		if (!bytes) { return 0; }
-		register Py_ssize_t size = PyBytes_GET_SIZE(bytes);
-		if (size > 0) {
+		if (bytes) {
+			size = PyBytes_GET_SIZE(bytes);
 			Py_DECREF(bytes);
-			return tagsize + IblSizeVarint((uint64)size) + size;
 		}
-		Py_DECREF(bytes);
 	}
-	return 0;
+	return tagsize + IblSizeVarint(size) + size;
 }
 
 ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
@@ -527,6 +510,7 @@ ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyInt64_ByteSize,      /* TYPE_INT64      */
 	(ByteSize)TypyUint32_ByteSize,     /* TYPE_UINT32     */
 	(ByteSize)TypyUint64_ByteSize,     /* TYPE_UINT64     */
+	(ByteSize)TypyFixedPoint_ByteSize, /* TYPE_FIXEDPOINT */
 	(ByteSize)TypyDouble_ByteSize,     /* TYPE_DOUBLE     */
 	(ByteSize)TypyFloat_ByteSize,      /* TYPE_FLOAT      */
 	(ByteSize)TypyBool_ByteSize,       /* TYPE_BOOL       */
@@ -534,8 +518,7 @@ ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyString_ByteSize,     /* TYPE_STRING     */
 	(ByteSize)TypyObject_ByteSize,     /* TYPE_OBJECT     */
 	(ByteSize)TypyVariant_ByteSize,    /* TYPE_VARIANT    */
-	(ByteSize)0,                       /* TYPE_LIST       */
+	(ByteSize)TypyList_ByteSize,       /* TYPE_LIST       */
 	(ByteSize)0,                       /* TYPE_DICT       */
-	(ByteSize)TypyFixedPoint_ByteSize, /* TYPE_FIXEDPOINT */
 	(ByteSize)TypyPython_ByteSize,     /* TYPE_PYTHON     */
 };

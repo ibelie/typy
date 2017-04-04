@@ -32,19 +32,13 @@ extern PyTypeObject TypyDictType;
 extern PyTypeObject TypyMetaDictType;
 PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 
-#define TypyKey_DESCRIPTOR(ob) ((ob)->dict_type->key_descriptor)
-#define TypyKey_TAG(ob) (TypyKey_DESCRIPTOR(ob).desc_tag)
-#define TypyKey_TAGSIZE(ob) (TypyKey_DESCRIPTOR(ob).desc_tagsize)
-#define TypyKey_WIRETYPE(ob) (TypyKey_DESCRIPTOR(ob).desc_WireType)
-#define TypyKey_METHOD(ob, NAME, ARGS) \
-	(TypyKey_DESCRIPTOR(ob).desc_##NAME(TypyKey_DESCRIPTOR(ob).desc_type, ARGS))
+#define MetaKey_DESC(m) ((m)->key_descriptor)
+#define MetaKey_CLEAR(m, k) \
+	(abstract_Clear[MetaKey_DESC(m).desc_FieldType](MetaKey_DESC(m).desc_type, (k)))
 
-#define TypyValue_DESCRIPTOR(ob) ((ob)->dict_type->value_descriptor)
-#define TypyValue_TAG(ob) (TypyValue_DESCRIPTOR(ob).desc_tag)
-#define TypyValue_TAGSIZE(ob) (TypyValue_DESCRIPTOR(ob).desc_tagsize)
-#define TypyValue_WIRETYPE(ob) (TypyValue_DESCRIPTOR(ob).desc_WireType)
-#define TypyValue_METHOD(ob, NAME, ARGS) \
-	(TypyValue_DESCRIPTOR(ob).desc_##NAME(TypyValue_DESCRIPTOR(ob).desc_type, ARGS))
+#define MetaValue_DESC(m) ((m)->value_descriptor)
+#define MetaValue_CLEAR(m, v) \
+	(abstract_Clear[MetaValue_DESC(m).desc_FieldType](MetaValue_DESC(m).desc_type, (v)))
 
 inline PyObject* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwargs) {
 	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
@@ -63,16 +57,17 @@ inline PyObject* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwar
 	return (PyObject*)dict;
 }
 
-inline void TypyDict_Clear(TypyDict* self) {
+inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
 	register TypyDictMap item;
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
 		item = (TypyDictMap)iter;
-		TypyKey_METHOD(self, Clear, &item->key);
-		TypyValue_METHOD(self, Clear, &item->value);
+		MetaKey_CLEAR(type, &item->key);
+		MetaValue_CLEAR(type, &item->value);
 	}
 	IblMap_Free(self->dict_map);
 }
+#define TypyDict_Clear(ob) MetaDict_Clear((ob)->dict_type, (ob))
 
 inline void TypyDict_Set(TypyDict* self) {
 	/* todo: TypyDict_Set */

@@ -82,25 +82,28 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 
 size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {
 	register TypyVariant* self = *value;
-	if (!self) { return 0; }
-	register int i = self->variant_index;
-	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
-		register size_t size = Typy_METHOD(self, i, ByteSize, Typy_TAGSIZE(self, i));
+	register size_t size = 0;
+	if (self) {
+		register int i = self->variant_index;
+		if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
+			size = Typy_BYTESIZE(self, i, Typy_TAGSIZE(self, i));
+		}
 		self->variant_size = size;
-		return tagsize + IblSizeVarint(size) + size;
 	}
-	self->variant_size = 0;
-	return 0;
+	return tagsize + IblSizeVarint(size) + size;
 }
 
 size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byte* output) {
 	register TypyVariant* self = *value;
-	if (!self || self->variant_size <= 0) { return 0;}
-	register int i = self->variant_index;
-	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return 0; }
-	register size_t size = Typy_WriteTag(output, tag);
+	register size_t size = 0;
+	if (tag) {
+		size += Typy_WriteTag(output, tag);
+	}
 	size += IblPutUvarint(output + size, self->variant_size);
-	size += Typy_METHOD(self, i, Write, Typy_ARGS(Typy_TAG(self, i), output + size));
+	register int i = self->variant_index;
+	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
+		size += Typy_WRITE(self, i, Typy_TAG(self, i), output + size);
+	}
 	return size;
 }
 
@@ -118,12 +121,12 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return false; }
 	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
 		TypyVariant_Clear(self);
-		if (!Typy_METHOD(self, index, Read, Typy_ARGS(input, length))) {
+		if (!Typy_READ(self, index, input, length)) {
 			return false;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
 		TypyVariant_Clear(self);
-		if (!Typy_METHOD(self, index, ReadPacked, Typy_ARGS(input, length))) {
+		if (!Typy_ReadPacked(Typy_DESC(self, index).desc_type, &Typy_FIELD(self, index), input, length)) {
 			return false;
 		}
 	}
@@ -143,7 +146,7 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 	if (self->variant_index != rvalue->variant_index) {
 		TypyVariant_Clear(self);
 	}
-	Typy_METHOD(self, self->variant_index, MergeFrom, Typy_FIELD(rvalue, self->variant_index));
+	Typy_MERGEFROM(self, self->variant_index, Typy_FIELD(rvalue, self->variant_index));
 }
 
 static void TypyVariant_Dealloc(TypyVariant* self) {

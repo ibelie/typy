@@ -33,7 +33,7 @@ void      TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*
 inline void TypyVariant_Clear(TypyVariant* self) {
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return; }
-	Typy_METHOD_NOARG(self, i, Clear);
+	Typy_CLEAR(self, i);
 	self->variant_index = -1;
 }
 

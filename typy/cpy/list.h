@@ -17,24 +17,38 @@ typedef struct {
 	char           list_name[1];
 } TypyMetaList;
 
+#define MetaList_DESC(m) ((m)->list_descriptor)
+#define MetaList_CLEAR(m, f) \
+	(abstract_Clear[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f)))
+#define MetaList_READ(m, f, i, l) \
+	(abstract_Read[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (i), (l)))
+#define MetaList_WRITE(m, f, t, o) \
+	(abstract_Write[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (t), (o)))
+#define MetaList_BYTESIZE(m, f, t) \
+	(abstract_ByteSize[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (t)))
+#define MetaList_IsPrimitive(m) (MetaList_DESC(m).desc_FieldType < MAX_PRIMITIVE_TYPE)
+
 typedef struct {
 	PyObject_HEAD
 	TypyMetaList* list_type;
 	size_t        list_capacity;
+	size_t        list_length;
 	size_t        list_size;
 	TypyField*    list_items;
 } TypyList;
 
+inline void MetaList_Clear(TypyMetaList* type, TypyList* self) {
+	register size_t i;
+	for (i = 0; i < self->list_length; i++) {
+		MetaList_CLEAR(type, &self->list_items[i]);
+	}
+	self->list_length = 0;
+}
+#define TypyList_Clear(ob) MetaList_Clear((ob)->list_type, (ob))
+
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
 PyObject* Typy_RegisterList(PyObject*, PyObject*);
-
-#define TypyList_DESCRIPTOR(ob) ((ob)->list_type->list_descriptor)
-#define TypyList_TAG(ob) (TypyList_DESCRIPTOR(ob).desc_tag)
-#define TypyList_TAGSIZE(ob) (TypyList_DESCRIPTOR(ob).desc_tagsize)
-#define TypyList_WIRETYPE(ob) (TypyList_DESCRIPTOR(ob).desc_WireType)
-#define TypyList_METHOD(ob, NAME, ARGS) \
-	(TypyList_DESCRIPTOR(ob).desc_##NAME(TypyList_DESCRIPTOR(ob).desc_type, ARGS))
 
 inline PyObject* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwargs) {
 	PyObject* list = (PyObject*)calloc(1, sizeof(TypyList));
@@ -47,29 +61,14 @@ inline PyObject* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwar
 	return list;
 }
 
-inline size_t TypyList_Size(TypyList* self) {
-	return self->list_size;
-}
-
-inline void TypyList_EnsureSize(TypyList* self, size_t size) {
+inline TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
 	/* todo: TypyList_EnsureSize */
-}
-
-inline void TypyList_Clear(TypyList* self) {
-	register size_t i;
-	for (i = 0; i < self->list_size; i++) {
-		TypyList_METHOD(self, Clear, &self->list_items[i]);
-	}
-	self->list_size = 0;
+	return NULL;
 }
 
 inline bool TypyList_Insert(TypyList* self, size_t offset, TypyField item) {
 	/* todo: TypyList_Insert */
 	return false;
-}
-
-inline bool TypyList_Append(TypyList* self, TypyField item) {
-	return TypyList_Insert(self, self->list_size, item);
 }
 
 inline void TypyList_CheckAndSetList(TypyList* self, TypyList* value) {
@@ -80,9 +79,10 @@ inline void TypyList_Remove(TypyList* self, size_t offset) {
 	/* todo: TypyList_Remove */
 }
 
-PyObject* TypyList_GetPyObject(TypyMetaList*, TypyList**);
-bool      TypyList_Read(TypyMetaList*, TypyList**, byte**, size_t*);
-bool      TypyList_ReadPacked(TypyMetaList*, TypyList**, byte**, size_t*);
+PyObject* TypyList_GetPyObject (TypyMetaList*, TypyList**);
+bool      TypyList_Read        (TypyMetaList*, TypyList**, byte**, size_t*);
+size_t    TypyList_Write       (TypyMetaList*, TypyList**, int, byte*);
+size_t    TypyList_ByteSize    (TypyMetaList*, TypyList**, int);
 
 #ifdef __cplusplus
 }

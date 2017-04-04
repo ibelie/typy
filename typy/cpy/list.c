@@ -35,48 +35,88 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 	free(type);
 }
 
-PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
-	register PyObject* list = (PyObject*)(*value);
-	if (!list) {
-		list = TypyList_New(type, NULL, NULL);
-		*value = (TypyList*)list;
+#define TypyList_FromValueOrNew(s, v, t) \
+	register TypyList* s = *(v);                    \
+	if (!s) {                                       \
+		s = (TypyList*)TypyList_New(t, NULL, NULL); \
+		if (!s) { return false; }                   \
+		*(v) = s;                                   \
 	}
-	Py_INCREF(list);
-	return list;
+
+PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
+	TypyList_FromValueOrNew(self, value, type);
+	Py_INCREF(self);
+	return (PyObject*)self;
 }
 
 bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
-	TypyField item;
-	register TypyList* list = *value;
-	if (!list) {
-		list = (TypyList*)TypyList_New(type, NULL, NULL);
-		*value = list;
-	}
-	if (!TypyList_METHOD(list, Read, Typy_ARGS(&item, input, length))) {
+	TypyList_FromValueOrNew(self, value, type);
+	register TypyField* offset = TypyList_EnsureSize(self, 1);
+	if (!offset) { return false; }
+	if (!MetaList_READ(type, offset, input, length)) {
 		return false;
 	}
-	return TypyList_Append(list, item);
+	return true;
 }
 
-bool TypyList_ReadPacked(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
-	uint32 i, size;
+static inline bool TypyList_ReadPacked(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
+	uint32 size;
 	if (!Typy_ReadVarint32(input, length, &size)) {
 		return false;
 	}
-	register TypyList* list = *value;
-	if (!list) {
-		list = (TypyList*)TypyList_New(type, NULL, NULL);
-		*value = list;
-	} else {
-		TypyList_Clear(list);
-	}
-	TypyList_EnsureSize(list, (size_t)size);
-	for (i = 0; i < size; i ++) {
-		if (!TypyList_METHOD(list, Read, Typy_ARGS(&list->list_items[i], input, length))) {
+	TypyList_FromValueOrNew(self, value, type);
+	register TypyField* offset;
+	register byte* limit = *input + size;
+	while (*input < limit) {
+		if (!(offset = TypyList_EnsureSize(self, 1))) {
+			return false;
+		} else if (!MetaList_READ(type, offset, input, length)) {
 			return false;
 		}
 	}
 	return true;
+}
+
+bool Typy_ReadPacked(TypyType type, TypyField* value, byte** input, size_t* length) {
+	return TypyList_ReadPacked((TypyMetaList*)type, (TypyList**)value, input, length);
+}
+
+size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* output) {
+	register TypyList* self = *value;
+	if (!self) { return 0; }
+	register size_t i, size = 0;
+	if (MetaList_IsPrimitive(type)) {
+		if (tag) {
+			size += Typy_WriteTag(output, tag);
+		}
+		size += IblPutUvarint(output + size, self->list_size);
+		for (i = 0; i < self->list_length; i++) {
+			size += MetaList_WRITE(type, &self->list_items[i], 0, output);
+		}
+	} else {
+		for (i = 0; i < self->list_length; i++) {
+			size += MetaList_WRITE(type, &self->list_items[i], tag, output);
+		}
+	}
+	return size;
+}
+
+size_t TypyList_ByteSize(TypyMetaList* type, TypyList** value, int tagsize) {
+	register TypyList* self = *value;
+	if (!self) { return 0; }
+	register size_t i, size = 0;
+	if (MetaList_IsPrimitive(type)) {
+		for (i = 0; i < self->list_length; i++) {
+			size += MetaList_BYTESIZE(type, &self->list_items[i], 0);
+		}
+		self->list_size = size;
+		size += tagsize + IblSizeVarint(size);
+	} else {
+		for (i = 0; i < self->list_length; i++) {
+			size += MetaList_BYTESIZE(type, &self->list_items[i], tagsize);
+		}
+	}
+	return size;
 }
 
 static void TypyList_Dealloc(TypyList* self) {

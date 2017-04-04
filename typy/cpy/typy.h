@@ -58,14 +58,14 @@ typedef PyUnicodeObject* PyString;
 
 void FormatTypeError(PyObject* arg, const char* err);
 
+#include "abstract.h"
+#include "list.h"
 #include "object.h"
 #include "variant.h"
 #include "enum.h"
 #include "fixedpoint.h"
 #include "extension.h"
-#include "list.h"
 #include "dict.h"
-#include "abstract.h"
 
 #ifdef __cplusplus
 }

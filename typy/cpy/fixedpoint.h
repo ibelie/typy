@@ -30,7 +30,6 @@ inline TypyField TypyFixedPoint_fromDouble(TypyFixedPoint* type, double value) {
 
 PyObject* TypyFixedPoint_GetPyObject (TypyFixedPoint*, TypyField*);
 bool      TypyFixedPoint_CheckAndSet (TypyFixedPoint*, TypyField*, PyObject*, const char*);
-size_t    TypyFixedPoint_Write       (TypyFixedPoint*, TypyField*, int, byte*);
 
 #ifdef __cplusplus
 }
