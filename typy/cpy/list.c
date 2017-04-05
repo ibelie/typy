@@ -137,7 +137,7 @@ bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, c
 		return true;
 	} else if (PySequence_Check(arg)) {
 		TypyList_FromValueOrNew(self, value, type, false);
-		return TypyList_CheckAndSetList(type, self, arg);
+		return MetaList_CheckAndSetList(type, self, arg);
 	} else {
 		FormatTypeError(arg, err);
 		return false;
