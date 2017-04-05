@@ -42,6 +42,8 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 	(abstract_ByteSize[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), 1))
 #define MetaKey_WRITE(m, k, o) \
 	(abstract_Write[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), MetaKey_TAG(m), (o)))
+#define MetaKey_GET(m, k) \
+	(abstract_GetPyObject[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k)))
 #define MetaKey_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (l), (r), (e)))
 
@@ -55,6 +57,8 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 	(abstract_ByteSize[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
 #define MetaValue_WRITE(m, v, o) \
 	(abstract_Write[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), MetaValue_TAG(m), (o)))
+#define MetaValue_GET(m, v) \
+	(abstract_GetPyObject[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
 #define MetaValue_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r), (e)))
 
@@ -137,6 +141,17 @@ bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);
 void      TypyDict_MergeFrom   (TypyMetaDict*, TypyDict**, TypyDict*);
 size_t    TypyDict_Write       (TypyMetaDict*, TypyDict**, int, byte*);
 size_t    TypyDict_ByteSize    (TypyMetaDict*, TypyDict**, int);
+
+typedef struct {
+	PyObject_HEAD
+	PyObject*   it_result; /* reusable result tuple for iteritems */
+	size_t      it_index;
+	IblMap_Item it;
+	TypyDict*   it_dict; /* Set to NULL when iterator is exhausted */
+} TypyDictIterator;
+
+extern PyTypeObject TypyDictIterKeyType;
+extern PyTypeObject TypyDictIterItemType;
 
 #ifdef __cplusplus
 }

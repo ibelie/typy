@@ -206,6 +206,207 @@ PyTypeObject TypyMetaDictType = {
 	"The Typy Dict Metaclass",               /* tp_doc            */
 };
 
+//=============================================================================
+
+static int dict_AssSubscript(TypyDict* self, PyObject* key, PyObject* value) {
+	return MetaDict_SetItem(self->dict_type, self, key, value) ? 0 : -1;
+}
+
+static Py_ssize_t dict_Len(TypyDict* self) {
+	return IblMap_Size(self->dict_map);
+}
+
+static PyObject* dict_Clear(TypyDict* self) {
+	TypyDict_Clear(self);
+	Py_RETURN_NONE;
+}
+
+static PyObject* dict_Contains(TypyDict* self, PyObject* key) {
+	TypyField k = 0;
+	if (!MetaKey_CHECKSET(self->dict_type, &k, key, "")) {
+		PyErr_Clear();
+		Py_RETURN_FALSE;
+	}
+	if (IblMap_Get(self->dict_map, &k)) {
+		Py_RETURN_FALSE;
+	} else {
+		Py_RETURN_TRUE;
+	}
+}
+
+static PyObject* dict_Get(TypyDict* self, PyObject* args) {
+	PyObject* key;
+	PyObject* failobj = Py_None;
+	TypyField k = 0;
+	if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &failobj)) {
+		return NULL;
+	}
+	if (!MetaKey_CHECKSET(self->dict_type, &k, key, "")) {
+		PyErr_Clear();
+		Py_INCREF(failobj);
+		return failobj;
+	}
+	register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
+	if (!entry) {
+		Py_INCREF(failobj);
+		return failobj;
+	} else {
+		return MetaValue_GET(self->dict_type, &entry->value);
+	}
+}
+
+static PyObject* dict_Keys(TypyDict* self) {
+	PyObject* keys = PyList_New(0);
+	if (keys == NULL) { return NULL; }
+	register IblMap_Item iter;
+	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
+		register TypyDictMap item = (TypyDictMap)iter;
+		PyList_Append(keys, MetaKey_GET(self->dict_type, &item->key));
+	}
+	return keys;
+}
+
+static PyObject* dict_Subscript(TypyDict* self, PyObject* key) {
+	TypyField k = 0;
+	if (!MetaKey_CHECKSET(self->dict_type, &k, key, "Dict key type error: ")) {
+		return NULL;
+	}
+	register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
+	if (!entry) {
+		register PyObject* repr = PyObject_Repr(key);
+		if (!repr) { return NULL; }
+		PyErr_Format(PyExc_KeyError, "Dict key (%.100s) not found.", PyString_AsString(repr));
+		Py_DECREF(repr);
+		return NULL;
+	} else {
+		return MetaValue_GET(self->dict_type, &entry->value);
+	}
+}
+
+//=============================================================================
+
+static TypyDictIterator* dict_IterKey(TypyDict* self) {
+	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterKeyType, 0);
+	if (it == NULL) { return NULL; }
+	it->it_result = NULL;
+	it->it_index = 0;
+	it->it = IblMap_Begin(self->dict_map);
+	Py_INCREF(self);
+	it->it_dict = self;
+	return it;
+}
+
+static TypyDictIterator* dict_IterItem(TypyDict* self) {
+	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterItemType, 0);
+	if (it == NULL) { return NULL; }
+    it->it_result = PyTuple_Pack(2, Py_None, Py_None);
+    if (it->it_result == NULL) {
+        Py_DECREF(it);
+        return NULL;
+    }
+	it->it_index = 0;
+	it->it = IblMap_Begin(self->dict_map);
+	Py_INCREF(self);
+	it->it_dict = self;
+	return it;
+}
+
+static void iter_Dealloc(TypyDictIterator* it)
+{
+	Py_XDECREF(it->it_dict);
+	Py_XDECREF(it->it_result);
+	Py_TYPE(it)->tp_free(it);
+}
+
+static PyObject* iter_Len(TypyDictIterator* it)
+{
+	Py_ssize_t len;
+	if (it->it_dict) {
+		len = IblMap_Size(it->it_dict->dict_map) - it->it_index;
+		if (len >= 0) { return PyInt_FromSsize_t(len); }
+	}
+	return PyInt_FromLong(0);
+}
+
+static int iter_Traverse(TypyDictIterator* it, visitproc visit, void* arg)
+{
+	Py_VISIT(it->it_dict);
+	Py_VISIT(it->it_result);
+	return 0;
+}
+
+static PyObject* iter_NextKey(TypyDictIterator* it)
+{
+	assert(it != NULL);
+	TypyDict* dict = it->it_dict;
+	if (dict == NULL) { return NULL; }
+	if (it->it) {
+		register TypyDictMap entry = (TypyDictMap)it->it;
+		register PyObject* key = MetaKey_GET(dict->dict_type, &entry->key);
+		it->it_index++;
+		it->it = IblMap_Next(dict->dict_map, it->it);
+		return key;
+	}
+	it->it_dict = NULL;
+	Py_DECREF(dict);
+	return NULL;
+}
+
+static PyObject* iter_NextItem(TypyDictIterator* it)
+{
+	assert(it != NULL);
+	TypyDict* dict = it->it_dict;
+	if (dict == NULL) { return NULL; }
+	if (it->it) {
+		register TypyDictMap entry = (TypyDictMap)it->it;
+		register PyObject* key = MetaKey_GET(dict->dict_type, &entry->key);
+		if (key == NULL) { return NULL; }
+		register PyObject* value = MetaValue_GET(dict->dict_type, &entry->value);
+		if (value == NULL) { Py_DECREF(key); return NULL; }
+		PyObject* result = it->it_result;
+		if (result->ob_refcnt == 1) {
+			Py_INCREF(result);
+			Py_DECREF(PyTuple_GET_ITEM(result, 0));
+			Py_DECREF(PyTuple_GET_ITEM(result, 1));
+		} else {
+			result = PyTuple_New(2);
+			if (result == NULL) {
+				Py_DECREF(key);
+				Py_DECREF(value);
+				return NULL;
+			}
+		}
+		PyTuple_SET_ITEM(result, 0, key);
+		PyTuple_SET_ITEM(result, 1, value);
+		it->it = IblMap_Next(dict->dict_map, it->it);
+		it->it_index++;
+		return result;
+	}
+	it->it_dict = NULL;
+	Py_DECREF(dict);
+	return NULL;
+}
+
+PyMappingMethods TypyDict_MpMethods = {
+	(lenfunc)dict_Len,                /* mp_length        */
+	(binaryfunc)dict_Subscript,       /* mp_subscript     */
+	(objobjargproc)dict_AssSubscript, /* mp_ass_subscript */
+};
+
+PyMethodDef TypyDict_Methods[] = {
+	{ "__contains__", (PyCFunction)dict_Contains, METH_O,
+		"Tests whether a key is a member of the map." },
+	{ "clear", (PyCFunction)dict_Clear, METH_NOARGS,
+		"Removes all elements from the map." },
+	{ "get", (PyCFunction)dict_Get, METH_VARARGS,
+		"Get value or None." },
+	{ "keys", (PyCFunction)dict_Keys, METH_NOARGS,
+		"Get key list of the map." },
+	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,
+		"Iterator over the (key, value) items of the map." },
+	{ NULL, NULL }
+};
+
 PyTypeObject TypyDictType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".Dict",                 /* tp_name           */
@@ -219,7 +420,7 @@ PyTypeObject TypyDictType = {
 	0,                                        /* tp_repr           */
 	0,                                        /* tp_as_number      */
 	0,                                        /* tp_as_sequence    */
-	0,                                        /* tp_as_mapping     */
+	&TypyDict_MpMethods,                      /* tp_as_mapping     */
 	PyObject_HashNotImplemented,              /* tp_hash           */
 	0,                                        /* tp_call           */
 	0,                                        /* tp_str            */
@@ -228,4 +429,89 @@ PyTypeObject TypyDictType = {
 	0,                                        /* tp_as_buffer      */
 	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
 	"A Typy Dict",                            /* tp_doc            */
+	0,                                        /* tp_traverse       */
+	0,                                        /* tp_clear          */
+	0,                                        /* tp_richcompare    */
+	0,                                        /* tp_weaklistoffset */
+	(getiterfunc)dict_IterKey,                /* tp_iter           */
+	0,                                        /* tp_iternext       */
+	TypyDict_Methods,                         /* tp_methods        */
+	0,                                        /* tp_members        */
+	0,                                        /* tp_getset         */
+	0,                                        /* tp_base           */
+	0,                                        /* tp_dict           */
+	0,                                        /* tp_descr_get      */
+	0,                                        /* tp_descr_set      */
+	0,                                        /* tp_dictoffset     */
+	0,                                        /* tp_init           */
+};
+
+PyMethodDef TypyDict_IteratorMethods[] = {
+	{ "__length_hint__", (PyCFunction)iter_Len, METH_NOARGS,
+		"Private method returning an estimate of len(list(it))." },
+	{ NULL, NULL }
+};
+
+PyTypeObject TypyDictIterKeyType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	FULL_MODULE_NAME ".Dict.KeyIterator",            /* tp_name           */
+	sizeof(TypyDictIterator),                        /* tp_basicsize      */
+	0,                                               /* tp_itemsize       */
+	(destructor)iter_Dealloc,                        /* tp_dealloc        */
+	0,                                               /* tp_print          */
+	0,                                               /* tp_getattr        */
+	0,                                               /* tp_setattr        */
+	0,                                               /* tp_compare        */
+	0,                                               /* tp_repr           */
+	0,                                               /* tp_as_number      */
+	0,                                               /* tp_as_sequence    */
+	0,                                               /* tp_as_mapping     */
+	0,                                               /* tp_hash           */
+	0,                                               /* tp_call           */
+	0,                                               /* tp_str            */
+	PyObject_GenericGetAttr,                         /* tp_getattro       */
+	0,                                               /* tp_setattro       */
+	0,                                               /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	"A Typy Dict Key Iterator",                      /* tp_doc            */
+	(traverseproc)iter_Traverse,                     /* tp_traverse       */
+	0,                                               /* tp_clear          */
+	0,                                               /* tp_richcompare    */
+	0,                                               /* tp_weaklistoffset */
+	PyObject_SelfIter,                               /* tp_iter           */
+	(iternextfunc)iter_NextKey,                      /* tp_iternext       */
+	TypyDict_IteratorMethods,                        /* tp_methods        */
+	0,                                               /* tp_members        */
+};
+
+PyTypeObject TypyDictIterItemType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	FULL_MODULE_NAME ".Dict.ItemIterator",           /* tp_name           */
+	sizeof(TypyDictIterator),                        /* tp_basicsize      */
+	0,                                               /* tp_itemsize       */
+	(destructor)iter_Dealloc,                        /* tp_dealloc        */
+	0,                                               /* tp_print          */
+	0,                                               /* tp_getattr        */
+	0,                                               /* tp_setattr        */
+	0,                                               /* tp_compare        */
+	0,                                               /* tp_repr           */
+	0,                                               /* tp_as_number      */
+	0,                                               /* tp_as_sequence    */
+	0,                                               /* tp_as_mapping     */
+	0,                                               /* tp_hash           */
+	0,                                               /* tp_call           */
+	0,                                               /* tp_str            */
+	PyObject_GenericGetAttr,                         /* tp_getattro       */
+	0,                                               /* tp_setattro       */
+	0,                                               /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	"A Typy Dict Item Iterator",                     /* tp_doc            */
+	(traverseproc)iter_Traverse,                     /* tp_traverse       */
+	0,                                               /* tp_clear          */
+	0,                                               /* tp_richcompare    */
+	0,                                               /* tp_weaklistoffset */
+	PyObject_SelfIter,                               /* tp_iter           */
+	(iternextfunc)iter_NextItem,                     /* tp_iternext       */
+	TypyDict_IteratorMethods,                        /* tp_methods        */
+	0,                                               /* tp_members        */
 };

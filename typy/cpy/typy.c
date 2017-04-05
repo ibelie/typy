@@ -121,6 +121,23 @@ PyMODINIT_FUNC INITFUNC(void) {
 		return INITFUNC_ERRORVAL;
 	}
 
+	TypyDictType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyDictType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyMetaDictType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyMetaDictType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyDictIterKeyType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyDictIterKeyType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyDictIterItemType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyDictIterItemType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+
 	TypyVariantType.ob_type = &PyType_Type;
 	if (PyType_Ready(&TypyVariantType) < 0) {
 		return INITFUNC_ERRORVAL;
