@@ -12,7 +12,9 @@ PyObject* Typy_RegisterList(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyMetaList* type;
-	PyObject* descriptor = Py_None;
+	PyObject* descriptor;
+	PyObject* typy_type = NULL;
+	byte wire_type, field_type;
 	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptor)) {
 		return NULL;
 	}
@@ -26,7 +28,13 @@ PyObject* Typy_RegisterList(PyObject* m, PyObject* args) {
 	type->list_name[nameLen] = 0;
 	memcpy(type->list_name, name, nameLen);
 	PyObject_INIT(type, &TypyMetaListType);
-	/* todo: Typy_RegisterList */
+
+	if (!PyArg_ParseTuple(descriptor, "BB|O", &wire_type, &field_type, &typy_type)) {
+		free(type); return NULL;
+	}
+	type->list_desc.desc_type      = typy_type;
+	type->list_desc.desc_FieldType = field_type;
+	type->list_desc.desc_WireType  = wire_type;
 
 	return (PyObject*)type;
 }

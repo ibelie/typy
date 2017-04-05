@@ -17,9 +17,9 @@ IblMap_KEY_NUMERIC(TypyDictMap, TypyField,
 
 typedef struct {
 	PyObject_HEAD
-	TypyDescriptor key_descriptor;
-	TypyDescriptor value_descriptor;
-	char           dict_name[1];
+	TypyNestDesc key_desc;
+	TypyNestDesc value_desc;
+	char         dict_name[1];
 } TypyMetaDict;
 
 typedef struct {
@@ -32,8 +32,8 @@ extern PyTypeObject TypyDictType;
 extern PyTypeObject TypyMetaDictType;
 PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 
-#define MetaKey_DESC(m) ((m)->key_descriptor)
-#define MetaKey_TAG(m) (MetaKey_DESC(m).desc_tag)
+#define MetaKey_DESC(m) ((m)->key_desc)
+#define MetaKey_TAG(m) (MAKE_TAG(1, MetaKey_DESC(m).desc_WireType))
 #define MetaKey_FIELDTYPE(m) (MetaKey_DESC(m).desc_FieldType)
 #define MetaKey_TYPYTYPE(m) (MetaKey_DESC(m).desc_type)
 #define MetaKey_CLEAR(m, k) \
@@ -43,8 +43,8 @@ PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaKey_WRITE(m, k, o) \
 	(abstract_Write[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), MetaKey_TAG(m), (o)))
 
-#define MetaValue_DESC(m) ((m)->value_descriptor)
-#define MetaValue_TAG(m) (MetaValue_DESC(m).desc_tag)
+#define MetaValue_DESC(m) ((m)->value_desc)
+#define MetaValue_TAG(m) (MAKE_TAG(2, MetaValue_DESC(m).desc_WireType))
 #define MetaValue_FIELDTYPE(m) (MetaValue_DESC(m).desc_FieldType)
 #define MetaValue_TYPYTYPE(m) (MetaValue_DESC(m).desc_type)
 #define MetaValue_CLEAR(m, v) \

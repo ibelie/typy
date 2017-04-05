@@ -17,6 +17,7 @@ PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 		return NULL;
 	}
 	PyObject_INIT(object, type->py_type);
+	Typy_TYPE(object) = type;
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
 			if (PyObject_SetAttr(object, k, v) == -1) {
@@ -244,53 +245,14 @@ static PyMethodDef TypyNewDef = { "TypyNew", (PyCFunction)Typy_New, METH_VARARGS
 	"Create Object Type." };
 
 PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
-	char *name;
-	Py_ssize_t nameLen;
-	TypyMetaObject* type;
-	PyObject* descriptors = Py_None;
-	size_t meta_size = 1;
-	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptors)) {
-		return NULL;
-	}
-
-	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
-	type = (TypyMetaObject*)malloc(size);
-	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: MetaObject out of memory %d.", size);
-		return NULL;
-	}
-
-	type->py_type = TypyObjectType;
-	type->meta_size = meta_size;
-	Meta_NAME(type)[nameLen] = 0;
-	memcpy(Meta_NAME(type), name, nameLen);
-	PyObject_INIT(type, &TypyMetaObjectType);
-	/* todo: Typy_RegisterObject */
-	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
-	if (!type->meta_index2field) {
-		free(type);
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: index2field out of memory %d.", meta_size * sizeof(char*));
-		return NULL;
-	}
-	type->meta_field2index = TypyFieldMap_New();
-	if (!type->meta_field2index) {
-		free(type->meta_index2field);
-		free(type);
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Object: field2index out of memory.");
-		return NULL;
-	}
-
+	register TypyMetaObject* type = _Typy_RegisterMeta(args);
 	register PyCFunctionObject* meta_new = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
-	if (!meta_new) {
-		IblMap_Free(type->meta_field2index);
-		free(type->meta_index2field);
-		free(type);
-		return NULL;
-	}
+	if (!meta_new) { Py_DECREF(type); return NULL; }
 	meta_new->m_ml = &TypyNewDef;
 	meta_new->m_self = (PyObject*)type;
 	meta_new->m_module = NULL;
 	type->meta_new = (PyObject*)meta_new;
+	type->py_type = TypyObjectType;
 
 	return (PyObject*)type;
 }

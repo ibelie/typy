@@ -13,11 +13,11 @@ extern "C" {
 
 typedef struct {
 	PyObject_HEAD
-	TypyDescriptor list_descriptor;
-	char           list_name[1];
+	TypyNestDesc list_desc;
+	char         list_name[1];
 } TypyMetaList;
 
-#define MetaList_DESC(m) ((m)->list_descriptor)
+#define MetaList_DESC(m) ((m)->list_desc)
 #define MetaList_TYPYTYPE(m) (MetaList_DESC(m).desc_type)
 #define MetaList_FIELDTYPE(m) (MetaList_DESC(m).desc_FieldType)
 #define MetaList_CLEAR(m, f) \
@@ -56,14 +56,14 @@ extern PyTypeObject TypyMetaListType;
 PyObject* Typy_RegisterList(PyObject*, PyObject*);
 
 inline PyObject* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwargs) {
-	PyObject* list = (PyObject*)calloc(1, sizeof(TypyList));
+	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
 	if (!list) {
 		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc List: out of memory %d.", sizeof(TypyList));
 		return NULL;
 	}
 	PyObject_INIT(list, &TypyListType);
-	((TypyList*)list)->list_type = type;
-	return list;
+	list->list_type = type;
+	return (PyObject*)list;
 }
 
 inline TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {

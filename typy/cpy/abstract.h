@@ -31,6 +31,12 @@ typedef struct {
 	WireType      desc_WireType;
 } TypyDescriptor;
 
+typedef struct {
+	TypyType      desc_type;
+	byte          desc_FieldType;
+	WireType      desc_WireType;
+} TypyNestDesc;
+
 extern GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE];
 extern CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE];
 extern CopyFrom abstract_CopyFrom[MAX_FIELD_TYPE];

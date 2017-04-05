@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set(SOURCE_FILES
 	"${PROJECT_SOURCE_DIR}/main.c"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/abstract.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/dict.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/enum.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/extension.c"

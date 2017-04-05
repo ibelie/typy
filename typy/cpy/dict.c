@@ -12,9 +12,11 @@ PyObject* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyMetaDict* type;
-	PyObject* key_descriptor = Py_None;
-	PyObject* value_descriptor = Py_None;
-	if (!PyArg_ParseTuple(args, "s#OO", &name, &nameLen, &key_descriptor, &value_descriptor)) {
+	PyObject* key_desc;
+	PyObject* value_desc;
+	PyObject* typy_type;
+	byte wire_type, field_type;
+	if (!PyArg_ParseTuple(args, "s#OO", &name, &nameLen, &key_desc, &value_desc)) {
 		return NULL;
 	}
 
@@ -27,7 +29,22 @@ PyObject* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	type->dict_name[nameLen] = 0;
 	memcpy(type->dict_name, name, nameLen);
 	PyObject_INIT(type, &TypyMetaDictType);
-	/* todo: Typy_RegisterDict */
+
+	typy_type = NULL;
+	if (!PyArg_ParseTuple(key_desc, "BB|O", &wire_type, &field_type, &typy_type)) {
+		free(type); return NULL;
+	}
+	type->key_desc.desc_type      = typy_type;
+	type->key_desc.desc_FieldType = field_type;
+	type->key_desc.desc_WireType  = wire_type;
+
+	typy_type = NULL;
+	if (!PyArg_ParseTuple(value_desc, "BB|O", &wire_type, &field_type, &typy_type)) {
+		free(type); return NULL;
+	}
+	type->value_desc.desc_type      = typy_type;
+	type->value_desc.desc_FieldType = field_type;
+	type->value_desc.desc_WireType  = wire_type;
 
 	return (PyObject*)type;
 }

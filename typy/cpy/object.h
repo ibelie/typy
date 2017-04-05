@@ -90,6 +90,70 @@ PyObject* Typy_RegisterObject(PyObject*, PyObject*);
 #define Typy_READ(ob, i, s, l) \
 	(abstract_Read[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
 
+inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
+	char *name;
+	Py_ssize_t nameLen;
+	PyObject* descriptors;
+	Py_ssize_t i, meta_size;
+	PyObject* typy_type;
+	byte tagsize, wire_type, field_type;
+	uint32 tag;
+
+	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptors)) {
+		return NULL;
+	} else if (!PySequence_Check(descriptors)) {
+		FormatTypeError(descriptors, "RegisterMeta descriptors expect sequence type, but ");
+		return NULL;
+	} else if ((meta_size = PySequence_Size(descriptors)) < 0) {
+		FormatTypeError(descriptors, "RegisterMeta descriptors cannot get sequence size, and ");
+		return NULL;
+	}
+
+	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
+	register TypyMetaObject* type = (TypyMetaObject*)malloc(size);
+	if (!type) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: MetaObject out of memory %d.", size);
+		return NULL;
+	}
+
+	type->meta_size = meta_size;
+	Meta_NAME(type)[nameLen] = 0;
+	memcpy(Meta_NAME(type), name, nameLen);
+	PyObject_INIT(type, &TypyMetaObjectType);
+	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
+	if (!type->meta_index2field) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: index2field out of memory %d.", meta_size * sizeof(char*));
+		Py_DECREF(type); return NULL;
+	}
+	type->meta_field2index = TypyFieldMap_New();
+	if (!type->meta_field2index) {
+		PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: field2index out of memory.");
+		Py_DECREF(type); return NULL;
+	}
+
+	for (i = 0; i < meta_size; i++) {
+		register PyObject* item = PySequence_GetItem(descriptors, i);
+		typy_type = NULL;
+		if (!PyArg_ParseTuple(item, "s#IBBB|O", &name, &nameLen, &tag, &tagsize, &wire_type, &field_type, &typy_type)) {
+			Py_DECREF(type); return NULL;
+		}
+		type->meta_descriptor[i].desc_tag       = tag;
+		type->meta_descriptor[i].desc_tagsize   = tagsize;
+		type->meta_descriptor[i].desc_WireType  = wire_type;
+		type->meta_descriptor[i].desc_FieldType = field_type;
+		type->meta_descriptor[i].desc_type      = typy_type;
+		register TypyFieldMap field = (TypyFieldMap)IblMap_Set(type->meta_field2index, &name);
+		if (!field) {
+			PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: cannot set field2index.");
+			Py_DECREF(type); return NULL;
+		}
+		field->index = i;
+		type->meta_index2field[i] = field->key;
+	}
+
+	return type;
+}
+
 inline void Typy_Clear(TypyObject* self) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {

@@ -9,55 +9,22 @@ extern "C" {
 #endif
 
 PyObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
-	char *name;
-	Py_ssize_t nameLen;
-	TypyMetaObject* type;
-	PyObject* descriptors = Py_None;
-	size_t meta_size = 1;
-	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptors)) {
-		return NULL;
-	}
-
-	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
-	type = (TypyMetaObject*)malloc(size);
-	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: MetaObject out of memory %d.", size);
-		return NULL;
-	}
-
-	type->py_type = NULL;
+	register TypyMetaObject* type = _Typy_RegisterMeta(args);
 	type->meta_new = NULL;
-	type->meta_size = meta_size;
-	Meta_NAME(type)[nameLen] = 0;
-	memcpy(Meta_NAME(type), name, nameLen);
-	PyObject_INIT(type, &TypyMetaVariantType);
-	/* todo: Typy_RegisterVariant */
-	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
-	if (!type->meta_index2field) {
-		free(type);
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: index2field out of memory %d.", meta_size * sizeof(char*));
-		return NULL;
-	}
-	type->meta_field2index = TypyFieldMap_New();
-	if (!type->meta_field2index) {
-		free(type->meta_index2field);
-		free(type);
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Variant: field2index out of memory.");
-		return NULL;
-	}
-
+	type->py_type = NULL;
 	return (PyObject*)type;
 }
 
 PyObject* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
-	PyObject* variant = (PyObject*)calloc(1, sizeof(TypyVariant));
+	TypyVariant* variant = (TypyVariant*)calloc(1, sizeof(TypyVariant));
 	if (!variant) {
 		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc Variant: out of memory %d.", sizeof(TypyVariant));
 		return NULL;
 	}
 	PyObject_INIT(variant, &TypyVariantType);
-	((TypyVariant*)variant)->variant_index = -1;
-	return variant;
+	variant->meta_type = type;
+	variant->variant_index = -1;
+	return (PyObject*)variant;
 }
 
 PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {

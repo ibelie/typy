@@ -9,9 +9,13 @@ int main()
 	init_typyd();
 	PyRun_SimpleString(
 "import sys\n"
+"sys.path.append('E:/test/typy')\n"
 "sys.path.append('E:/test/typy/test')\n"
+"sys.path.append('C:/Users/joung/Documents/project/typy')\n"
 "sys.path.append('C:/Users/joung/Documents/project/typy/test')\n"
-"import _typy\n"
+"import build_test\n"
+"build_test.setup()\n"
+"build_test.test_cpy()\n"
 );
 	Py_Finalize();
 	getchar();
