@@ -42,6 +42,8 @@ PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 	(abstract_ByteSize[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), 1))
 #define MetaKey_WRITE(m, k, o) \
 	(abstract_Write[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), MetaKey_TAG(m), (o)))
+#define MetaKey_CHECKSET(m, l, r, e) \
+	(abstract_CheckAndSet[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (l), (r), (e)))
 
 #define MetaValue_DESC(m) ((m)->value_desc)
 #define MetaValue_TAG(m) (MAKE_TAG(2, MetaValue_DESC(m).desc_WireType))
@@ -53,6 +55,8 @@ PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 	(abstract_ByteSize[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
 #define MetaValue_WRITE(m, v, o) \
 	(abstract_Write[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), MetaValue_TAG(m), (o)))
+#define MetaValue_CHECKSET(m, l, r, e) \
+	(abstract_CheckAndSet[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r), (e)))
 
 #define MetaDict_DESC(m, i) (i ? MetaValue_DESC(m) : MetaKey_DESC(m))
 #define MetaDict_FIELDTYPE(m, i) (MetaDict_DESC(m, i).desc_FieldType)
@@ -93,14 +97,37 @@ inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
 #define TypyDict_Clear(ob) MetaDict_Clear((ob)->dict_type, (ob))
 #define TypyDict_TYPE(ob) (((TypyDict*)(ob))->dict_type)
 
-inline bool TypyDict_CheckAndSetDict(TypyMetaDict* type, TypyDict* self, PyObject* value) {
-	/* todo: TypyDict_CheckAndSetDict */
-	return false;
+inline int MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject* key, PyObject* value) {
+	TypyField k = 0;
+	if (!MetaKey_CHECKSET(type, &k, key, "Dict key type error: ")) {
+		return -1;
+	}
+	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
+	if (!entry) { return -1; }
+	return MetaValue_CHECKSET(type, &entry->value, value, "Dict value type error: ") ? 0 : -1;
 }
 
-inline bool TypyDict_CheckAndSetItems(TypyMetaDict* type, TypyDict* self, PyObject* items) {
-	/* todo: TypyDict_CheckAndSetDict */
-	return false;
+inline bool MetaDict_CheckAndSetDict(TypyMetaDict* type, TypyDict* self, PyObject* value) {
+	PyObject *k, *v;
+	Py_ssize_t pos = 0;
+	MetaDict_Clear(type, self);
+	while (PyDict_Next(value, &pos, &k, &v)) {
+		if (MetaDict_SetItem(type, self, k, v) == -1) {
+			return false;
+		}
+	}
+	return true;
+}
+
+inline bool MetaDict_CheckAndSetItems(TypyMetaDict* type, TypyDict* self, PyObject* items) {
+	Py_ssize_t i;
+	for (i = 0; i < PySequence_Size(items); i++) {
+		PyObject* item = PySequence_GetItem(items, i);
+		if (MetaDict_SetItem(type, self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 0)) == -1) {
+			return false;
+		}
+	}
+	return true;
 }
 
 PyObject* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);

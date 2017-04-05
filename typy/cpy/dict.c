@@ -80,10 +80,10 @@ bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, c
 		return true;
 	} else if (PyDict_Check(arg)) {
 		TypyDict_FromValueOrNew(self, value, type, false);
-		return TypyDict_CheckAndSetDict(type, self, arg);
+		return MetaDict_CheckAndSetDict(type, self, arg);
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
 		TypyDict_FromValueOrNew(self, value, type, false);
-		register bool success = TypyDict_CheckAndSetItems(type, self, items);
+		register bool success = MetaDict_CheckAndSetItems(type, self, items);
 		Py_DECREF(items);
 		return success;
 	} else {
