@@ -20,15 +20,15 @@ typedef struct {
 
 extern PyTypeObject TypyVariantType;
 extern PyTypeObject TypyMetaVariantType;
-PyObject* Typy_RegisterVariant(PyObject*, PyObject*);
+TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 
-PyObject* TypyVariant_New          (TypyMetaObject*, PyObject*, PyObject*);
-PyObject* TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
-size_t    TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
-size_t    TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
-bool      TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
-bool      TypyVariant_CheckAndSet  (TypyMetaObject*, TypyVariant**, PyObject*, const char*);
-void      TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);
+TypyVariant* TypyVariant_New          (TypyMetaObject*, PyObject*, PyObject*);
+PyObject*    TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
+size_t       TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
+size_t       TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
+bool         TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
+bool         TypyVariant_CheckAndSet  (TypyMetaObject*, TypyVariant**, PyObject*, const char*);
+void         TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);
 
 inline void TypyVariant_Clear(TypyVariant* self) {
 	register int i = self->variant_index;

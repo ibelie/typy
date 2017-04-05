@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-PyObject* Typy_RegisterList(PyObject* m, PyObject* args) {
+TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyMetaList* type;
@@ -21,7 +21,7 @@ PyObject* Typy_RegisterList(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register List: MetaList out of memory %d.", sizeof(TypyMetaList) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register List: MetaList out of memory %d.", sizeof(TypyMetaList) + nameLen);
 		return NULL;
 	}
 
@@ -36,7 +36,7 @@ PyObject* Typy_RegisterList(PyObject* m, PyObject* args) {
 	type->list_desc.desc_FieldType = field_type;
 	type->list_desc.desc_WireType  = wire_type;
 
-	return (PyObject*)type;
+	return type;
 }
 
 static void MetaList_Dealloc(TypyMetaList* type) {
@@ -51,10 +51,10 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 		*(v) = s;                                   \
 	}
 
-PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
+TypyList* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
 	TypyList_FromValueOrNew(self, value, type, NULL);
 	Py_INCREF(self);
-	return (PyObject*)self;
+	return self;
 }
 
 bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
@@ -191,6 +191,316 @@ PyTypeObject TypyMetaListType = {
 	"The Typy List Metaclass",               /* tp_doc            */
 };
 
+//=============================================================================
+
+static PyObject* list_Append(TypyList* self, PyObject* item) {
+	register TypyField* offset = TypyList_EnsureSize(self, 1);
+	if (!offset) { return NULL; }
+	if (!MetaList_CHECKSET(self->list_type, offset, item, "List item type error: ")) {
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
+
+static Py_ssize_t list_Len(TypyList* self) {
+	return self->list_size;
+}
+
+static PyObject* list_Item(TypyList* self, Py_ssize_t index) {
+	if (index < 0) {
+		index = self->list_size + index;
+	}
+	if (index < 0 || (size_t)index >= self->list_size) {
+		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_size);
+		return NULL;
+	}
+	return MetaList_GET(self->list_type, &self->list_items[index]);
+}
+
+static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
+	if (index < 0) {
+		index = self->list_size + index;
+	}
+	if (index < 0 || (size_t)index >= self->list_size) {
+		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_size);
+		return -1;
+	}
+	return MetaList_CHECKSET(self->list_type, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;
+}
+
+static PyObject* list_Extend(TypyList* self, PyObject* value) {
+	if (value == Py_None || (!Py_TYPE(value)->tp_as_sequence && PyObject_Not(value))) {
+		Py_RETURN_NONE;
+	}
+	register PyObject* iter = PyObject_GetIter(value);
+	if (!iter) {
+		PyErr_SetString(PyExc_TypeError, "Value must be iterable");
+		return NULL;
+	}
+	register PyObject* next;
+	while (next = PyIter_Next(iter)) {
+		register TypyField* offset = TypyList_EnsureSize(self, 1);
+		if (!offset) { goto list_extend_fail; }
+		if (!MetaList_CHECKSET(self->list_type, offset, next, "List item type error: ")) {
+			goto list_extend_fail;
+		}
+		Py_DECREF(next);
+	}
+	Py_DECREF(iter);
+	Py_RETURN_NONE;
+
+list_extend_fail:
+	Py_DECREF(iter);
+	Py_XDECREF(next);
+	return NULL;
+}
+
+static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
+	Py_ssize_t from;
+	Py_ssize_t to;
+	Py_ssize_t step;
+	Py_ssize_t length;
+	Py_ssize_t slicelength;
+	bool return_list = false;
+#if PY_MAJOR_VERSION < 3
+	if (PyInt_Check(slice)) {
+		from = to = PyInt_AsLong(slice);
+	} else  /* NOLINT */
+#endif
+	if (PyLong_Check(slice)) {
+		from = to = PyLong_AsLong(slice);
+	} else if (PySlice_Check(slice)) {
+		length = self->list_length;
+#if PY_MAJOR_VERSION >= 3
+		if (PySlice_GetIndicesEx(slice,
+#else
+		if (PySlice_GetIndicesEx((PySliceObject*)slice,
+#endif
+				length, &from, &to, &step, &slicelength) == -1) {
+			return NULL;
+		}
+		return_list = true;
+	} else {
+		PyErr_SetString(PyExc_TypeError, "list indices must be integers");
+		return NULL;
+	}
+
+	if (!return_list) {
+		return list_Item(self, from);
+	}
+
+	PyObject* list = PyList_New(0);
+	if (list == NULL) {
+		return NULL;
+	}
+	if (from <= to) {
+		if (step < 0) {
+			return list;
+		}
+		for (Py_ssize_t index = from; index < to; index += step) {
+			if (index < 0 || index >= length) {
+				break;
+			}
+			register PyObject* s = list_Item(self, index);
+			PyList_Append(list, s);
+			Py_XDECREF(s);
+		}
+	} else {
+		if (step > 0) {
+			return list;
+		}
+		for (Py_ssize_t index = from; index > to; index += step) {
+			if (index < 0 || index >= length) {
+				break;
+			}
+			register PyObject* s = list_Item(self, index);
+			PyList_Append(list, s);
+			Py_XDECREF(s);
+		}
+	}
+	return list;
+}
+
+static int list_AssSubscript(TypyList* self, PyObject* slice, PyObject* value) {
+	Py_ssize_t from;
+	Py_ssize_t to;
+	Py_ssize_t step;
+	Py_ssize_t length;
+	Py_ssize_t slicelength;
+	bool create_list = false;
+
+#if PY_MAJOR_VERSION < 3
+	if (PyInt_Check(slice)) {
+		from = to = PyInt_AsLong(slice);
+	} else  /* NOLINT */
+#endif
+	if (PyLong_Check(slice)) {
+		from = to = PyLong_AsLong(slice);
+	} else if (PySlice_Check(slice)) {
+		length = self->list_length;
+#if PY_MAJOR_VERSION >= 3
+		if (PySlice_GetIndicesEx(slice,
+#else
+		if (PySlice_GetIndicesEx((PySliceObject*)slice,
+#endif
+				length, &from, &to, &step, &slicelength) == -1) {
+			return -1;
+		}
+		create_list = true;
+	} else {
+		PyErr_SetString(PyExc_TypeError, "list indices must be integers");
+		return -1;
+	}
+
+	if (!create_list) {
+		return list_AssignItem(self, from, value);
+	}
+
+	register PyObject* full_slice = PySlice_New(NULL, NULL, NULL);
+	register PyObject* new_list = list_Subscript(self, full_slice);
+	if (PySequence_SetSlice(new_list, from, to, value) < 0) {
+		goto list_asssubscript_fail;
+	} else if (!MetaList_CheckAndSetList(self->list_type, self, new_list)) {
+		goto list_asssubscript_fail;
+	}
+	Py_XDECREF(full_slice);
+	Py_XDECREF(new_list);
+	return 0;
+
+list_asssubscript_fail:
+	Py_XDECREF(full_slice);
+	Py_XDECREF(new_list);
+	return -1;
+}
+
+static PyObject* list_Insert(TypyList* self, PyObject* args) {
+	Py_ssize_t i, index;
+	PyObject* value;
+	if (!PyArg_ParseTuple(args, "lO", &index, &value)) {
+		return NULL;
+	}
+	if (!TypyList_EnsureSize(self, 1)) { return NULL; }
+	for (i = self->list_length - 1; i > index; i--) {
+		self->list_items[i] = self->list_items[i - 1];
+	}
+	if (!MetaList_CHECKSET(self->list_type, &self->list_items[index], value, "List item type error: ")) {
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
+
+static PyObject* list_Remove(TypyList* self, PyObject* value) {
+	register size_t i;
+	for (i = 0; i < self->list_length; i++) {
+		register PyObject* item = MetaList_GET(self->list_type, &self->list_items[i]);
+		register int eq = PyObject_RichCompareBool(item, value, Py_EQ);
+		Py_XDECREF(item);
+		if (eq) { break; }
+	}
+	if (i == self->list_length) {
+		PyErr_SetString(PyExc_ValueError, "remove(x): x not in container");
+		return NULL;
+	}
+	MetaList_CLEAR(self->list_type, &self->list_items[i]);
+	for (; i < self->list_length - 1; i++) {
+		self->list_items[i] = self->list_items[i + 1];
+	}
+	self->list_length--;
+	Py_RETURN_NONE;
+}
+
+static PyObject* list_Pop(TypyList* self, PyObject* args) {
+	Py_ssize_t i = -1;
+	if (!PyArg_ParseTuple(args, "|n", &i)) {
+		return NULL;
+	} else if (i < 0 || (size_t)i >= self->list_length) {
+		PyErr_SetString(PyExc_ValueError, "pop(i): i not in container");
+		return NULL;
+	}
+	register PyObject* item = MetaList_GET(self->list_type, &self->list_items[i]);
+	MetaList_CLEAR(self->list_type, &self->list_items[i]);
+	for (; (size_t)i < self->list_length - 1; i++) {
+		self->list_items[i] = self->list_items[i + 1];
+	}
+	self->list_length--;
+	return item;
+}
+
+//=============================================================================
+
+static TypyListIterator* list_Iter(TypyList* self) {
+	TypyListIterator* it = (TypyListIterator*) PyType_GenericAlloc(&TypyListIteratorType, 0);
+	if (it == NULL) { return NULL; }
+	it->it_index = 0;
+	Py_INCREF(self);
+	it->it_seq = self;
+	return it;
+}
+
+static void iter_Dealloc(TypyListIterator* it)
+{
+	Py_XDECREF(it->it_seq);
+	Py_TYPE(it)->tp_free(it);
+}
+
+static PyObject* iter_Len(TypyListIterator* it)
+{
+	Py_ssize_t len;
+	if (it->it_seq) {
+		len = it->it_seq->list_length - it->it_index;
+		if (len >= 0) { return PyInt_FromSsize_t(len); }
+	}
+	return PyInt_FromLong(0);
+}
+
+static int iter_Traverse(TypyListIterator* it, visitproc visit, void* arg)
+{
+	Py_VISIT(it->it_seq);
+	return 0;
+}
+
+static PyObject* iter_Next(TypyListIterator* it)
+{
+	assert(it != NULL);
+	TypyList* seq = it->it_seq;
+	if (seq == NULL) { return NULL; }
+	if (it->it_index < seq->list_length) {
+		return list_Item(seq, it->it_index++);
+	}
+	it->it_seq = NULL;
+	Py_DECREF(seq);
+	return NULL;
+}
+
+static PySequenceMethods TypyList_SqMethods = {
+	(lenfunc)list_Len,                /* sq_length   */
+	0,                                /* sq_concat   */
+	0,                                /* sq_repeat   */
+	(ssizeargfunc)list_Item,          /* sq_item     */
+	0,                                /* sq_slice    */
+	(ssizeobjargproc)list_AssignItem, /* sq_ass_item */
+};
+
+static PyMappingMethods TypyList_MpMethods = {
+	(lenfunc)list_Len,                /* mp_length        */
+	(binaryfunc)list_Subscript,       /* mp_subscript     */
+	(objobjargproc)list_AssSubscript, /* mp_ass_subscript */
+};
+
+static PyMethodDef TypyList_Methods[] = {
+	{ "append", (PyCFunction)list_Append, METH_O,
+		"Appends an object to the list." },
+	{ "extend", (PyCFunction)list_Extend, METH_O,
+		"Appends objects to the list." },
+	{ "insert", (PyCFunction)list_Insert, METH_VARARGS,
+		"Appends objects to the list." },
+	{ "pop", (PyCFunction)list_Pop, METH_VARARGS,
+		"Removes an object from the list and returns it." },
+	{ "remove", (PyCFunction)list_Remove, METH_O,
+		"Removes an object from the list." },
+	{ NULL, NULL }
+};
+
 PyTypeObject TypyListType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".List",                 /* tp_name           */
@@ -203,8 +513,8 @@ PyTypeObject TypyListType = {
 	0,                                        /* tp_compare        */
 	0,                                        /* tp_repr           */
 	0,                                        /* tp_as_number      */
-	0,                                        /* tp_as_sequence    */
-	0,                                        /* tp_as_mapping     */
+	&TypyList_SqMethods,                      /* tp_as_sequence    */
+	&TypyList_MpMethods,                      /* tp_as_mapping     */
 	PyObject_HashNotImplemented,              /* tp_hash           */
 	0,                                        /* tp_call           */
 	0,                                        /* tp_str            */
@@ -213,4 +523,57 @@ PyTypeObject TypyListType = {
 	0,                                        /* tp_as_buffer      */
 	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
 	"A Typy List",                            /* tp_doc            */
+	0,                                        /* tp_traverse       */
+	0,                                        /* tp_clear          */
+	0,                                        /* tp_richcompare    */
+	0,                                        /* tp_weaklistoffset */
+	(getiterfunc)list_Iter,                   /* tp_iter           */
+	0,                                        /* tp_iternext       */
+	TypyList_Methods,                         /* tp_methods        */
+	0,                                        /* tp_members        */
+	0,                                        /* tp_getset         */
+	0,                                        /* tp_base           */
+	0,                                        /* tp_dict           */
+	0,                                        /* tp_descr_get      */
+	0,                                        /* tp_descr_set      */
+	0,                                        /* tp_dictoffset     */
+	0,                                        /* tp_init           */
+};
+
+PyMethodDef TypyList_IteratorMethods[] = {
+	{ "__length_hint__", (PyCFunction)iter_Len, METH_NOARGS,
+		"Private method returning an estimate of len(list(it))." },
+	{ NULL, NULL }
+};
+
+PyTypeObject TypyListIteratorType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	FULL_MODULE_NAME ".List.Iterator",            /* tp_name           */
+	sizeof(TypyListIterator),                     /* tp_basicsize      */
+	0,                                            /* tp_itemsize       */
+	(destructor)iter_Dealloc,                     /* tp_dealloc        */
+	0,                                            /* tp_print          */
+	0,                                            /* tp_getattr        */
+	0,                                            /* tp_setattr        */
+	0,                                            /* tp_compare        */
+	0,                                            /* tp_repr           */
+	0,                                            /* tp_as_number      */
+	0,                                            /* tp_as_sequence    */
+	0,                                            /* tp_as_mapping     */
+	0,                                            /* tp_hash           */
+	0,                                            /* tp_call           */
+	0,                                            /* tp_str            */
+	PyObject_GenericGetAttr,                      /* tp_getattro       */
+	0,                                            /* tp_setattro       */
+	0,                                            /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,                           /* tp_flags          */
+	"A Typy List Iterator",                       /* tp_doc            */
+	(traverseproc)iter_Traverse,                  /* tp_traverse       */
+	0,                                            /* tp_clear          */
+	0,                                            /* tp_richcompare    */
+	0,                                            /* tp_weaklistoffset */
+	PyObject_SelfIter,                            /* tp_iter           */
+	(iternextfunc)iter_Next,                      /* tp_iternext       */
+	TypyList_IteratorMethods,                     /* tp_methods        */
+	0,                                            /* tp_members        */
 };

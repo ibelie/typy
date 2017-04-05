@@ -60,7 +60,7 @@ extern PyTypeObject* TypyObjectType;
 inline PyTypeObject* _InheritTypyObjectType() {
 	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Inherit TypyObjectType: out of memory %d.", sizeof(PyTypeObject));
+		PyErr_Format(PyExc_RuntimeError, "Inherit TypyObjectType: out of memory %d.", sizeof(PyTypeObject));
 		return NULL;
 	}
 	memcpy(type, &BaseTypyObjectType, sizeof(PyTypeObject));
@@ -72,7 +72,7 @@ inline PyTypeObject* _InheritTypyObjectType() {
 	return type;
 }
 
-PyObject* Typy_RegisterObject(PyObject*, PyObject*);
+TypyMetaObject* Typy_RegisterObject(PyObject*, PyObject*);
 
 #define Typy_TYPE(ob) (((TypyObject*)(ob))->meta_type)
 #define Typy_SIZE(ob) (Typy_TYPE(ob)->meta_size)
@@ -125,7 +125,7 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
 	register TypyMetaObject* type = (TypyMetaObject*)malloc(size);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: MetaObject out of memory %d.", size);
+		PyErr_Format(PyExc_RuntimeError, "RegisterMeta: MetaObject out of memory %d.", size);
 		return NULL;
 	}
 
@@ -135,12 +135,12 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	PyObject_INIT(type, &TypyMetaObjectType);
 	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
 	if (!type->meta_index2field) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: index2field out of memory %d.", meta_size * sizeof(char*));
+		PyErr_Format(PyExc_RuntimeError, "RegisterMeta: index2field out of memory %d.", meta_size * sizeof(char*));
 		Py_DECREF(type); return NULL;
 	}
 	type->meta_field2index = TypyFieldMap_New();
 	if (!type->meta_field2index) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: field2index out of memory.");
+		PyErr_Format(PyExc_RuntimeError, "RegisterMeta: field2index out of memory.");
 		Py_DECREF(type); return NULL;
 	}
 
@@ -157,7 +157,7 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		type->meta_descriptor[i].desc_type      = typy_type;
 		register TypyFieldMap field = (TypyFieldMap)IblMap_Set(type->meta_field2index, &name);
 		if (!field) {
-			PyErr_Format(PyExc_RuntimeError, "[typyd] RegisterMeta: cannot set field2index.");
+			PyErr_Format(PyExc_RuntimeError, "RegisterMeta: cannot set field2index.");
 			Py_DECREF(type); return NULL;
 		}
 		field->index = i;
@@ -299,19 +299,19 @@ inline int Typy_SetAttr(TypyObject* self, PyObject* arg, PyObject* value) {
 	return PyObject_GenericSetAttr((PyObject*)self, arg, value);
 }
 
-PyObject* Typy_New               (TypyMetaObject*, PyObject*, PyObject*);
-size_t    TypyObject_ByteSize    (TypyMetaObject*, TypyObject**, int);
-size_t    TypyObject_Write       (TypyMetaObject*, TypyObject**, int, byte*);
-bool      TypyObject_Read        (TypyMetaObject*, TypyObject**, byte**, size_t*);
-bool      TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, const char*);
-void      TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
+TypyObject* Typy_New               (TypyMetaObject*, PyObject*, PyObject*);
+size_t      TypyObject_ByteSize    (TypyMetaObject*, TypyObject**, int);
+size_t      TypyObject_Write       (TypyMetaObject*, TypyObject**, int, byte*);
+bool        TypyObject_Read        (TypyMetaObject*, TypyObject**, byte**, size_t*);
+bool        TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, const char*);
+void        TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
 
-PyObject* Py_CopyFrom            (TypyObject*, PyObject*);
-PyObject* Py_MergeFrom           (TypyObject*, PyObject*);
-PyObject* Py_SerializeString     (TypyObject*);
-PyObject* Py_MergeFromString     (TypyObject*, PyObject*);
-PyObject* Py_DeserializeProperty (TypyObject*, PyObject*);
-PyObject* Py_SerializeProperty   (TypyObject*, PyObject*);
+PyObject*   Py_CopyFrom            (TypyObject*, PyObject*);
+PyObject*   Py_MergeFrom           (TypyObject*, PyObject*);
+PyObject*   Py_SerializeString     (TypyObject*);
+PyObject*   Py_MergeFromString     (TypyObject*, PyObject*);
+PyObject*   Py_DeserializeProperty (TypyObject*, PyObject*);
+PyObject*   Py_SerializeProperty   (TypyObject*, PyObject*);
 
 inline PyObject* Py_Clear(TypyObject* self) { Typy_Clear(self); Py_RETURN_NONE; }
 inline PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) { Typy_Clear(self); return Py_MergeFromString(self, arg); }

@@ -18,7 +18,7 @@ typedef struct {
 } TypyPython;
 
 extern PyTypeObject TypyPythonType;
-PyObject* Typy_RegisterPython(PyObject*, PyObject*);
+TypyPython* Typy_RegisterPython(PyObject*, PyObject*);
 
 bool   TypyPython_CheckAndSet (TypyPython*, PyObject**, PyObject*, const char*);
 bool   TypyPython_Read        (TypyPython*, PyObject**, byte**, size_t*);

@@ -108,6 +108,19 @@ PyMODINIT_FUNC INITFUNC(void) {
 		return INITFUNC_ERRORVAL;
 	}
 
+	TypyListType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyListType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyMetaListType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyMetaListType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+	TypyListIteratorType.ob_type = &PyType_Type;
+	if (PyType_Ready(&TypyListIteratorType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
+
 	TypyVariantType.ob_type = &PyType_Type;
 	if (PyType_Ready(&TypyVariantType) < 0) {
 		return INITFUNC_ERRORVAL;

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
+TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 	uint8 precision;
 	int32 _floor;
 	TypyFixedPoint* type;
@@ -18,7 +18,7 @@ PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 
 	type = (TypyFixedPoint*)malloc(sizeof(TypyFixedPoint));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register FixedPoint: out of memory %d.", sizeof(TypyFixedPoint));
+		PyErr_Format(PyExc_RuntimeError, "Register FixedPoint: out of memory %d.", sizeof(TypyFixedPoint));
 		return NULL;
 	}
 
@@ -26,7 +26,7 @@ PyObject* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 	type->fixedpoint_floor = _floor;
 	PyObject_INIT(type, &TypyFixedPointType);
 
-	return (PyObject*)type;
+	return type;
 }
 
 PyObject* TypyFixedPoint_GetPyObject(TypyFixedPoint* type, TypyField* value) {

@@ -8,19 +8,19 @@
 extern "C" {
 #endif
 
-PyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
+TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
-	PyObject* object = (PyObject*)calloc(1, sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+	TypyObject* object = (TypyObject*)calloc(1, sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 	if (!object) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc Object: out of memory %d.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+		PyErr_Format(PyExc_RuntimeError, "Alloc Object: out of memory %d.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 		return NULL;
 	}
 	PyObject_INIT(object, type->py_type);
 	Typy_TYPE(object) = type;
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
-			if (PyObject_SetAttr(object, k, v) == -1) {
+			if (PyObject_SetAttr((PyObject*)object, k, v) == -1) {
 				break;
 			}
 		}
@@ -244,7 +244,7 @@ static PyObject* MetaObject_Repr(TypyMetaObject* type) {
 static PyMethodDef TypyNewDef = { "TypyNew", (PyCFunction)Typy_New, METH_VARARGS | METH_KEYWORDS,
 	"Create Object Type." };
 
-PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
+TypyMetaObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
 	register PyCFunctionObject* meta_new = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
 	if (!meta_new) { Py_DECREF(type); return NULL; }
@@ -254,7 +254,7 @@ PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	type->meta_new = (PyObject*)meta_new;
 	type->py_type = TypyObjectType;
 
-	return (PyObject*)type;
+	return type;
 }
 
 PyTypeObject TypyMetaObjectType = {

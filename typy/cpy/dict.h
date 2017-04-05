@@ -30,7 +30,7 @@ typedef struct {
 
 extern PyTypeObject TypyDictType;
 extern PyTypeObject TypyMetaDictType;
-PyObject* Typy_RegisterDict(PyObject*, PyObject*);
+TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 
 #define MetaKey_DESC(m) ((m)->key_desc)
 #define MetaKey_TAG(m) (MAKE_TAG(1, MetaKey_DESC(m).desc_WireType))
@@ -67,21 +67,21 @@ PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaDict_MERGEFROM(m, l, r) \
 	(abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 
-inline PyObject* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwargs) {
+inline TypyDict* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwargs) {
 	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
 	if (!dict) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc Dict: out of memory %d.", sizeof(TypyDict));
+		PyErr_Format(PyExc_RuntimeError, "Alloc Dict: out of memory %d.", sizeof(TypyDict));
 		return NULL;
 	}
 	dict->dict_map = TypyDictMap_New();
 	if (!dict->dict_map) {
 		free(dict);
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Alloc Dict: map out of memory.");
+		PyErr_Format(PyExc_RuntimeError, "Alloc Dict: map out of memory.");
 		return NULL;
 	}
 	PyObject_INIT(dict, &TypyDictType);
 	dict->dict_type = type;
-	return (PyObject*)dict;
+	return dict;
 }
 
 inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
@@ -131,7 +131,7 @@ inline bool MetaDict_CheckAndSetItems(TypyMetaDict* type, TypyDict* self, PyObje
 	return true;
 }
 
-PyObject* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
+TypyDict* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
 bool      TypyDict_CheckAndSet (TypyMetaDict*, TypyDict**, PyObject*, const char*);
 bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);
 void      TypyDict_MergeFrom   (TypyMetaDict*, TypyDict**, TypyDict*);

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-PyObject* Typy_RegisterPython(PyObject* m, PyObject* args) {
+TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyPython* type;
@@ -18,7 +18,7 @@ PyObject* Typy_RegisterPython(PyObject* m, PyObject* args) {
 
 	type = (TypyPython*)malloc(sizeof(TypyPython) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Python: out of memory %d.", sizeof(TypyPython) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Python: out of memory %d.", sizeof(TypyPython) + nameLen);
 		return NULL;
 	}
 
@@ -27,7 +27,7 @@ PyObject* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	memcpy(type->python_name, name, nameLen);
 	PyObject_INIT(type, &TypyPythonType);
 
-	return (PyObject*)type;
+	return type;
 }
 
 bool TypyPython_CheckAndSet(TypyPython* type, PyObject** value, PyObject* arg, const char* err) {
@@ -86,7 +86,7 @@ size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 	return tagsize + IblSizeVarint(size) + size;
 }
 
-static PyObject* TypyPython_Initialize(TypyPython* type, PyObject* args) {
+static TypyPython* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 	PyObject* python_type = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &python_type)) {
 		Py_XDECREF(type->python_type);
@@ -94,7 +94,7 @@ static PyObject* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 		type->python_type = (PyTypeObject*)python_type;
 	}
 	Py_INCREF(type);
-	return (PyObject*)type;
+	return type;
 }
 
 void TypyPython_Dealloc(TypyPython* type) {

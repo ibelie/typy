@@ -18,7 +18,7 @@ typedef struct {
 } TypyEnum;
 
 extern PyTypeObject TypyEnumType;
-PyObject* Typy_RegisterEnum(PyObject*, PyObject*);
+TypyEnum* Typy_RegisterEnum(PyObject*, PyObject*);
 
 PyObject* TypyEnum_GetPyObject (TypyEnum*, TypyField*);
 bool      TypyEnum_CheckAndSet (TypyEnum*, TypyField*, PyObject*, const char*);

@@ -12,7 +12,7 @@ IblMap_KEY_NUMERIC(TypyEnumMap, TypyField,
 	PyObject* python;
 );
 
-PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args) {
+TypyEnum* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyEnum* type;
@@ -22,14 +22,14 @@ PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 
 	type = (TypyEnum*)malloc(sizeof(TypyEnum) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Enum: out of memory %d.", sizeof(TypyEnum) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Enum: out of memory %d.", sizeof(TypyEnum) + nameLen);
 		return NULL;
 	}
 
 	type->enum_map = TypyEnumMap_New();
 	if (!type->enum_map) {
 		free(type);
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Enum: map out of memory.");
+		PyErr_Format(PyExc_RuntimeError, "Register Enum: map out of memory.");
 		return NULL;
 	}
 
@@ -37,7 +37,7 @@ PyObject* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 	memcpy(type->enum_name, name, nameLen);
 	PyObject_INIT(type, &TypyEnumType);
 
-	return (PyObject*)type;
+	return type;
 }
 
 PyObject* TypyEnum_GetPyObject(TypyEnum* type, TypyField* value) {
@@ -56,7 +56,7 @@ bool TypyEnum_CheckAndSet(TypyEnum* type, TypyField* value, PyObject* arg, const
 	return true;
 }
 
-static PyObject* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
+static TypyEnum* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
 	TypyField key;
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
@@ -75,7 +75,7 @@ static PyObject* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
 		}
 	}
 	Py_INCREF(type);
-	return (PyObject*)type;
+	return type;
 }
 
 void TypyEnum_Dealloc(TypyEnum* type) {

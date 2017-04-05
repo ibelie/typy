@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-PyObject* Typy_RegisterDict(PyObject* m, PyObject* args) {
+TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	TypyMetaDict* type;
@@ -22,7 +22,7 @@ PyObject* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaDict*)malloc(sizeof(TypyMetaDict) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "[typyd] Register Dict: MetaDict out of memory %d.", sizeof(TypyMetaDict) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Dict: MetaDict out of memory %d.", sizeof(TypyMetaDict) + nameLen);
 		return NULL;
 	}
 
@@ -46,7 +46,7 @@ PyObject* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	type->value_desc.desc_FieldType = field_type;
 	type->value_desc.desc_WireType  = wire_type;
 
-	return (PyObject*)type;
+	return type;
 }
 
 static void MetaDict_Dealloc(TypyMetaDict* type) {
@@ -61,10 +61,10 @@ static void MetaDict_Dealloc(TypyMetaDict* type) {
 		*(v) = s;                                   \
 	}
 
-PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
+TypyDict* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
 	TypyDict_FromValueOrNew(self, value, type, NULL);
 	Py_INCREF(self);
-	return (PyObject*)self;
+	return self;
 }
 
 bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, const char* err) {
