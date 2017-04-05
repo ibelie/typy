@@ -65,17 +65,21 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	Py_RETURN_NONE;
 }
 
+#define TypyVariant_FromValueOrNew(s, v, t, r) \
+	register TypyVariant* s = *(v);                       \
+	if (!s) {                                             \
+		s = (TypyVariant*)TypyVariant_New(t, NULL, NULL); \
+		if (!s) { return r; }                             \
+		*(v) = s;                                         \
+	}
+
 bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject* arg, const char* err) {
 	if (arg == Py_None) {
 		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
 	}
-	register TypyVariant* self = *value;
-	if (!self) {
-		self = (TypyVariant*)TypyVariant_New(type, NULL, NULL);
-		*value = self;
-	}
+	TypyVariant_FromValueOrNew(self, value, type, false);
 	/* todo: TypyVariant_CheckAndSet */
 	return true;
 }
@@ -108,41 +112,42 @@ size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byt
 }
 
 bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, size_t* length) {
-	uint32 tag;
-	register TypyVariant* self = *value;
-	if (!self) {
-		self = (TypyVariant*)TypyVariant_New(type, NULL, NULL);
-		*value = self;
+	uint32 tag, limit;
+	size_t remain;
+	if (!Typy_ReadVarint32(input, length, &limit)) {
+		return false;
+	} else if (limit > *length) {
+		return false;
 	}
-	if (!Typy_ReadTag(input, length, &tag, Typy_TYPE(self)->meta_cutoff)) {
+	remain = limit;
+	TypyVariant_FromValueOrNew(self, value, type, false);
+	if (!Typy_ReadTag(input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
 		return false;
 	}
 	register int index = TAG_INDEX(tag);
 	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return false; }
 	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
 		TypyVariant_Clear(self);
-		if (!Typy_READ(self, index, input, length)) {
+		if (!Typy_READ(self, index, input, &remain)) {
 			return false;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
 		TypyVariant_Clear(self);
-		if (!Typy_ReadPacked(Typy_DESC(self, index).desc_type, &Typy_FIELD(self, index), input, length)) {
+		if (!Typy_ReadPacked(Typy_TYPYTYPE(self, index), &Typy_FIELD(self, index), input, &remain)) {
 			return false;
 		}
 	}
 	self->variant_index = index;
-	return true;
+	*input += remain;
+	*length -= limit;
+	return remain == 0;
 }
 
 void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVariant* rvalue) {
 	if (!rvalue || rvalue->variant_index < 0 || (size_t)rvalue->variant_index >= Typy_SIZE(rvalue)) {
 		return;
 	}
-	register TypyVariant* self = *lvalue;
-	if (!self) {
-		self = (TypyVariant*)TypyVariant_New(type, NULL, NULL);
-		*lvalue = self;
-	}
+	TypyVariant_FromValueOrNew(self, lvalue, type, );
 	if (self->variant_index != rvalue->variant_index) {
 		TypyVariant_Clear(self);
 	}

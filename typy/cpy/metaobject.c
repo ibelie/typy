@@ -66,27 +66,31 @@ size_t TypyObject_Write(TypyMetaObject* type, TypyObject** value, int tag, byte*
 	return size + self->object_size;
 }
 
-bool TypyObject_Read(TypyMetaObject* type, TypyObject** value, byte** input, size_t* length) {
-	register TypyObject* self = *value;
-	if (!self) {
-		self = (TypyObject*)Typy_New(type, NULL, NULL);
-		if (!self) { return false; }
-		*value = self;
+#define TypyObject_FromValueOrNew(s, v, t, r) \
+	register TypyObject* s = *(v);                \
+	if (!s) {                                     \
+		s = (TypyObject*)Typy_New(t, NULL, NULL); \
+		if (!s) { return r; }                     \
+		*(v) = s;                                 \
 	}
-	register size_t size = Typy_MergeFromString(self, *input, *length);
-	*input += size;
-	*length -= size;
-	return size > 0;
+
+bool TypyObject_Read(TypyMetaObject* type, TypyObject** value, byte** input, size_t* length) {
+	uint32 limit;
+	if (!Typy_ReadVarint32(input, length, &limit)) {
+		return false;
+	} else if (limit > *length) {
+		return false;
+	}
+	TypyObject_FromValueOrNew(self, value, type, false);
+	register size_t size = Typy_MergeFromString(self, *input, limit);
+	*input += (limit - size);
+	*length -= limit;
+	return size == limit;
 }
 
 void TypyObject_MergeFrom(TypyMetaObject* type, TypyObject** lvalue, TypyObject* rvalue) {
 	if (!rvalue) { return; }
-	register TypyObject* self = *lvalue;
-	if (!self) {
-		self = (TypyObject*)Typy_New(type, NULL, NULL);
-		if (!self) { return; }
-		*lvalue = self;
-	}
+	TypyObject_FromValueOrNew(self, lvalue, type, )
 	Typy_MergeFrom(self, rvalue);
 }
 

@@ -33,12 +33,35 @@ extern PyTypeObject TypyMetaDictType;
 PyObject* Typy_RegisterDict(PyObject*, PyObject*);
 
 #define MetaKey_DESC(m) ((m)->key_descriptor)
+#define MetaKey_TAG(m) (MetaKey_DESC(m).desc_tag)
+#define MetaKey_FIELDTYPE(m) (MetaKey_DESC(m).desc_FieldType)
+#define MetaKey_TYPYTYPE(m) (MetaKey_DESC(m).desc_type)
 #define MetaKey_CLEAR(m, k) \
-	(abstract_Clear[MetaKey_DESC(m).desc_FieldType](MetaKey_DESC(m).desc_type, (k)))
+	(abstract_Clear[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k)))
+#define MetaKey_BYTESIZE(m, k) \
+	(abstract_ByteSize[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), 1))
+#define MetaKey_WRITE(m, k, o) \
+	(abstract_Write[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), MetaKey_TAG(m), (o)))
 
 #define MetaValue_DESC(m) ((m)->value_descriptor)
+#define MetaValue_TAG(m) (MetaValue_DESC(m).desc_tag)
+#define MetaValue_FIELDTYPE(m) (MetaValue_DESC(m).desc_FieldType)
+#define MetaValue_TYPYTYPE(m) (MetaValue_DESC(m).desc_type)
 #define MetaValue_CLEAR(m, v) \
-	(abstract_Clear[MetaValue_DESC(m).desc_FieldType](MetaValue_DESC(m).desc_type, (v)))
+	(abstract_Clear[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
+#define MetaValue_BYTESIZE(m, v) \
+	(abstract_ByteSize[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
+#define MetaValue_WRITE(m, v, o) \
+	(abstract_Write[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), MetaValue_TAG(m), (o)))
+
+#define MetaDict_DESC(m, i) (i ? MetaValue_DESC(m) : MetaKey_DESC(m))
+#define MetaDict_FIELDTYPE(m, i) (MetaDict_DESC(m, i).desc_FieldType)
+#define MetaDict_TYPYTYPE(m, i) (MetaDict_DESC(m, i).desc_type)
+#define MetaDict_WIRETYPE(m, i) (MetaDict_DESC(m, i).desc_WireType)
+#define MetaDict_READ(m, i, f, s, l) \
+	(abstract_Read[MetaDict_FIELDTYPE(m, i)](MetaDict_TYPYTYPE(m, i), (f), (s), (l)))
+#define MetaDict_MERGEFROM(m, l, r) \
+	(abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 
 inline PyObject* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwargs) {
 	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
@@ -68,21 +91,16 @@ inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
 	IblMap_Free(self->dict_map);
 }
 #define TypyDict_Clear(ob) MetaDict_Clear((ob)->dict_type, (ob))
+#define TypyDict_TYPE(ob) (((TypyDict*)(ob))->dict_type)
 
-inline void TypyDict_Set(TypyDict* self) {
-	/* todo: TypyDict_Set */
-}
-
-inline void TypyDict_Get(TypyDict* self) {
-	/* todo: TypyDict_Get */
-}
-
-inline void TypyDict_Del(TypyDict* self) {
-	/* todo: TypyDict_Del */
-}
-
-inline void TypyDict_CheckAndSetDict(TypyDict* self) {
+inline bool TypyDict_CheckAndSetDict(TypyMetaDict* type, TypyDict* self, PyObject* value) {
 	/* todo: TypyDict_CheckAndSetDict */
+	return false;
+}
+
+inline bool TypyDict_CheckAndSetItems(TypyMetaDict* type, TypyDict* self, PyObject* items) {
+	/* todo: TypyDict_CheckAndSetDict */
+	return false;
 }
 
 PyObject* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);

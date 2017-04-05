@@ -196,7 +196,7 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 	(CheckAndSet)TypyObject_CheckAndSet,     /* TYPE_OBJECT     */
 	(CheckAndSet)TypyVariant_CheckAndSet,    /* TYPE_VARIANT    */
 	(CheckAndSet)TypyList_CheckAndSet,       /* TYPE_LIST       */
-	(CheckAndSet)0,                          /* TYPE_DICT       */
+	(CheckAndSet)TypyDict_CheckAndSet,       /* TYPE_DICT       */
 	(CheckAndSet)TypyPython_CheckAndSet,     /* TYPE_PYTHON     */
 };
 
@@ -261,7 +261,7 @@ MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
 	(MergeFrom)TypyObject_MergeFrom,   /* TYPE_OBJECT     */
 	(MergeFrom)TypyVariant_MergeFrom,  /* TYPE_VARIANT    */
 	(MergeFrom)TypyList_MergeFrom,     /* TYPE_LIST       */
-	(MergeFrom)0,                      /* TYPE_DICT       */
+	(MergeFrom)TypyDict_MergeFrom,     /* TYPE_DICT       */
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_PYTHON     */
 };
 
@@ -357,7 +357,7 @@ Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)TypyObject_Read,     /* TYPE_OBJECT     */
 	(Read)TypyVariant_Read,    /* TYPE_VARIANT    */
 	(Read)TypyList_Read,       /* TYPE_LIST       */
-	(Read)0,                   /* TYPE_DICT       */
+	(Read)TypyDict_Read,       /* TYPE_DICT       */
 	(Read)TypyPython_Read,     /* TYPE_PYTHON     */
 };
 
@@ -457,7 +457,7 @@ Write abstract_Write[MAX_FIELD_TYPE] = {
 	(Write)TypyObject_Write,     /* TYPE_OBJECT     */
 	(Write)TypyVariant_Write,    /* TYPE_VARIANT    */
 	(Write)TypyList_Write,       /* TYPE_LIST       */
-	(Write)0,                    /* TYPE_DICT       */
+	(Write)TypyDict_Write,       /* TYPE_DICT       */
 	(Write)TypyPython_Write,     /* TYPE_PYTHON     */
 };
 
@@ -519,6 +519,6 @@ ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyObject_ByteSize,     /* TYPE_OBJECT     */
 	(ByteSize)TypyVariant_ByteSize,    /* TYPE_VARIANT    */
 	(ByteSize)TypyList_ByteSize,       /* TYPE_LIST       */
-	(ByteSize)0,                       /* TYPE_DICT       */
+	(ByteSize)TypyDict_ByteSize,       /* TYPE_DICT       */
 	(ByteSize)TypyPython_ByteSize,     /* TYPE_PYTHON     */
 };

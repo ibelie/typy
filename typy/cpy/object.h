@@ -70,17 +70,19 @@ PyObject* Typy_RegisterObject(PyObject*, PyObject*);
 
 #define Typy_TAG(ob, i) (Typy_DESC(ob, i).desc_tag)
 #define Typy_TAGSIZE(ob, i) (Typy_DESC(ob, i).desc_tagsize)
+#define Typy_FIELDTYPE(ob, i) (Typy_DESC(ob, i).desc_FieldType)
+#define Typy_TYPYTYPE(ob, i) (Typy_DESC(ob, i).desc_type)
 #define Typy_WIRETYPE(ob, i) (Typy_DESC(ob, i).desc_WireType)
 #define Typy_CLEAR(ob, i) \
-	(abstract_Clear[Typy_DESC(ob, i).desc_FieldType](Typy_DESC(ob, i).desc_type, &Typy_FIELD(ob, i)))
+	(abstract_Clear[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define Typy_MERGEFROM(ob, i, f) \
-	(abstract_MergeFrom[Typy_DESC(ob, i).desc_FieldType](Typy_DESC(ob, i).desc_type, &Typy_FIELD(ob, i), (f)))
+	(abstract_MergeFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_BYTESIZE(ob, i, t) \
-	(abstract_ByteSize[Typy_DESC(ob, i).desc_FieldType](Typy_DESC(ob, i).desc_type, &Typy_FIELD(ob, i), (t)))
+	(abstract_ByteSize[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t)))
 #define Typy_WRITE(ob, i, t, o) \
-	(abstract_Write[Typy_DESC(ob, i).desc_FieldType](Typy_DESC(ob, i).desc_type, &Typy_FIELD(ob, i), (t), (o)))
+	(abstract_Write[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
 #define Typy_READ(ob, i, s, l) \
-	(abstract_Read[Typy_DESC(ob, i).desc_FieldType](Typy_DESC(ob, i).desc_type, &Typy_FIELD(ob, i), (s), (l)))
+	(abstract_Read[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
 
 inline void Typy_Clear(TypyObject* self) {
 	register size_t i;
@@ -139,7 +141,7 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 				return 0;
 			}
 		} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
-			if (!Typy_ReadPacked(Typy_DESC(self, index).desc_type, &Typy_FIELD(self, index), &input, &remain)) {
+			if (!Typy_ReadPacked(Typy_TYPYTYPE(self, index), &Typy_FIELD(self, index), &input, &remain)) {
 				return 0;
 			}
 		}
@@ -197,7 +199,7 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 			return -1;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
-		if (!Typy_ReadPacked(Typy_DESC(self, index).desc_type, &Typy_FIELD(self, index), &input, &remain)) {
+		if (!Typy_ReadPacked(Typy_TYPYTYPE(self, index), &Typy_FIELD(self, index), &input, &remain)) {
 			return -1;
 		}
 	}

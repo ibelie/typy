@@ -86,9 +86,7 @@ size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* outpu
 	if (!self) { return 0; }
 	register size_t i, size = 0;
 	if (MetaList_IsPrimitive(type)) {
-		if (tag) {
-			size += Typy_WriteTag(output, tag);
-		}
+		size += Typy_WriteTag(output, tag);
 		size += IblPutUvarint(output + size, self->list_size);
 		for (i = 0; i < self->list_length; i++) {
 			size += MetaList_WRITE(type, &self->list_items[i], 0, output);

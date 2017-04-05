@@ -18,17 +18,19 @@ typedef struct {
 } TypyMetaList;
 
 #define MetaList_DESC(m) ((m)->list_descriptor)
+#define MetaList_TYPYTYPE(m) (MetaList_DESC(m).desc_type)
+#define MetaList_FIELDTYPE(m) (MetaList_DESC(m).desc_FieldType)
 #define MetaList_CLEAR(m, f) \
-	(abstract_Clear[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f)))
+	(abstract_Clear[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
 #define MetaList_READ(m, f, i, l) \
-	(abstract_Read[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (i), (l)))
+	(abstract_Read[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (i), (l)))
 #define MetaList_WRITE(m, f, t, o) \
-	(abstract_Write[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (t), (o)))
+	(abstract_Write[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t), (o)))
 #define MetaList_BYTESIZE(m, f, t) \
-	(abstract_ByteSize[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (f), (t)))
+	(abstract_ByteSize[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t)))
 #define MetaList_MERGEFROM(m, l, r) \
-	(abstract_MergeFrom[MetaList_DESC(m).desc_FieldType](MetaList_DESC(m).desc_type, (l), (r)))
-#define MetaList_IsPrimitive(m) (MetaList_DESC(m).desc_FieldType < MAX_PRIMITIVE_TYPE)
+	(abstract_MergeFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
+#define MetaList_IsPrimitive(m) (MetaList_FIELDTYPE(m) < MAX_PRIMITIVE_TYPE)
 
 typedef struct {
 	PyObject_HEAD
