@@ -173,7 +173,9 @@ bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
 		return CheckAndSetDict(arg, *value);
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
 		if (value == NULL) { value = new Dict<K, V>; }
-		return CheckAndSetItems(items, *value);
+		register bool success = CheckAndSetItems(items, *value);
+		Py_DECREF(items);
+		return success;
 	} else {
 		FormatTypeError(arg, err);
 		return false;
