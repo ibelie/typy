@@ -50,23 +50,23 @@ PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
 	return (PyObject*)self;
 }
 
-bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict**, PyObject*, const char*) {
+bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, const char* err) {
 	return false;
 }
 
-bool TypyDict_Read(TypyMetaDict*, TypyDict**, byte**, size_t*) {
+bool TypyDict_Read(TypyMetaDict* type, TypyDict** value, byte** input, size_t* length) {
 	return false;
 }
 
-void TypyDict_MergeFrom(TypyMetaDict*, TypyDict**, TypyDict*) {
+void TypyDict_MergeFrom(TypyMetaDict* type, TypyDict** lvalue, TypyDict* rvalue) {
 
 }
 
-size_t TypyDict_Write(TypyMetaDict*, TypyDict**, int, byte*) {
+size_t TypyDict_Write(TypyMetaDict* type, TypyDict** value, int tag, byte* output) {
 	return 0;
 }
 
-size_t TypyDict_ByteSize(TypyMetaDict*, TypyDict**, int) {
+size_t TypyDict_ByteSize(TypyMetaDict* type, TypyDict** value, int tagsize) {
 	return 0;
 }
 
