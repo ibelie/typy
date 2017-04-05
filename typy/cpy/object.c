@@ -514,8 +514,8 @@ PyTypeObject BaseTypyObjectType = {
 	(hashfunc)object_Hash,                    /* tp_hash           */
 	object_Call,                              /* tp_call           */
 	(reprfunc)object_Str,                     /* tp_str            */
-	0,                                        /* tp_getattro       */
-	0,                                        /* tp_setattro       */
+	(getattrofunc)Typy_GetAttr,               /* tp_getattro       */
+	(setattrofunc)Typy_SetAttr,               /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags          */
 	"A Typy Object",                          /* tp_doc            */

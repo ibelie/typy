@@ -152,38 +152,27 @@ PyObject* Py_MergeFromString(TypyObject* self, PyObject* arg) {
 }
 
 PyObject* Py_SerializeProperty(TypyObject* self, PyObject* arg) {
-	if (!arg || arg == Py_None) {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		return NULL;
-	} else if (PyUnicode_Check(arg)) {
-		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
-		if (!arg) { return NULL; }
-	} else if (PyBytes_Check(arg)) {
-		Py_INCREF(arg);
-	} else {
-		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		return NULL;
-	}
-
-	register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(arg));
+	register PyBytes name = Typy_CheckBytes(arg, "SerializeProperty expect property name, but ");
+	if (!name) { return NULL; }
+	register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
 	if (index < 0) {
 		FormatTypeError(arg, "SerializeProperty expect property name, but ");
-		Py_DECREF(arg);
+		Py_DECREF(name);
 		return NULL;
 	}
 	register size_t size = Typy_PropertyByteSize(self, index);
 	if (size <= 0) {
 		PyErr_Format(PyExc_RuntimeError, "Error serializing object");
-		Py_DECREF(arg);
+		Py_DECREF(name);
 		return NULL;
 	}
 	register PyObject* result = PyBytes_FromStringAndSize(NULL, size);
 	if (!result) {
-		Py_DECREF(arg);
+		Py_DECREF(name);
 		return NULL;
 	}
 	Typy_SerializeProperty(self, (byte*)PyBytes_AS_STRING(result), index);
-	Py_DECREF(arg);
+	Py_DECREF(name);
 	return result;
 }
 

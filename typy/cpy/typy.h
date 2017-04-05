@@ -58,6 +58,21 @@ typedef PyUnicodeObject* PyString;
 
 void FormatTypeError(PyObject* arg, const char* err);
 
+inline PyBytes Typy_CheckBytes(PyObject* arg, const char* err) {
+	if (!arg || arg == Py_None) {
+		FormatTypeError(arg, err);
+		return NULL;
+	} else if (PyUnicode_Check(arg)) {
+		return (PyBytes)PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
+	} else if (PyBytes_Check(arg)) {
+		Py_INCREF(arg);
+		return (PyBytes)arg;
+	} else {
+		FormatTypeError(arg, err);
+		return NULL;
+	}
+}
+
 #include "abstract.h"
 #include "list.h"
 #include "object.h"

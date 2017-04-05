@@ -75,6 +75,12 @@ PyObject* Typy_RegisterObject(PyObject*, PyObject*);
 #define Typy_WIRETYPE(ob, i) (Typy_DESC(ob, i).desc_WireType)
 #define Typy_CLEAR(ob, i) \
 	(abstract_Clear[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
+#define Typy_GET(ob, i) \
+	(abstract_GetPyObject[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
+#define Typy_SET(ob, i, f) \
+	(abstract_CopyFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
+#define Typy_CHECKSET(ob, i, v, e) \
+	(abstract_CheckAndSet[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (v), (e)))
 #define Typy_MERGEFROM(ob, i, f) \
 	(abstract_MergeFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_BYTESIZE(ob, i, t) \
@@ -204,6 +210,34 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 		}
 	}
 	return index;
+}
+
+inline PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
+	register PyBytes name = Typy_CheckBytes(arg, "GetAttr expect property name, but ");
+	if (name) {
+		register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
+		if (index >= 0) {
+			register PyObject* value = Typy_GET(self, index);
+			Py_DECREF(name);
+			return value;
+		}
+		Py_DECREF(name);
+	}
+	return PyObject_GenericGetAttr((PyObject*)self, arg);
+}
+
+inline int Typy_SetAttr(TypyObject* self, PyObject* arg, PyObject* value) {
+	register PyBytes name = Typy_CheckBytes(arg, "SetAttr expect property name, but ");
+	if (name) {
+		register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
+		if (index >= 0) {
+			register int result = Typy_CHECKSET(self, index, value, "SetAttr: ");
+			Py_DECREF(name);
+			return result;
+		}
+		Py_DECREF(name);
+	}
+	return PyObject_GenericSetAttr((PyObject*)self, arg, value);
 }
 
 PyObject* Typy_New               (TypyMetaObject*, PyObject*, PyObject*);
