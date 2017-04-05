@@ -36,16 +36,16 @@ static void MetaDict_Dealloc(TypyMetaDict* type) {
 	free(type);
 }
 
-#define TypyDict_FromValueOrNew(s, v, t) \
+#define TypyDict_FromValueOrNew(s, v, t, r) \
 	register TypyDict* s = *(v);                    \
 	if (!s) {                                       \
 		s = (TypyDict*)TypyDict_New(t, NULL, NULL); \
-		if (!s) { return false; }                   \
+		if (!s) { return r; }                   \
 		*(v) = s;                                   \
 	}
 
 PyObject* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
-	TypyDict_FromValueOrNew(self, value, type);
+	TypyDict_FromValueOrNew(self, value, type, NULL);
 	Py_INCREF(self);
 	return (PyObject*)self;
 }

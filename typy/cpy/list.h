@@ -76,6 +76,7 @@ inline bool TypyList_Insert(TypyList* self, size_t offset, TypyField item) {
 
 inline bool TypyList_CheckAndSetList(TypyMetaList* type, TypyList* self, PyObject* value) {
 	/* todo: TypyList_CheckAndSetList */
+	return false;
 }
 
 inline void TypyList_Remove(TypyList* self, size_t offset) {

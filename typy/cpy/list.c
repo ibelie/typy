@@ -35,22 +35,22 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 	free(type);
 }
 
-#define TypyList_FromValueOrNew(s, v, t) \
+#define TypyList_FromValueOrNew(s, v, t, r) \
 	register TypyList* s = *(v);                    \
 	if (!s) {                                       \
 		s = (TypyList*)TypyList_New(t, NULL, NULL); \
-		if (!s) { return false; }                   \
+		if (!s) { return r; }                   \
 		*(v) = s;                                   \
 	}
 
 PyObject* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
-	TypyList_FromValueOrNew(self, value, type);
+	TypyList_FromValueOrNew(self, value, type, NULL);
 	Py_INCREF(self);
 	return (PyObject*)self;
 }
 
 bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
-	TypyList_FromValueOrNew(self, value, type);
+	TypyList_FromValueOrNew(self, value, type, false);
 	register TypyField* offset = TypyList_EnsureSize(self, 1);
 	if (!offset) { return false; }
 	if (!MetaList_READ(type, offset, input, length)) {
@@ -64,7 +64,7 @@ static inline bool TypyList_ReadPacked(TypyMetaList* type, TypyList** value, byt
 	if (!Typy_ReadVarint32(input, length, &size)) {
 		return false;
 	}
-	TypyList_FromValueOrNew(self, value, type);
+	TypyList_FromValueOrNew(self, value, type, false);
 	register TypyField* offset;
 	register byte* limit = *input + size;
 	while (*input < limit) {
@@ -130,7 +130,7 @@ bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, c
 		*value = (TypyList*)arg;
 		return true;
 	} else if (PySequence_Check(arg)) {
-		TypyList_FromValueOrNew(self, value, type);
+		TypyList_FromValueOrNew(self, value, type, false);
 		return TypyList_CheckAndSetList(type, self, arg);
 	} else {
 		FormatTypeError(arg, err);
@@ -140,7 +140,7 @@ bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, c
 
 void TypyList_MergeFrom(TypyMetaList* type, TypyList** lvalue, TypyList* rvalue) {
 	if (!rvalue) { return; }
-	TypyList_FromValueOrNew(self, lvalue, type);
+	TypyList_FromValueOrNew(self, lvalue, type, );
 	register TypyField* offset = TypyList_EnsureSize(self, rvalue->list_length);
 	if (!offset) { return; }
 	register size_t i;
