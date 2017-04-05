@@ -28,7 +28,12 @@ PyObject* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs
 }
 
 PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
-	/* todo: TypyVariant_GetPyObject */
+	register TypyVariant* self = *value;
+	if (!self) { Py_RETURN_NONE; }
+	register int i = self->variant_index;
+	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
+		return Typy_GET(self, i);
+	}
 	Py_RETURN_NONE;
 }
 
@@ -47,8 +52,65 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 		return true;
 	}
 	TypyVariant_FromValueOrNew(self, value, type, false);
-	/* todo: TypyVariant_CheckAndSet */
-	return true;
+
+	register int index;
+	if (PyBool_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Boolean")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Integer")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Enum")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Double")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Float")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "FixedPoint")) >= 0) {
+		} else {
+			PyErr_Format(PyExc_TypeError, "[typyd] SetVariant: No suitable type for Boolean.");
+			return false;
+		}
+	} else if (PyInt_Check(arg) || PyLong_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Integer")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Enum")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Boolean")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Double")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Float")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "FixedPoint")) >= 0) {
+		} else {
+			PyErr_Format(PyExc_TypeError, "[typyd] SetVariant: No suitable type for Integer.");
+			return false;
+		}
+	} else if (PyFloat_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Double")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Float")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "FixedPoint")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Integer")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Enum")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Boolean")) >= 0) {
+		} else {
+			PyErr_Format(PyExc_TypeError, "[typyd] SetVariant: No suitable type for Float.");
+			return false;
+		}
+	} else if (PyUnicode_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "String")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Bytes")) >= 0) {
+		} else {
+			PyErr_Format(PyExc_TypeError, "[typyd] SetVariant: No suitable type for String.");
+			return false;
+		}
+	} else if (PyBytes_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Bytes")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "String")) >= 0) {
+		} else {
+			PyErr_Format(PyExc_TypeError, "[typyd] SetVariant: No suitable type for Bytes.");
+			return false;
+		}
+	} else if (PyObject_HasAttrString(arg, "iteritems") && (index = Meta_PropertyIndex(type, "Dict")) >= 0) {
+	} else if (PySequence_Check(arg) && (index = Meta_PropertyIndex(type, "List")) >= 0) {
+	} else if (!Typy_TypeCheck(arg)) {
+		FormatTypeError(arg, "[typyd] SetVariant: No suitable type, ");
+		return false;
+	} else if ((index = Meta_PropertyIndex(type, Typy_NAME(arg))) < 0) {
+		FormatTypeError(arg, "[typyd] SetVariant: No suitable type, ");
+		return false;
+	}
+	return Typy_CHECKSET(self, index, arg, "SetVariant: ");
 }
 
 size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {

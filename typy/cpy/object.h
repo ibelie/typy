@@ -30,6 +30,19 @@ void TypyMeta_Dealloc(TypyMetaObject*);
 
 #define Meta_NAME(meta) ((char*)(&((meta)->meta_descriptor[(meta)->meta_size])))
 
+inline int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
+	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(type->meta_field2index, &key);
+	return field ? field->index : -1;
+}
+
+inline char* Meta_PropertyName(TypyMetaObject* type, int index) {
+	if (index < 0 || (size_t)index > type->meta_size) {
+		return NULL;
+	} else {
+		return type->meta_index2field[index];
+	}
+}
+
 #define TypyObject_HEAD \
     PyObject_HEAD       \
     TypyMetaObject* meta_type;
@@ -221,22 +234,8 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 	}
 }
 
-inline char* Typy_PropertyName(TypyObject* self, int index) {
-	if (index < 0 || (size_t)index > Typy_SIZE(self)) {
-		return NULL;
-	} else {
-		return Typy_TYPE(self)->meta_index2field[index];
-	}
-}
-
-inline int Typy_PropertyIndex(TypyObject* self, char* key) {
-	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(Typy_TYPE(self)->meta_field2index, &key);
-	if (field) {
-		return field->index;
-	} else {
-		return -1;
-	}
-}
+#define Typy_PropertyName(ob, i) Meta_PropertyName(Typy_TYPE(ob), i)
+#define Typy_PropertyIndex(ob, k) Meta_PropertyIndex(Typy_TYPE(ob), k)
 
 inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 	if (!Typy_TAG(self, index)) { return 0; }
@@ -280,12 +279,10 @@ inline PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
 	register PyBytes name = Typy_CheckBytes(arg, "GetAttr expect property name, but ");
 	if (name) {
 		register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
-		if (index >= 0) {
-			register PyObject* value = Typy_GET(self, index);
-			Py_DECREF(name);
-			return value;
-		}
 		Py_DECREF(name);
+		if (index >= 0) {
+			return Typy_GET(self, index);
+		}
 	}
 	return PyObject_GenericGetAttr((PyObject*)self, arg);
 }
@@ -294,12 +291,10 @@ inline int Typy_SetAttr(TypyObject* self, PyObject* arg, PyObject* value) {
 	register PyBytes name = Typy_CheckBytes(arg, "SetAttr expect property name, but ");
 	if (name) {
 		register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
-		if (index >= 0) {
-			register int result = Typy_CHECKSET(self, index, value, "SetAttr: ");
-			Py_DECREF(name);
-			return result;
-		}
 		Py_DECREF(name);
+		if (index >= 0) {
+			return Typy_CHECKSET(self, index, value, "SetAttr: ") ? 0 : -1;
+		}
 	}
 	return PyObject_GenericSetAttr((PyObject*)self, arg, value);
 }
