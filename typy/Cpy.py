@@ -125,12 +125,14 @@ def _GenerateObject(name, cls, codes, types):
 
 	fields = []
 	sortedProperties = SortedMessage(cls.____properties__)
-	for i, (a, p) in enumerate(sortedProperties):
+	tag = 0;
+	for a, p in sortedProperties:
 		if pb not in p.____keywords__: continue
+		tag += 1
 		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
 		fields.append("""
-	('%s', %d, %d, %d, %d, %s),""" % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
-	for i, (a, p) in enumerate(sortedProperties):
+	('%s', %d, %d, %d, %d, %s),""" % ((a, PackTag(tag, wire_type), _TagSize(tag), wire_type, field_type, typy_type)))
+	for a, p in sortedProperties:
 		if pb in p.____keywords__: continue
 		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
 		fields.append("""

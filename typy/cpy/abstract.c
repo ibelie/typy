@@ -297,6 +297,17 @@ Clear abstract_Clear[MAX_FIELD_TYPE] = {
 
 //=============================================================================
 
+#define READ(NAME, TYPE, READER) \
+static bool NAME(TypyType t, TYPE* value, byte** input, size_t* length) { \
+	return READER(input, length, value);                                  \
+}
+READ(TypyVarint32_Read, uint32, Typy_ReadVarint32)
+READ(TypyVarint64_Read, uint64, Typy_ReadVarint64)
+READ(TypyDouble_Read,   uint64, Typy_Read64)
+READ(TypyFloat_Read,    uint32, Typy_Read32)
+READ(TypyBool_Read,     byte,   Typy_ReadByte)
+#undef READ
+
 static bool TypyField_Read(TypyType t, TypyField* value, byte** input, size_t* length) {
 	uint64 data;
 	if (Typy_ReadVarint64(input, length, &data)) {
@@ -307,35 +318,32 @@ static bool TypyField_Read(TypyType t, TypyField* value, byte** input, size_t* l
 	}
 }
 
-static bool TypyBytes_Read(TypyType t, PyBytes* value, byte** input, size_t* length) {
+static inline PyBytes Typy_ReadBytes(byte** input, size_t* length) {
 	uint32 size;
 	if (!Typy_ReadVarint32(input, length, &size)) {
-		return false;
+		return NULL;
 	} else if (size > *length) {
-		return false;
+		return NULL;
 	}
 	register PyBytes bytes = (PyBytes)PyBytes_FromStringAndSize(NULL, size);
-	if (!bytes) { return false; }
+	if (!bytes) { return NULL; }
 	memcpy(PyBytes_AS_STRING(bytes), *input, size);
 	*input += size;
 	*length -= size;
+	return bytes;
+}
+
+static bool TypyBytes_Read(TypyType t, PyBytes* value, byte** input, size_t* length) {
+	register PyBytes bytes = Typy_ReadBytes(input, length);
+	if (!bytes) { return false; }
 	Py_XDECREF(*value);
 	*value = bytes;
 	return true;
 }
 
 static bool TypyString_Read(TypyType t, PyString* value, byte** input, size_t* length) {
-	uint32 size;
-	if (!Typy_ReadVarint32(input, length, &size)) {
-		return false;
-	} else if (size > *length) {
-		return false;
-	}
-	register PyObject* bytes = PyBytes_FromStringAndSize(NULL, size);
+	register PyBytes bytes = Typy_ReadBytes(input, length);
 	if (!bytes) { return false; }
-	memcpy(PyBytes_AS_STRING(bytes), *input, size);
-	*input += size;
-	*length -= size;
 	Py_XDECREF(*value);
 	*value = (PyString)PyUnicode_FromEncodedObject(bytes, "utf-8", NULL);
 	Py_DECREF(bytes);
@@ -344,14 +352,14 @@ static bool TypyString_Read(TypyType t, PyString* value, byte** input, size_t* l
 
 Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)TypyField_Read,      /* TYPE_ENUM       */
-	(Read)Typy_ReadVarint32,   /* TYPE_INT32      */
-	(Read)Typy_ReadVarint64,   /* TYPE_INT64      */
-	(Read)Typy_ReadVarint32,   /* TYPE_UINT32     */
-	(Read)Typy_ReadVarint64,   /* TYPE_UINT64     */
+	(Read)TypyVarint32_Read,   /* TYPE_INT32      */
+	(Read)TypyVarint64_Read,   /* TYPE_INT64      */
+	(Read)TypyVarint32_Read,   /* TYPE_UINT32     */
+	(Read)TypyVarint64_Read,   /* TYPE_UINT64     */
 	(Read)TypyField_Read,      /* TYPE_FIXEDPOINT */
-	(Read)Typy_Read64,         /* TYPE_DOUBLE     */
-	(Read)Typy_Read32,         /* TYPE_FLOAT      */
-	(Read)Typy_ReadByte,       /* TYPE_BOOL       */
+	(Read)TypyDouble_Read,     /* TYPE_DOUBLE     */
+	(Read)TypyFloat_Read,      /* TYPE_FLOAT      */
+	(Read)TypyBool_Read,       /* TYPE_BOOL       */
 	(Read)TypyBytes_Read,      /* TYPE_BYTES      */
 	(Read)TypyString_Read,     /* TYPE_STRING     */
 	(Read)TypyObject_Read,     /* TYPE_OBJECT     */
