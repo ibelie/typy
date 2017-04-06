@@ -41,6 +41,7 @@ def _GenerateVariant(name, properties, codes, types):
 %s = _typyd.Variant('%s', (
 	%s
 ))""" % (name, name, ''.join(fields)))
+	types.add(name)
 
 def _GetCpyFromTypy(p, codes, types, nesting = False):
 	from Object import MetaObject
@@ -142,6 +143,7 @@ def _GenerateObject(name, cls, codes, types):
 %s = _typyd.Object('%s', (
 	%s
 ))""" % (name, name, ''.join(fields)))
+	types.add(name)
 
 
 def GenerateDescriptor(_typyDir = None):

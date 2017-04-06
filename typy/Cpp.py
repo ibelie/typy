@@ -164,7 +164,7 @@ def _shortName(prefix, name):
 def _RecordNesting(prefix, types):
 	import hashlib
 	import base64
-	from Type import toType, isEnum, List, Dict
+	from Type import toType, isEnum, List, Dict, Instance
 	shortName = {
 		'Integer': 'i',
 		'Float': 'f',
@@ -174,14 +174,23 @@ def _RecordNesting(prefix, types):
 		'String': 's',
 		'Bytes': 'by',
 		'Enum': 'e',
-		'List': 'l',
-		'Dict': 'm',
 	}
 	properties = {'Enum' if isEnum(p) else p.__name__: toType(p) for p in types if p is not None}
-	name = sorted([k for k in properties.iterkeys() if k in shortName], key = lambda k: shortName[k]) + \
-		sorted([k for k in properties.iterkeys() if k not in shortName])
-	name = _shortName(prefix, '%s%s' % (prefix, ''.join([base64.b64encode(hashlib.md5(str(properties[k])).digest())[:-2].replace('+', '__').replace('/', '_')
-		if isinstance(properties[k], (List, Dict)) else shortName.get(k, k) for k in name])))
+	names = sorted([shortName[k] for k in properties.iterkeys() if k in shortName])
+	for name in sorted([k for k in properties.iterkeys() if k not in shortName]):
+		prop = properties[name]
+		if isinstance(prop, Instance):
+			if len(prop.pyType) == 1:
+				names.append(prop.pyType[0].__name__)
+			else:
+				names.append(_RecordNesting('V', prop.pyType)[0])
+		elif isinstance(prop, List):
+			names.append(_RecordNesting('L', [prop.elementType])[0])
+		elif isinstance(prop, Dict):
+			names.append(_RecordNesting('D', [prop.keyType, prop.valueType])[0])
+		else:
+			names.append(name)
+	name = _shortName(prefix, '%s%s' % (prefix, ''.join(names)))
 	return name, properties
 
 def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nesting = False):
