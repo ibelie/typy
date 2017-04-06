@@ -146,25 +146,25 @@ static bool TypyBool_CheckAndSet(TypyType t, bool* value, PyObject* arg, const c
 
 static bool TypyString_CheckAndSet(TypyType t, PyString* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
-		Py_DECREF(*value);
+		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
 	} else if (PyUnicode_Check(arg)) {
-		Py_DECREF(*value);
+		Py_XDECREF(*value);
 		Py_INCREF(arg);
 		*value = (PyString)arg;
 		return true;
 	}
 	register PyString s = (PyString)PyUnicode_FromEncodedObject(arg, "utf-8", NULL);
 	if (!s) { return false; }
-	Py_DECREF(*value);
+	Py_XDECREF(*value);
 	*value = s;
 	return true;
 }
 
 static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
-		Py_DECREF(*value);
+		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
 	} else if (PyUnicode_Check(arg)) {
@@ -176,7 +176,7 @@ static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, con
 		FormatTypeError(arg, err);
 		return false;
 	}
-	Py_DECREF(*value);
+	Py_XDECREF(*value);
 	*value = (PyBytes)arg;
 	return true;
 }

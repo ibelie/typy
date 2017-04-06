@@ -22,7 +22,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaDict*)malloc(sizeof(TypyMetaDict) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Dict: MetaDict out of memory %d.", sizeof(TypyMetaDict) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Dict out of memory %d.", sizeof(TypyMetaDict) + nameLen);
 		return NULL;
 	}
 

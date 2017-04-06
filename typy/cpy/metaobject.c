@@ -13,7 +13,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	Py_ssize_t pos = 0;
 	TypyObject* object = (TypyObject*)calloc(1, sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 	if (!object) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Object: out of memory %d.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+		PyErr_Format(PyExc_RuntimeError, "Alloc Object out of memory %d.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 		return NULL;
 	}
 	PyObject_INIT(object, type->py_type);

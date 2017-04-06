@@ -9,6 +9,8 @@ int main()
 	init_typyd();
 	PyRun_SimpleString(
 "import sys\n"
+"import os\n"
+"os.chdir('..')\n"
 "sys.path.append('E:/test/typy')\n"
 "sys.path.append('E:/test/typy/test')\n"
 "sys.path.append('C:/Users/joung/Documents/project/typy')\n"

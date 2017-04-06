@@ -22,14 +22,14 @@ TypyEnum* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 
 	type = (TypyEnum*)malloc(sizeof(TypyEnum) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Enum: out of memory %d.", sizeof(TypyEnum) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Enum object out of memory %d.", sizeof(TypyEnum) + nameLen);
 		return NULL;
 	}
 
 	type->enum_map = TypyEnumMap_New();
 	if (!type->enum_map) {
 		free(type);
-		PyErr_Format(PyExc_RuntimeError, "Register Enum: map out of memory.");
+		PyErr_Format(PyExc_RuntimeError, "Register Enum map out of memory.");
 		return NULL;
 	}
 

@@ -21,7 +21,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register List: MetaList out of memory %d.", sizeof(TypyMetaList) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %d.", sizeof(TypyMetaList) + nameLen);
 		return NULL;
 	}
 
@@ -398,7 +398,7 @@ static PyObject* list_Remove(TypyList* self, PyObject* value) {
 		if (eq) { break; }
 	}
 	if (i == self->list_length) {
-		PyErr_SetString(PyExc_ValueError, "remove(x): x not in container");
+		PyErr_SetString(PyExc_ValueError, "remove(x) - x not in container");
 		return NULL;
 	}
 	MetaList_CLEAR(self->list_type, &self->list_items[i]);
@@ -414,7 +414,7 @@ static PyObject* list_Pop(TypyList* self, PyObject* args) {
 	if (!PyArg_ParseTuple(args, "|n", &i)) {
 		return NULL;
 	} else if (i < 0 || (size_t)i >= self->list_length) {
-		PyErr_SetString(PyExc_ValueError, "pop(i): i not in container");
+		PyErr_SetString(PyExc_ValueError, "pop(i) - i not in container");
 		return NULL;
 	}
 	register PyObject* item = MetaList_GET(self->list_type, &self->list_items[i]);
