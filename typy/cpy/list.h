@@ -43,9 +43,9 @@ typedef struct {
 typedef struct {
 	PyObject_HEAD
 	TypyMetaList* list_type;
+	size_t        cached_size;
 	size_t        list_capacity;
 	size_t        list_length;
-	size_t        list_size;
 	TypyField*    list_items;
 } TypyList;
 

@@ -95,7 +95,7 @@ size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* outpu
 	register size_t i, size = 0;
 	if (MetaList_IsPrimitive(type)) {
 		size += Typy_WriteTag(output, tag);
-		size += IblPutUvarint(output + size, self->list_size);
+		size += IblPutUvarint(output + size, self->cached_size);
 		for (i = 0; i < self->list_length; i++) {
 			size += MetaList_WRITE(type, &self->list_items[i], 0, output);
 		}
@@ -115,7 +115,7 @@ size_t TypyList_ByteSize(TypyMetaList* type, TypyList** value, int tagsize) {
 		for (i = 0; i < self->list_length; i++) {
 			size += MetaList_BYTESIZE(type, &self->list_items[i], 0);
 		}
-		self->list_size = size;
+		self->cached_size = size;
 		size += tagsize + IblSizeVarint(size);
 	} else {
 		for (i = 0; i < self->list_length; i++) {
@@ -203,15 +203,15 @@ static PyObject* list_Append(TypyList* self, PyObject* item) {
 }
 
 static Py_ssize_t list_Len(TypyList* self) {
-	return self->list_size;
+	return self->list_length;
 }
 
 static PyObject* list_Item(TypyList* self, Py_ssize_t index) {
 	if (index < 0) {
-		index = self->list_size + index;
+		index = self->list_length + index;
 	}
-	if (index < 0 || (size_t)index >= self->list_size) {
-		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_size);
+	if (index < 0 || (size_t)index >= self->list_length) {
+		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_length);
 		return NULL;
 	}
 	return MetaList_GET(self->list_type, &self->list_items[index]);
@@ -219,10 +219,10 @@ static PyObject* list_Item(TypyList* self, Py_ssize_t index) {
 
 static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 	if (index < 0) {
-		index = self->list_size + index;
+		index = self->list_length + index;
 	}
-	if (index < 0 || (size_t)index >= self->list_size) {
-		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_size);
+	if (index < 0 || (size_t)index >= self->list_length) {
+		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_length);
 		return -1;
 	}
 	return MetaList_CHECKSET(self->list_type, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;

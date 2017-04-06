@@ -20,8 +20,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 VdesVector2 = _typyd.Variant('VdesVector2', (
@@ -32,8 +32,8 @@ VdesVector2 = _typyd.Variant('VdesVector2', (
 	('Vector2', 34, 1, 2, 11, Vector2),
 ))
 DiInstance = _typyd.Dict('DiInstance', (0, 1, ), (2, 12, VdesVector2))
-DiaVwAwzjG9QsT227gn5sdSw = _typyd.Dict('DiaVwAwzjG9QsT227gn5sdSw', (0, 1, ), (2, 14, DiInstance))
-VimpmP__sm4UToCagVQqZzKHQ = _typyd.Variant('VimpmP__sm4UToCagVQqZzKHQ', (
+DiQpfRL8_Q_3wo_Sn06nNWnQ = _typyd.Dict('DiQpfRL8_Q_3wo_Sn06nNWnQ', (0, 1, ), (2, 14, DiInstance))
+Vi__zxiaLfTra898A6_6whFCg = _typyd.Variant('Vi__zxiaLfTra898A6_6whFCg', (
 	
 	('Dict', 10, 1, 2, 14, DiInstance),
 	('Integer', 16, 1, 0, 1, ),
@@ -55,8 +55,8 @@ Vq0t2631Zu6lArqg9rFtFlQ = _typyd.Variant('Vq0t2631Zu6lArqg9rFtFlQ', (
 	('List', 18, 1, 2, 13, Lf),
 ))
 LInstance = _typyd.List('LInstance', (2, 12, VdesVector2))
-DibkLh0OApgnXeo9SPvX00Ng = _typyd.Dict('DibkLh0OApgnXeo9SPvX00Ng', (0, 1, ), (2, 13, LInstance))
-ViSlI3tNgu2aFVB8BXYUxf9w = _typyd.Variant('ViSlI3tNgu2aFVB8BXYUxf9w', (
+Di_nLOKKEt1T1SVhg1chsw9w = _typyd.Dict('Di_nLOKKEt1T1SVhg1chsw9w', (0, 1, ), (2, 13, LInstance))
+Vi7dD6BPRQE1LZ8XQj04V6Mg = _typyd.Variant('Vi7dD6BPRQE1LZ8XQj04V6Mg', (
 	
 	('Integer', 8, 1, 0, 1, ),
 	('List', 18, 1, 2, 13, LInstance),
@@ -75,8 +75,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 DiPyType = _typyd.Dict('DiPyType', (0, 1, ), (2, 15, PyType))
@@ -98,8 +98,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 VbyfiVector2 = _typyd.Variant('VbyfiVector2', (
@@ -119,8 +119,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 VfisVector2 = _typyd.Variant('VfisVector2', (
@@ -134,8 +134,8 @@ Fighter = _typyd.Object('Fighter', (
 	
 	('bd', 10, 1, 2, 14, Dbys),
 	('bl', 18, 1, 2, 13, Lby),
-	('dd', 26, 1, 2, 14, DiaVwAwzjG9QsT227gn5sdSw),
-	('dv', 34, 1, 2, 12, VimpmP__sm4UToCagVQqZzKHQ),
+	('dd', 26, 1, 2, 14, DiQpfRL8_Q_3wo_Sn06nNWnQ),
+	('dv', 34, 1, 2, 12, Vi__zxiaLfTra898A6_6whFCg),
 	('ed', 42, 1, 2, 14, Dei),
 	('el', 50, 1, 2, 13, Le),
 	('fdd', 58, 1, 2, 14, DipfCS1hEiUnKAH2vnYWM13w),
@@ -145,9 +145,9 @@ Fighter = _typyd.Object('Fighter', (
 	('flv', 90, 1, 2, 12, Vq0t2631Zu6lArqg9rFtFlQ),
 	('hp', 101, 1, 5, 7, ),
 	('isAwake', 104, 1, 0, 8, ),
-	('ld', 114, 1, 2, 14, DibkLh0OApgnXeo9SPvX00Ng),
+	('ld', 114, 1, 2, 14, Di_nLOKKEt1T1SVhg1chsw9w),
 	('ll', 122, 1, 2, 13, LInstance),
-	('lv', 130, 2, 2, 12, ViSlI3tNgu2aFVB8BXYUxf9w),
+	('lv', 130, 2, 2, 12, Vi7dD6BPRQE1LZ8XQj04V6Mg),
 	('nv', 138, 2, 2, 12, Vi),
 	('pos', 146, 2, 2, 11, Vector2),
 	('posi', 154, 2, 2, 14, Dfi),
@@ -176,8 +176,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 Empty = _typyd.Object('Empty', (
@@ -190,8 +190,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 Fighter_Part2 = _typyd.Object('Fighter_Part2', (
@@ -228,8 +228,8 @@ Vector2 = _typyd.Object('Vector2', (
 	('i', 26, 1, 2, 11, Empty),
 	('p', 34, 1, 2, 15, PyType),
 	('s', 42, 1, 2, 10, ),
-	('x', 61, 1, 5, 7, ),
-	('y', 64, 1, 0, 5, FixedPoint_1_s10),
+	('x', 53, 1, 5, 7, ),
+	('y', 56, 1, 0, 5, FixedPoint_1_s10),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 Fighter_Part1 = _typyd.Object('Fighter_Part1', (

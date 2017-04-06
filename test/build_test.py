@@ -44,6 +44,9 @@ def setup():
 		def __str__(self):
 			return str(self.__dict__)
 
+		def ByteSize(self):
+			return len(repr(self.__dict__))
+
 		def Serialize(self):
 			return repr(self.__dict__)
 

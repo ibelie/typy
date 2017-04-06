@@ -345,7 +345,7 @@ static bool TypyString_Read(TypyType t, PyString* value, byte** input, size_t* l
 	register PyBytes bytes = Typy_ReadBytes(input, length);
 	if (!bytes) { return false; }
 	Py_XDECREF(*value);
-	*value = (PyString)PyUnicode_FromEncodedObject(bytes, "utf-8", NULL);
+	*value = (PyString)PyUnicode_FromEncodedObject((PyObject*)bytes, "utf-8", NULL);
 	Py_DECREF(bytes);
 	return true;
 }

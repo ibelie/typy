@@ -49,7 +49,7 @@ size_t TypyObject_ByteSize(TypyMetaObject* type, TypyObject** value, int tagsize
 	register size_t size = 0;
 	if (self) {
 		size = Typy_ByteSize(self);
-		self->object_size = size;
+		self->cached_size = size;
 	}
 	return tagsize + IblSizeVarint(size) + size;
 }
@@ -60,11 +60,11 @@ size_t TypyObject_Write(TypyMetaObject* type, TypyObject** value, int tag, byte*
 	if (tag) {
 		size += Typy_WriteTag(output, tag);
 	}
-	size += IblPutUvarint(output + size, self->object_size);
-	if (self->object_size) {
+	size += IblPutUvarint(output + size, self->cached_size);
+	if (self->cached_size) {
 		Typy_SerializeString(self, output + size);
 	}
-	return size + self->object_size;
+	return size + self->cached_size;
 }
 
 #define TypyObject_FromValueOrNew(s, v, t, r) \

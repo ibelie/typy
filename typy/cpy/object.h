@@ -49,7 +49,7 @@ inline char* Meta_PropertyName(TypyMetaObject* type, int index) {
 
 typedef struct {
 	TypyObject_HEAD
-	size_t    object_size;
+	size_t    cached_size;
 	TypyField object_fields[1];
 } TypyObject;
 

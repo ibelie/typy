@@ -121,7 +121,7 @@ size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsi
 		if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
 			size = Typy_BYTESIZE(self, i, Typy_TAGSIZE(self, i));
 		}
-		self->variant_size = size;
+		self->cached_size = size;
 	}
 	return tagsize + IblSizeVarint(size) + size;
 }
@@ -132,7 +132,7 @@ size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byt
 	if (tag) {
 		size += Typy_WriteTag(output, tag);
 	}
-	size += IblPutUvarint(output + size, self->variant_size);
+	size += IblPutUvarint(output + size, self->cached_size);
 	register int i = self->variant_index;
 	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
 		size += Typy_WRITE(self, i, Typy_TAG(self, i), output + size);

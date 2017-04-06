@@ -13,8 +13,8 @@ extern "C" {
 
 typedef struct {
 	TypyObject_HEAD
+	size_t    cached_size;
 	int       variant_index;
-	size_t    variant_size;
 	TypyField variant_value;
 } TypyVariant;
 
