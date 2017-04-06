@@ -171,9 +171,9 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		if (!MetaVariant_READ(type, self, index, input, &remain)) {
 			return false;
 		}
-	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
+	} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
 		TypyVariant_Clear(self);
-		if (!Typy_ReadPacked(Meta_TYPYTYPE(type, index), &self->variant_value, input, &remain)) {
+		if (!TypyList_ReadRepeated(Meta_TYPYTYPE(type, index), (TypyList**)&self->variant_value, input, &remain)) {
 			return false;
 		}
 	}

@@ -57,7 +57,7 @@ TypyList* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
 	return self;
 }
 
-bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
+inline bool TypyList_ReadRepeated(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
 	TypyList_FromValueOrNew(self, value, type, false);
 	register TypyField* offset = TypyList_EnsureSize(self, 1);
 	if (!offset) { return false; }
@@ -67,26 +67,26 @@ bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* l
 	return true;
 }
 
-static inline bool TypyList_ReadPacked(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
+bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* length) {
 	uint32 size;
-	if (!Typy_ReadVarint32(input, length, &size)) {
-		return false;
-	}
-	TypyList_FromValueOrNew(self, value, type, false);
 	register TypyField* offset;
-	register byte* limit = *input + size;
-	while (*input < limit) {
-		if (!(offset = TypyList_EnsureSize(self, 1))) {
-			return false;
-		} else if (!MetaList_READ(type, offset, input, length)) {
+	if (MetaList_IsPrimitive(type)) {
+		if (!Typy_ReadVarint32(input, length, &size)) {
 			return false;
 		}
+		TypyList_FromValueOrNew(self, value, type, false);
+		register byte* limit = *input + size;
+		while (*input < limit) {
+			if (!(offset = TypyList_EnsureSize(self, 1))) {
+				return false;
+			} else if (!MetaList_READ(type, offset, input, length)) {
+				return false;
+			}
+		}
+	} else {
+		return TypyList_ReadRepeated(type, value, input, length);
 	}
 	return true;
-}
-
-bool Typy_ReadPacked(TypyType type, TypyField* value, byte** input, size_t* length) {
-	return TypyList_ReadPacked((TypyMetaList*)type, (TypyList**)value, input, length);
 }
 
 size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* output) {

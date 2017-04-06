@@ -113,8 +113,8 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 			if (!MetaDict_READ(type, index, index ? &value : &key, input, &remain)) {
 				return false;
 			}
-		} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
-			if (!Typy_ReadPacked(MetaDict_TYPYTYPE(type, index), index ? &value : &key, input, &remain)) {
+		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(MetaDict_TYPYTYPE(type, index))) {
+			if (!TypyList_ReadRepeated(MetaDict_TYPYTYPE(type, index), (TypyList**)(index ? &value : &key), input, &remain)) {
 				return false;
 			}
 		}

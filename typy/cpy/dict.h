@@ -32,10 +32,11 @@ extern PyTypeObject TypyDictType;
 extern PyTypeObject TypyMetaDictType;
 TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 
-#define MetaKey_DESC(m) ((m)->key_desc)
-#define MetaKey_TAG(m) (MAKE_TAG(1, MetaKey_DESC(m).desc_WireType))
-#define MetaKey_FIELDTYPE(m) (MetaKey_DESC(m).desc_FieldType)
+#define MetaKey_DESC(m) (((TypyMetaDict*)(m))->key_desc)
 #define MetaKey_TYPYTYPE(m) (MetaKey_DESC(m).desc_type)
+#define MetaKey_FIELDTYPE(m) (MetaKey_DESC(m).desc_FieldType)
+#define MetaKey_WIRETYPE(m) (MetaKey_DESC(m).desc_WireType)
+#define MetaKey_TAG(m) (MAKE_TAG(1, MetaKey_WIRETYPE(m)))
 #define MetaKey_CLEAR(m, k) \
 	(abstract_Clear[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k)))
 #define MetaKey_BYTESIZE(m, k) \
@@ -47,10 +48,11 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaKey_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (l), (r), (e)))
 
-#define MetaValue_DESC(m) ((m)->value_desc)
-#define MetaValue_TAG(m) (MAKE_TAG(2, MetaValue_DESC(m).desc_WireType))
-#define MetaValue_FIELDTYPE(m) (MetaValue_DESC(m).desc_FieldType)
+#define MetaValue_DESC(m) (((TypyMetaDict*)(m))->value_desc)
 #define MetaValue_TYPYTYPE(m) (MetaValue_DESC(m).desc_type)
+#define MetaValue_FIELDTYPE(m) (MetaValue_DESC(m).desc_FieldType)
+#define MetaValue_WIRETYPE(m) (MetaValue_DESC(m).desc_WireType)
+#define MetaValue_TAG(m) (MAKE_TAG(2, MetaValue_WIRETYPE(m)))
 #define MetaValue_CLEAR(m, v) \
 	(abstract_Clear[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
 #define MetaValue_BYTESIZE(m, v) \

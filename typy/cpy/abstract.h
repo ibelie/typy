@@ -46,8 +46,6 @@ extern Read abstract_Read[MAX_FIELD_TYPE];
 extern Write abstract_Write[MAX_FIELD_TYPE];
 extern ByteSize abstract_ByteSize[MAX_FIELD_TYPE];
 
-bool Typy_ReadPacked(TypyType, TypyField*, byte**, size_t*);
-
 #ifdef __cplusplus
 }
 #endif

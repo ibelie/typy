@@ -19,9 +19,10 @@ typedef struct {
 	char         list_name[1];
 } TypyMetaList;
 
-#define MetaList_DESC(m) ((m)->list_desc)
+#define MetaList_DESC(m) (((TypyMetaList*)(m))->list_desc)
 #define MetaList_TYPYTYPE(m) (MetaList_DESC(m).desc_type)
 #define MetaList_FIELDTYPE(m) (MetaList_DESC(m).desc_FieldType)
+#define MetaList_WIRETYPE(m) (MetaList_DESC(m).desc_WireType)
 #define MetaList_CLEAR(m, f) \
 	(abstract_Clear[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
 #define MetaList_READ(m, f, i, l) \
@@ -107,12 +108,14 @@ inline TypyList* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwar
 	return list;
 }
 
-TypyList* TypyList_GetPyObject (TypyMetaList*, TypyList**);
-bool      TypyList_CheckAndSet (TypyMetaList*, TypyList**, PyObject*, const char*);
-bool      TypyList_Read        (TypyMetaList*, TypyList**, byte**, size_t*);
-void      TypyList_MergeFrom   (TypyMetaList*, TypyList**, TypyList*);
-size_t    TypyList_Write       (TypyMetaList*, TypyList**, int, byte*);
-size_t    TypyList_ByteSize    (TypyMetaList*, TypyList**, int);
+TypyList* TypyList_GetPyObject  (TypyMetaList*, TypyList**);
+bool      TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
+bool      TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);
+bool      TypyList_Read         (TypyMetaList*, TypyList**, byte**, size_t*);
+void      TypyList_MergeFrom    (TypyMetaList*, TypyList**, TypyList*);
+size_t    TypyList_Write        (TypyMetaList*, TypyList**, int, byte*);
+size_t    TypyList_ByteSize     (TypyMetaList*, TypyList**, int);
+
 
 typedef struct {
 	PyObject_HEAD
