@@ -34,7 +34,7 @@ bool TypyObject_CheckAndSet(TypyMetaObject* type, TypyObject** value, PyObject* 
 		*value = NULL;
 		return true;
 	}
-	if (!Typy_TypeCheck(arg) || Typy_TYPE(arg) != type) {
+	if (!Typy_TypeCheck(arg, type)) {
 		FormatTypeError(arg, err);
 		return false;
 	}

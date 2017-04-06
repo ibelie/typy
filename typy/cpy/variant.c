@@ -22,7 +22,7 @@ TypyVariant* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwa
 		return NULL;
 	}
 	PyObject_INIT(variant, &TypyVariantType);
-	variant->meta_type = type;
+	Typy_TYPE(variant) = type;
 	variant->variant_index = -1;
 	return variant;
 }
@@ -103,11 +103,13 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 		}
 	} else if (PyObject_HasAttrString(arg, "iteritems") && (index = Meta_PropertyIndex(type, "Dict")) >= 0) {
 	} else if (PySequence_Check(arg) && (index = Meta_PropertyIndex(type, "List")) >= 0) {
-	} else if (!Typy_TypeCheck(arg)) {
-		FormatTypeError(arg, "SetVariant no suitable type, ");
-		return false;
-	} else if ((index = Meta_PropertyIndex(type, Typy_NAME(arg))) < 0) {
-		FormatTypeError(arg, "SetVariant no suitable type, ");
+	} else if (PyObject_TypeCheck(arg, TypyObjectType)) {
+		if ((index = Meta_PropertyIndex(type, Typy_NAME(arg))) < 0) {
+			FormatTypeError(arg, "SetVariant no suitable type for Typy Object, ");
+			return false;
+		}
+	} else if ((index = Meta_PropertyIndex(type, (char*)Py_TYPE(arg)->tp_name)) < 0) {
+		FormatTypeError(arg, "SetVariant no suitable type for Python Object, ");
 		return false;
 	}
 	return MetaVariant_CHECKSET(type, self, index, arg, "SetVariant ");

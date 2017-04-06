@@ -86,7 +86,8 @@ TypyMetaObject* Typy_RegisterObject(PyObject*, PyObject*);
 #define Typy_NAME(ob) Meta_NAME(Typy_TYPE(ob))
 #define Typy_FIELD(ob, i) (((TypyObject*)(ob))->object_fields[i])
 #define Typy_DESC(ob, i) (Typy_TYPE(ob)->meta_descriptor[i])
-#define Typy_TypeCheck(ob) PyObject_TypeCheck(ob, TypyObjectType)
+#define Typy_TypeCheck(ob, m) \
+	PyObject_TypeCheck(ob, TypyObjectType) && PyObject_IsSubclass((PyObject*)Typy_TYPE(ob), (PyObject*)m)
 
 #define Typy_TAG(ob, i) (Typy_DESC(ob, i).desc_tag)
 #define Typy_TAGSIZE(ob, i) (Typy_DESC(ob, i).desc_tagsize)

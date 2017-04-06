@@ -71,7 +71,7 @@ static int object_Compare(PyObject* v, PyObject* w) {
 	if (c < 0) {
 		return -2;
 	} else if (c == 0) {
-		if (!Typy_TypeCheck(v) && !Typy_TypeCheck(w)) {
+		if (!PyObject_TypeCheck(v, TypyObjectType) && !PyObject_TypeCheck(w, TypyObjectType)) {
 			c = PyObject_Compare(v, w);
 			Py_DECREF(v);
 			Py_DECREF(w);
@@ -83,7 +83,7 @@ static int object_Compare(PyObject* v, PyObject* w) {
 		Py_INCREF(w);
 	}
 
-	if (Typy_TypeCheck(v)) {
+	if (PyObject_TypeCheck(v, TypyObjectType)) {
 		c = half_cmp(v, w);
 		if (c <= 1) {
 			Py_DECREF(v);
@@ -91,7 +91,7 @@ static int object_Compare(PyObject* v, PyObject* w) {
 			return c;
 		}
 	}
-	if (Typy_TypeCheck(w)) {
+	if (PyObject_TypeCheck(w, TypyObjectType)) {
 		c = half_cmp(w, v);
 		if (c <= 1) {
 			Py_DECREF(v);
@@ -130,9 +130,9 @@ static PyObject* half_richcompare(PyObject* v, PyObject* w, int op) {
 
 static PyObject* object_Richcompare(PyObject* v, PyObject* w, int op) {
 	static int swapped_op[] = {Py_GT, Py_GE, Py_EQ, Py_NE, Py_LT, Py_LE};
-	if (Typy_TypeCheck(v)) {
+	if (PyObject_TypeCheck(v, TypyObjectType)) {
 		return half_richcompare(v, w, op);
-	} else if (Typy_TypeCheck(w)) {
+	} else if (PyObject_TypeCheck(w, TypyObjectType)) {
 		return half_richcompare(w, v, swapped_op[op]);
 	}
 	Py_INCREF(Py_NotImplemented);
