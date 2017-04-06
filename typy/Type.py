@@ -95,9 +95,12 @@ class Double(Simple):
 
 class FixedPoint(Simple):
 	__slots__ = 'floor', 'precision'
-	default = 0.0
 	pyType = float
 	pbType = 'double'
+
+	@property
+	def default(self):
+		return self.floor
 
 	def __init__(self, precision = 0, floor = 0, **metadata):
 		self.floor = floor

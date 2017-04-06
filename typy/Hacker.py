@@ -566,7 +566,7 @@ def FixedPointSizer(sizer, precision, floor, includeZero):
 	floor = floor * precision
 	def _FixedPointSizer(value):
 		value = int(value * precision)
-		return sizer(value - floor) if includeZero or value != 0 else 0
+		return sizer(value - floor) if includeZero or value != floor else 0
 	return _FixedPointSizer
 
 def EncodeFixedPoint(encoder, precision, floor, includeZero):
@@ -574,7 +574,7 @@ def EncodeFixedPoint(encoder, precision, floor, includeZero):
 	floor = floor * precision
 	def _EncodeFixedPoint(write, value):
 		value = int(value * precision)
-		if includeZero or value != 0:
+		if includeZero or value != floor:
 			return encoder(write, value - floor)
 	return _EncodeFixedPoint
 
