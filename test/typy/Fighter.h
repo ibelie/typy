@@ -7,36 +7,36 @@
 
 #include "Corpus.h"
 #include "PyType.h"
-#include "VQYZcwhNx5__EgIiJ__uNsYGw.h"
+#include "VLf.h"
 #include "VbyfiVector2.h"
 #include "VdesVector2.h"
 #include "Vector2.h"
 #include "VfisVector2.h"
 #include "VfpisVector2.h"
 #include "Vi.h"
-#include "Vi7dD6BPRQE1LZ8XQj04V6Mg.h"
+#include "ViDfi.h"
+#include "ViDiVfs.h"
+#include "ViLVfs.h"
+#include "ViLf.h"
 #include "ViPyType.h"
-#include "Vi__zxiaLfTra898A6_6whFCg.h"
-#include "VipfCS1hEiUnKAH2vnYWM13w.h"
-#include "Vq0t2631Zu6lArqg9rFtFlQ.h"
 
 TypyHeaderBegin(Fighter);
 	SINGLE_ARG(Dict<string, bytes >)* p_bd;
 	List< bytes >* p_bl;
 	SINGLE_ARG(Dict<int32, SINGLE_ARG(Dict<int32, VdesVector2 >) >)* p_dd;
-	Vi__zxiaLfTra898A6_6whFCg* p_dv;
+	ViDiVfs* p_dv;
 	SINGLE_ARG(Dict<int32, Corpus >)* p_ed;
 	List< Corpus >* p_el;
 	SINGLE_ARG(Dict<int32, SINGLE_ARG(Dict<int32, float >) >)* p_fdd;
-	VipfCS1hEiUnKAH2vnYWM13w* p_fdv;
+	ViDfi* p_fdv;
 	List< float >* p_fl;
 	SINGLE_ARG(Dict<int32, List< float > >)* p_fld;
-	Vq0t2631Zu6lArqg9rFtFlQ* p_flv;
+	ViLf* p_flv;
 	float p_hp;
 	bool p_isAwake;
 	SINGLE_ARG(Dict<int32, List< VdesVector2 > >)* p_ld;
-	List< VQYZcwhNx5__EgIiJ__uNsYGw >* p_ll;
-	Vi7dD6BPRQE1LZ8XQj04V6Mg* p_lv;
+	List< VLf >* p_ll;
+	ViLVfs* p_lv;
 	Vi* p_nv;
 	Vector2* p_pos;
 	SINGLE_ARG(Dict<int32, float >)* p_posi;

@@ -110,7 +110,7 @@ bool Fighter_Part2::MergePartialFromCodedStream(CodedInputStream* input) {
 	NEXT_READ_REPEATED_PRIMITIVE_CASE(5, p_fl, float)
 	NEXT_READ_NORMAL_CASE(6, p_hp, float)
 	NEXT_READ_NORMAL_CASE(7, p_isAwake, bool)
-	NEXT_READ_REPEATED_OBJECT_CASE(8, p_ll, VQYZcwhNx5__EgIiJ__uNsYGw, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(8, p_ll, VLf, PREV_NO_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
 	NEXT_READ_NORMAL_CASE(9, p_pos, Vector2)
 	NEXT_READ_REPEATED_OBJECT_CASE(10, p_posi, SINGLE_ARG(Dict<int32, float >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
 	NEXT_READ_REPEATED_OBJECT_CASE(11, p_posl, Vector2, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
@@ -333,7 +333,7 @@ TYPY_GETSET(Fighter_Part2, p_el, List(Corpus));
 TYPY_GETSET(Fighter_Part2, p_fl, List(float));
 TYPY_GETSET(Fighter_Part2, p_hp, float);
 TYPY_GETSET(Fighter_Part2, p_isAwake, bool);
-TYPY_GETSET(Fighter_Part2, p_ll, List(VQYZcwhNx5__EgIiJ__uNsYGw));
+TYPY_GETSET(Fighter_Part2, p_ll, List(VLf));
 TYPY_GETSET(Fighter_Part2, p_pos, Vector2);
 TYPY_GETSET(Fighter_Part2, p_posi, Dict(int32 -> float));
 TYPY_GETSET(Fighter_Part2, p_posl, List(Vector2));

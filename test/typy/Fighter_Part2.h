@@ -7,7 +7,7 @@
 
 #include "Corpus.h"
 #include "PyType.h"
-#include "VQYZcwhNx5__EgIiJ__uNsYGw.h"
+#include "VLf.h"
 #include "Vector2.h"
 #include "ViPyType.h"
 
@@ -19,7 +19,7 @@ TypyHeaderBegin(Fighter_Part2);
 	List< float >* p_fl;
 	float p_hp;
 	bool p_isAwake;
-	List< VQYZcwhNx5__EgIiJ__uNsYGw >* p_ll;
+	List< VLf >* p_ll;
 	Vector2* p_pos;
 	SINGLE_ARG(Dict<int32, float >)* p_posi;
 	List< Vector2 >* p_posl;

@@ -29,7 +29,7 @@ bool InitModule(PyObject* m) {
 		&& PyType_Ready(&Dict<string, bytes >::_Type) >= 0 && PyType_Ready(&Dict<string, bytes >::IterKey_Type) >= 0 && PyType_Ready(&Dict<string, bytes >::IterItem_Type) >= 0
 		&& PyType_Ready(&List< Corpus >::_Type) >= 0 && PyType_Ready(&List< Corpus >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Python<Shadow_PyType> >::_Type) >= 0 && PyType_Ready(&List< Python<Shadow_PyType> >::Iterator_Type) >= 0
-		&& PyType_Ready(&List< VQYZcwhNx5__EgIiJ__uNsYGw >::_Type) >= 0 && PyType_Ready(&List< VQYZcwhNx5__EgIiJ__uNsYGw >::Iterator_Type) >= 0
+		&& PyType_Ready(&List< VLf >::_Type) >= 0 && PyType_Ready(&List< VLf >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VdesVector2 >::_Type) >= 0 && PyType_Ready(&List< VdesVector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Vector2 >::_Type) >= 0 && PyType_Ready(&List< Vector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VfpisVector2 >::_Type) >= 0 && PyType_Ready(&List< VfpisVector2 >::Iterator_Type) >= 0
