@@ -183,6 +183,7 @@ size_t TypyDict_ByteSize(TypyMetaDict* type, TypyDict** value, int tagsize) {
 
 static void TypyDict_Dealloc(TypyDict* self) {
 	TypyDict_Clear(self);
+	IblMap_Free(self->dict_map);
 	free(self);
 }
 

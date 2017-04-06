@@ -96,7 +96,6 @@ inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
 		MetaKey_CLEAR(type, &item->key);
 		MetaValue_CLEAR(type, &item->value);
 	}
-	IblMap_Free(self->dict_map);
 }
 #define TypyDict_Clear(ob) MetaDict_Clear((ob)->dict_type, (ob))
 #define TypyDict_TYPE(ob) (((TypyDict*)(ob))->dict_type)
