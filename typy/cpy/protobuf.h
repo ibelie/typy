@@ -22,8 +22,8 @@ extern "C" {
 
 inline bool Typy_ReadByte(byte** buffer, size_t* buf_len, byte* x) {
 	if (*buf_len < 1) { return false; }
-	*x = (*buffer++)[0];
-	*buf_len--;
+	*x = ((*buffer)++)[0];
+	(*buf_len)--;
 	return true;
 }
 
