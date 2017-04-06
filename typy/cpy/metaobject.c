@@ -83,6 +83,7 @@ bool TypyObject_Read(TypyMetaObject* type, TypyObject** value, byte** input, siz
 		return false;
 	}
 	TypyObject_FromValueOrNew(self, value, type, false);
+	if (!limit) { return true; }
 	register size_t size = Typy_MergeFromString(self, *input, limit);
 	*input += (limit - size);
 	*length -= limit;
