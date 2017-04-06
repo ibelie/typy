@@ -22,7 +22,7 @@ TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 		return NULL;
 	}
 
-	type->python_type = NULL;
+	type->python_type = &PyBaseObject_Type;
 	type->python_name[nameLen] = 0;
 	memcpy(type->python_name, name, nameLen);
 	PyObject_INIT(type, &TypyPythonType);
