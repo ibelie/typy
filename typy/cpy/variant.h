@@ -22,6 +22,31 @@ extern PyTypeObject TypyVariantType;
 extern PyTypeObject TypyMetaVariantType;
 TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 
+#define MetaVariant_CLEAR(m, s, i) \
+	(abstract_Clear[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
+#define MetaVariant_GET(m, s, i) \
+	(abstract_GetPyObject[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
+#define MetaVariant_SET(m, s, i, f) \
+	(abstract_CopyFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+#define MetaVariant_CHECKSET(m, s, i, v, e) \
+	(abstract_CheckAndSet[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (v), (e)))
+#define MetaVariant_MERGEFROM(m, s, i, f) \
+	(abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+#define MetaVariant_BYTESIZE(m, s, i, t) \
+	(abstract_ByteSize[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t)))
+#define MetaVariant_WRITE(m, s, i, t, o) \
+	(abstract_Write[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (o)))
+#define MetaVariant_READ(m, s, i, t, l) \
+	(abstract_Read[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
+
+inline void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
+	register int i = self->variant_index;
+	if (i < 0 || (size_t)i >= Meta_SIZE(type)) { return; }
+	MetaVariant_CLEAR(type, self, i);
+	self->variant_index = -1;
+}
+#define TypyVariant_Clear(ob) MetaVariant_Clear(Typy_TYPE(ob), (ob))
+
 TypyVariant* TypyVariant_New          (TypyMetaObject*, PyObject*, PyObject*);
 PyObject*    TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
 size_t       TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
@@ -29,13 +54,6 @@ size_t       TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte
 bool         TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
 bool         TypyVariant_CheckAndSet  (TypyMetaObject*, TypyVariant**, PyObject*, const char*);
 void         TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);
-
-inline void TypyVariant_Clear(TypyVariant* self) {
-	register int i = self->variant_index;
-	if (i < 0 || (size_t)i >= Typy_SIZE(self)) { return; }
-	Typy_CLEAR(self, i);
-	self->variant_index = -1;
-}
 
 #ifdef __cplusplus
 }

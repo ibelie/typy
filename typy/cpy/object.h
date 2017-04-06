@@ -28,7 +28,14 @@ typedef struct {
 
 void TypyMeta_Dealloc(TypyMetaObject*);
 
-#define Meta_NAME(meta) ((char*)(&((meta)->meta_descriptor[(meta)->meta_size])))
+#define Meta_NAME(m) ((char*)(&((m)->meta_descriptor[(m)->meta_size])))
+#define Meta_SIZE(m) ((m)->meta_size)
+#define Meta_DESC(m, i) ((m)->meta_descriptor[i])
+#define Meta_TAG(m, i) (Meta_DESC(m, i).desc_tag)
+#define Meta_TAGSIZE(m, i) (Meta_DESC(m, i).desc_tagsize)
+#define Meta_FIELDTYPE(m, i) (Meta_DESC(m, i).desc_FieldType)
+#define Meta_TYPYTYPE(m, i) (Meta_DESC(m, i).desc_type)
+#define Meta_WIRETYPE(m, i) (Meta_DESC(m, i).desc_WireType)
 
 inline int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
 	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(type->meta_field2index, &key);

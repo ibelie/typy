@@ -31,8 +31,8 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	register TypyVariant* self = *value;
 	if (!self) { Py_RETURN_NONE; }
 	register int i = self->variant_index;
-	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
-		return Typy_GET(self, i);
+	if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
+		return MetaVariant_GET(type, self, i);
 	}
 	Py_RETURN_NONE;
 }
@@ -110,7 +110,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 		FormatTypeError(arg, "SetVariant no suitable type, ");
 		return false;
 	}
-	return Typy_CHECKSET(self, index, arg, "SetVariant ");
+	return MetaVariant_CHECKSET(type, self, index, arg, "SetVariant ");
 }
 
 size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {
@@ -118,8 +118,8 @@ size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsi
 	register size_t size = 0;
 	if (self) {
 		register int i = self->variant_index;
-		if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
-			size = Typy_BYTESIZE(self, i, Typy_TAGSIZE(self, i));
+		if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
+			size = MetaVariant_BYTESIZE(type, self, i, Meta_TAGSIZE(type, i));
 		}
 		self->cached_size = size;
 	}
@@ -134,8 +134,8 @@ size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byt
 	}
 	size += IblPutUvarint(output + size, self->cached_size);
 	register int i = self->variant_index;
-	if (i >= 0 && (size_t)i < Typy_SIZE(self)) {
-		size += Typy_WRITE(self, i, Typy_TAG(self, i), output + size);
+	if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
+		size += MetaVariant_WRITE(type, self, i, Meta_TAG(type, i), output + size);
 	}
 	return size;
 }
@@ -154,15 +154,15 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		return false;
 	}
 	register int index = TAG_INDEX(tag);
-	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return false; }
-	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
+	if (index < 0 || (size_t)index >= Meta_SIZE(type)) { return false; }
+	if (TAG_WIRETYPE(tag) == Meta_WIRETYPE(type, index)) {
 		TypyVariant_Clear(self);
-		if (!Typy_READ(self, index, input, &remain)) {
+		if (!MetaVariant_READ(type, self, index, input, &remain)) {
 			return false;
 		}
 	} else if (TAG_WIRETYPE(tag) == WIRETYPE_LENGTH_DELIMITED) {
 		TypyVariant_Clear(self);
-		if (!Typy_ReadPacked(Typy_TYPYTYPE(self, index), &Typy_FIELD(self, index), input, &remain)) {
+		if (!Typy_ReadPacked(Meta_TYPYTYPE(type, index), &self->variant_value, input, &remain)) {
 			return false;
 		}
 	}
@@ -173,14 +173,14 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 }
 
 void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVariant* rvalue) {
-	if (!rvalue || rvalue->variant_index < 0 || (size_t)rvalue->variant_index >= Typy_SIZE(rvalue)) {
+	if (!rvalue || rvalue->variant_index < 0 || (size_t)rvalue->variant_index >= Meta_SIZE(type)) {
 		return;
 	}
 	TypyVariant_FromValueOrNew(self, lvalue, type, );
 	if (self->variant_index != rvalue->variant_index) {
 		TypyVariant_Clear(self);
 	}
-	Typy_MERGEFROM(self, self->variant_index, Typy_FIELD(rvalue, self->variant_index));
+	MetaVariant_MERGEFROM(type, self, self->variant_index, rvalue->variant_value);
 }
 
 static void TypyVariant_Dealloc(TypyVariant* self) {
