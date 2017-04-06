@@ -106,6 +106,7 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 		if (!Typy_ReadTag(input, &remain, &tag, 0x7F)) {
 			goto handle_unusual;
 		}
+
 		register int index = TAG_INDEX(tag);
 		if (index < 0 || index > 1) { goto handle_unusual; }
 		if (TAG_WIRETYPE(tag) == MetaDict_WIRETYPE(type, index)) {
@@ -117,6 +118,13 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 				return false;
 			}
 		}
+
+		if (!remain) {
+			break;
+		} else {
+			continue;
+		}
+
 	handle_unusual:
 		if (tag == 0) { break; }
 		if (!Typy_SkipField(input, &remain, tag)) { return false; }

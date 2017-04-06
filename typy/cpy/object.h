@@ -228,9 +228,16 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 				return 0;
 			}
 		}
+
+		if (!remain) {
+			return length;
+		} else {
+			continue;
+		}
+
 	handle_unusual:
 		if (tag == 0) { return length - remain; }
-		if (!Typy_SkipField(&input, &remain, tag)) { return false; }
+		if (!Typy_SkipField(&input, &remain, tag)) { return 0; }
 	}
 }
 
