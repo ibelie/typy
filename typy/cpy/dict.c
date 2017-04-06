@@ -160,8 +160,8 @@ size_t TypyDict_Write(TypyMetaDict* type, TypyDict** value, int tag, byte* outpu
 		register size_t entry_size = MetaKey_BYTESIZE(type, &item->key);
 		entry_size += MetaValue_BYTESIZE(type, &item->value);
 		size += IblPutUvarint(output + size, entry_size);
-		size += MetaKey_WRITE(type, &item->key, output);
-		size += MetaValue_WRITE(type, &item->value, output);
+		size += MetaKey_WRITE(type, &item->key, output + size);
+		size += MetaValue_WRITE(type, &item->value, output + size);
 	}
 	return size;
 }
