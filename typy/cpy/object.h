@@ -152,12 +152,14 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		Py_DECREF(type); return NULL;
 	}
 
+	register uint32 max_tag = 0;
 	for (i = 0; i < meta_size; i++) {
 		register PyObject* item = PySequence_GetItem(descriptors, i);
 		typy_type = NULL;
 		if (!PyArg_ParseTuple(item, "s#IBBB|O", &name, &nameLen, &tag, &tagsize, &wire_type, &field_type, &typy_type)) {
 			Py_DECREF(type); return NULL;
 		}
+		max_tag = Ibl_Max(max_tag, tag);
 		type->meta_descriptor[i].desc_tag       = tag;
 		type->meta_descriptor[i].desc_tagsize   = tagsize;
 		type->meta_descriptor[i].desc_WireType  = wire_type;
@@ -171,6 +173,7 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		field->index = i;
 		type->meta_index2field[i] = field->key;
 	}
+	type->meta_cutoff = max_tag <= 0x7F ? 0x7F : (max_tag <= 0x3FFF ? 0x3FFF : max_tag);
 
 	return type;
 }
