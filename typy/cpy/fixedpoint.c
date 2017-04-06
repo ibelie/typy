@@ -8,11 +8,15 @@
 extern "C" {
 #endif
 
+static uint32 _Pow10(uint8 x) {
+	return x ? _Pow10(x - 1) * 10 : 1;
+}
+
 TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
-	uint8 precision;
+	uint8 _precision;
 	int32 _floor;
 	TypyFixedPoint* type;
-	if (!PyArg_ParseTuple(args, "bl", &precision, &_floor)) {
+	if (!PyArg_ParseTuple(args, "bl", &_precision, &_floor)) {
 		return NULL;
 	}
 
@@ -22,8 +26,8 @@ TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 		return NULL;
 	}
 
-	type->fixedpoint_precision = precision;
-	type->fixedpoint_floor = _floor;
+	type->fp_precision = _Pow10(_precision);
+	type->fp_floor = _floor;
 	PyObject_INIT(type, &TypyFixedPointType);
 
 	return type;
@@ -48,7 +52,7 @@ void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
 
 static PyObject* TypyFixedPoint_Repr(TypyFixedPoint* type) {
 	return PyString_FromFormat("<type '" FULL_MODULE_NAME ".FixedPoint' precision(%d) floor(%d)>",
-		type->fixedpoint_precision, type->fixedpoint_floor);
+		type->fp_precision, type->fp_floor);
 }
 
 PyTypeObject TypyFixedPointType = {

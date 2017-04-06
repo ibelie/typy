@@ -13,19 +13,19 @@ extern "C" {
 
 typedef struct {
 	PyObject_HEAD
-	uint8 fixedpoint_precision;
-	int32 fixedpoint_floor;
+	uint32 fp_precision;
+	int32  fp_floor;
 } TypyFixedPoint;
 
 extern PyTypeObject TypyFixedPointType;
 TypyFixedPoint* Typy_RegisterFixedPoint(PyObject*, PyObject*);
 
 inline double TypyFixedPoint_toDouble(TypyFixedPoint* type, TypyField value) {
-	return (double)value / type->fixedpoint_precision + type->fixedpoint_floor;
+	return (double)value / type->fp_precision + type->fp_floor;
 }
 
 inline TypyField TypyFixedPoint_fromDouble(TypyFixedPoint* type, double value) {
-	return (TypyField)((value - type->fixedpoint_floor) * type->fixedpoint_precision);
+	return (TypyField)((value - type->fp_floor) * type->fp_precision);
 }
 
 PyObject* TypyFixedPoint_GetPyObject (TypyFixedPoint*, TypyField*);
