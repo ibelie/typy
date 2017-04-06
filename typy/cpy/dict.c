@@ -155,7 +155,7 @@ size_t TypyDict_Write(TypyMetaDict* type, TypyDict** value, int tag, byte* outpu
 	register size_t size = 0;
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
-		size += Typy_WriteTag(output, tag);
+		size += Typy_WriteTag(output + size, tag);
 		register TypyDictMap item = (TypyDictMap)iter;
 		register size_t entry_size = MetaKey_BYTESIZE(type, &item->key);
 		entry_size += MetaValue_BYTESIZE(type, &item->value);
