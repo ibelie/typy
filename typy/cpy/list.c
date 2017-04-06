@@ -97,11 +97,11 @@ size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* outpu
 		size += Typy_WriteTag(output, tag);
 		size += IblPutUvarint(output + size, self->cached_size);
 		for (i = 0; i < self->list_length; i++) {
-			size += MetaList_WRITE(type, &self->list_items[i], 0, output);
+			size += MetaList_WRITE(type, &self->list_items[i], 0, output + size);
 		}
 	} else {
 		for (i = 0; i < self->list_length; i++) {
-			size += MetaList_WRITE(type, &self->list_items[i], tag, output);
+			size += MetaList_WRITE(type, &self->list_items[i], tag, output + size);
 		}
 	}
 	return size;

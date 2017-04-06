@@ -257,19 +257,12 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 
 inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 	if (!Typy_TAG(self, index)) { return 0; }
-	register size_t size = Typy_BYTESIZE(self, index, Typy_TAGSIZE(self, index));
-	if (size == 0) {
-		return Typy_TAGSIZE(self, index);
-	} else {
-		return size;
-	}
+	return Typy_BYTESIZE(self, index, Typy_TAGSIZE(self, index));
 }
 
 inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
 	if (!Typy_TAG(self, index)) { return; }
-	if (Typy_WRITE(self, index, Typy_TAG(self, index), output) <= 0) {
-		Typy_WriteTag(output, Typy_TAG(self, index));
-	}
+	Typy_WRITE(self, index, Typy_TAG(self, index), output);
 }
 
 inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
