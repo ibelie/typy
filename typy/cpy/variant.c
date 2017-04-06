@@ -112,7 +112,14 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 		FormatTypeError(arg, "SetVariant no suitable type for Python Object, ");
 		return false;
 	}
-	return MetaVariant_CHECKSET(type, self, index, arg, "SetVariant ");
+	if (self->variant_index >= 0 && self->variant_index < Meta_SIZE(type)) {
+		MetaVariant_CLEAR(type, self, self->variant_index);
+	}
+	register bool success = MetaVariant_CHECKSET(type, self, index, arg, "SetVariant ");
+	if (success) {
+		self->variant_index = index;
+	}
+	return success;
 }
 
 size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {
