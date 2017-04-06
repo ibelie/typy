@@ -66,7 +66,7 @@ VLf = _typyd.Variant('VLf', (
 	
 	('List', 10, 1, 2, 13, Lf),
 ))
-LList = _typyd.List('LList', (2, 12, VLf))
+LVLf = _typyd.List('LVLf', (2, 12, VLf))
 LVfs = _typyd.List('LVfs', (2, 12, Vfs))
 ViLVfs = _typyd.Variant('ViLVfs', (
 	
@@ -127,7 +127,7 @@ Fighter = _typyd.Object('Fighter', (
 	('hp', 101, 1, 5, 7, ),
 	('isAwake', 104, 1, 0, 8, ),
 	('ld', 114, 1, 2, 14, DiLVdesVector2),
-	('ll', 122, 1, 2, 13, LList),
+	('ll', 122, 1, 2, 13, LVLf),
 	('lv', 130, 2, 2, 12, ViLVfs),
 	('nv', 138, 2, 2, 12, Vi),
 	('pos', 146, 2, 2, 11, Vector2),
@@ -156,7 +156,7 @@ Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('fl', 42, 1, 2, 13, Lf),
 	('hp', 53, 1, 5, 7, ),
 	('isAwake', 56, 1, 0, 8, ),
-	('ll', 66, 1, 2, 13, LList),
+	('ll', 66, 1, 2, 13, LVLf),
 	('pos', 74, 1, 2, 11, Vector2),
 	('posi', 82, 1, 2, 14, Dfi),
 	('posl', 90, 1, 2, 13, LVector2),

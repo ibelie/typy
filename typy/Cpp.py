@@ -180,7 +180,7 @@ def _RecordNesting(prefix, types):
 	for name in sorted([k for k in properties.iterkeys() if k not in shortName]):
 		prop = properties[name]
 		if isinstance(prop, Instance):
-			if len(prop.pyType) == 1:
+			if len(prop.pyType) == 1 and not isinstance(prop.pyType[0], List):
 				names.append(prop.pyType[0].__name__)
 			else:
 				names.append(_RecordNesting('V', prop.pyType)[0])
