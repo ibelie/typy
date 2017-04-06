@@ -143,12 +143,15 @@ size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byt
 	if (tag) {
 		size += Typy_WriteTag(output, tag);
 	}
-	size += IblPutUvarint(output + size, self->cached_size);
-	register int i = self->variant_index;
-	if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
-		size += MetaVariant_WRITE(type, self, i, Meta_TAG(type, i), output + size);
+	if (self) {
+		size += IblPutUvarint(output + size, self->cached_size);
+		register int i = self->variant_index;
+		if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
+			return size + MetaVariant_WRITE(type, self, i, Meta_TAG(type, i), output + size);
+		}
 	}
-	return size;
+	output[size] = 0;
+	return size + 1;
 }
 
 bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, size_t* length) {
@@ -161,23 +164,40 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 	}
 	remain = limit;
 	TypyVariant_FromValueOrNew(self, value, type, false);
-	if (!Typy_ReadTag(input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
-		return false;
-	}
-	register int index = TAG_INDEX(tag);
-	if (index < 0 || (size_t)index >= Meta_SIZE(type)) { return false; }
-	if (TAG_WIRETYPE(tag) == Meta_WIRETYPE(type, index)) {
-		TypyVariant_Clear(self);
-		if (!MetaVariant_READ(type, self, index, input, &remain)) {
-			return false;
+
+	for (;;) {
+		if (!Typy_ReadTag(input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
+			goto handle_unusual;
 		}
-	} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
-		TypyVariant_Clear(self);
-		if (!TypyList_ReadRepeated(Meta_TYPYTYPE(type, index), (TypyList**)&self->variant_value, input, &remain)) {
-			return false;
+		register int index = TAG_INDEX(tag);
+		if (index < 0 || (size_t)index >= Meta_SIZE(type)) { goto handle_unusual; }
+		if (TAG_WIRETYPE(tag) == Meta_WIRETYPE(type, index)) {
+			if (self->variant_index != index) {
+				TypyVariant_Clear(self);
+			}
+			if (!MetaVariant_READ(type, self, index, input, &remain)) {
+				goto handle_unusual;
+			}
+		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
+			if (self->variant_index != index) {
+				TypyVariant_Clear(self);
+			}
+			if (!TypyList_ReadRepeated(Meta_TYPYTYPE(type, index), (TypyList**)&self->variant_value, input, &remain)) {
+				goto handle_unusual;
+			}
 		}
+		self->variant_index = index;
+
+		if (!remain) {
+			break;
+		} else {
+			continue;
+		}
+
+	handle_unusual:
+		if (tag == 0) { break; }
+		if (!Typy_SkipField(input, &remain, tag)) { return false; }
 	}
-	self->variant_index = index;
 	*input += remain;
 	*length -= limit;
 	return remain == 0;

@@ -262,26 +262,45 @@ inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 
 inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
 	if (!Typy_TAG(self, index)) { return; }
-	Typy_WRITE(self, index, Typy_TAG(self, index), output);
+	if (Typy_FIELD(self, index)) {
+		Typy_WRITE(self, index, Typy_TAG(self, index), output);
+	} else {
+		Typy_WriteTag(output, Typy_TAG(self, index));
+	}
 }
 
 inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
-	if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
-		return -1;
-	}
-	register int index = TAG_INDEX(tag);
-	if (index < 0 || (size_t)index >= Typy_SIZE(self)) { return -1; }
-	Typy_CLEAR(self, index);
-	if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
-		if (!Typy_READ(self, index, &input, &remain)) {
-			return -1;
+	register int index = -1;
+	for (;;) {
+		if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
+			goto handle_unusual;
+		} else if (index >= 0 && index != TAG_INDEX(tag)) {
+			goto handle_unusual;
 		}
-	} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
-		if (!TypyList_ReadRepeated(Typy_TYPYTYPE(self, index), (TypyList**)&Typy_FIELD(self, index), &input, &remain)) {
-			return -1;
+		index = TAG_INDEX(tag);
+		if (index < 0 || (size_t)index >= Typy_SIZE(self)) { goto handle_unusual; }
+		Typy_CLEAR(self, index);
+		if (!remain) { break; }
+		if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
+			if (!Typy_READ(self, index, &input, &remain)) {
+				goto handle_unusual;
+			}
+		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
+			if (!TypyList_ReadRepeated(Typy_TYPYTYPE(self, index), (TypyList**)&Typy_FIELD(self, index), &input, &remain)) {
+				goto handle_unusual;
+			}
 		}
+
+		if (!remain) {
+			break;
+		} else {
+			continue;
+		}
+
+	handle_unusual:
+		if (tag == 0 || !Typy_SkipField(&input, &remain, tag)) { break; }
 	}
 	return index;
 }
