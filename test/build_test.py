@@ -564,7 +564,6 @@ def _build(_typy):
 	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
 
 def test_cpp():
-	return
 	import os
 	from typy import GenerateExtention
 	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
@@ -572,6 +571,7 @@ def test_cpp():
 	_build(_typy)
 
 def test_cpy():
+	return
 	import os
 	from typy import GenerateDescriptor
 	GenerateDescriptor(os.path.dirname(__file__))

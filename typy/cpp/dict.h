@@ -114,7 +114,8 @@ bool MergeDict(PyObject* arg, Dict<K, V>& value) {
 
 template <typename K, typename V>
 bool MergeIter(PyObject* iter, Dict<K, V>& value) {
-	for (Py_ssize_t i = 0; i < _PyObject_LengthHint(iter, 0); i++) {
+	Py_ssize_t size = _PyObject_LengthHint(iter, 0);
+	for (Py_ssize_t i = 0; i < size; i++) {
 		ScopedPyObjectPtr item(PyIter_Next(iter));
 		if (tp_AssSubscript<K, V>(&value, PyTuple_GET_ITEM(item.get(), 0),
 			PyTuple_GET_ITEM(item.get(), 1)) == -1) {
