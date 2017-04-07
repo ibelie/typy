@@ -8,6 +8,13 @@
 extern "C" {
 #endif
 
+inline void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
+	register int i = self->variant_index;
+	if (i < 0 || (size_t)i >= Meta_SIZE(type)) { return; }
+	MetaVariant_CLEAR(type, self, i);
+	self->variant_index = -1;
+}
+
 TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
 	type->meta_new = NULL;

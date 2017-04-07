@@ -19,6 +19,15 @@ typedef struct {
 	char         list_name[1];
 } TypyMetaList;
 
+typedef struct {
+	PyObject_HEAD
+	TypyMetaList* list_type;
+	size_t        cached_size;
+	size_t        list_capacity;
+	size_t        list_length;
+	TypyField*    list_items;
+} TypyList;
+
 #define MetaList_DESC(m) (((TypyMetaList*)(m))->list_desc)
 #define MetaList_TYPYTYPE(m) (MetaList_DESC(m).desc_type)
 #define MetaList_FIELDTYPE(m) (MetaList_DESC(m).desc_FieldType)
@@ -40,81 +49,8 @@ typedef struct {
 #define MetaList_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r), (e)))
 #define MetaList_IsPrimitive(m) (MetaList_FIELDTYPE(m) < MAX_PRIMITIVE_TYPE)
-
-typedef struct {
-	PyObject_HEAD
-	TypyMetaList* list_type;
-	size_t        cached_size;
-	size_t        list_capacity;
-	size_t        list_length;
-	TypyField*    list_items;
-} TypyList;
-
-inline void MetaList_Clear(TypyMetaList* type, TypyList* self) {
-	register size_t i;
-	for (i = 0; i < self->list_length; i++) {
-		MetaList_CLEAR(type, &self->list_items[i]);
-	}
-	self->list_length = 0;
-}
-
-inline TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
-	if (self->list_length + size > self->list_capacity) {
-		register size_t capacity = Ibl_Max(2 * self->list_capacity + size, MIN_LIST_CAPACITY);
-		register TypyField* buffer = (TypyField*)calloc(capacity, sizeof(TypyField));
-		if (!buffer) {
-			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %lu.\n", capacity * sizeof(TypyField));
-			return NULL;
-		}
-		self->list_capacity = capacity;
-		if (self->list_items) {
-			memcpy(buffer, self->list_items, self->list_length * sizeof(TypyField));
-			free(self->list_items);
-		}
-		self->list_items = buffer;
-	}
-	register TypyField* offset = &self->list_items[self->list_length];
-	self->list_length += size;
-	return offset;
-}
-
-inline bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) {
-	if (PyList_CheckExact(list) || PyTuple_CheckExact(list) || (PyObject*)self == list) {
-		list = PySequence_Fast(list, "argument must be iterable");
-		if (!list) { return false; }
-		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list);
-		if (size == 0) { Py_DECREF(list); return true; }
-		register PyObject** src = PySequence_Fast_ITEMS(list);
-		register TypyField* offset = TypyList_EnsureSize(self, size);
-		if (!offset) { Py_DECREF(list); return false; }
-		for (i = 0; i < size; i++) {
-			if (!MetaList_CHECKSET(type, offset++, src[i], "List item type error: ")) {
-				Py_DECREF(list);
-				return false;
-			}
-		}
-		Py_DECREF(list);
-		return true;
-	}
-	register Py_ssize_t i, size = _PyObject_LengthHint(list, 0);
-	if (size < 0) { return false; } else if (!size) { return true; }
-	register PyObject* it = PyObject_GetIter(list);
-	if (!it) { return false; }
-	register iternextfunc iternext = *it->ob_type->tp_iternext;
-	register TypyField* offset = TypyList_EnsureSize(self, size);
-	if (!offset) { Py_DECREF(it); return false; }
-	for (i = 0; i < size; i++) {
-		register PyObject* item = iternext(it);
-		register bool success = MetaList_CHECKSET(type, offset++, item, "List item type error: ");
-		Py_XDECREF(item);
-		if (!success) {
-			Py_DECREF(it);
-			return false;
-		}
-	}
-	Py_DECREF(it);
-	return true;
-}
+void    MetaList_Clear(TypyMetaList*, TypyList*);
+bool    MetaList_Extend(TypyMetaList*, TypyList*, PyObject*);
 
 #define TypyList_TYPE(ob)              (((TypyList*)(ob))->list_type)
 #define TypyList_CLEAR(ob, f)          MetaList_CLEAR(TypyList_TYPE(ob), (f))
@@ -132,24 +68,15 @@ extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
 TypyMetaList* Typy_RegisterList(PyObject*, PyObject*);
 
-inline TypyList* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwargs) {
-	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
-	if (!list) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %lu.", sizeof(TypyList));
-		return NULL;
-	}
-	PyObject_INIT(list, &TypyListType);
-	TypyList_TYPE(list) = type;
-	return list;
-}
-
-TypyList* TypyList_GetPyObject  (TypyMetaList*, TypyList**);
-bool      TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
-bool      TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);
-bool      TypyList_Read         (TypyMetaList*, TypyList**, byte**, size_t*);
-void      TypyList_MergeFrom    (TypyMetaList*, TypyList**, TypyList*);
-size_t    TypyList_Write        (TypyMetaList*, TypyList**, int, byte*);
-size_t    TypyList_ByteSize     (TypyMetaList*, TypyList**, int);
+TypyField* TypyList_EnsureSize   (TypyList*, size_t);
+TypyList*  TypyList_New          (TypyMetaList*, PyObject*, PyObject*);
+TypyList*  TypyList_GetPyObject  (TypyMetaList*, TypyList**);
+bool       TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
+bool       TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);
+bool       TypyList_Read         (TypyMetaList*, TypyList**, byte**, size_t*);
+void       TypyList_MergeFrom    (TypyMetaList*, TypyList**, TypyList*);
+size_t     TypyList_Write        (TypyMetaList*, TypyList**, int, byte*);
+size_t     TypyList_ByteSize     (TypyMetaList*, TypyList**, int);
 
 
 typedef struct {

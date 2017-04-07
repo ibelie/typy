@@ -20,14 +20,8 @@ typedef struct {
 extern PyTypeObject TypyFixedPointType;
 TypyFixedPoint* Typy_RegisterFixedPoint(PyObject*, PyObject*);
 
-inline double TypyFixedPoint_toDouble(TypyFixedPoint* type, TypyField value) {
-	return (double)value / type->fp_precision + type->fp_floor;
-}
-
-inline TypyField TypyFixedPoint_fromDouble(TypyFixedPoint* type, double value) {
-	return (TypyField)((value - type->fp_floor) * type->fp_precision);
-}
-
+double    TypyFixedPoint_toDouble    (TypyFixedPoint*, TypyField);
+TypyField TypyFixedPoint_fromDouble  (TypyFixedPoint*, double) ;
 PyObject* TypyFixedPoint_GetPyObject (TypyFixedPoint*, TypyField*);
 bool      TypyFixedPoint_CheckAndSet (TypyFixedPoint*, TypyField*, PyObject*, const char*);
 

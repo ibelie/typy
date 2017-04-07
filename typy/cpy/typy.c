@@ -16,6 +16,21 @@ void FormatTypeError(PyObject* arg, const char* err) {
 	Py_DECREF(repr);
 }
 
+PyBytes Typy_CheckBytes(PyObject* arg, const char* err) {
+	if (!arg || arg == Py_None) {
+		FormatTypeError(arg, err);
+		return NULL;
+	} else if (PyUnicode_Check(arg)) {
+		return (PyBytes)PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
+	} else if (PyBytes_Check(arg)) {
+		Py_INCREF(arg);
+		return (PyBytes)arg;
+	} else {
+		FormatTypeError(arg, err);
+		return NULL;
+	}
+}
+
 bool isDefaultEncodingUTF8 = false;
 
 static const char module_docstring[] =

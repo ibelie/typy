@@ -39,12 +39,7 @@ TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 #define MetaVariant_READ(m, s, i, t, l) \
 	(abstract_Read[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
 
-inline void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
-	register int i = self->variant_index;
-	if (i < 0 || (size_t)i >= Meta_SIZE(type)) { return; }
-	MetaVariant_CLEAR(type, self, i);
-	self->variant_index = -1;
-}
+void    MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self);
 #define TypyVariant_Clear(ob) MetaVariant_Clear(Typy_TYPE(ob), (ob))
 
 TypyVariant* TypyVariant_New          (TypyMetaObject*, PyObject*, PyObject*);

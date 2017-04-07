@@ -18,28 +18,7 @@ typedef struct _TypyDictMap {
 	TypyField value;
 } *TypyDictMap;
 
-static inline TypyDictMap _TypyDictMap_New(TypyField* key) {
-	TypyDictMap item = (TypyDictMap)calloc(1, sizeof(struct _TypyDictMap));
-	if (item) { item->key = *key; }
-	return item;
-}
-
-static inline void _TypyDictMap_Free(TypyDictMap item) {
-	if (item) { free(item); }
-}
-
-inline IblMap TypyDictMap_New(byte field_type) {
-	IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));
-	if (map) {
-		map->hash = (IblMap_Hash)abstract_Hash[field_type];
-		map->alloc = (IblMap_NewItem)_TypyDictMap_New;
-		map->dealloc = (IblMap_Dealloc)_TypyDictMap_Free;
-		map->compare = (IblMap_Compare)abstract_Compare[field_type];
-	}
-	return map;
-}
-
-//=============================================================================
+IblMap TypyDictMap_New(byte field_type);
 
 typedef struct {
 	PyObject_HEAD
@@ -99,47 +78,10 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaDict_MERGEFROM(m, l, r) \
 	(abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 
-inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
-	register TypyDictMap item;
-	register IblMap_Item iter;
-	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
-		item = (TypyDictMap)iter;
-		MetaKey_CLEAR(type, &item->key);
-		MetaValue_CLEAR(type, &item->value);
-	}
-}
-
-inline bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject* key, PyObject* value) {
-	TypyField k = 0;
-	if (!MetaKey_CHECKSET(type, &k, key, "Dict key type error: ")) {
-		return false;
-	}
-	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
-	if (!entry) { return false; }
-	return MetaValue_CHECKSET(type, &entry->value, value, "Dict value type error: ");
-}
-
-inline bool MetaDict_MergeDict(TypyMetaDict* type, TypyDict* self, PyObject* dict) {
-	PyObject *k, *v;
-	Py_ssize_t pos = 0;
-	while (PyDict_Next(dict, &pos, &k, &v)) {
-		if (!MetaDict_SetItem(type, self, k, v)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-inline bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* iter) {
-	register Py_ssize_t i, n = _PyObject_LengthHint(iter, 0);
-	for (i = 0; i < n; i++) {
-		register PyObject* item = PyIter_Next(iter);
-		if (!MetaDict_SetItem(type, self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
-			return false;
-		}
-	}
-	return true;
-}
+void    MetaDict_Clear     (TypyMetaDict*, TypyDict*);
+bool    MetaDict_SetItem   (TypyMetaDict*, TypyDict*, PyObject*, PyObject*);
+bool    MetaDict_MergeDict (TypyMetaDict*, TypyDict*, PyObject*);
+bool    MetaDict_MergeIter (TypyMetaDict*, TypyDict*, PyObject*);
 
 #define TypyDict_TYPE(ob)               (((TypyDict*)(ob))->dict_type)
 #define TypyDict_Clear(ob)              MetaDict_Clear(TypyDict_TYPE(ob), (ob))
@@ -151,23 +93,7 @@ inline bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* ite
 #define TypyValue_GET(ob, v)            MetaValue_GET(TypyDict_TYPE(ob), (v))
 #define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 
-inline TypyDict* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwargs) {
-	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
-	if (!dict) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %lu.", sizeof(TypyDict));
-		return NULL;
-	}
-	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));
-	if (!dict->dict_map) {
-		free(dict);
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");
-		return NULL;
-	}
-	PyObject_INIT(dict, &TypyDictType);
-	TypyDict_TYPE(dict) = type;
-	return dict;
-}
-
+TypyDict* TypyDict_New         (TypyMetaDict*, PyObject*, PyObject*);
 TypyDict* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
 bool      TypyDict_CheckAndSet (TypyMetaDict*, TypyDict**, PyObject*, const char*);
 bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);

@@ -24,22 +24,12 @@ typedef struct _IblTree {
 
 #define IblTree_Parent(n) ((IblTree)((n)->parent & ~1))
 
-inline IblAPI(IblTree) IblTree_Begin(IblTree node) {
-	if (!node) { return NULL; }
-	while (node->left) { node = node->left; }
-	return node;
-}
-
-inline IblAPI(IblTree) IblTree_End(IblTree node) {
-	if (!node) { return NULL; }
-	while (node->right) { node = node->right; }
-	return node;
-}
-
-IblAPI(void) IblTree_Erase(IblTree*, IblTree);
-IblAPI(void) IblTree_Insert(IblTree*, IblTree*, IblTree, IblTree);
-IblAPI(IblTree) IblTree_Next(IblTree);
-IblAPI(IblTree) IblTree_Prev(IblTree);
+IblAPI(void)    IblTree_Erase  (IblTree*, IblTree);
+IblAPI(void)    IblTree_Insert (IblTree*, IblTree*, IblTree, IblTree);
+IblAPI(IblTree) IblTree_Begin  (IblTree);
+IblAPI(IblTree) IblTree_End    (IblTree);
+IblAPI(IblTree) IblTree_Next   (IblTree);
+IblAPI(IblTree) IblTree_Prev   (IblTree);
 
 #define IblTree_Search(ROOT, NODE, CMP) {      \
 	NODE = ROOT;                               \

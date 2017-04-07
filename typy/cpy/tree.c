@@ -16,6 +16,18 @@
 extern "C" {
 #endif
 
+inline IblTree IblTree_Begin(IblTree node) {
+	if (!node) { return NULL; }
+	while (node->left) { node = node->left; }
+	return node;
+}
+
+inline IblTree IblTree_End(IblTree node) {
+	if (!node) { return NULL; }
+	while (node->right) { node = node->right; }
+	return node;
+}
+
 #define IblTree_Rotate(HAND1, HAND2) \
 __rotate_##HAND1(IblTree* root, IblTree node) { \
 	IblTree HAND2 = node->HAND2;                \

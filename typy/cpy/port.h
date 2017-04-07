@@ -109,98 +109,26 @@ typedef struct _bytes {
 	size_t length;
 } *bytes;
 
-inline IblAPI(size_t) IblBytesHash(bytes buffer) {
-	register size_t hash = 0;
-	register byte *i, *n = buffer->data + buffer->length;
-	for (i = buffer->data; i < n; i++) {
-		hash = (hash << 5) - hash + *i;
-	}
-	return hash;
-}
-
-inline IblAPI(int) IblBytesCompare(bytes k1, bytes k2) {
-	if (k1->length == k2->length) {
-		return memcmp(k1->data, k2->data, k1->length);
-	} else {
-		return k1->length - k2->length;
-	}
-}
+IblAPI(size_t) IblBytesHash    (bytes);
+IblAPI(int)    IblBytesCompare (bytes, bytes);
 
 typedef char* string;
 
-inline IblAPI(size_t) IblStringHash(string* str) {
-	register size_t hash = 0;
-	register char* i;
-	for (i = *str; *i != '\0'; i++) {
-		hash = (hash << 5) - hash + *i;
-	}
-	return hash;
-}
+IblAPI(size_t) IblStringHash    (string*);
+IblAPI(int)    IblStringCompare (string*, string*);
 
-inline IblAPI(int) IblStringCompare(string* s1, string* s2) {
-	return strcmp(*s1, *s2);
-}
-
-inline IblAPI(uint64) IblUint64(byte* b) {
-	return ((uint64)(b[7])) | ((uint64)(b[6])<<8) | ((uint64)(b[5])<<16) | ((uint64)(b[4])<<24) |
-		((uint64)(b[3])<<32) | ((uint64)(b[2])<<40) | ((uint64)(b[1])<<48) | ((uint64)(b[0])<<56);
-}
-
-inline IblAPI(void) IblPutUint64(byte* b, uint64 v) {
-	b[0] = (byte)(v >> 56);
-	b[1] = (byte)(v >> 48);
-	b[2] = (byte)(v >> 40);
-	b[3] = (byte)(v >> 32);
-	b[4] = (byte)(v >> 24);
-	b[5] = (byte)(v >> 16);
-	b[6] = (byte)(v >> 8);
-	b[7] = (byte)(v);
-}
+IblAPI(uint64) IblUint64    (byte*);
+IblAPI(void)   IblPutUint64 (byte*, uint64);
 
 #define MaxVarintLen 10
 
-inline IblAPI(size_t) IblSizeVarint(uint64 x) {
-	register size_t n = 0;
-	do { n++; x >>= 7; } while (x);
-	return n;
-}
+IblAPI(int)    IblUvarint    (byte*, size_t, uint64*);
+IblAPI(size_t) IblPutUvarint (byte*, uint64);
+IblAPI(size_t) IblSizeVarint (uint64);
 
-inline IblAPI(int) IblUvarint(byte* buffer, size_t buf_len, uint64* x) {
-	register uint64 y = 0;
-	register size_t s = 0, i;
-	if (buf_len > MaxVarintLen) { buf_len = MaxVarintLen; }
-	for (i = 0; i < buf_len; i++) {
-		register byte b = buffer[i];
-		if (b < 0x80) {
-			if (i > 9 || (i == 9 && b > 1)) {
-				/* overflow */
-				*x = 0;
-				return -((int)i + 1);
-			}
-			*x = y | (uint64)(b) << s;
-			return i + 1;
-		}
-		y |= (uint64)(b & 0x7F) << s;
-		s += 7;
-	}
-	*x = 0;
-	return 0;
-}
-
-inline IblAPI(size_t) IblPutUvarint(byte* buffer, uint64 x) {
-	register size_t i = 0;
-	while (x >= 0x80) {
-		buffer[i] = (byte)x | 0x80;
-		x >>= 7;
-		i++;
-	}
-	buffer[i] = (byte)x;
-	return i + 1;
-}
-
-IblAPI(FILE*) IblFileOpen(const string);
-IblAPI(bool)  IblFileWriteUint64At(FILE*, uint64, size_t);
-IblAPI(bool)  IblFileTruncate(FILE*, size_t);
+IblAPI(FILE*)  IblFileOpen(const string);
+IblAPI(bool)   IblFileWriteUint64At(FILE*, uint64, size_t);
+IblAPI(bool)   IblFileTruncate(FILE*, size_t);
 
 #ifdef __cplusplus
 }

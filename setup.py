@@ -65,6 +65,8 @@ setup(
 			'typy/cpy/map.c',
 			'typy/cpy/metaobject.c',
 			'typy/cpy/object.c',
+			'typy/cpy/port.c',
+			'typy/cpy/protobuf.c',
 			'typy/cpy/tree.c',
 			'typy/cpy/typy.c',
 			'typy/cpy/variant.c',
