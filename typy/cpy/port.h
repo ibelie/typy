@@ -126,9 +126,9 @@ IblAPI(int)    IblUvarint    (byte*, size_t, uint64*);
 IblAPI(size_t) IblPutUvarint (byte*, uint64);
 IblAPI(size_t) IblSizeVarint (uint64);
 
-IblAPI(FILE*)  IblFileOpen(const string);
-IblAPI(bool)   IblFileWriteUint64At(FILE*, uint64, size_t);
-IblAPI(bool)   IblFileTruncate(FILE*, size_t);
+IblAPI(FILE*)  IblFileOpen          (const string);
+IblAPI(bool)   IblFileWriteUint64At (FILE*, uint64, size_t);
+IblAPI(bool)   IblFileTruncate      (FILE*, size_t);
 
 #ifdef __cplusplus
 }

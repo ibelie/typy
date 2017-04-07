@@ -160,7 +160,7 @@ static int object_AssignItem(PyObject* self, PyObject* key, PyObject* value) {
 	} else {
 		result = CallObject2(self, "__setitem__", key, value);
 	}
-	register success = result ? 0 : -1;
+	register int success = result ? 0 : -1;
 	Py_XDECREF(result);
 	return success;
 }
@@ -192,7 +192,7 @@ static int object_Contains(PyObject* self, PyObject* member) {
 		Py_DECREF(iter);
 		return false;
 	}
-	register contains = PyObject_IsTrue(result);
+	register int contains = PyObject_IsTrue(result);
 	Py_DECREF(result);
 	return contains;
 }

@@ -299,7 +299,7 @@ IblMap_Item IblMap_Set(IblMap map, IblMap_Key key) {
 		map->table = (IblMap_Item*)calloc(MIN_TABLE_SIZE, sizeof(IblMap_Item));
 		map->capacity = MIN_TABLE_SIZE;
 	} else if (map->size + 1 > map->capacity * MAX_LOAD_TIMES_16 / 16 &&
-		map->capacity < 1 << (sizeof(size_t) >= 8 ? 59 : 27)) {
+		map->capacity < (size_t)1 << (sizeof(size_t) >= 8 ? 59 : 27)) {
 		_IblMap_Expand(map);
 	}
 	return _IblMap_Set(map, key);

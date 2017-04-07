@@ -25,7 +25,7 @@ TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 TypyVariant* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	TypyVariant* variant = (TypyVariant*)calloc(1, sizeof(TypyVariant));
 	if (!variant) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %d.", sizeof(TypyVariant));
+		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %lu.", sizeof(TypyVariant));
 		return NULL;
 	}
 	PyObject_INIT(variant, &TypyVariantType);
