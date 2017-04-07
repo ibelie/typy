@@ -11,9 +11,35 @@
 extern "C" {
 #endif
 
-IblMap_KEY_NUMERIC(TypyDictMap, TypyField,
+//=============================================================================
+
+typedef struct _TypyDictMap {
+	IblMap_KEY(TypyField);
 	TypyField value;
-);
+} *TypyDictMap;
+
+static inline TypyDictMap _TypyDictMap_New(TypyField* key) {
+	TypyDictMap item = (TypyDictMap)calloc(1, sizeof(struct _TypyDictMap));
+	if (item) { item->key = *key; }
+	return item;
+}
+
+static inline void _TypyDictMap_Free(TypyDictMap item) {
+	if (item) { free(item); }
+}
+
+inline IblMap TypyDictMap_New(byte field_type) {
+	IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));
+	if (map) {
+		map->hash = (IblMap_Hash)abstract_Hash[field_type];
+		map->alloc = (IblMap_NewItem)_TypyDictMap_New;
+		map->dealloc = (IblMap_Dealloc)_TypyDictMap_Free;
+		map->compare = (IblMap_Compare)abstract_Compare[field_type];
+	}
+	return map;
+}
+
+//=============================================================================
 
 typedef struct {
 	PyObject_HEAD
@@ -131,7 +157,7 @@ inline TypyDict* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwar
 		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %d.", sizeof(TypyDict));
 		return NULL;
 	}
-	dict->dict_map = TypyDictMap_New();
+	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));
 	if (!dict->dict_map) {
 		free(dict);
 		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");

@@ -530,3 +530,77 @@ ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyDict_ByteSize,       /* TYPE_DICT       */
 	(ByteSize)TypyPython_ByteSize,     /* TYPE_PYTHON     */
 };
+
+//=============================================================================
+
+static size_t TypyNumeric_Hash(TypyField* value) { return (size_t)(*value); }
+static size_t TypyObject_Hash(PyObject** value) { return (size_t)PyObject_Hash(*value); }
+
+IblMap_Hash abstract_Hash[MAX_FIELD_TYPE] = {
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_ENUM       */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_INT32      */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_INT64      */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_UINT32     */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_UINT64     */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_FIXEDPOINT */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_DOUBLE     */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_FLOAT      */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_BOOL       */
+	(IblMap_Hash)TypyObject_Hash,      /* TYPE_BYTES      */
+	(IblMap_Hash)TypyObject_Hash,      /* TYPE_STRING     */
+	(IblMap_Hash)TypyObject_Hash,      /* TYPE_OBJECT     */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_VARIANT    */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_LIST       */
+	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_DICT       */
+	(IblMap_Hash)TypyObject_Hash,      /* TYPE_PYTHON     */
+};
+
+//=============================================================================
+
+static int TypyNumeric_Compare(TypyField* lvalue, TypyField* rvalue) {
+	return (int)((*lvalue) - (*rvalue));
+}
+
+static int TypyObject_Compare(PyObject** lvalue, PyObject** rvalue) {
+	return (int)PyObject_Compare(*lvalue, *rvalue);
+}
+
+static int TypyBytes_Compare(PyBytes* lvalue, PyBytes* rvalue) {
+	if (Py_SIZE(*lvalue) != Py_SIZE(*rvalue)) {
+		return Py_SIZE(*lvalue) - Py_SIZE(*rvalue);
+	} else if ((*lvalue)->ob_sval[0] != (*rvalue)->ob_sval[0]) {
+		return (*lvalue)->ob_sval[0] - (*rvalue)->ob_sval[0];
+	} else {
+		return memcmp((*lvalue)->ob_sval, (*rvalue)->ob_sval, Py_SIZE(*lvalue));
+	}
+}
+
+static int TypyString_Compare(PyString* lvalue, PyString* rvalue) {
+	if ((*lvalue)->length != (*rvalue)->length) {
+		return (*lvalue)->length - (*rvalue)->length;
+	} else {
+		return memcmp((*lvalue)->str, (*rvalue)->str, sizeof(Py_UNICODE) * (*lvalue)->length);
+	}
+}
+
+IblMap_Compare abstract_Compare[MAX_FIELD_TYPE] = {
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_ENUM       */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_INT32      */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_INT64      */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_UINT32     */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_UINT64     */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_FIXEDPOINT */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_DOUBLE     */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_FLOAT      */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_BOOL       */
+	(IblMap_Compare)TypyBytes_Compare,   /* TYPE_BYTES      */
+	(IblMap_Compare)TypyString_Compare,  /* TYPE_STRING     */
+	(IblMap_Compare)TypyObject_Compare,  /* TYPE_OBJECT     */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_VARIANT    */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_LIST       */
+	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_DICT       */
+	(IblMap_Compare)TypyObject_Compare,  /* TYPE_PYTHON     */
+};
+
+//=============================================================================
+
