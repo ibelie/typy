@@ -57,8 +57,6 @@ inline void MetaList_Clear(TypyMetaList* type, TypyList* self) {
 	}
 	self->list_length = 0;
 }
-#define TypyList_Clear(ob) MetaList_Clear((ob)->list_type, (ob))
-#define TypyList_TYPE(ob) (((TypyList*)(ob))->list_type)
 
 inline TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
 	if (self->list_length + size > self->list_capacity) {
@@ -80,18 +78,55 @@ inline TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
 	return offset;
 }
 
-inline bool MetaList_CheckAndSetList(TypyMetaList* type, TypyList* self, PyObject* value) {
-	MetaList_Clear(type, self);
-	register Py_ssize_t i, size = PySequence_Size(value);
+inline bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) {
+	if (PyList_CheckExact(list) || PyTuple_CheckExact(list) || (PyObject*)self == list) {
+		list = PySequence_Fast(list, "argument must be iterable");
+		if (!list) { return false; }
+		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list);
+		if (size == 0) { Py_DECREF(list); return true; }
+		register PyObject** src = PySequence_Fast_ITEMS(list);
+		register TypyField* offset = TypyList_EnsureSize(self, size);
+		if (!offset) { Py_DECREF(list); return false; }
+		for (i = 0; i < size; i++) {
+			if (!MetaList_CHECKSET(type, offset++, src[i], "List item type error: ")) {
+				Py_DECREF(list);
+				return false;
+			}
+		}
+		Py_DECREF(list);
+		return true;
+	}
+	register Py_ssize_t i, size = _PyObject_LengthHint(list, 0);
+	if (size < 0) { return false; } else if (!size) { return true; }
+	register PyObject* it = PyObject_GetIter(list);
+	if (!it) { return false; }
+	register iternextfunc iternext = *it->ob_type->tp_iternext;
 	register TypyField* offset = TypyList_EnsureSize(self, size);
-	if (!offset) { return false; }
+	if (!offset) { Py_DECREF(it); return false; }
 	for (i = 0; i < size; i++) {
-		if (!MetaList_CHECKSET(type, offset++, PySequence_GetItem(value, i), "List item type error: ")) {
+		register PyObject* item = iternext(it);
+		register bool success = MetaList_CHECKSET(type, offset++, item, "List item type error: ");
+		Py_XDECREF(item);
+		if (!success) {
+			Py_DECREF(it);
 			return false;
 		}
 	}
+	Py_DECREF(it);
 	return true;
 }
+
+#define TypyList_TYPE(ob)              (((TypyList*)(ob))->list_type)
+#define TypyList_CLEAR(ob, f)          MetaList_CLEAR(TypyList_TYPE(ob), (f))
+#define TypyList_READ(ob, f, i, l)     MetaList_READ(TypyList_TYPE(ob), (f), (i), (l))
+#define TypyList_WRITE(ob, f, t, o)    MetaList_WRITE(TypyList_TYPE(ob), (f), (t), (o))
+#define TypyList_BYTESIZE(ob, f, t)    MetaList_BYTESIZE(TypyList_TYPE(ob), (f), (t))
+#define TypyList_MERGEFROM(ob, l, r)   MetaList_MERGEFROM(TypyList_TYPE(ob), (l), (r))
+#define TypyList_GET(ob, f)            MetaList_GET(TypyList_TYPE(ob), (f))
+#define TypyList_SET(ob, l, r)         MetaList_SET(TypyList_TYPE(ob), (l), (r))
+#define TypyList_CHECKSET(ob, l, r, e) MetaList_CHECKSET(TypyList_TYPE(ob), (l), (r), (e))
+#define TypyList_Clear(ob)             MetaList_Clear(TypyList_TYPE(ob), (ob))
+#define TypyList_Extend(ob, l)         MetaList_Extend(TypyList_TYPE(ob), (ob), (l))
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
@@ -104,7 +139,7 @@ inline TypyList* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwar
 		return NULL;
 	}
 	PyObject_INIT(list, &TypyListType);
-	list->list_type = type;
+	TypyList_TYPE(list) = type;
 	return list;
 }
 

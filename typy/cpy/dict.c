@@ -80,10 +80,12 @@ bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, c
 		return true;
 	} else if (PyDict_Check(arg)) {
 		TypyDict_FromValueOrNew(self, value, type, false);
-		return MetaDict_CheckAndSetDict(type, self, arg);
-	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
+		MetaDict_Clear(type, self);
+		return MetaDict_MergeDict(type, self, arg);
+	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
 		TypyDict_FromValueOrNew(self, value, type, false);
-		register bool success = MetaDict_CheckAndSetItems(type, self, items);
+		MetaDict_Clear(type, self);
+		register bool success = MetaDict_MergeIter(type, self, items);
 		Py_DECREF(items);
 		return success;
 	} else {
@@ -218,7 +220,7 @@ PyTypeObject TypyMetaDictType = {
 //=============================================================================
 
 static int dict_AssSubscript(TypyDict* self, PyObject* key, PyObject* value) {
-	return MetaDict_SetItem(self->dict_type, self, key, value) ? 0 : -1;
+	return TypyDict_SetItem(self, key, value) ? 0 : -1;
 }
 
 static Py_ssize_t dict_Len(TypyDict* self) {
@@ -232,7 +234,7 @@ static PyObject* dict_Clear(TypyDict* self) {
 
 static PyObject* dict_Contains(TypyDict* self, PyObject* key) {
 	TypyField k = 0;
-	if (!MetaKey_CHECKSET(self->dict_type, &k, key, "")) {
+	if (!TypyKey_CHECKSET(self, &k, key, "")) {
 		PyErr_Clear();
 		Py_RETURN_FALSE;
 	}
@@ -250,7 +252,7 @@ static PyObject* dict_Get(TypyDict* self, PyObject* args) {
 	if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &failobj)) {
 		return NULL;
 	}
-	if (!MetaKey_CHECKSET(self->dict_type, &k, key, "")) {
+	if (!TypyKey_CHECKSET(self, &k, key, "")) {
 		PyErr_Clear();
 		Py_INCREF(failobj);
 		return failobj;
@@ -260,24 +262,41 @@ static PyObject* dict_Get(TypyDict* self, PyObject* args) {
 		Py_INCREF(failobj);
 		return failobj;
 	} else {
-		return MetaValue_GET(self->dict_type, &entry->value);
+		return TypyValue_GET(self, &entry->value);
 	}
 }
 
 static PyObject* dict_Keys(TypyDict* self) {
 	PyObject* keys = PyList_New(0);
-	if (keys == NULL) { return NULL; }
+	if (!keys) { return NULL; }
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
 		register TypyDictMap item = (TypyDictMap)iter;
-		PyList_Append(keys, MetaKey_GET(self->dict_type, &item->key));
+		PyList_Append(keys, TypyKey_GET(self, &item->key));
 	}
 	return keys;
 }
 
+static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
+	PyObject* items;
+	if (!arg || arg == Py_None) {
+		Py_RETURN_NONE;
+	} else if (PyDict_Check(arg)) {
+		TypyDict_MergeDict(self, arg);
+		Py_RETURN_NONE;
+	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
+		TypyDict_MergeIter(self, items);
+		Py_DECREF(items);
+		Py_RETURN_NONE;
+	} else {
+		FormatTypeError(arg, "update expect dict, but");
+		return NULL;
+	}
+}
+
 static PyObject* dict_Subscript(TypyDict* self, PyObject* key) {
 	TypyField k = 0;
-	if (!MetaKey_CHECKSET(self->dict_type, &k, key, "Dict key type error: ")) {
+	if (!TypyKey_CHECKSET(self, &k, key, "Dict key type error: ")) {
 		return NULL;
 	}
 	register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
@@ -288,7 +307,7 @@ static PyObject* dict_Subscript(TypyDict* self, PyObject* key) {
 		Py_DECREF(repr);
 		return NULL;
 	} else {
-		return MetaValue_GET(self->dict_type, &entry->value);
+		return TypyValue_GET(self, &entry->value);
 	}
 }
 
@@ -296,7 +315,7 @@ static PyObject* dict_Subscript(TypyDict* self, PyObject* key) {
 
 static TypyDictIterator* dict_IterKey(TypyDict* self) {
 	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterKeyType, 0);
-	if (it == NULL) { return NULL; }
+	if (!it) { return NULL; }
 	it->it_result = NULL;
 	it->it_index = 0;
 	it->it = IblMap_Begin(self->dict_map);
@@ -307,9 +326,9 @@ static TypyDictIterator* dict_IterKey(TypyDict* self) {
 
 static TypyDictIterator* dict_IterItem(TypyDict* self) {
 	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterItemType, 0);
-	if (it == NULL) { return NULL; }
+	if (!it) { return NULL; }
     it->it_result = PyTuple_Pack(2, Py_None, Py_None);
-    if (it->it_result == NULL) {
+    if (!it->it_result) {
         Py_DECREF(it);
         return NULL;
     }
@@ -346,12 +365,12 @@ static int iter_Traverse(TypyDictIterator* it, visitproc visit, void* arg)
 
 static PyObject* iter_NextKey(TypyDictIterator* it)
 {
-	assert(it != NULL);
+	assert(it);
 	TypyDict* dict = it->it_dict;
-	if (dict == NULL) { return NULL; }
+	if (!dict) { return NULL; }
 	if (it->it) {
 		register TypyDictMap entry = (TypyDictMap)it->it;
-		register PyObject* key = MetaKey_GET(dict->dict_type, &entry->key);
+		register PyObject* key = TypyKey_GET(dict, &entry->key);
 		it->it_index++;
 		it->it = IblMap_Next(dict->dict_map, it->it);
 		return key;
@@ -363,15 +382,15 @@ static PyObject* iter_NextKey(TypyDictIterator* it)
 
 static PyObject* iter_NextItem(TypyDictIterator* it)
 {
-	assert(it != NULL);
+	assert(it);
 	TypyDict* dict = it->it_dict;
-	if (dict == NULL) { return NULL; }
+	if (!dict) { return NULL; }
 	if (it->it) {
 		register TypyDictMap entry = (TypyDictMap)it->it;
-		register PyObject* key = MetaKey_GET(dict->dict_type, &entry->key);
-		if (key == NULL) { return NULL; }
-		register PyObject* value = MetaValue_GET(dict->dict_type, &entry->value);
-		if (value == NULL) { Py_DECREF(key); return NULL; }
+		register PyObject* key = TypyKey_GET(dict, &entry->key);
+		if (!key) { return NULL; }
+		register PyObject* value = TypyValue_GET(dict, &entry->value);
+		if (!value) { Py_DECREF(key); return NULL; }
 		PyObject* result = it->it_result;
 		if (result->ob_refcnt == 1) {
 			Py_INCREF(result);
@@ -379,7 +398,7 @@ static PyObject* iter_NextItem(TypyDictIterator* it)
 			Py_DECREF(PyTuple_GET_ITEM(result, 1));
 		} else {
 			result = PyTuple_New(2);
-			if (result == NULL) {
+			if (!result) {
 				Py_DECREF(key);
 				Py_DECREF(value);
 				return NULL;
@@ -413,6 +432,8 @@ PyMethodDef TypyDict_Methods[] = {
 		"Get key list of the map." },
 	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
+	{ "update", (PyCFunction)dict_Update, METH_O,
+		"Update items from other map." },
 	{ NULL, NULL }
 };
 

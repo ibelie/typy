@@ -137,7 +137,8 @@ bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, c
 		return true;
 	} else if (PySequence_Check(arg)) {
 		TypyList_FromValueOrNew(self, value, type, false);
-		return MetaList_CheckAndSetList(type, self, arg);
+		MetaList_Clear(type, self);
+		return MetaList_Extend(type, self, arg);
 	} else {
 		FormatTypeError(arg, err);
 		return false;
@@ -196,7 +197,7 @@ PyTypeObject TypyMetaListType = {
 static PyObject* list_Append(TypyList* self, PyObject* item) {
 	register TypyField* offset = TypyList_EnsureSize(self, 1);
 	if (!offset) { return NULL; }
-	if (!MetaList_CHECKSET(self->list_type, offset, item, "List item type error: ")) {
+	if (!TypyList_CHECKSET(self, offset, item, "List item type error: ")) {
 		return NULL;
 	}
 	Py_RETURN_NONE;
@@ -214,7 +215,7 @@ static PyObject* list_Item(TypyList* self, Py_ssize_t index) {
 		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_length);
 		return NULL;
 	}
-	return MetaList_GET(self->list_type, &self->list_items[index]);
+	return TypyList_GET(self, &self->list_items[index]);
 }
 
 static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
@@ -225,7 +226,7 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_length);
 		return -1;
 	}
-	return MetaList_CHECKSET(self->list_type, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;
+	return TypyList_CHECKSET(self, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;
 }
 
 static PyObject* list_Extend(TypyList* self, PyObject* value) {
@@ -241,7 +242,7 @@ static PyObject* list_Extend(TypyList* self, PyObject* value) {
 	while (next = PyIter_Next(iter)) {
 		register TypyField* offset = TypyList_EnsureSize(self, 1);
 		if (!offset) { goto list_extend_fail; }
-		if (!MetaList_CHECKSET(self->list_type, offset, next, "List item type error: ")) {
+		if (!TypyList_CHECKSET(self, offset, next, "List item type error: ")) {
 			goto list_extend_fail;
 		}
 		Py_DECREF(next);
@@ -290,9 +291,7 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 	}
 
 	PyObject* list = PyList_New(0);
-	if (list == NULL) {
-		return NULL;
-	}
+	if (!list) { return NULL; }
 	if (from <= to) {
 		if (step < 0) {
 			return list;
@@ -360,7 +359,9 @@ static int list_AssSubscript(TypyList* self, PyObject* slice, PyObject* value) {
 	register PyObject* new_list = list_Subscript(self, full_slice);
 	if (PySequence_SetSlice(new_list, from, to, value) < 0) {
 		goto list_asssubscript_fail;
-	} else if (!MetaList_CheckAndSetList(self->list_type, self, new_list)) {
+	}
+	TypyList_Clear(self);
+	if (!TypyList_Extend(self, new_list)) {
 		goto list_asssubscript_fail;
 	}
 	Py_XDECREF(full_slice);
@@ -383,7 +384,7 @@ static PyObject* list_Insert(TypyList* self, PyObject* args) {
 	for (i = self->list_length - 1; i > index; i--) {
 		self->list_items[i] = self->list_items[i - 1];
 	}
-	if (!MetaList_CHECKSET(self->list_type, &self->list_items[index], value, "List item type error: ")) {
+	if (!TypyList_CHECKSET(self, &self->list_items[index], value, "List item type error: ")) {
 		return NULL;
 	}
 	Py_RETURN_NONE;
@@ -392,7 +393,7 @@ static PyObject* list_Insert(TypyList* self, PyObject* args) {
 static PyObject* list_Remove(TypyList* self, PyObject* value) {
 	register size_t i;
 	for (i = 0; i < self->list_length; i++) {
-		register PyObject* item = MetaList_GET(self->list_type, &self->list_items[i]);
+		register PyObject* item = TypyList_GET(self, &self->list_items[i]);
 		register int eq = PyObject_RichCompareBool(item, value, Py_EQ);
 		Py_XDECREF(item);
 		if (eq) { break; }
@@ -401,7 +402,7 @@ static PyObject* list_Remove(TypyList* self, PyObject* value) {
 		PyErr_SetString(PyExc_ValueError, "remove(x) - x not in container");
 		return NULL;
 	}
-	MetaList_CLEAR(self->list_type, &self->list_items[i]);
+	TypyList_CLEAR(self, &self->list_items[i]);
 	for (; i < self->list_length - 1; i++) {
 		self->list_items[i] = self->list_items[i + 1];
 	}
@@ -417,8 +418,8 @@ static PyObject* list_Pop(TypyList* self, PyObject* args) {
 		PyErr_SetString(PyExc_ValueError, "pop(i) - i not in container");
 		return NULL;
 	}
-	register PyObject* item = MetaList_GET(self->list_type, &self->list_items[i]);
-	MetaList_CLEAR(self->list_type, &self->list_items[i]);
+	register PyObject* item = TypyList_GET(self, &self->list_items[i]);
+	TypyList_CLEAR(self, &self->list_items[i]);
 	for (; (size_t)i < self->list_length - 1; i++) {
 		self->list_items[i] = self->list_items[i + 1];
 	}
@@ -430,7 +431,7 @@ static PyObject* list_Pop(TypyList* self, PyObject* args) {
 
 static TypyListIterator* list_Iter(TypyList* self) {
 	TypyListIterator* it = (TypyListIterator*) PyType_GenericAlloc(&TypyListIteratorType, 0);
-	if (it == NULL) { return NULL; }
+	if (!it) { return NULL; }
 	it->it_index = 0;
 	Py_INCREF(self);
 	it->it_seq = self;
@@ -461,9 +462,9 @@ static int iter_Traverse(TypyListIterator* it, visitproc visit, void* arg)
 
 static PyObject* iter_Next(TypyListIterator* it)
 {
-	assert(it != NULL);
+	assert(it);
 	TypyList* seq = it->it_seq;
-	if (seq == NULL) { return NULL; }
+	if (!seq) { return NULL; }
 	if (it->it_index < seq->list_length) {
 		return list_Item(seq, it->it_index++);
 	}

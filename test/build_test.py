@@ -560,6 +560,8 @@ def _build(_typy):
 
 	fighterPy.vd = fighterPy.sd
 	fighter.vd = fighter.sd
+	fighter.vd.update(fighter.sd)
+	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
 
 def test_cpp():
 	return
