@@ -75,16 +75,16 @@ inline bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* ite
 
 TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	char *name;
-	Py_ssize_t nameLen;
 	TypyMetaDict* type;
 	PyObject* key_desc;
 	PyObject* value_desc;
 	PyObject* typy_type;
 	byte wire_type, field_type;
-	if (!PyArg_ParseTuple(args, "s#OO", &name, &nameLen, &key_desc, &value_desc)) {
+	if (!PyArg_ParseTuple(args, "sOO", &name, &key_desc, &value_desc)) {
 		return NULL;
 	}
 
+	register size_t nameLen = strlen(name);
 	type = (TypyMetaDict*)malloc(sizeof(TypyMetaDict) + nameLen);
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Register Dict out of memory %lu.", sizeof(TypyMetaDict) + nameLen);

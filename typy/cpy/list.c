@@ -56,15 +56,15 @@ inline bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) 
 
 TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 	char *name;
-	Py_ssize_t nameLen;
 	TypyMetaList* type;
 	PyObject* descriptor;
 	PyObject* typy_type = NULL;
 	byte wire_type, field_type;
-	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptor)) {
+	if (!PyArg_ParseTuple(args, "sO", &name, &descriptor)) {
 		return NULL;
 	}
 
+	register size_t nameLen = strlen(name);
 	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %lu.", sizeof(TypyMetaList) + nameLen);

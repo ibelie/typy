@@ -13,6 +13,8 @@ set(SOURCE_FILES
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/map.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/metaobject.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/object.c"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/port.c"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/protobuf.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/tree.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/typy.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/variant.c"
