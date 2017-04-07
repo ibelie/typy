@@ -117,39 +117,8 @@ namespace list {
 
 template <typename T>
 static PyObject* tp_Append(PyObject* self, PyObject* item) {
-	if (!::typy::CheckAndSet(item, *static_cast<List<T>*>(self)->Add(), "List item type error: ")) {
-		static_cast<List<T>*>(self)->RemoveLast();
-		return NULL;
-	}
+	if (!Append<T>(self, item)) { return NULL; }
 	Py_RETURN_NONE;
-}
-
-template <typename T>
-bool ExtendList(PyObject* arg, List<T>& value) {
-	if (PyList_CheckExact(arg) || PyTuple_CheckExact(arg) || (PyObject*)&value == arg) {
-		ScopedPyObjectPtr list(PySequence_Fast(arg, "argument must be iterable"));
-		if (list == NULL) { return false; }
-		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list.get());
-		register PyObject** src = PySequence_Fast_ITEMS(list.get());
-		for (i = 0; i < size; i++) {
-			if (ScopedPyObjectPtr(tp_Append<T>(&value, src[i])) == NULL) {
-				return false;
-			}
-		}
-		return true;
-	}
-	register Py_ssize_t i, size = _PyObject_LengthHint(arg, 0);
-	if (size < 0) { return false; } else if (!size) { return true; }
-	ScopedPyObjectPtr it(PyObject_GetIter(arg));
-	if (it == NULL) { return false; }
-	register iternextfunc iternext = *it.get()->ob_type->tp_iternext;
-	for (i = 0; i < size; i++) {
-		ScopedPyObjectPtr(iternext(it.get()));
-		if (ScopedPyObjectPtr(tp_Append<T>(&value, ScopedPyObjectPtr(iternext(it.get())).get())) == NULL) {
-			return false;
-		}
-	}
-	return true;
 }
 
 template <typename T>
@@ -183,7 +152,7 @@ static int tp_AssignItem(PyObject* self, Py_ssize_t index, PyObject* arg) {
 template <typename T>
 static PyObject* tp_Extend(PyObject* self, PyObject* value) {
 	if (!PyObject_Not(value) && Py_TYPE(value)->tp_as_sequence != NULL) {
-		ExtendList(value, *static_cast<List<T>*>(self));
+		Extend(value, *static_cast<List<T>*>(self));
 	}
 	Py_RETURN_NONE;
 }
@@ -302,7 +271,7 @@ static int tp_AssSubscript(PyObject* self, PyObject* slice, PyObject* value) {
 	}
 
 	static_cast<List<T>*>(self)->Clear();
-	return ExtendList(new_list.get(), *static_cast<List<T>*>(self)) ? 0 : -1;
+	return Extend(new_list.get(), *static_cast<List<T>*>(self)) ? 0 : -1;
 }
 
 template <typename T>
@@ -318,7 +287,7 @@ static PyObject* tp_Insert(PyObject* self, PyObject* args) {
 		return NULL;
 	}
 	static_cast<List<T>*>(self)->Clear();
-	if (!ExtendList(new_list.get(), *static_cast<List<T>*>(self))) {
+	if (!Extend(new_list.get(), *static_cast<List<T>*>(self))) {
 		return NULL;
 	}
 	Py_RETURN_NONE;

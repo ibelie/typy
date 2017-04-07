@@ -80,49 +80,7 @@ namespace dict {
 
 template <typename K, typename V>
 static int tp_AssSubscript(PyObject* self, PyObject* key, PyObject* v) {
-	typename Type<K>::KeyType k;
-	if (!::typy::CheckAndSet(key, k, "Dict key type error: ")) {
-		return -1;
-	}
-	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
-	typename Dict<K, V>::iterator it = dict->find(k);
-	if (v == NULL) {
-		if (it != dict->end()) {
-			::typy::Clear(it->second);
-			dict->erase(k);
-		}
-		return 0;
-	}
-	if (!::typy::CheckAndSet(v, (*dict)[k], "Dict value type error: ")) {
-		dict->erase(k);
-		return -1;
-	}
-	return 0;
-}
-
-template <typename K, typename V>
-bool MergeDict(PyObject* arg, Dict<K, V>& value) {
-	PyObject *k, *v;
-	Py_ssize_t pos = 0;
-	while (PyDict_Next(arg, &pos, &k, &v)) {
-		if (tp_AssSubscript<K, V>(&value, k, v) == -1) {
-			return false;
-		}
-	}
-	return true;
-}
-
-template <typename K, typename V>
-bool MergeIter(PyObject* iter, Dict<K, V>& value) {
-	Py_ssize_t size = _PyObject_LengthHint(iter, 0);
-	for (Py_ssize_t i = 0; i < size; i++) {
-		ScopedPyObjectPtr item(PyIter_Next(iter));
-		if (tp_AssSubscript<K, V>(&value, PyTuple_GET_ITEM(item.get(), 0),
-			PyTuple_GET_ITEM(item.get(), 1)) == -1) {
-			return false;
-		}
-	}
-	return true;
+	return SetItem<K, V>(self, key, v) ? 0 : -1;
 }
 
 static void SetKeyError(PyObject *arg) {

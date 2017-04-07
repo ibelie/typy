@@ -142,6 +142,47 @@ bool CheckAndSet(PyObject* arg, ::std::string& value, const char* err);
 bool CheckAndSet(PyObject* arg, bytes& value, const char* err);
 bool CheckAndSet(PyObject* arg, string& value, const char* err);
 
+namespace list {
+
+template <typename T>
+static bool Append(PyObject* self, PyObject* item) {
+	if (!::typy::CheckAndSet(item, *static_cast<List<T>*>(self)->Add(), "List item type error: ")) {
+		static_cast<List<T>*>(self)->RemoveLast();
+		return false;
+	}
+	return true;
+}
+
+template <typename T>
+bool Extend(PyObject* arg, List<T>& value) {
+	if (PyList_CheckExact(arg) || PyTuple_CheckExact(arg) || (PyObject*)&value == arg) {
+		ScopedPyObjectPtr list(PySequence_Fast(arg, "argument must be iterable"));
+		if (list == NULL) { return false; }
+		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list.get());
+		register PyObject** src = PySequence_Fast_ITEMS(list.get());
+		for (i = 0; i < size; i++) {
+			if (!Append<T>(&value, src[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+	register Py_ssize_t i, size = _PyObject_LengthHint(arg, 0);
+	if (size < 0) { return false; } else if (!size) { return true; }
+	ScopedPyObjectPtr it(PyObject_GetIter(arg));
+	if (it == NULL) { return false; }
+	register iternextfunc iternext = *it.get()->ob_type->tp_iternext;
+	for (i = 0; i < size; i++) {
+		ScopedPyObjectPtr(iternext(it.get()));
+		if (!Append<T>(&value, ScopedPyObjectPtr(iternext(it.get())).get())) {
+			return false;
+		}
+	}
+	return true;
+}
+
+} // namespace list
+
 template <typename T>
 bool CheckAndSet(PyObject* arg, List<T>*& value, const char* err) {
 	if (arg == Py_None) {
@@ -153,12 +194,63 @@ bool CheckAndSet(PyObject* arg, List<T>*& value, const char* err) {
 	} else if (PySequence_Check(arg)) {
 		if (value == NULL) { value = new List<T>; }
 		else { value->Clear(); }
-		return ::typy::list::ExtendList(arg, *value);
+		return ::typy::list::Extend(arg, *value);
 	} else {
 		FormatTypeError(arg, err);
 		return false;
 	}
 }
+
+namespace dict {
+
+template <typename K, typename V>
+static bool SetItem(PyObject* self, PyObject* key, PyObject* v) {
+	typename Type<K>::KeyType k;
+	if (!::typy::CheckAndSet(key, k, "Dict key type error: ")) {
+		return false;
+	}
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	typename Dict<K, V>::iterator it = dict->find(k);
+	if (v == NULL) {
+		if (it != dict->end()) {
+			::typy::Clear(it->second);
+			dict->erase(k);
+		}
+		return true;
+	}
+	if (!::typy::CheckAndSet(v, (*dict)[k], "Dict value type error: ")) {
+		dict->erase(k);
+		return false;
+	}
+	return true;
+}
+
+template <typename K, typename V>
+bool MergeDict(PyObject* arg, Dict<K, V>& value) {
+	PyObject *k, *v;
+	Py_ssize_t pos = 0;
+	while (PyDict_Next(arg, &pos, &k, &v)) {
+		if (!SetItem<K, V>(&value, k, v)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+template <typename K, typename V>
+bool MergeIter(PyObject* iter, Dict<K, V>& value) {
+	Py_ssize_t size = _PyObject_LengthHint(iter, 0);
+	for (Py_ssize_t i = 0; i < size; i++) {
+		ScopedPyObjectPtr item(PyIter_Next(iter));
+		if (!SetItem<K, V>(&value, PyTuple_GET_ITEM(item.get(), 0),
+			PyTuple_GET_ITEM(item.get(), 1))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+} // namespace dict
 
 template <typename K, typename V>
 bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
