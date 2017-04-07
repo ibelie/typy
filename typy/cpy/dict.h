@@ -154,7 +154,7 @@ inline bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* ite
 inline TypyDict* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwargs) {
 	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
 	if (!dict) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %d.", sizeof(TypyDict));
+		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %lu.", sizeof(TypyDict));
 		return NULL;
 	}
 	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));

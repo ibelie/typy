@@ -5,7 +5,9 @@
 #ifndef TYPY_TYPE_H__
 #define TYPY_TYPE_H__
 
-#define HAVE_ROUND
+#ifndef HAVE_ROUND
+#	define HAVE_ROUND
+#endif
 
 #include "map.h"
 #include "protobuf.h"
@@ -14,30 +16,30 @@
 #define FULL_MODULE_NAME "_typyd"
 
 #ifndef PyVarObject_HEAD_INIT
-#define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
+#	define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
 #endif
 #ifndef Py_TYPE
-#define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#	define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 #endif
 
 #if PY_MAJOR_VERSION >= 3
-	#define PyInt_Check PyLong_Check
-	#define PyInt_AsLong PyLong_AsLong
-	#define PyInt_FromLong PyLong_FromLong
-	#define PyInt_FromSize_t PyLong_FromSize_t
-	#define PyString_Check PyUnicode_Check
-	#define PyString_FromString PyUnicode_FromString
-	#define PyString_FromStringAndSize PyUnicode_FromStringAndSize
-	#if PY_VERSION_HEX < 0x03030000
-		#error "Python 3.0 - 3.2 are not supported."
-	#else
-	#define PyString_AsString(ob) \
-		(PyUnicode_Check(ob) ? PyUnicode_AsUTF8(ob) : PyBytes_AsString(ob))
-	#define PyString_AsStringAndSize(ob, charpp, sizep) \
-		(PyUnicode_Check(ob) ? \
-			(!(*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep)))? -1 : 0) : \
-			PyBytes_AsStringAndSize(ob, (charpp), (sizep)))
-	#endif
+#	define PyInt_Check PyLong_Check
+#	define PyInt_AsLong PyLong_AsLong
+#	define PyInt_FromLong PyLong_FromLong
+#	define PyInt_FromSize_t PyLong_FromSize_t
+#	define PyString_Check PyUnicode_Check
+#	define PyString_FromString PyUnicode_FromString
+#	define PyString_FromStringAndSize PyUnicode_FromStringAndSize
+#	if PY_VERSION_HEX < 0x03030000
+#		error "Python 3.0 - 3.2 are not supported."
+#	else
+#		define PyString_AsString(ob) \
+			(PyUnicode_Check(ob) ? PyUnicode_AsUTF8(ob) : PyBytes_AsString(ob))
+#		define PyString_AsStringAndSize(ob, charpp, sizep) \
+			(PyUnicode_Check(ob) ? \
+				(!(*(charpp) = PyUnicode_AsUTF8AndSize(ob, (sizep)))? -1 : 0) : \
+				PyBytes_AsStringAndSize(ob, (charpp), (sizep)))
+#	endif
 #endif
 
 #ifdef __cplusplus

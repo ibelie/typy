@@ -172,7 +172,8 @@ inline bool _Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag) {
 
 		// If the input is larger than 32 bits, we still need to read it all
 		// and discard the high-order bits.
-		for (int i = 0; i < MaxVarintLen - MaxVarint32Len; i++) {
+		register int i;
+		for (i = 0; i < MaxVarintLen - MaxVarint32Len; i++) {
 		  b = *(ptr++); if (!(b & 0x80)) { goto done; }
 		}
 

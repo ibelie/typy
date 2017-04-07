@@ -63,7 +63,7 @@ inline TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
 		register size_t capacity = Ibl_Max(2 * self->list_capacity + size, MIN_LIST_CAPACITY);
 		register TypyField* buffer = (TypyField*)calloc(capacity, sizeof(TypyField));
 		if (!buffer) {
-			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %d.\n", capacity * sizeof(TypyField));
+			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %lu.\n", capacity * sizeof(TypyField));
 			return NULL;
 		}
 		self->list_capacity = capacity;
@@ -135,7 +135,7 @@ TypyMetaList* Typy_RegisterList(PyObject*, PyObject*);
 inline TypyList* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwargs) {
 	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
 	if (!list) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %d.", sizeof(TypyList));
+		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %lu.", sizeof(TypyList));
 		return NULL;
 	}
 	PyObject_INIT(list, &TypyListType);

@@ -172,7 +172,7 @@ inline IblAPI(int) IblUvarint(byte* buffer, size_t buf_len, uint64* x) {
 	for (i = 0; i < buf_len; i++) {
 		register byte b = buffer[i];
 		if (b < 0x80) {
-			if (i > 9 || i == 9 && b > 1) {
+			if (i > 9 || (i == 9 && b > 1)) {
 				/* overflow */
 				*x = 0;
 				return -((int)i + 1);
