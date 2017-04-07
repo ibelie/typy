@@ -22,7 +22,7 @@ TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 
 	type = (TypyFixedPoint*)malloc(sizeof(TypyFixedPoint));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register FixedPoint out of memory %d.", sizeof(TypyFixedPoint));
+		PyErr_Format(PyExc_RuntimeError, "Register FixedPoint out of memory %lu.", sizeof(TypyFixedPoint));
 		return NULL;
 	}
 

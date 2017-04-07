@@ -22,7 +22,7 @@ TypyEnum* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 
 	type = (TypyEnum*)malloc(sizeof(TypyEnum) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Enum object out of memory %d.", sizeof(TypyEnum) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Enum object out of memory %lu.", sizeof(TypyEnum) + nameLen);
 		return NULL;
 	}
 

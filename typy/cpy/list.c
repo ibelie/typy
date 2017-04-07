@@ -21,7 +21,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %d.", sizeof(TypyMetaList) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %lu.", sizeof(TypyMetaList) + nameLen);
 		return NULL;
 	}
 
@@ -212,7 +212,7 @@ static PyObject* list_Item(TypyList* self, Py_ssize_t index) {
 		index = self->list_length + index;
 	}
 	if (index < 0 || (size_t)index >= self->list_length) {
-		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_length);
+		PyErr_Format(PyExc_IndexError, "List index (%ld) out of range (%lu).\n", index, self->list_length);
 		return NULL;
 	}
 	return TypyList_GET(self, &self->list_items[index]);
@@ -223,7 +223,7 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 		index = self->list_length + index;
 	}
 	if (index < 0 || (size_t)index >= self->list_length) {
-		PyErr_Format(PyExc_IndexError, "List index (%d) out of range (%d).\n", index, self->list_length);
+		PyErr_Format(PyExc_IndexError, "List index (%ld) out of range (%lu).\n", index, self->list_length);
 		return -1;
 	}
 	return TypyList_CHECKSET(self, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;
@@ -271,12 +271,13 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 	}
 
 	PyObject* list = PyList_New(0);
+	register Py_ssize_t index;
 	if (!list) { return NULL; }
 	if (from <= to) {
 		if (step < 0) {
 			return list;
 		}
-		for (Py_ssize_t index = from; index < to; index += step) {
+		for (index = from; index < to; index += step) {
 			if (index < 0 || index >= length) {
 				break;
 			}
@@ -288,7 +289,7 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 		if (step > 0) {
 			return list;
 		}
-		for (Py_ssize_t index = from; index > to; index += step) {
+		for (index = from; index > to; index += step) {
 			if (index < 0 || index >= length) {
 				break;
 			}

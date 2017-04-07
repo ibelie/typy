@@ -22,7 +22,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaDict*)malloc(sizeof(TypyMetaDict) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Dict out of memory %d.", sizeof(TypyMetaDict) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Dict out of memory %lu.", sizeof(TypyMetaDict) + nameLen);
 		return NULL;
 	}
 
@@ -82,7 +82,7 @@ bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, c
 		TypyDict_FromValueOrNew(self, value, type, false);
 		MetaDict_Clear(type, self);
 		return MetaDict_MergeDict(type, self, arg);
-	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
+	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL))) {
 		TypyDict_FromValueOrNew(self, value, type, false);
 		MetaDict_Clear(type, self);
 		register bool success = MetaDict_MergeIter(type, self, items);
@@ -284,7 +284,7 @@ static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
 	} else if (PyDict_Check(arg)) {
 		TypyDict_MergeDict(self, arg);
 		Py_RETURN_NONE;
-	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
+	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL))) {
 		TypyDict_MergeIter(self, items);
 		Py_DECREF(items);
 		Py_RETURN_NONE;

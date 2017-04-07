@@ -18,7 +18,7 @@ TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 
 	type = (TypyPython*)malloc(sizeof(TypyPython) + nameLen);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Python out of memory %d.", sizeof(TypyPython) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Python out of memory %lu.", sizeof(TypyPython) + nameLen);
 		return NULL;
 	}
 
@@ -54,7 +54,7 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 		*value = PyType_GenericAlloc(type->python_type, 0);
 	}
 	if (!size) { return true; }
-	register PyObject* data = PyBytes_FromStringAndSize(*input, size);
+	register PyObject* data = PyBytes_FromStringAndSize((const char*)*input, size);
 	*input += size;
 	*length -= size;
 	if (*value) {

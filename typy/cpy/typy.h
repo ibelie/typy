@@ -5,9 +5,7 @@
 #ifndef TYPY_TYPE_H__
 #define TYPY_TYPE_H__
 
-#ifndef HAVE_ROUND
-#	define HAVE_ROUND
-#endif
+#define HAVE_ROUND
 
 #include "map.h"
 #include "protobuf.h"
