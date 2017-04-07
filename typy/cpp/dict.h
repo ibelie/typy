@@ -79,6 +79,57 @@ bool Dict<K, V>::Entry::MergePartialFromCodedStream(CodedInputStream* input) {
 namespace dict {
 
 template <typename K, typename V>
+static bool SetItem(PyObject* self, PyObject* key, PyObject* v) {
+	typename Type<K>::KeyType k;
+	if (!::typy::CheckAndSet(key, k, "Dict key type error: ")) {
+		return false;
+	}
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	typename Dict<K, V>::iterator it = dict->find(k);
+	if (v == NULL) {
+		if (it != dict->end()) {
+			::typy::Clear(it->second);
+			dict->erase(k);
+		}
+		return true;
+	}
+	if (!::typy::CheckAndSet(v, (*dict)[k], "Dict value type error: ")) {
+		dict->erase(k);
+		return false;
+	}
+	return true;
+}
+
+} // namespace dict
+
+template <typename K, typename V>
+bool MergeDict(PyObject* arg, Dict<K, V>& value) {
+	PyObject *k, *v;
+	Py_ssize_t pos = 0;
+	while (PyDict_Next(arg, &pos, &k, &v)) {
+		if (!::typy::dict::SetItem<K, V>(&value, k, v)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+template <typename K, typename V>
+bool MergeIter(PyObject* iter, Dict<K, V>& value) {
+	Py_ssize_t size = _PyObject_LengthHint(iter, 0);
+	for (Py_ssize_t i = 0; i < size; i++) {
+		ScopedPyObjectPtr item(PyIter_Next(iter));
+		if (!::typy::dict::SetItem<K, V>(&value, PyTuple_GET_ITEM(item.get(), 0),
+			PyTuple_GET_ITEM(item.get(), 1))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+namespace dict {
+
+template <typename K, typename V>
 static int tp_AssSubscript(PyObject* self, PyObject* key, PyObject* v) {
 	return SetItem<K, V>(self, key, v) ? 0 : -1;
 }
@@ -160,10 +211,10 @@ static PyObject* tp_Update(PyObject* self, PyObject* arg) {
 	if (!arg || arg == Py_None) {
 		Py_RETURN_NONE;
 	} else if (PyDict_Check(arg)) {
-		MergeDict(arg, *static_cast<Dict<K, V>*>(self));
+		::typy::MergeDict(arg, *static_cast<Dict<K, V>*>(self));
 		Py_RETURN_NONE;
 	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
-		MergeIter(items, *static_cast<Dict<K, V>*>(self));
+		::typy::MergeIter(items, *static_cast<Dict<K, V>*>(self));
 		Py_DECREF(items);
 		Py_RETURN_NONE;
 	} else {
