@@ -8,18 +8,6 @@
 #include "typy.h"
 
 namespace typy {
-namespace list {
-
-template <typename T>
-static PyObject* tp_Append(PyObject* self, PyObject* item) {
-	if (!::typy::CheckAndSet(item, *static_cast<List<T>*>(self)->Add(), "List item type error: ")) {
-		static_cast<List<T>*>(self)->RemoveLast();
-		return NULL;
-	}
-	Py_RETURN_NONE;
-}
-
-} // namespace list
 
 template <typename T>
 void List<T>::Clear() {
@@ -27,18 +15,6 @@ void List<T>::Clear() {
 		::typy::Clear(*this->Mutable(i));
 	}
 	this->RepeatedField::Clear();
-}
-
-template <typename T>
-bool CheckAndSetList(PyObject* arg, List<T>& value) {
-	value.Clear();
-	for (Py_ssize_t i = 0; i < PySequence_Size(arg); ++i) {
-		PyObject* item = PySequence_GetItem(arg, i);
-		if (ScopedPyObjectPtr(::typy::list::tp_Append<T>(&value, item)) == NULL) {
-			return false;
-		}
-	}
-	return true;
 }
 
 inline bool Read(List<string>*& value, CodedInputStream* input) {
@@ -140,6 +116,43 @@ PRIMITIVE_LIST_TYPE(bool, Bool, FIXED_LIST_SIZE);
 namespace list {
 
 template <typename T>
+static PyObject* tp_Append(PyObject* self, PyObject* item) {
+	if (!::typy::CheckAndSet(item, *static_cast<List<T>*>(self)->Add(), "List item type error: ")) {
+		static_cast<List<T>*>(self)->RemoveLast();
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
+
+template <typename T>
+bool ExtendList(PyObject* arg, List<T>& value) {
+	if (PyList_CheckExact(arg) || PyTuple_CheckExact(arg) || (PyObject*)&value == arg) {
+		ScopedPyObjectPtr list(PySequence_Fast(arg, "argument must be iterable"));
+		if (list == NULL) { return false; }
+		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list.get());
+		register PyObject** src = PySequence_Fast_ITEMS(list.get());
+		for (i = 0; i < size; i++) {
+			if (ScopedPyObjectPtr(tp_Append<T>(&value, src[i])) == NULL) {
+				return false;
+			}
+		}
+		return true;
+	}
+	register Py_ssize_t i, size = _PyObject_LengthHint(arg, 0);
+	if (size < 0) { return false; } else if (!size) { return true; }
+	ScopedPyObjectPtr it(PyObject_GetIter(arg));
+	if (it == NULL) { return false; }
+	register iternextfunc iternext = *it.get()->ob_type->tp_iternext;
+	for (i = 0; i < size; i++) {
+		ScopedPyObjectPtr(iternext(it.get()));
+		if (ScopedPyObjectPtr(tp_Append<T>(&value, ScopedPyObjectPtr(iternext(it.get())).get())) == NULL) {
+			return false;
+		}
+	}
+	return true;
+}
+
+template <typename T>
 static void tp_Dealloc(PyObject* self) {
 	delete static_cast<List<T>*>(self);
 }
@@ -169,26 +182,8 @@ static int tp_AssignItem(PyObject* self, Py_ssize_t index, PyObject* arg) {
 
 template <typename T>
 static PyObject* tp_Extend(PyObject* self, PyObject* value) {
-	if (value == Py_None) {
-		Py_RETURN_NONE;
-	}
-	if ((Py_TYPE(value)->tp_as_sequence == NULL) && PyObject_Not(value)) {
-		Py_RETURN_NONE;
-	}
-
-	ScopedPyObjectPtr iter(PyObject_GetIter(value));
-	if (iter == NULL) {
-		PyErr_SetString(PyExc_TypeError, "Value must be iterable");
-		return NULL;
-	}
-	ScopedPyObjectPtr next;
-	while ((next.reset(PyIter_Next(iter.get()))) != NULL) {
-		if (ScopedPyObjectPtr(tp_Append<T>(self, next.get())) == NULL) {
-			return NULL;
-		}
-	}
-	if (PyErr_Occurred()) {
-		return NULL;
+	if (!PyObject_Not(value) && Py_TYPE(value)->tp_as_sequence != NULL) {
+		ExtendList(value, *static_cast<List<T>*>(self));
 	}
 	Py_RETURN_NONE;
 }
@@ -306,7 +301,8 @@ static int tp_AssSubscript(PyObject* self, PyObject* slice, PyObject* value) {
 		return -1;
 	}
 
-	return ::typy::CheckAndSetList(new_list.get(), *static_cast<List<T>*>(self)) ? 0 : -1;
+	static_cast<List<T>*>(self)->Clear();
+	return ExtendList(new_list.get(), *static_cast<List<T>*>(self)) ? 0 : -1;
 }
 
 template <typename T>
@@ -321,7 +317,8 @@ static PyObject* tp_Insert(PyObject* self, PyObject* args) {
 	if (PyList_Insert(new_list.get(), index, value) < 0) {
 		return NULL;
 	}
-	if (!::typy::CheckAndSetList(new_list.get(), *static_cast<List<T>*>(self))) {
+	static_cast<List<T>*>(self)->Clear();
+	if (!ExtendList(new_list.get(), *static_cast<List<T>*>(self))) {
 		return NULL;
 	}
 	Py_RETURN_NONE;

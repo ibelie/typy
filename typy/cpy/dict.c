@@ -433,7 +433,7 @@ PyMethodDef TypyDict_Methods[] = {
 	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
 	{ "update", (PyCFunction)dict_Update, METH_O,
-		"Update items from other map." },
+		"Update items from another map." },
 	{ NULL, NULL }
 };
 

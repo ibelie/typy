@@ -100,23 +100,12 @@ static int tp_AssSubscript(PyObject* self, PyObject* key, PyObject* v) {
 	return 0;
 }
 
-} // namespace dict
-
 template <typename K, typename V>
-void Dict<K, V>::Clear() {
-	for (typename Dict<K, V>::iterator it = this->begin(); it != this->end(); ++it) {
-		::typy::Clear(it->second);
-	}
-	this->Map::clear();
-}
-
-template <typename K, typename V>
-bool CheckAndSetDict(PyObject* arg, Dict<K, V>& value) {
-	value.Clear();
+bool MergeDict(PyObject* arg, Dict<K, V>& value) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
 	while (PyDict_Next(arg, &pos, &k, &v)) {
-		if (::typy::dict::tp_AssSubscript<K, V>(&value, k, v) == -1) {
+		if (tp_AssSubscript<K, V>(&value, k, v) == -1) {
 			return false;
 		}
 	}
@@ -124,19 +113,16 @@ bool CheckAndSetDict(PyObject* arg, Dict<K, V>& value) {
 }
 
 template <typename K, typename V>
-bool CheckAndSetItems(PyObject* items, Dict<K, V>& value) {
-	value.Clear();
-	for (Py_ssize_t i = 0; i < PySequence_Size(items); ++i) {
-		PyObject* item = PySequence_GetItem(items, i);
-		if (::typy::dict::tp_AssSubscript<K, V>(&value,
-			PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 0)) == -1) {
+bool MergeIter(PyObject* iter, Dict<K, V>& value) {
+	for (Py_ssize_t i = 0; i < _PyObject_LengthHint(iter, 0); i++) {
+		ScopedPyObjectPtr item(PyIter_Next(iter));
+		if (tp_AssSubscript<K, V>(&value, PyTuple_GET_ITEM(item.get(), 0),
+			PyTuple_GET_ITEM(item.get(), 1)) == -1) {
 			return false;
 		}
 	}
 	return true;
 }
-
-namespace dict {
 
 static void SetKeyError(PyObject *arg) {
 	ScopedPyObjectPtr tup(PyTuple_Pack(1, arg));
@@ -207,6 +193,24 @@ static PyObject* tp_Keys(PyObject* self) {
 		PyList_Append(keys, ::typy::GetPyObject(it->first));
 	}
 	return keys;
+}
+
+template <typename K, typename V>
+static PyObject* tp_Update(PyObject* self, PyObject* arg) {
+	PyObject* items;
+	if (!arg || arg == Py_None) {
+		Py_RETURN_NONE;
+	} else if (PyDict_Check(arg)) {
+		MergeDict(arg, *static_cast<Dict<K, V>*>(self));
+		Py_RETURN_NONE;
+	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
+		MergeIter(items, *static_cast<Dict<K, V>*>(self));
+		Py_DECREF(items);
+		Py_RETURN_NONE;
+	} else {
+		FormatTypeError(arg, "update expect dict, but");
+		return NULL;
+	}
 }
 
 template <typename K, typename V>
@@ -334,6 +338,14 @@ static PyObject* iter_NextItem(typename Dict<K, V>::Iterator* it)
 } // namespace dict
 
 template <typename K, typename V>
+void Dict<K, V>::Clear() {
+	for (typename Dict<K, V>::iterator it = this->begin(); it != this->end(); ++it) {
+		::typy::Clear(it->second);
+	}
+	this->Map::clear();
+}
+
+template <typename K, typename V>
 PyMappingMethods Dict<K, V>::MpMethods = {
 	(lenfunc)::typy::dict::tp_Len<K, V>,                /* mp_length        */
 	(binaryfunc)::typy::dict::tp_Subscript<K, V>,       /* mp_subscript     */
@@ -352,6 +364,8 @@ PyMethodDef Dict<K, V>::Methods[] = {
 		"Get key list of the map." },
 	{ "iteritems", (PyCFunction)::typy::dict::tp_IterItem<K, V>, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
+	{ "update", (PyCFunction)::typy::dict::tp_Update<K, V>, METH_O,
+		"Update items from another map." },
 	{ NULL, NULL }
 };
 

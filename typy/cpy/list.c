@@ -230,30 +230,10 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 }
 
 static PyObject* list_Extend(TypyList* self, PyObject* value) {
-	if (value == Py_None || (!Py_TYPE(value)->tp_as_sequence && PyObject_Not(value))) {
-		Py_RETURN_NONE;
+	if (!PyObject_Not(value) && Py_TYPE(value)->tp_as_sequence) {
+		TypyList_Extend(self, value);
 	}
-	register PyObject* iter = PyObject_GetIter(value);
-	if (!iter) {
-		PyErr_SetString(PyExc_TypeError, "Value must be iterable");
-		return NULL;
-	}
-	register PyObject* next;
-	while (next = PyIter_Next(iter)) {
-		register TypyField* offset = TypyList_EnsureSize(self, 1);
-		if (!offset) { goto list_extend_fail; }
-		if (!TypyList_CHECKSET(self, offset, next, "List item type error: ")) {
-			goto list_extend_fail;
-		}
-		Py_DECREF(next);
-	}
-	Py_DECREF(iter);
 	Py_RETURN_NONE;
-
-list_extend_fail:
-	Py_DECREF(iter);
-	Py_XDECREF(next);
-	return NULL;
 }
 
 static PyObject* list_Subscript(TypyList* self, PyObject* slice) {

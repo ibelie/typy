@@ -152,7 +152,8 @@ bool CheckAndSet(PyObject* arg, List<T>*& value, const char* err) {
 		return true;
 	} else if (PySequence_Check(arg)) {
 		if (value == NULL) { value = new List<T>; }
-		return CheckAndSetList(arg, *value);
+		else { value->Clear(); }
+		return ::typy::list::ExtendList(arg, *value);
 	} else {
 		FormatTypeError(arg, err);
 		return false;
@@ -170,10 +171,12 @@ bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
 		return true;
 	} else if (PyDict_Check(arg)) {
 		if (value == NULL) { value = new Dict<K, V>; }
-		return CheckAndSetDict(arg, *value);
+		else { value->Clear(); }
+		return ::typy::dict::MergeDict(arg, *value);
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
 		if (value == NULL) { value = new Dict<K, V>; }
-		register bool success = CheckAndSetItems(items, *value);
+		else { value->Clear(); }
+		register bool success = ::typy::dict::MergeIter(items, *value);
 		Py_DECREF(items);
 		return success;
 	} else {
