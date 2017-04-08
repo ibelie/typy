@@ -53,7 +53,7 @@ extern PyTypeObject TypyMetaObjectType;
 extern PyTypeObject BaseTypyObjectType;
 extern PyTypeObject* TypyObjectType;
 
-PyTypeObject*   _InheritTypyObjectType();
+PyTypeObject*   _InheritTypyObjectType(void);
 TypyMetaObject* _Typy_RegisterMeta(PyObject*);
 TypyMetaObject* Typy_RegisterObject(PyObject*, PyObject*);
 

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-inline PyTypeObject* _InheritTypyObjectType() {
+inline PyTypeObject* _InheritTypyObjectType(void) {
 	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Inherit TypyObjectType out of memory %lu.", sizeof(PyTypeObject));
@@ -31,7 +31,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 		PyErr_Format(PyExc_RuntimeError, "Alloc Object out of memory %lu.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 		return NULL;
 	}
-	PyObject_INIT(object, type->py_type);
+	(void)PyObject_INIT(object, type->py_type);
 	Typy_TYPE(object) = type;
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
@@ -87,7 +87,7 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	type->meta_size = meta_size;
 	Meta_NAME(type)[nameLen] = 0;
 	memcpy(Meta_NAME(type), name, nameLen);
-	PyObject_INIT(type, &TypyMetaObjectType);
+	(void)PyObject_INIT(type, &TypyMetaObjectType);
 	type->meta_index2field = (char**)malloc(meta_size * sizeof(char*));
 	if (!type->meta_index2field) {
 		PyErr_Format(PyExc_RuntimeError, "Register Meta index2field out of memory %lu.", meta_size * sizeof(char*));

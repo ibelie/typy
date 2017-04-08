@@ -93,7 +93,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 	type->dict_name[nameLen] = 0;
 	memcpy(type->dict_name, name, nameLen);
-	PyObject_INIT(type, &TypyMetaDictType);
+	(void)PyObject_INIT(type, &TypyMetaDictType);
 
 	typy_type = NULL;
 	if (!PyArg_ParseTuple(key_desc, "BB|O", &wire_type, &field_type, &typy_type)) {
@@ -146,7 +146,7 @@ inline TypyDict* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwar
 		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");
 		return NULL;
 	}
-	PyObject_INIT(dict, &TypyDictType);
+	(void)PyObject_INIT(dict, &TypyDictType);
 	TypyDict_TYPE(dict) = type;
 	return dict;
 }

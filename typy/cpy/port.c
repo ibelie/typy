@@ -12,6 +12,8 @@
 #	define S_ISREG(m) ((m) & S_IFREG)
 #	include "windows.h"
 #	include "io.h"
+#else
+#	include "unistd.h"
 #endif
 
 #ifdef __cplusplus

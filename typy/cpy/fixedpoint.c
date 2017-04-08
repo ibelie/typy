@@ -28,7 +28,7 @@ TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 
 	type->fp_precision = _Pow10(_precision);
 	type->fp_floor = _floor;
-	PyObject_INIT(type, &TypyFixedPointType);
+	(void)PyObject_INIT(type, &TypyFixedPointType);
 
 	return type;
 }
