@@ -5,12 +5,14 @@
 #ifndef TYPY_TYPE_H__
 #define TYPY_TYPE_H__
 
-#define HAVE_ROUND
+#ifdef _MSC_VER
+#	define HAVE_ROUND
+#endif
 #define PY_SSIZE_T_CLEAN
 
+#include "Python.h"
 #include "map.h"
 #include "protobuf.h"
-#include "Python.h"
 
 #define FULL_MODULE_NAME "_typyd"
 
