@@ -60,13 +60,14 @@ inline char* Meta_PropertyName(TypyMetaObject* type, int index) {
 
 inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	char *name;
+	Py_ssize_t nameLen;
 	PyObject* descriptors;
 	size_t i, meta_size;
 	PyObject* typy_type;
-	byte tagsize, wire_type, field_type;
+	uint8 tagsize, wire_type, field_type;
 	uint32 tag;
 
-	if (!PyArg_ParseTuple(args, "sO", &name, &descriptors)) {
+	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptors)) {
 		return NULL;
 	} else if (!PySequence_Check(descriptors)) {
 		FormatTypeError(descriptors, "RegisterMeta descriptors expect sequence type, but ");
@@ -76,7 +77,6 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		return NULL;
 	}
 
-	register size_t nameLen = strlen(name);
 	register size_t size = sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + nameLen;
 	register TypyMetaObject* type = (TypyMetaObject*)malloc(size);
 	if (!type) {

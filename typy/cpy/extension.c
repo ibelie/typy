@@ -10,12 +10,12 @@ extern "C" {
 
 TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	char *name;
+	Py_ssize_t nameLen;
 	TypyPython* type;
-	if (!PyArg_ParseTuple(args, "s", &name)) {
+	if (!PyArg_ParseTuple(args, "s#", &name, &nameLen)) {
 		return NULL;
 	}
 
-	register size_t nameLen = strlen(name);
 	type = (TypyPython*)malloc(sizeof(TypyPython) + nameLen);
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Register Python out of memory %lu.", sizeof(TypyPython) + nameLen);

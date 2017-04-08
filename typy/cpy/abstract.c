@@ -305,7 +305,7 @@ READ(TypyVarint32_Read, uint32, Typy_ReadVarint32)
 READ(TypyVarint64_Read, uint64, Typy_ReadVarint64)
 READ(TypyDouble_Read,   uint64, Typy_Read64)
 READ(TypyFloat_Read,    uint32, Typy_Read32)
-READ(TypyBool_Read,     byte,   Typy_ReadByte)
+READ(TypyBool_Read,     bool,   Typy_ReadByte)
 #undef READ
 
 static bool TypyField_Read(TypyType t, TypyField* value, byte** input, size_t* length) {
@@ -397,7 +397,7 @@ static size_t NAME(TypyType t, TYPE* value, int tag, byte* output) { \
 }
 WRITE(TypyDouble_Write, double, uint64, Typy_Write64)
 WRITE(TypyFloat_Write,  float,  uint32, Typy_Write32)
-WRITE(TypyBool_Write,   bool,   byte,   Typy_WriteByte)
+WRITE(TypyBool_Write,   bool,   bool,   Typy_WriteByte)
 #undef WRITE
 
 inline PyObject* _DecodeString(PyString value) {

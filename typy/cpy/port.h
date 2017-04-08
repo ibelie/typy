@@ -19,7 +19,7 @@
 #	define false 0
 #endif
 #ifndef bool
-#	define bool byte
+#	define bool uint8
 #endif
 
 #undef NULL

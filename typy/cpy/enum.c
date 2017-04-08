@@ -14,12 +14,12 @@ IblMap_KEY_NUMERIC(TypyEnumMap, TypyField,
 
 TypyEnum* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 	char *name;
+	Py_ssize_t nameLen;
 	TypyEnum* type;
-	if (!PyArg_ParseTuple(args, "s", &name)) {
+	if (!PyArg_ParseTuple(args, "s#", &name, &nameLen)) {
 		return NULL;
 	}
 
-	register size_t nameLen = strlen(name);
 	type = (TypyEnum*)malloc(sizeof(TypyEnum) + nameLen);
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Register Enum object out of memory %lu.", sizeof(TypyEnum) + nameLen);

@@ -17,7 +17,7 @@ extern "C" {
 #define _KEY(item) ((IblMap_Key)&(((IblMap_Item)item)->key))
 
 static void _IblMap_BuildTree(IblMap map, size_t hash) {
-	register byte i;
+	register uint8 i;
 	IblTree root = NULL;
 	for (i = 0; i < 2; i++) {
 		register IblMap_Item item;

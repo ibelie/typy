@@ -20,7 +20,7 @@ extern "C" {
 
 inline size_t IblBytesHash(bytes buffer) {
 	register size_t hash = 0;
-	register byte *i, *n = buffer->data + buffer->length;
+	register uint8 *i, *n = buffer->data + buffer->length;
 	for (i = buffer->data; i < n; i++) {
 		hash = (hash << 5) - hash + *i;
 	}

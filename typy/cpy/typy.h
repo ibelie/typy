@@ -6,6 +6,7 @@
 #define TYPY_TYPE_H__
 
 #define HAVE_ROUND
+#define PY_SSIZE_T_CLEAN
 
 #include "map.h"
 #include "protobuf.h"

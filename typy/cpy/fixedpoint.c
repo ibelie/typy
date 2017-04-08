@@ -16,7 +16,7 @@ TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 	uint8 _precision;
 	int32 _floor;
 	TypyFixedPoint* type;
-	if (!PyArg_ParseTuple(args, "bl", &_precision, &_floor)) {
+	if (!PyArg_ParseTuple(args, "BI", &_precision, &_floor)) {
 		return NULL;
 	}
 
