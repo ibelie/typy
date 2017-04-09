@@ -222,6 +222,9 @@ def _build(_typy):
 	_typy.Corpus(Corpus.__enum__)
 	_typy.PyType(PyType)
 
+	import time
+	startTime = time.time()
+
 	@property
 	def TestProperty(self):
 		print 'TestProperty', self
@@ -563,17 +566,26 @@ def _build(_typy):
 	fighter.vd.update(fighter.sd)
 	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
 
+	return time.time() - startTime
+
+cpptime = 0
+cpytime = 0
+
 def test_cpp():
-	return
 	import os
 	from typy import GenerateExtention
 	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
 	from typy import _typy
-	_build(_typy)
+	global cpptime, cpytime
+	cpptime = _build(_typy)
+	print 'time', cpptime, cpytime
+
 
 def test_cpy():
 	import os
 	from typy import GenerateDescriptor
 	GenerateDescriptor(os.path.dirname(__file__))
 	import _typy
-	_build(_typy)
+	global cpptime, cpytime
+	cpytime = _build(_typy)
+	print 'time', cpptime, cpytime
