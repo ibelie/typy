@@ -14,16 +14,23 @@ static TypyDictMap _TypyDictMap_New(TypyField* key) {
 	return item;
 }
 
-static void _TypyDictMap_Free(TypyDictMap item) {
+static void _TypyDictMap_NumericFree(TypyDictMap item) {
 	if (item) { free(item); }
+}
+
+static void _TypyDictMap_PyObjectFree(TypyDictMap item) {
+	if (item) {
+		Py_XDECREF(*((PyObject**)&item->key));
+		free(item);
+	}
 }
 
 inline IblMap TypyDictMap_New(FieldType field_type) {
 	IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));
 	if (map) {
-		map->hash = (IblMap_Hash)abstract_Hash[field_type];
-		map->alloc = (IblMap_NewItem)_TypyDictMap_New;
-		map->dealloc = (IblMap_Dealloc)_TypyDictMap_Free;
+		map->hash    = (IblMap_Hash)abstract_Hash[field_type];
+		map->alloc   = (IblMap_NewItem)_TypyDictMap_New;
+		map->dealloc = (IblMap_Dealloc)(field_type < MAX_PRIMITIVE_TYPE ? _TypyDictMap_NumericFree : _TypyDictMap_PyObjectFree);
 		map->compare = (IblMap_Compare)abstract_Compare[field_type];
 	}
 	return map;
@@ -32,13 +39,11 @@ inline IblMap TypyDictMap_New(FieldType field_type) {
 //=============================================================================
 
 inline void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
-	register TypyDictMap item;
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
-		item = (TypyDictMap)iter;
-		MetaKey_CLEAR(type, &item->key);
-		MetaValue_CLEAR(type, &item->value);
+		MetaValue_CLEAR(type, &((TypyDictMap)iter)->value);
 	}
+	IblMap_Clear(self->dict_map);
 }
 
 inline bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject* key, PyObject* value) {
