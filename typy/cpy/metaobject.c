@@ -499,13 +499,10 @@ static PyObject* MetaObject_Repr(TypyMetaObject* type) {
 }
 
 static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
-	register PyObject* value = PyDict_GetItem(type->py_type->tp_dict, arg);
-	if (value) {
-		Py_INCREF(value);
-	} else {
-		PyErr_Format(PyExc_AttributeError, "<MetaObject '" FULL_MODULE_NAME ".%s'> has no attribute '%.400s'", Meta_NAME(type), PyString_AS_STRING(arg));
+	if (PyBytes_Check(arg) && !strcmp(PyBytes_AS_STRING(arg), "__name__")) {
+		return PyBytes_FromString(Meta_NAME(type));
 	}
-	return value;
+	return PyObject_GetAttr((PyObject*)type->py_type, arg);
 }
 
 static int MetaObject_SetAttr(TypyMetaObject* type, PyObject* arg, PyObject* value) {
@@ -516,7 +513,12 @@ static int MetaObject_SetAttr(TypyMetaObject* type, PyObject* arg, PyObject* val
 			return -1;
 		}
 	}
-	return PyDict_SetItem(type->py_type->tp_dict, arg, value);
+	return PyObject_SetAttr((PyObject*)type->py_type, arg, value);
+}
+
+static PyObject* MetaObject_New(PyTypeObject* cls, PyObject* args, PyObject* kwargs) {
+	register TypyMetaObject* type = (TypyMetaObject*)PyTuple_GET_ITEM(PyTuple_GET_ITEM(args, 1), 0);
+	return PyObject_Call((PyObject*)type->py_type->ob_type, args, kwargs);
 }
 
 static PyMethodDef _InitDef = { "InitObject", (PyCFunction)MetaObject_Initialize, METH_VARARGS,
@@ -548,7 +550,7 @@ PyTypeObject TypyMetaObjectType = {
 	0,                                       /* tp_as_number      */
 	0,                                       /* tp_as_sequence    */
 	0,                                       /* tp_as_mapping     */
-	PyObject_HashNotImplemented,             /* tp_hash           */
+	0,                                       /* tp_hash           */
 	(ternaryfunc)Typy_New,                   /* tp_call           */
 	(reprfunc)MetaObject_Repr,               /* tp_str            */
 	(getattrofunc)MetaObject_GetAttr,        /* tp_getattro       */
@@ -556,4 +558,21 @@ PyTypeObject TypyMetaObjectType = {
 	0,                                       /* tp_as_buffer      */
 	Py_TPFLAGS_DEFAULT,                      /* tp_flags          */
 	"The Typy Object Metaclass",             /* tp_doc            */
+	0,                                       /* tp_traverse       */
+	0,                                       /* tp_clear          */
+	0,                                       /* tp_richcompare    */
+	0,                                       /* tp_weaklistoffset */
+	0,                                       /* tp_iter           */
+	0,                                       /* tp_iternext       */
+	0,                                       /* tp_methods        */
+	0,                                       /* tp_members        */
+	0,                                       /* tp_getset         */
+	0,                                       /* tp_base           */
+	0,                                       /* tp_dict           */
+	0,                                       /* tp_descr_get      */
+	0,                                       /* tp_descr_set      */
+	0,                                       /* tp_dictoffset     */
+	0,                                       /* tp_init           */
+	0,                                       /* tp_alloc          */
+	MetaObject_New,                          /* tp_new            */
 };
