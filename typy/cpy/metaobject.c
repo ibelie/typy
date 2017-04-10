@@ -104,7 +104,9 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		register PyObject* item = PySequence_GetItem(descriptors, i);
 		typy_type = NULL;
 		if (!PyArg_ParseTuple(item, "sIBBB|O", &name, &tag, &tagsize, &wire_type, &field_type, &typy_type)) {
-			Py_DECREF(type); return NULL;
+			Py_XDECREF(item);
+			Py_DECREF(type);
+			return NULL;
 		}
 		max_tag = Ibl_Max(max_tag, tag);
 		type->meta_descriptor[i].desc_tag       = tag;
@@ -115,10 +117,13 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		register TypyFieldMap field = (TypyFieldMap)IblMap_Set(type->meta_field2index, &name);
 		if (!field) {
 			PyErr_Format(PyExc_RuntimeError, "Register Meta cannot set field2index.");
-			Py_DECREF(type); return NULL;
+			Py_XDECREF(item);
+			Py_DECREF(type);
+			return NULL;
 		}
 		field->index = i;
 		type->meta_index2field[i] = field->key;
+		Py_XDECREF(item);
 	}
 	type->meta_cutoff = max_tag <= 0x7F ? 0x7F : (max_tag <= 0x3FFF ? 0x3FFF : max_tag);
 
