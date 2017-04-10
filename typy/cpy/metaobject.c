@@ -500,7 +500,11 @@ static PyObject* MetaObject_Repr(TypyMetaObject* type) {
 
 static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
 	register PyObject* value = PyDict_GetItem(type->py_type->tp_dict, arg);
-	if (value) { Py_INCREF(value); }
+	if (value) {
+		Py_INCREF(value);
+	} else {
+		PyErr_Format(PyExc_AttributeError, "<MetaObject '" FULL_MODULE_NAME ".%s'> has no attribute '%.400s'", Meta_NAME(type), PyString_AS_STRING(arg));
+	}
 	return value;
 }
 

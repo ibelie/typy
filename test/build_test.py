@@ -257,6 +257,10 @@ def _build(_typy):
 	_Empty = _typy.Empty()
 	_Fighter = _typy.Fighter()
 	_Vector2.classProp.add(False)
+	print "hasattr(_Fighter, 'prop')", hasattr(_Fighter, 'prop')
+	print "hasattr(_Fighter(), 'prop')", hasattr(_Fighter(), 'prop')
+	print "hasattr(_Vector2, 'prop')", hasattr(_Vector2, 'prop')
+	print "hasattr(_Vector2(), 'prop')", hasattr(_Vector2(), 'prop')
 
 
 	v = _Vector2(
