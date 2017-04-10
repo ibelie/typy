@@ -107,7 +107,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	if (!PyArg_ParseTuple(value_desc, "BB|O", &wire_type, &field_type, &typy_type)) {
 		free(type); return NULL;
 	}
-	type->value_desc.desc_type      = typy_type;
+	type->value_desc.desc_type      = Meta_FromInitializer;
 	type->value_desc.desc_FieldType = field_type;
 	type->value_desc.desc_WireType  = wire_type;
 

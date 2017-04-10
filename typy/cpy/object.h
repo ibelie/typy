@@ -18,7 +18,6 @@ IblMap_KEY_STRING(TypyFieldMap,
 typedef struct {
 	PyObject_HEAD
 	PyTypeObject*  py_type;
-	PyObject*      meta_new;
 	IblMap         meta_field2index;
 	char**         meta_index2field;
 	uint32         meta_cutoff;
@@ -26,14 +25,15 @@ typedef struct {
 	TypyDescriptor meta_descriptor[1];
 } TypyMetaObject;
 
-#define Meta_NAME(m) ((char*)(&(((TypyMetaObject*)(m))->meta_descriptor[((TypyMetaObject*)(m))->meta_size])))
-#define Meta_SIZE(m) (((TypyMetaObject*)(m))->meta_size)
-#define Meta_DESC(m, i) (((TypyMetaObject*)(m))->meta_descriptor[i])
-#define Meta_TAG(m, i) (Meta_DESC(m, i).desc_tag)
-#define Meta_TAGSIZE(m, i) (Meta_DESC(m, i).desc_tagsize)
+#define Meta_NAME(m)         ((char*)(&(((TypyMetaObject*)(m))->meta_descriptor[((TypyMetaObject*)(m))->meta_size])))
+#define Meta_SIZE(m)         (((TypyMetaObject*)(m))->meta_size)
+#define Meta_DESC(m, i)      (((TypyMetaObject*)(m))->meta_descriptor[i])
+#define Meta_TAG(m, i)       (Meta_DESC(m, i).desc_tag)
+#define Meta_TAGSIZE(m, i)   (Meta_DESC(m, i).desc_tagsize)
 #define Meta_FIELDTYPE(m, i) (Meta_DESC(m, i).desc_FieldType)
-#define Meta_TYPYTYPE(m, i) (Meta_DESC(m, i).desc_type)
-#define Meta_WIRETYPE(m, i) (Meta_DESC(m, i).desc_WireType)
+#define Meta_TYPYTYPE(m, i)  (Meta_DESC(m, i).desc_type)
+#define Meta_WIRETYPE(m, i)  (Meta_DESC(m, i).desc_WireType)
+#define Meta_FromInitializer (field_type == FIELD_TYPE_OBJECT ? ((PyCFunctionObject*)typy_type)->m_self : typy_type)
 
 void  TypyMeta_Dealloc   (TypyMetaObject*);
 int   Meta_PropertyIndex (TypyMetaObject*, char*);
@@ -53,9 +53,9 @@ extern PyTypeObject TypyMetaObjectType;
 extern PyTypeObject BaseTypyObjectType;
 extern PyTypeObject* TypyObjectType;
 
-PyTypeObject*   _InheritTypyObjectType(void);
-TypyMetaObject* _Typy_RegisterMeta(PyObject*);
-TypyMetaObject* Typy_RegisterObject(PyObject*, PyObject*);
+PyTypeObject*      _InheritTypyObjectType(void);
+TypyMetaObject*    _Typy_RegisterMeta(PyObject*);
+PyCFunctionObject* Typy_RegisterObject(PyObject*, PyObject*);
 
 #define Typy_TYPE(ob) (((TypyObject*)(ob))->meta_type)
 #define Typy_SIZE(ob) (Typy_TYPE(ob)->meta_size)

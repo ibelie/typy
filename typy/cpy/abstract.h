@@ -10,6 +10,7 @@
 #define MAX_VARINT_TYPE 6
 #define MAX_PRIMITIVE_TYPE 9
 #define MAX_FIELD_TYPE 16
+#define FIELD_TYPE_OBJECT 11
 
 typedef void*  TypyType;
 typedef size_t TypyField;

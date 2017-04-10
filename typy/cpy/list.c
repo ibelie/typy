@@ -78,7 +78,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 	if (!PyArg_ParseTuple(descriptor, "BB|O", &wire_type, &field_type, &typy_type)) {
 		free(type); return NULL;
 	}
-	type->list_desc.desc_type      = typy_type;
+	type->list_desc.desc_type      = Meta_FromInitializer;
 	type->list_desc.desc_FieldType = field_type;
 	type->list_desc.desc_WireType  = wire_type;
 

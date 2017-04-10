@@ -17,7 +17,6 @@ inline void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
 
 TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
-	type->meta_new = NULL;
 	type->py_type = NULL;
 	return type;
 }

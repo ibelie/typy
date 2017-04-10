@@ -111,7 +111,7 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		type->meta_descriptor[i].desc_tagsize   = tagsize;
 		type->meta_descriptor[i].desc_WireType  = wire_type;
 		type->meta_descriptor[i].desc_FieldType = field_type;
-		type->meta_descriptor[i].desc_type      = typy_type;
+		type->meta_descriptor[i].desc_type      = Meta_FromInitializer;
 		register TypyFieldMap field = (TypyFieldMap)IblMap_Set(type->meta_field2index, &name);
 		if (!field) {
 			PyErr_Format(PyExc_RuntimeError, "Register Meta cannot set field2index.");
@@ -455,7 +455,6 @@ PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) {
 PyTypeObject* TypyObjectType = NULL;
 
 void TypyMeta_Dealloc(TypyMetaObject* type) {
-	Py_XDECREF(type->meta_new);
 	if (type->py_type != TypyObjectType) {
 		Py_XDECREF(type->py_type);
 	}
@@ -468,7 +467,7 @@ void TypyMeta_Dealloc(TypyMetaObject* type) {
 	free(type);
 }
 
-static PyObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
+static TypyMetaObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
 	PyObject* attrs = Py_None;
@@ -491,28 +490,27 @@ static PyObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* args) {
 			if (metaclass) { type->py_type->ob_type = (PyTypeObject*)metaclass; }
 		}
 	}
-	Py_INCREF(type->meta_new);
-	return type->meta_new;
+	Py_INCREF(type);
+	return type;
 }
 
 static PyObject* MetaObject_Repr(TypyMetaObject* type) {
 	return PyString_FromFormat("<MetaObject '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
 }
 
-static PyMethodDef TypyNewDef = { "TypyNew", (PyCFunction)Typy_New, METH_VARARGS | METH_KEYWORDS,
-	"Create Object Type." };
+static PyMethodDef _InitDef = { "InitObject", (PyCFunction)MetaObject_Initialize, METH_VARARGS,
+	"Initialize Object Type." };
 
-TypyMetaObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
+PyCFunctionObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
-	register PyCFunctionObject* meta_new = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
-	if (!meta_new) { Py_DECREF(type); return NULL; }
-	meta_new->m_ml = &TypyNewDef;
-	meta_new->m_self = (PyObject*)type;
-	meta_new->m_module = NULL;
-	type->meta_new = (PyObject*)meta_new;
+	register PyCFunctionObject* initializer = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
+	if (!initializer) { Py_DECREF(type); return NULL; }
+	initializer->m_ml = &_InitDef;
+	initializer->m_self = (PyObject*)type;
+	initializer->m_module = NULL;
 	type->py_type = TypyObjectType;
 
-	return type;
+	return initializer;
 }
 
 PyTypeObject TypyMetaObjectType = {
@@ -530,7 +528,7 @@ PyTypeObject TypyMetaObjectType = {
 	0,                                       /* tp_as_sequence    */
 	0,                                       /* tp_as_mapping     */
 	PyObject_HashNotImplemented,             /* tp_hash           */
-	(ternaryfunc)MetaObject_Initialize,      /* tp_call           */
+	(ternaryfunc)Typy_New,                   /* tp_call           */
 	(reprfunc)MetaObject_Repr,               /* tp_str            */
 	0,                                       /* tp_getattro       */
 	0,                                       /* tp_setattro       */
