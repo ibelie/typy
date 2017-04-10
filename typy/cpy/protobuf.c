@@ -108,7 +108,7 @@ size_t Typy_Write32(byte* buffer, uint32* value) {
 	buffer[2] = (byte)(*value >> 16);
 	buffer[3] = (byte)(*value >> 24);
 #endif
-	return sizeof(value);
+	return sizeof(*value);
 }
 
 size_t Typy_Write64(byte* buffer, uint64* value) {

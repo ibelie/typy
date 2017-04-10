@@ -18,7 +18,7 @@ static void _TypyDictMap_Free(TypyDictMap item) {
 	if (item) { free(item); }
 }
 
-inline IblMap TypyDictMap_New(byte field_type) {
+inline IblMap TypyDictMap_New(FieldType field_type) {
 	IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));
 	if (map) {
 		map->hash = (IblMap_Hash)abstract_Hash[field_type];
@@ -80,7 +80,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	PyObject* key_desc;
 	PyObject* value_desc;
 	PyObject* typy_type;
-	byte wire_type, field_type;
+	uint8 wire_type, field_type;
 	if (!PyArg_ParseTuple(args, "s#OO", &name, &nameLen, &key_desc, &value_desc)) {
 		return NULL;
 	}
@@ -93,7 +93,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 	type->dict_name[nameLen] = 0;
 	memcpy(type->dict_name, name, nameLen);
-	PyObject_INIT(type, &TypyMetaDictType);
+	(void)PyObject_INIT(type, &TypyMetaDictType);
 
 	typy_type = NULL;
 	if (!PyArg_ParseTuple(key_desc, "BB|O", &wire_type, &field_type, &typy_type)) {
@@ -146,7 +146,7 @@ inline TypyDict* TypyDict_New(TypyMetaDict* type, PyObject* args, PyObject* kwar
 		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");
 		return NULL;
 	}
-	PyObject_INIT(dict, &TypyDictType);
+	(void)PyObject_INIT(dict, &TypyDictType);
 	TypyDict_TYPE(dict) = type;
 	return dict;
 }

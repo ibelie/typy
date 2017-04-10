@@ -1,3 +1,7 @@
+# Copyright 2017 ibelie, Chen Jie, Joungtao. All rights reserved.
+# Use of this source code is governed by The MIT License
+# that can be found in the LICENSE file.
+
 project(typyd)
 
 cmake_minimum_required(VERSION 2.8)
@@ -13,6 +17,8 @@ set(SOURCE_FILES
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/map.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/metaobject.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/object.c"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/port.c"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/protobuf.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/tree.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/typy.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/variant.c"

@@ -18,7 +18,7 @@ typedef struct _TypyDictMap {
 	TypyField value;
 } *TypyDictMap;
 
-IblMap TypyDictMap_New(byte field_type);
+IblMap TypyDictMap_New(FieldType field_type);
 
 typedef struct {
 	PyObject_HEAD

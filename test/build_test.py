@@ -222,6 +222,9 @@ def _build(_typy):
 	_typy.Corpus(Corpus.__enum__)
 	_typy.PyType(PyType)
 
+	import time
+	startTime = time.time()
+
 	@property
 	def TestProperty(self):
 		print 'TestProperty', self
@@ -421,11 +424,11 @@ def _build(_typy):
 	print "sd[231]\t", "\t", fighter.sd[231], "\t", fighterPy.sd[231], "\t", fighter2.sd[231], "\t", fighterPy2.sd[231], "\t", fighter3.sd[231]
 	print "ed[789]\t", "\t", fighter.ed[789], "\t", fighterPy.ed[789], "\t", fighter2.ed[789], "\t", fighterPy2.ed[789], "\t", fighter3.ed[789]
 	print "ed[567]\t", "\t", fighter.ed[567], "\t", fighterPy.ed[567], "\t", fighter2.ed[567], "\t", fighterPy2.ed[567], "\t", fighter3.ed[567]
-	print "ll[0][0]\t", "\t", fighter.ll[0][0], "\t", fighterPy.ll[0][0], "\t", fighter2.ll[0][0], "\t", fighterPy2.ll[0][0], "\t", fighter3.ll[0][0]
-	print "ll[0][1]\t", "\t", fighter.ll[0][1], "\t", fighterPy.ll[0][1], "\t", fighter2.ll[0][1], "\t", fighterPy2.ll[0][1], "\t", fighter3.ll[0][1]
-	print "ll[1][0]\t", "\t", fighter.ll[1][0], "\t", fighterPy.ll[1][0], "\t", fighter2.ll[1][0], "\t", fighterPy2.ll[1][0], "\t", fighter3.ll[1][0]
-	print "ll[1][1]\t", "\t", fighter.ll[1][1], "\t", fighterPy.ll[1][1], "\t", fighter2.ll[1][1], "\t", fighterPy2.ll[1][1], "\t", fighter3.ll[1][1]
-	print "ll[1][2]\t", "\t", fighter.ll[1][2], "\t", fighterPy.ll[1][2], "\t", fighter2.ll[1][2], "\t", fighterPy2.ll[1][2], "\t", fighter3.ll[1][2]
+	print "ll[0][0]\t", fighter.ll[0][0], "\t", fighterPy.ll[0][0], "\t", fighter2.ll[0][0], "\t", fighterPy2.ll[0][0], "\t", fighter3.ll[0][0]
+	print "ll[0][1]\t", fighter.ll[0][1], "\t", fighterPy.ll[0][1], "\t", fighter2.ll[0][1], "\t", fighterPy2.ll[0][1], "\t", fighter3.ll[0][1]
+	print "ll[1][0]\t", fighter.ll[1][0], "\t", fighterPy.ll[1][0], "\t", fighter2.ll[1][0], "\t", fighterPy2.ll[1][0], "\t", fighter3.ll[1][0]
+	print "ll[1][1]\t", fighter.ll[1][1], "\t", fighterPy.ll[1][1], "\t", fighter2.ll[1][1], "\t", fighterPy2.ll[1][1], "\t", fighter3.ll[1][1]
+	print "ll[1][2]\t", fighter.ll[1][2], "\t", fighterPy.ll[1][2], "\t", fighter2.ll[1][2], "\t", fighterPy2.ll[1][2], "\t", fighter3.ll[1][2]
 	print "v1\t", "\t", fighter.v1, " ", fighterPy.v1, " ", fighter2.v1, " ", fighterPy2.v1, " ", fighter3.v1
 	print "v2\t", "\t", fighter.v2, " ", fighterPy.v2, " ", fighter2.v2, " ", fighterPy2.v2, " ", fighter3.v2
 	print "v3.x\t", "\t", fighter.v3.x, "\t", fighterPy.v3.x, "\t", fighter2.v3.x, "\t", fighterPy2.v3.x, "\t", fighter3.v3.x
@@ -563,17 +566,26 @@ def _build(_typy):
 	fighter.vd.update(fighter.sd)
 	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
 
+	return time.time() - startTime
+
+cpptime = 0
+cpytime = 0
+
 def test_cpp():
-	return
 	import os
 	from typy import GenerateExtention
 	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
 	from typy import _typy
-	_build(_typy)
+	global cpptime, cpytime
+	cpptime = _build(_typy)
+	print 'time', cpptime, cpytime
+
 
 def test_cpy():
 	import os
 	from typy import GenerateDescriptor
 	GenerateDescriptor(os.path.dirname(__file__))
 	import _typy
-	_build(_typy)
+	global cpptime, cpytime
+	cpytime = _build(_typy)
+	print 'time', cpptime, cpytime

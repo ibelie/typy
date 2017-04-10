@@ -19,7 +19,7 @@
 #	define false 0
 #endif
 #ifndef bool
-#	define bool byte
+#	define bool uint8
 #endif
 
 #undef NULL
@@ -94,12 +94,24 @@ typedef unsigned long long uint64;
 #endif
 #endif
 
-#define INT32_MAX 0x7FFFFFFF
-#define INT32_MIN (-INT32_MAX - 1)
-#define INT64_MAX Ibl_LONGLONG(0x7FFFFFFFFFFFFFFF)
-#define INT64_MIN (-INT64_MAX - 1)
-#define UINT32_MAX 0xFFFFFFFFu
-#define UINT64_MAX Ibl_ULONGLONG(0xFFFFFFFFFFFFFFFF)
+#ifndef INT32_MAX
+#	define INT32_MAX 0x7FFFFFFF
+#endif
+#ifndef INT32_MIN
+#	define INT32_MIN (-INT32_MAX - 1)
+#endif
+#ifndef INT64_MAX
+#	define INT64_MAX Ibl_LONGLONG(0x7FFFFFFFFFFFFFFF)
+#endif
+#ifndef INT64_MIN
+#	define INT64_MIN (-INT64_MAX - 1)
+#endif
+#ifndef UINT32_MAX
+#	define UINT32_MAX 0xFFFFFFFFu
+#endif
+#ifndef UINT64_MAX
+#	define UINT64_MAX Ibl_ULONGLONG(0xFFFFFFFFFFFFFFFF)
+#endif
 
 #define Ibl_Max(a, b) ((a) > (b) ? (a) : (b))
 #define Ibl_Min(a, b) ((a) < (b) ? (a) : (b))

@@ -35,7 +35,7 @@ TypyEnum* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 
 	type->enum_name[nameLen] = 0;
 	memcpy(type->enum_name, name, nameLen);
-	PyObject_INIT(type, &TypyEnumType);
+	(void)PyObject_INIT(type, &TypyEnumType);
 
 	return type;
 }

@@ -13,6 +13,7 @@
 
 typedef void*  TypyType;
 typedef size_t TypyField;
+typedef uint8  FieldType;
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);
 typedef bool      (*CheckAndSet) (TypyType, TypyField*, PyObject*, const char*);
@@ -24,16 +25,16 @@ typedef size_t    (*Write)       (TypyType, TypyField*, int, byte*);
 typedef size_t    (*ByteSize)    (TypyType, TypyField*, int);
 
 typedef struct {
-	byte          desc_tagsize;
+	uint8         desc_tagsize;
 	uint32        desc_tag;
 	TypyType      desc_type;
-	byte          desc_FieldType;
+	FieldType     desc_FieldType;
 	WireType      desc_WireType;
 } TypyDescriptor;
 
 typedef struct {
 	TypyType      desc_type;
-	byte          desc_FieldType;
+	FieldType     desc_FieldType;
 	WireType      desc_WireType;
 } TypyNestDesc;
 

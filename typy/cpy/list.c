@@ -60,7 +60,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 	TypyMetaList* type;
 	PyObject* descriptor;
 	PyObject* typy_type = NULL;
-	byte wire_type, field_type;
+	uint8 wire_type, field_type;
 	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptor)) {
 		return NULL;
 	}
@@ -73,7 +73,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 
 	type->list_name[nameLen] = 0;
 	memcpy(type->list_name, name, nameLen);
-	PyObject_INIT(type, &TypyMetaListType);
+	(void)PyObject_INIT(type, &TypyMetaListType);
 
 	if (!PyArg_ParseTuple(descriptor, "BB|O", &wire_type, &field_type, &typy_type)) {
 		free(type); return NULL;
@@ -125,7 +125,7 @@ inline TypyList* TypyList_New(TypyMetaList* type, PyObject* args, PyObject* kwar
 		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %lu.", sizeof(TypyList));
 		return NULL;
 	}
-	PyObject_INIT(list, &TypyListType);
+	(void)PyObject_INIT(list, &TypyListType);
 	TypyList_TYPE(list) = type;
 	return list;
 }
@@ -437,7 +437,7 @@ list_asssubscript_fail:
 static PyObject* list_Insert(TypyList* self, PyObject* args) {
 	Py_ssize_t i, index;
 	PyObject* value;
-	if (!PyArg_ParseTuple(args, "lO", &index, &value)) {
+	if (!PyArg_ParseTuple(args, "nO", &index, &value)) {
 		return NULL;
 	}
 	if (!TypyList_EnsureSize(self, 1)) { return NULL; }
