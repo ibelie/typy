@@ -133,7 +133,9 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 inline void Typy_Clear(TypyObject* self) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_CLEAR(self, i);
+		if (Typy_FIELD(self, i)) {
+			Typy_CLEAR(self, i);
+		}
 	}
 }
 

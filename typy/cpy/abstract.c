@@ -272,7 +272,7 @@ static void TypyNumeric_Clear(TypyType type, TypyField* value) {
 }
 
 static void TypyPyObject_Clear(TypyType type, PyObject** value) {
-	Py_XDECREF(value);
+	Py_XDECREF(*value);
 	*value = 0;
 }
 
