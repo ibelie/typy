@@ -46,7 +46,6 @@ try:
 
 		def __new__(mcs, clsname, bases, attrs):
 			all_attrs = {}
-			all_attrs['____properties__'] = _getProperties(mcs, bases, attrs)
 			for base in bases:
 				if base.__name__ in mcs.Objects:
 					all_attrs.update(mcs.Objects[base.__name__].____attrs__)
@@ -54,6 +53,7 @@ try:
 			all_attrs['____attrs__'] = all_attrs
 			if '__metaclass__' not in all_attrs:
 				all_attrs['__metaclass__'] = mcs
+			all_attrs['____properties__'] = _getProperties(mcs, bases, attrs)
 
 			if hasattr(_typy, clsname):
 				cls = getattr(_typy, clsname)(all_attrs)
