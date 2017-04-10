@@ -256,6 +256,7 @@ def _build(_typy):
 	})
 	_Empty = _typy.Empty()
 	_Fighter = _typy.Fighter()
+	_Vector2.classProp.add(False)
 
 
 	v = _Vector2(

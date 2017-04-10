@@ -498,6 +498,23 @@ static PyObject* MetaObject_Repr(TypyMetaObject* type) {
 	return PyString_FromFormat("<MetaObject '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
 }
 
+static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
+	register PyObject* value = PyDict_GetItem(type->py_type->tp_dict, arg);
+	if (value) { Py_INCREF(value); }
+	return value;
+}
+
+static int MetaObject_SetAttr(TypyMetaObject* type, PyObject* arg, PyObject* value) {
+	if (type->py_type == TypyObjectType) {
+		type->py_type = _InheritTypyObjectType();
+		if (!type->py_type) {
+			type->py_type = TypyObjectType;
+			return -1;
+		}
+	}
+	return PyDict_SetItem(type->py_type->tp_dict, arg, value);
+}
+
 static PyMethodDef _InitDef = { "InitObject", (PyCFunction)MetaObject_Initialize, METH_VARARGS,
 	"Initialize Object Type." };
 
@@ -530,8 +547,8 @@ PyTypeObject TypyMetaObjectType = {
 	PyObject_HashNotImplemented,             /* tp_hash           */
 	(ternaryfunc)Typy_New,                   /* tp_call           */
 	(reprfunc)MetaObject_Repr,               /* tp_str            */
-	0,                                       /* tp_getattro       */
-	0,                                       /* tp_setattro       */
+	(getattrofunc)MetaObject_GetAttr,        /* tp_getattro       */
+	(setattrofunc)MetaObject_SetAttr,        /* tp_setattro       */
 	0,                                       /* tp_as_buffer      */
 	Py_TPFLAGS_DEFAULT,                      /* tp_flags          */
 	"The Typy Object Metaclass",             /* tp_doc            */
