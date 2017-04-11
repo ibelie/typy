@@ -12,7 +12,7 @@ static PyObject* TypyFloat_GetPyObject  (TypyType t, float* v)  { return PyFloat
 
 static PyObject* TypyUint64_GetPyObject (TypyType t, uint64* v) {
 	if (sizeof(TypyField) < sizeof(uint64)) {
-		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %lu-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return NULL;
 	} else {
 		return PyLong_FromUnsignedLongLong(*v);
@@ -21,7 +21,7 @@ static PyObject* TypyUint64_GetPyObject (TypyType t, uint64* v) {
 
 static PyObject* TypyInt64_GetPyObject  (TypyType t, int64* v)  {
 	if (sizeof(TypyField) < sizeof(int64)) {
-		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %lu-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return NULL;
 	} else {
 		return PyLong_FromLongLong(*v);
@@ -30,7 +30,7 @@ static PyObject* TypyInt64_GetPyObject  (TypyType t, int64* v)  {
 
 static PyObject* TypyDouble_GetPyObject (TypyType t, double* v) {
 	if (sizeof(TypyField) < sizeof(double)) {
-		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %lu-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return NULL;
 	} else {
 		return PyFloat_FromDouble(*v);
@@ -116,7 +116,7 @@ static bool TypyInt32_CheckAndSet(TypyType t, int32* value, PyObject* arg, const
 
 static bool TypyInt64_CheckAndSet(TypyType t, int64* value, PyObject* arg, const char* err) {
 	if (sizeof(TypyField) < sizeof(int64)) {
-		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %lu-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return false;
 	} else {
 		int64 v;
@@ -139,7 +139,7 @@ static bool TypyUint32_CheckAndSet(TypyType t, uint32* value, PyObject* arg, con
 
 static bool TypyUint64_CheckAndSet(TypyType t, uint64* value, PyObject* arg, const char* err) {
 	if (sizeof(TypyField) < sizeof(uint64)) {
-		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %lu-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return false;
 	} else {
 		int64 v;
@@ -153,7 +153,7 @@ static bool TypyUint64_CheckAndSet(TypyType t, uint64* value, PyObject* arg, con
 
 static bool TypyDouble_CheckAndSet(TypyType t, double* value, PyObject* arg, const char* err) {
 	if (sizeof(TypyField) < sizeof(double)) {
-		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %lu-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return false;
 	} else {
 		if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
