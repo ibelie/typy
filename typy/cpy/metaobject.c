@@ -263,6 +263,11 @@ inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length
 PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
 	register PyBytes name = Typy_CheckBytes(arg, "GetAttr expect property name, but ");
 	if (name) {
+		if (!strcmp(PyBytes_AS_STRING(name), "__class__")) {
+			Py_DECREF(name);
+			Py_INCREF(Typy_TYPE(self));
+			return Typy_TYPE(self);
+		}
 		register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
 		Py_DECREF(name);
 		if (index >= 0) {
@@ -506,7 +511,7 @@ static TypyMetaObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* arg
 }
 
 static PyObject* MetaObject_Repr(TypyMetaObject* type) {
-	return PyString_FromFormat("<MetaObject '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
+	return PyString_FromFormat("<Object '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
 }
 
 static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
