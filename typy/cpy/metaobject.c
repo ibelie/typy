@@ -274,7 +274,13 @@ PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
 			return Typy_GET(self, index);
 		}
 	}
-	return PyObject_GenericGetAttr((PyObject*)self, arg);
+	register PyObject* attr = PyObject_GenericGetAttr((PyObject*)self, arg);
+	if (attr && PyMethod_Check(attr) && PyMethod_GET_SELF(attr) == (PyObject*)Typy_TYPE(self)->py_type) {
+		Py_DECREF(PyMethod_GET_SELF(attr));
+		Py_INCREF(Typy_TYPE(self));
+		PyMethod_GET_SELF(attr) = (PyObject*)Typy_TYPE(self);
+	}
+	return attr;
 }
 
 int Typy_SetAttr(TypyObject* self, PyObject* arg, PyObject* value) {
@@ -525,7 +531,13 @@ static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
 	if (PyBytes_Check(arg) && !strcmp(PyBytes_AS_STRING(arg), "__name__")) {
 		return PyBytes_FromString(Meta_NAME(type));
 	}
-	return PyObject_GetAttr((PyObject*)type->py_type, arg);
+	register PyObject* attr = PyObject_GetAttr((PyObject*)type->py_type, arg);
+	if (attr && PyMethod_Check(attr) && PyMethod_GET_SELF(attr) == (PyObject*)type->py_type) {
+		Py_DECREF(PyMethod_GET_SELF(attr));
+		Py_INCREF(type);
+		PyMethod_GET_SELF(attr) = (PyObject*)type;
+	}
+	return attr;
 }
 
 static int MetaObject_SetAttr(TypyMetaObject* type, PyObject* arg, PyObject* value) {

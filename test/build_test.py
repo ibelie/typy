@@ -231,7 +231,7 @@ def _build(_typy):
 
 	@classmethod
 	def TestClassMethod(cls, aaa = 123):
-		print 'TestClassMethod', cls, aaa
+		print 'TestClassMethod', cls, cls(), aaa
 
 	def TestMethod(self, aaa = 123):
 		print 'TestMethod', aaa
@@ -289,6 +289,7 @@ def _build(_typy):
 	vPy.TestClassMethod()
 	vPy.TestClassMethod('cls asdf')
 
+	_Vector2.TestClassMethod()
 	v.TestClassMethod()
 	v.TestClassMethod('cls asdf')
 
