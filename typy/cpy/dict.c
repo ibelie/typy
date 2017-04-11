@@ -415,6 +415,17 @@ static TypyDictIterator* dict_IterKey(TypyDict* self) {
 	return it;
 }
 
+static TypyDictIterator* dict_IterValue(TypyDict* self) {
+	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterKeyType, 0);
+	if (!it) { return NULL; }
+	it->it_result = NULL;
+	it->it_index = 0;
+	it->it = IblMap_Begin(self->dict_map);
+	Py_INCREF(self);
+	it->it_dict = self;
+	return it;
+}
+
 static TypyDictIterator* dict_IterItem(TypyDict* self) {
 	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterItemType, 0);
 	if (!it) { return NULL; }
@@ -471,6 +482,23 @@ static PyObject* iter_NextKey(TypyDictIterator* it)
 	return NULL;
 }
 
+static PyObject* iter_NextValue(TypyDictIterator* it)
+{
+	assert(it);
+	TypyDict* dict = it->it_dict;
+	if (!dict) { return NULL; }
+	if (it->it) {
+		register TypyDictMap entry = (TypyDictMap)it->it;
+		register PyObject* value = TypyValue_GET(dict, &entry->value);
+		it->it_index++;
+		it->it = IblMap_Next(dict->dict_map, it->it);
+		return value;
+	}
+	it->it_dict = NULL;
+	Py_DECREF(dict);
+	return NULL;
+}
+
 static PyObject* iter_NextItem(TypyDictIterator* it)
 {
 	assert(it);
@@ -521,6 +549,8 @@ PyMethodDef TypyDict_Methods[] = {
 		"Get value or None." },
 	{ "keys", (PyCFunction)dict_Keys, METH_NOARGS,
 		"Get key list of the map." },
+	{ "itervalues", (PyCFunction)dict_IterValue, METH_NOARGS,
+		"Iterator over values of the map." },
 	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
 	{ "update", (PyCFunction)dict_Update, METH_O,
@@ -601,6 +631,38 @@ PyTypeObject TypyDictIterKeyType = {
 	0,                                               /* tp_weaklistoffset */
 	PyObject_SelfIter,                               /* tp_iter           */
 	(iternextfunc)iter_NextKey,                      /* tp_iternext       */
+	TypyDict_IteratorMethods,                        /* tp_methods        */
+	0,                                               /* tp_members        */
+};
+
+PyTypeObject TypyDictIterValueType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	FULL_MODULE_NAME ".Dict.ValueIterator",          /* tp_name           */
+	sizeof(TypyDictIterator),                        /* tp_basicsize      */
+	0,                                               /* tp_itemsize       */
+	(destructor)iter_Dealloc,                        /* tp_dealloc        */
+	0,                                               /* tp_print          */
+	0,                                               /* tp_getattr        */
+	0,                                               /* tp_setattr        */
+	0,                                               /* tp_compare        */
+	0,                                               /* tp_repr           */
+	0,                                               /* tp_as_number      */
+	0,                                               /* tp_as_sequence    */
+	0,                                               /* tp_as_mapping     */
+	0,                                               /* tp_hash           */
+	0,                                               /* tp_call           */
+	0,                                               /* tp_str            */
+	PyObject_GenericGetAttr,                         /* tp_getattro       */
+	0,                                               /* tp_setattro       */
+	0,                                               /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	"A Typy Dict Value Iterator",                    /* tp_doc            */
+	(traverseproc)iter_Traverse,                     /* tp_traverse       */
+	0,                                               /* tp_clear          */
+	0,                                               /* tp_richcompare    */
+	0,                                               /* tp_weaklistoffset */
+	PyObject_SelfIter,                               /* tp_iter           */
+	(iternextfunc)iter_NextValue,                    /* tp_iternext       */
 	TypyDict_IteratorMethods,                        /* tp_methods        */
 	0,                                               /* tp_members        */
 };

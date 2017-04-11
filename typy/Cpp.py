@@ -233,7 +233,7 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 			print "[Cpp] Warning: Dict key must be Simple type."
 		kName, _, _ = _GetCppFromTypy(p.keyType, enums, pythons, variants, ref_types, container_inits, True)
 		vName, _, _ = _GetCppFromTypy(p.valueType, enums, pythons, variants, ref_types, container_inits, True)
-		container_inits.add('PyType_Ready(&Dict<%s, %s >::_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterKey_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterItem_Type) >= 0' % (kName, vName, kName, vName, kName, vName))
+		container_inits.add('PyType_Ready(&Dict<%s, %s >::_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterKey_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterValue_Type) >= 0 && PyType_Ready(&Dict<%s, %s >::IterItem_Type) >= 0' % (kName, vName, kName, vName, kName, vName, kName, vName))
 		return 'SINGLE_ARG(Dict<%s, %s >)' % (kName, vName), '*', 'Dict(%s -> %s)' % (kName, vName)
 
 

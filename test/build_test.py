@@ -508,7 +508,8 @@ def _build(_typy):
 
 	print fighter.vl[-1], [a for a in fighter.vl], map(lambda k: k, fighter.vl)
 
-	print [k for k in fighter.vd], map(lambda k: k, fighter.vd), {k: v for k, v in fighter.vd.iteritems()}
+	print [k for k in fighter.vd], map(lambda k: k, fighter.vd)
+	print [v for v in fighter.vd.itervalues()], {k: v for k, v in fighter.vd.iteritems()}
 	print 12 in fighter.vd, 123 in fighter.vd, 'asdf' in fighter.vd
 	print fighter.vd.get(12), fighter.vd.get(123), fighter.vd.get(123, 'xxx')
 

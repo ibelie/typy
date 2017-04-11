@@ -322,6 +322,7 @@ public:
 
 	static PyMethodDef IteratorMethods[];
 	static PyTypeObject IterKey_Type;
+	static PyTypeObject IterValue_Type;
 	static PyTypeObject IterItem_Type;
 }; /* class Dict */
 

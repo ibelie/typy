@@ -110,6 +110,7 @@ typedef struct {
 } TypyDictIterator;
 
 extern PyTypeObject TypyDictIterKeyType;
+extern PyTypeObject TypyDictIterValueType;
 extern PyTypeObject TypyDictIterItemType;
 
 #ifdef __cplusplus

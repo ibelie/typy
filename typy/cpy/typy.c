@@ -97,6 +97,7 @@ static PyTypeObject* PyTypeObjects[] = {
 	&TypyMetaDictType,
 	&TypyDictType,
 	&TypyDictIterKeyType,
+	&TypyDictIterValueType,
 	&TypyDictIterItemType,
 	&TypyEnumType,
 	&TypyPythonType,

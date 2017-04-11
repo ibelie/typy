@@ -255,6 +255,20 @@ static PyObject* tp_IterKey(PyObject* self) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_IterValue(PyObject* self) {
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	typename Dict<K, V>::Iterator* it = reinterpret_cast<typename Dict<K, V>::Iterator*>(
+		PyType_GenericAlloc(&Dict<K, V>::IterValue_Type, 0));
+	if (it == NULL) { return NULL; }
+	it->it_result = NULL;
+	it->it_index = 0;
+	it->it = dict->begin();
+	Py_INCREF(self);
+	it->it_dict = dict;
+	return reinterpret_cast<PyObject*>(it);
+}
+
+template <typename K, typename V>
 static PyObject* tp_IterItem(PyObject* self) {
 	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
 	typename Dict<K, V>::Iterator* it = reinterpret_cast<typename Dict<K, V>::Iterator*>(
@@ -308,6 +322,21 @@ static PyObject* iter_NextKey(typename Dict<K, V>::Iterator* it)
 	if (it->it != dict->end()) {
 		it->it_index++;
 		return ::typy::GetPyObject((it->it++)->first);
+	}
+	it->it_dict = NULL;
+	Py_DECREF(dict);
+	return NULL;
+}
+
+template <typename K, typename V>
+static PyObject* iter_NextValue(typename Dict<K, V>::Iterator* it)
+{
+	assert(it != NULL);
+	Dict<K, V>* dict = it->it_dict;
+	if (dict == NULL) { return NULL; }
+	if (it->it != dict->end()) {
+		it->it_index++;
+		return ::typy::GetPyObject((it->it++)->second);
 	}
 	it->it_dict = NULL;
 	Py_DECREF(dict);
@@ -372,6 +401,8 @@ PyMethodDef Dict<K, V>::Methods[] = {
 		"Get value or None." },
 	{ "keys", (PyCFunction)::typy::dict::tp_Keys<K, V>, METH_NOARGS,
 		"Get key list of the map." },
+	{ "itervalues", (PyCFunction)::typy::dict::tp_IterValue<K, V>, METH_NOARGS,
+		"Iterator over values of the map." },
 	{ "iteritems", (PyCFunction)::typy::dict::tp_IterItem<K, V>, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
 	{ "update", (PyCFunction)::typy::dict::tp_Update<K, V>, METH_O,
@@ -455,6 +486,39 @@ PyTypeObject Dict<K, V>::IterKey_Type = {
 	0,                                               /* tp_weaklistoffset */
 	PyObject_SelfIter,                               /* tp_iter           */
 	(iternextfunc)::typy::dict::iter_NextKey<K, V>,  /* tp_iternext       */
+	IteratorMethods,                                 /* tp_methods        */
+	0,                                               /* tp_members        */
+};
+
+template <typename K, typename V>
+PyTypeObject Dict<K, V>::IterValue_Type = {
+	PyVarObject_HEAD_INIT(&PyType_Type, 0)
+	FULL_MODULE_NAME ".Dict.ValueIterator",          /* tp_name           */
+	sizeof(Dict<K, V>::Iterator),                    /* tp_basicsize      */
+	0,                                               /* tp_itemsize       */
+	(destructor)::typy::dict::iter_Dealloc<K, V>,    /* tp_dealloc        */
+	0,                                               /* tp_print          */
+	0,                                               /* tp_getattr        */
+	0,                                               /* tp_setattr        */
+	0,                                               /* tp_compare        */
+	0,                                               /* tp_repr           */
+	0,                                               /* tp_as_number      */
+	0,                                               /* tp_as_sequence    */
+	0,                                               /* tp_as_mapping     */
+	0,                                               /* tp_hash           */
+	0,                                               /* tp_call           */
+	0,                                               /* tp_str            */
+	PyObject_GenericGetAttr,                         /* tp_getattro       */
+	0,                                               /* tp_setattro       */
+	0,                                               /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	"A Typy Dict Value Iterator",                    /* tp_doc            */
+	(traverseproc)::typy::dict::iter_Traverse<K, V>, /* tp_traverse       */
+	0,                                               /* tp_clear          */
+	0,                                               /* tp_richcompare    */
+	0,                                               /* tp_weaklistoffset */
+	PyObject_SelfIter,                               /* tp_iter           */
+	(iternextfunc)::typy::dict::iter_NextValue<K, V>,/* tp_iternext       */
 	IteratorMethods,                                 /* tp_methods        */
 	0,                                               /* tp_members        */
 };
