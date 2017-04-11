@@ -93,6 +93,23 @@ PyObject* kint64min_py;
 PyObject* kint64max_py;
 PyObject* kuint64max_py;
 
+static PyTypeObject* PyTypeObjects[] = {
+	&TypyMetaDictType,
+	&TypyDictType,
+	&TypyDictIterKeyType,
+	&TypyDictIterItemType,
+	&TypyEnumType,
+	&TypyPythonType,
+	&TypyFixedPointType,
+	&TypyMetaListType,
+	&TypyListType,
+	&TypyListIteratorType,
+	&TypyMetaObjectType,
+	&TypyMetaVariantType,
+	&TypyVariantType,
+	NULL,
+};
+
 PyMODINIT_FUNC INITFUNC(void) {
 	kPythonZero = PyInt_FromLong(0);
 	kint32min_py = PyInt_FromLong(INT32_MIN);
@@ -110,63 +127,15 @@ PyMODINIT_FUNC INITFUNC(void) {
 #endif
 	if (!m) { return INITFUNC_ERRORVAL; }
 
-	TypyEnumType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyEnumType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyPythonType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyPythonType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyFixedPointType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyFixedPointType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-
-	TypyListType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyListType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyMetaListType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyMetaListType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyListIteratorType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyListIteratorType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-
-	TypyDictType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyDictType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyMetaDictType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyMetaDictType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyDictIterKeyType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyDictIterKeyType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyDictIterItemType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyDictIterItemType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-
-	TypyVariantType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyVariantType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
-	TypyMetaVariantType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyMetaVariantType) < 0) {
-		return INITFUNC_ERRORVAL;
+	register int i;
+	for (i = 0; PyTypeObjects[i]; i++) {
+		PyTypeObjects[i]->ob_type = &PyType_Type;
+		if (PyType_Ready(PyTypeObjects[i]) < 0) {
+			return INITFUNC_ERRORVAL;
+		}
 	}
 
 	BaseTypyObjectType.ob_type = &PyType_Type;
-	TypyMetaObjectType.ob_type = &PyType_Type;
-	if (PyType_Ready(&TypyMetaObjectType) < 0) {
-		return INITFUNC_ERRORVAL;
-	}
 	TypyObjectType = _InheritTypyObjectType();
 	if (!TypyObjectType) { return INITFUNC_ERRORVAL; }
 
