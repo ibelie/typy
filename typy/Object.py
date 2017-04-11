@@ -62,6 +62,7 @@ try:
 				if clsname != 'Object':
 					print '[Typy] Class %s not found in C extension module.' % clsname
 				cls = super(MetaObject, mcs).__new__(mcs, clsname, bases, attrs)
+				cls.____properties__ = all_attrs['____properties__']
 
 			if clsname != 'Object':
 				if clsname in mcs.Objects:
