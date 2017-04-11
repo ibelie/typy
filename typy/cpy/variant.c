@@ -165,6 +165,8 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 	size_t remain;
 	if (!Typy_ReadVarint32(input, length, &limit)) {
 		return false;
+	} else if (!limit) {
+		return true;
 	} else if (limit > *length) {
 		return false;
 	}

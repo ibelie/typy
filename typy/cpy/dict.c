@@ -189,6 +189,8 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	TypyField key = 0, value = 0;
 	if (!Typy_ReadVarint32(input, length, &limit)) {
 		return false;
+	} else if (!limit) {
+		return true;
 	} else if (limit > *length) {
 		return false;
 	}

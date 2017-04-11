@@ -152,6 +152,10 @@ bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* l
 	if (MetaList_IsPrimitive(type)) {
 		if (!Typy_ReadVarint32(input, length, &size)) {
 			return false;
+		} else if (!size) {
+			return true;
+		} else if (size > *length) {
+			return false;
 		}
 		TypyList_FromValueOrNew(self, value, type, false);
 		register byte* limit = *input + size;
