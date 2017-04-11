@@ -266,7 +266,7 @@ PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
 		if (!strcmp(PyBytes_AS_STRING(name), "__class__")) {
 			Py_DECREF(name);
 			Py_INCREF(Typy_TYPE(self));
-			return Typy_TYPE(self);
+			return (PyObject*)Typy_TYPE(self);
 		}
 		register int index = Typy_PropertyIndex(self, PyBytes_AS_STRING(name));
 		Py_DECREF(name);
