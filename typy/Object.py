@@ -252,6 +252,7 @@ except ImportError:
 
 		def __new__(mcs, clsname, bases, attrs):
 			attrs['____properties__'] = _getProperties(mcs, bases, attrs)
+			attrs['____sortedProperty__'] = tuple([a for a, _ in SortedMessage(attrs['____properties__'], attrs.get('____propertySequence__'))])
 			Descriptor(attrs, clsname, attrs['____properties__'])
 
 			if clsname != 'Object':
@@ -288,6 +289,11 @@ except ImportError:
 					setattr(o, a, copy.deepcopy(p.default))
 				else:
 					setattr(o, a, p.default)
+			for i, v in enumerate(args):
+				if i < len(cls.____sortedProperty__):
+					setattr(o, cls.____sortedProperty__[i], v)
+				else:
+					raise TypeError, 'Unsurported property number %d.' % i
 			for k, v in kwargs.iteritems():
 				setattr(o, k, v)
 			return o

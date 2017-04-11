@@ -150,8 +150,8 @@ def _build(_typy):
 	global Vector2, Fighter, Corpus, PyType, Empty
 
 	vPy = Vector2(
-		x = 123,
-		y = 45.6,
+		123,  # x
+		45.6, # y
 		s = u"哈哈哈哈",
 		b = u"asdf 1234",
 		e = Corpus.LOCAL,
@@ -266,8 +266,8 @@ def _build(_typy):
 
 
 	v = _Vector2(
-		x = 123,
-		y = 45.6,
+		123,  # x
+		45.6, # y
 		s = u"哈哈哈哈",
 		b = u"asdf 1234",
 		e = Corpus.LOCAL,
