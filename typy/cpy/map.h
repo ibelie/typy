@@ -14,7 +14,7 @@ extern "C" {
 /* IblMap_KEY defines the initial segment of every IblMap_Item. */
 #define IblMap_KEY(TYPE)  \
 	IblTree_HEAD;         \
-	IBL_ALIGN(1, TYPE key)
+	IBL_ALIGN(8, TYPE key)
 
 /* Every pointer to a map item can be cast to a IblMap_Item. */
 typedef struct {
