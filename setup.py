@@ -72,6 +72,7 @@ setup(
 			'typy/cpy/variant.c',
 		],
 		include_dirs = ['typy/cpy'],
+		define_macros = [('TYPY_FIELD_SIZE_64', None)],
 	)],
 
 	classifiers=[
