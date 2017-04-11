@@ -162,8 +162,6 @@ def _shortName(prefix, name):
 	return name
 
 def _RecordNesting(prefix, types):
-	import hashlib
-	import base64
 	from Type import toType, isEnum, List, Dict, Instance
 	shortName = {
 		'Integer': 'i',
@@ -254,7 +252,7 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 
 	tag = 0
 	cppTypes = []
-	for a, p in SortedMessage(properties):
+	for a, p in SortedMessage(properties, None):
 		if not isinstance(p, Type):
 			print "[Cpp] Warning: Variant type expect Typy, but get %s %s." % (a, p)
 		typ, star, info = _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits)
@@ -345,7 +343,7 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 
 	tag = 0
 	read_field_args = [ReadFieldArgs(), ReadFieldArgs()]
-	for a, p in SortedMessage(cls.____properties__):
+	for a, p in SortedMessage(cls.____properties__, getattr(cls, '____propertySequence__', None)):
 		typ, star, info = _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits)
 
 		if first_fields == '_cached_size':

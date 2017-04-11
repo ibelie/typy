@@ -30,7 +30,7 @@ def _GenerateVariant(name, properties, codes, types):
 	from Type import Type
 
 	fields = []
-	for i, (a, p) in enumerate(SortedMessage(properties)):
+	for i, (a, p) in enumerate(SortedMessage(properties, None)):
 		if not isinstance(p, Type):
 			print "[Cpp] Warning: Variant type expect Typy, but get %s %s." % (a, p)
 		wire_type, field_type, typy_type = _GetCpyFromTypy(p, codes, types)
@@ -125,8 +125,8 @@ def _GenerateObject(name, cls, codes, types):
 	from Type import pb
 
 	fields = []
-	sortedProperties = SortedMessage(cls.____properties__)
-	tag = 0;
+	sortedProperties = SortedMessage(cls.____properties__, getattr(cls, '____propertySequence__', None))
+	tag = 0
 	for a, p in sortedProperties:
 		if pb not in p.____keywords__: continue
 		tag += 1

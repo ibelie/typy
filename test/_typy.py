@@ -7,21 +7,21 @@ setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
 Dbys = _typyd.Dict('Dbys', (2, 10, ), (2, 9, ))
 Lby = _typyd.List('Lby', (2, 9, ))
 Corpus = _typyd.Enum('Corpus')
+FixedPoint_1_s10 = _typyd.FixedPoint(1, -10)
 Empty = _typyd.Object('Empty', (
 	
 ))
 PyType = _typyd.Python('PyType')
-FixedPoint_1_s10 = _typyd.FixedPoint(1, -10)
 PyObject = _typyd.Python('PyObject')
 Vector2 = _typyd.Object('Vector2', (
 	
-	('b', 10, 1, 2, 9, ),
-	('e', 16, 1, 0, 0, Corpus),
-	('i', 26, 1, 2, 11, Empty),
-	('p', 34, 1, 2, 15, PyType),
-	('s', 42, 1, 2, 10, ),
-	('x', 53, 1, 5, 7, ),
-	('y', 56, 1, 0, 5, FixedPoint_1_s10),
+	('x', 13, 1, 5, 7, ),
+	('y', 16, 1, 0, 5, FixedPoint_1_s10),
+	('b', 26, 1, 2, 9, ),
+	('e', 32, 1, 0, 0, Corpus),
+	('i', 42, 1, 2, 11, Empty),
+	('p', 50, 1, 2, 15, PyType),
+	('s', 58, 1, 2, 10, ),
 	('t', 0, 0, 2, 15, PyObject),
 ))
 VdesVector2 = _typyd.Variant('VdesVector2', (
