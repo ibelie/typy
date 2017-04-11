@@ -208,7 +208,11 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 
 inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 	if (!Typy_TAG(self, index)) { return 0; }
-	return Typy_BYTESIZE(self, index, Typy_TAGSIZE(self, index));
+	if (Typy_FIELD(self, index)) {
+		return Typy_BYTESIZE(self, index, Typy_TAGSIZE(self, index));
+	} else {
+		return Typy_TAGSIZE(self, index);
+	}
 }
 
 inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
