@@ -25,6 +25,7 @@ set(SOURCE_FILES
 )
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 include_directories("${PROJECT_SOURCE_DIR}/../typy/cpy")
+add_definitions(-DTYPY_FIELD_SIZE_64)
 
 if(WIN32)
 	set(CompilerFlags
