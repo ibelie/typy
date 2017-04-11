@@ -6,12 +6,36 @@
 
 
 static PyObject* TypyInt32_GetPyObject  (TypyType t, int32* v)  { return PyInt_FromLong(*v); }
-static PyObject* TypyInt64_GetPyObject  (TypyType t, int64* v)  { return PyLong_FromLongLong(*v); }
 static PyObject* TypyUint32_GetPyObject (TypyType t, uint32* v) { return PyInt_FromSize_t(*v); }
-static PyObject* TypyUint64_GetPyObject (TypyType t, uint64* v) { return PyLong_FromUnsignedLongLong(*v); }
 static PyObject* TypyBool_GetPyObject   (TypyType t, bool* v)   { return PyBool_FromLong(*v); }
-static PyObject* TypyDouble_GetPyObject (TypyType t, double* v) { return PyFloat_FromDouble(*v); }
 static PyObject* TypyFloat_GetPyObject  (TypyType t, float* v)  { return PyFloat_FromDouble(*v); }
+
+static PyObject* TypyUint64_GetPyObject (TypyType t, uint64* v) {
+	if (sizeof(TypyField) < sizeof(uint64)) {
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		return NULL;
+	} else {
+		return PyLong_FromUnsignedLongLong(*v);
+	}
+}
+
+static PyObject* TypyInt64_GetPyObject  (TypyType t, int64* v)  {
+	if (sizeof(TypyField) < sizeof(int64)) {
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		return NULL;
+	} else {
+		return PyLong_FromLongLong(*v);
+	}
+}
+
+static PyObject* TypyDouble_GetPyObject (TypyType t, double* v) {
+	if (sizeof(TypyField) < sizeof(double)) {
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		return NULL;
+	} else {
+		return PyFloat_FromDouble(*v);
+	}
+}
 
 static PyObject* TypyPyObject_GetPyObject(TypyType type, PyObject** value) {
 	if (!(*value)) {
@@ -91,12 +115,17 @@ static bool TypyInt32_CheckAndSet(TypyType t, int32* value, PyObject* arg, const
 }
 
 static bool TypyInt64_CheckAndSet(TypyType t, int64* value, PyObject* arg, const char* err) {
-	int64 v;
-	if (CheckAndSetInteger(&v, arg, err, kint64min_py, kint64max_py)) {
-		*value = (int64)v;
-		return true;
+	if (sizeof(TypyField) < sizeof(int64)) {
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		return false;
+	} else {
+		int64 v;
+		if (CheckAndSetInteger(&v, arg, err, kint64min_py, kint64max_py)) {
+			*value = (int64)v;
+			return true;
+		}
+		return false;
 	}
-	return false;
 }
 
 static bool TypyUint32_CheckAndSet(TypyType t, uint32* value, PyObject* arg, const char* err) {
@@ -109,21 +138,31 @@ static bool TypyUint32_CheckAndSet(TypyType t, uint32* value, PyObject* arg, con
 }
 
 static bool TypyUint64_CheckAndSet(TypyType t, uint64* value, PyObject* arg, const char* err) {
-	int64 v;
-	if (CheckAndSetInteger(&v, arg, err, kPythonZero, kuint64max_py)) {
-		*value = (uint64)v;
-		return true;
+	if (sizeof(TypyField) < sizeof(uint64)) {
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
+		return false;
+	} else {
+		int64 v;
+		if (CheckAndSetInteger(&v, arg, err, kPythonZero, kuint64max_py)) {
+			*value = (uint64)v;
+			return true;
+		}
+		return false;
 	}
-	return false;
 }
 
 static bool TypyDouble_CheckAndSet(TypyType t, double* value, PyObject* arg, const char* err) {
-	if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
-		FormatTypeError(arg, err);
+	if (sizeof(TypyField) < sizeof(double)) {
+		PyErr_Format(PyExc_RuntimeError, "TypyField size is %d-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return false;
+	} else {
+		if (!PyInt_Check(arg) && !PyLong_Check(arg) && !PyFloat_Check(arg)) {
+			FormatTypeError(arg, err);
+			return false;
+		}
+		*value = PyFloat_AsDouble(arg);
+		return true;
 	}
-	*value = PyFloat_AsDouble(arg);
-	return true;
 }
 
 static bool TypyFloat_CheckAndSet(TypyType t, float* value, PyObject* arg, const char* err) {

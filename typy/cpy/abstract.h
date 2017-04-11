@@ -13,8 +13,13 @@
 #define FIELD_TYPE_OBJECT 11
 
 typedef void*  TypyType;
-typedef size_t TypyField;
 typedef uint8  FieldType;
+
+#ifdef TYPY_FIELD_SIZE_64
+	typedef uint64 TypyField;
+#else
+	typedef size_t TypyField;
+#endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);
 typedef bool      (*CheckAndSet) (TypyType, TypyField*, PyObject*, const char*);
