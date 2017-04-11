@@ -13,13 +13,6 @@ extern "C" {
 
 //=============================================================================
 
-typedef struct _TypyDictMap {
-	IblMap_KEY(TypyField);
-	TypyField value;
-} *TypyDictMap;
-
-IblMap TypyDictMap_New(FieldType field_type);
-
 typedef struct {
 	PyObject_HEAD
 	TypyNestDesc key_desc;
@@ -93,7 +86,7 @@ bool    MetaDict_MergeIter (TypyMetaDict*, TypyDict*, PyObject*);
 #define TypyValue_GET(ob, v)            MetaValue_GET(TypyDict_TYPE(ob), (v))
 #define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 
-TypyDict* TypyDict_New         (TypyMetaDict*, PyObject*, PyObject*);
+TypyDict* TypyDict_New         (TypyMetaDict*);
 TypyDict* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
 bool      TypyDict_CheckAndSet (TypyMetaDict*, TypyDict**, PyObject*, const char*);
 bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);

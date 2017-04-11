@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-inline void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
+void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
 	register int i = self->variant_index;
 	if (i < 0 || (size_t)i >= Meta_SIZE(type)) { return; }
 	MetaVariant_CLEAR(type, self, i);
@@ -21,7 +21,7 @@ TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	return type;
 }
 
-TypyVariant* TypyVariant_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
+TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 	TypyVariant* variant = (TypyVariant*)calloc(1, sizeof(TypyVariant));
 	if (!variant) {
 		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %lu.", sizeof(TypyVariant));
@@ -44,11 +44,11 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 }
 
 #define TypyVariant_FromValueOrNew(s, v, t, r) \
-	register TypyVariant* s = *(v);                       \
-	if (!s) {                                             \
-		s = (TypyVariant*)TypyVariant_New(t, NULL, NULL); \
-		if (!s) { return r; }                             \
-		*(v) = s;                                         \
+	register TypyVariant* s = *(v);            \
+	if (!s) {                                  \
+		s = (TypyVariant*)TypyVariant_New(t);  \
+		if (!s) { return r; }                  \
+		*(v) = s;                              \
 	}
 
 bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject* arg, const char* err) {

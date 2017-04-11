@@ -34,15 +34,7 @@ TypyFixedPoint* Typy_RegisterFixedPoint(PyObject* m, PyObject* args) {
 }
 
 PyObject* TypyFixedPoint_GetPyObject(TypyFixedPoint* type, TypyField* value) {
-	return PyFloat_FromDouble(TypyFixedPoint_toDouble(type, *value));
-}
-
-inline double TypyFixedPoint_toDouble(TypyFixedPoint* type, TypyField value) {
-	return (double)value / type->fp_precision + type->fp_floor;
-}
-
-inline TypyField TypyFixedPoint_fromDouble(TypyFixedPoint* type, double value) {
-	return (TypyField)((value - type->fp_floor) * type->fp_precision);
+	return PyFloat_FromDouble(TypyFixedPoint_TO_DOUBLE(type, *value));
 }
 
 bool TypyFixedPoint_CheckAndSet(TypyFixedPoint* type, TypyField* value, PyObject* arg, const char* err) {
@@ -50,7 +42,7 @@ bool TypyFixedPoint_CheckAndSet(TypyFixedPoint* type, TypyField* value, PyObject
 		FormatTypeError(arg, err);
 		return false;
 	}
-	*value = TypyFixedPoint_fromDouble(type, PyFloat_AsDouble(arg));
+	*value = TypyFixedPoint_FROM_DOUBLE(type, PyFloat_AsDouble(arg));
 	return true;
 }
 

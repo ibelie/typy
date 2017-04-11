@@ -11,10 +11,6 @@
 extern "C" {
 #endif
 
-IblMap_KEY_STRING(TypyFieldMap,
-	int index;
-);
-
 typedef struct {
 	PyObject_HEAD
 	PyTypeObject*  py_type;

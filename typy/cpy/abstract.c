@@ -439,7 +439,7 @@ WRITE(TypyFloat_Write,  float,  uint32, Typy_Write32)
 WRITE(TypyBool_Write,   bool,   bool,   Typy_WriteByte)
 #undef WRITE
 
-inline PyObject* _DecodeString(PyString value) {
+static inline PyObject* _DecodeString(PyString value) {
 	PyObject* result = NULL;
 	if (isDefaultEncodingUTF8) {
 		result = _PyUnicode_AsDefaultEncodedString((PyObject*)value, NULL);

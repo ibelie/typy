@@ -16,13 +16,13 @@
 extern "C" {
 #endif
 
-inline IblTree IblTree_Begin(IblTree node) {
+IblTree IblTree_Begin(IblTree node) {
 	if (!node) { return NULL; }
 	while (node->left) { node = node->left; }
 	return node;
 }
 
-inline IblTree IblTree_End(IblTree node) {
+IblTree IblTree_End(IblTree node) {
 	if (!node) { return NULL; }
 	while (node->right) { node = node->right; }
 	return node;

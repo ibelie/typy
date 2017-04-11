@@ -8,7 +8,11 @@
 extern "C" {
 #endif
 
-inline PyTypeObject* _InheritTypyObjectType(void) {
+IblMap_KEY_STRING(TypyFieldMap,
+	int index;
+);
+
+PyTypeObject* _InheritTypyObjectType(void) {
 	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Inherit TypyObjectType out of memory %lu.", sizeof(PyTypeObject));
@@ -43,12 +47,12 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	return object;
 }
 
-inline int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
+int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
 	register TypyFieldMap field = (TypyFieldMap)IblMap_Get(type->meta_field2index, &key);
 	return field ? field->index : -1;
 }
 
-inline char* Meta_PropertyName(TypyMetaObject* type, int index) {
+char* Meta_PropertyName(TypyMetaObject* type, int index) {
 	if (index < 0 || (size_t)index > type->meta_size) {
 		return NULL;
 	} else {
@@ -58,7 +62,7 @@ inline char* Meta_PropertyName(TypyMetaObject* type, int index) {
 
 //=============================================================================
 
-inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
+TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
 	PyObject* descriptors;
@@ -130,7 +134,7 @@ inline TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	return type;
 }
 
-inline void Typy_Clear(TypyObject* self) {
+void Typy_Clear(TypyObject* self) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		if (Typy_FIELD(self, i)) {
@@ -144,7 +148,7 @@ void Typy_Dealloc(TypyObject* self) {
 	free(self);
 }
 
-inline void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
+void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
 	if (from == self) { return; }
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
@@ -152,13 +156,13 @@ inline void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
 	}
 }
 
-inline void Typy_CopyFrom(TypyObject* self, TypyObject* from) {
+void Typy_CopyFrom(TypyObject* self, TypyObject* from) {
 	if (from == self) { return; }
 	Typy_Clear(self);
 	Typy_MergeFrom(self, from);
 }
 
-inline size_t Typy_ByteSize(TypyObject* self) {
+size_t Typy_ByteSize(TypyObject* self) {
 	register size_t size = 0, i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		if (!Typy_TAG(self, i) || !Typy_FIELD(self, i)) { continue; }
@@ -167,7 +171,7 @@ inline size_t Typy_ByteSize(TypyObject* self) {
 	return size;
 }
 
-inline void Typy_SerializeString(TypyObject* self, byte* output) {
+void Typy_SerializeString(TypyObject* self, byte* output) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		if (!Typy_TAG(self, i) || !Typy_FIELD(self, i)) { continue; }
@@ -175,7 +179,7 @@ inline void Typy_SerializeString(TypyObject* self, byte* output) {
 	}
 }
 
-inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length) {
+size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
 	for (;;) {
@@ -206,7 +210,7 @@ inline size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length)
 	}
 }
 
-inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
+size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 	if (!Typy_TAG(self, index)) { return 0; }
 	if (Typy_FIELD(self, index)) {
 		return Typy_BYTESIZE(self, index, Typy_TAGSIZE(self, index));
@@ -215,7 +219,7 @@ inline size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 	}
 }
 
-inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
+void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
 	if (!Typy_TAG(self, index)) { return; }
 	if (Typy_FIELD(self, index)) {
 		Typy_WRITE(self, index, Typy_TAG(self, index), output);
@@ -224,7 +228,7 @@ inline void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
 	}
 }
 
-inline int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
+int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
 	register int index = -1;

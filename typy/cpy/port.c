@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-inline size_t IblBytesHash(bytes buffer) {
+size_t IblBytesHash(bytes buffer) {
 	register size_t hash = 0;
 	register uint8 *i, *n = buffer->data + buffer->length;
 	for (i = buffer->data; i < n; i++) {
@@ -29,7 +29,7 @@ inline size_t IblBytesHash(bytes buffer) {
 	return hash;
 }
 
-inline int IblBytesCompare(bytes k1, bytes k2) {
+int IblBytesCompare(bytes k1, bytes k2) {
 	if (k1->length == k2->length) {
 		return memcmp(k1->data, k2->data, k1->length);
 	} else {
@@ -37,7 +37,7 @@ inline int IblBytesCompare(bytes k1, bytes k2) {
 	}
 }
 
-inline size_t IblStringHash(string* str) {
+size_t IblStringHash(string* str) {
 	register size_t hash = 0;
 	register char* i;
 	for (i = *str; *i != '\0'; i++) {
@@ -46,16 +46,16 @@ inline size_t IblStringHash(string* str) {
 	return hash;
 }
 
-inline int IblStringCompare(string* s1, string* s2) {
+int IblStringCompare(string* s1, string* s2) {
 	return strcmp(*s1, *s2);
 }
 
-inline uint64 IblUint64(byte* b) {
+uint64 IblUint64(byte* b) {
 	return ((uint64)(b[7])) | ((uint64)(b[6])<<8) | ((uint64)(b[5])<<16) | ((uint64)(b[4])<<24) |
 		((uint64)(b[3])<<32) | ((uint64)(b[2])<<40) | ((uint64)(b[1])<<48) | ((uint64)(b[0])<<56);
 }
 
-inline void IblPutUint64(byte* b, uint64 v) {
+void IblPutUint64(byte* b, uint64 v) {
 	b[0] = (byte)(v >> 56);
 	b[1] = (byte)(v >> 48);
 	b[2] = (byte)(v >> 40);
@@ -66,13 +66,13 @@ inline void IblPutUint64(byte* b, uint64 v) {
 	b[7] = (byte)(v);
 }
 
-inline size_t IblSizeVarint(uint64 x) {
+size_t IblSizeVarint(uint64 x) {
 	register size_t n = 0;
 	do { n++; x >>= 7; } while (x);
 	return n;
 }
 
-inline int IblUvarint(byte* buffer, size_t buf_len, uint64* x) {
+int IblUvarint(byte* buffer, size_t buf_len, uint64* x) {
 	register uint64 y = 0;
 	register size_t s = 0, i;
 	if (buf_len > MaxVarintLen) { buf_len = MaxVarintLen; }
@@ -94,7 +94,7 @@ inline int IblUvarint(byte* buffer, size_t buf_len, uint64* x) {
 	return 0;
 }
 
-inline size_t IblPutUvarint(byte* buffer, uint64 x) {
+size_t IblPutUvarint(byte* buffer, uint64 x) {
 	register size_t i = 0;
 	while (x >= 0x80) {
 		buffer[i] = (byte)x | 0x80;

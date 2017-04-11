@@ -69,7 +69,7 @@ extern PyTypeObject TypyMetaListType;
 TypyMetaList* Typy_RegisterList(PyObject*, PyObject*);
 
 TypyField* TypyList_EnsureSize   (TypyList*, size_t);
-TypyList*  TypyList_New          (TypyMetaList*, PyObject*, PyObject*);
+TypyList*  TypyList_New          (TypyMetaList*);
 TypyList*  TypyList_GetPyObject  (TypyMetaList*, TypyList**);
 bool       TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
 bool       TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);

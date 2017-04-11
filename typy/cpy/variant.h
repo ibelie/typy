@@ -42,7 +42,7 @@ TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 void    MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self);
 #define TypyVariant_Clear(ob) MetaVariant_Clear(Typy_TYPE(ob), (ob))
 
-TypyVariant* TypyVariant_New          (TypyMetaObject*, PyObject*, PyObject*);
+TypyVariant* TypyVariant_New          (TypyMetaObject*);
 PyObject*    TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
 size_t       TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
 size_t       TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
