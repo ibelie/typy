@@ -469,10 +469,17 @@ PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) {
 // ===================================================================
 
 PyTypeObject* TypyObjectType = NULL;
+static bool TypyObjectTypeNotFree = true;
 
 void TypyMeta_Dealloc(TypyMetaObject* type) {
-	if (type->py_type != TypyObjectType) {
-		Py_XDECREF(type->py_type);
+	if (type->py_type) {
+		if (type->py_type != TypyObjectType) {
+			free(type->py_type);
+		} else if (TypyObjectTypeNotFree) {
+			free(TypyObjectType);
+			TypyObjectTypeNotFree = false;
+		}
+		type->py_type = NULL;
 	}
 	if (type->meta_index2field) {
 		free(type->meta_index2field);
