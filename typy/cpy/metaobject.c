@@ -37,10 +37,20 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	}
 	(void)PyObject_INIT(object, type->py_type);
 	Typy_TYPE(object) = type;
+	if (args) {
+		register Py_ssize_t i;
+		for (i = 0; i < PyTuple_GET_SIZE(args); i++) {
+			if (!Typy_CHECKSET(object, i, PyTuple_GET_ITEM(args, i), "InitAttr ")) {
+				Py_DECREF(object);
+				return NULL;
+			}
+		}
+	}
 	if (kwargs) {
 		while (PyDict_Next(kwargs, &pos, &k, &v)) {
 			if (PyObject_SetAttr((PyObject*)object, k, v) == -1) {
-				break;
+				Py_DECREF(object);
+				return NULL;
 			}
 		}
 	}

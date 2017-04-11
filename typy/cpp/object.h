@@ -157,7 +157,8 @@ public:
 		if (kwargs != NULL) {
 			while (PyDict_Next(kwargs, &pos, &k, &v)) {
 				if (PyObject_SetAttr(object, k, v) == -1) {
-					break;
+					delete object;
+					return NULL;
 				}
 			}
 		}
