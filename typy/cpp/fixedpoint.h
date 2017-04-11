@@ -19,10 +19,10 @@ template <int precision, int floor> struct FixedPoint {
 	};
 	enum { Precision = 10 * FixedPoint<precision - 1, 0>::Precision };
 
-	double value;
+	int32 value;
 
-	inline operator double() const { return value; }
-	inline FixedPoint& operator=(const double& v) { value = v; return *this; }
+	inline operator double() const { return (double)value / FIXEDPOINT::Precision + floor; }
+	inline FixedPoint& operator=(const double& v) { value = (int32)((v - floor) * FIXEDPOINT::Precision); return *this; }
 };
 
 template <> struct FixedPoint<0, 0> {
@@ -50,7 +50,7 @@ inline void CopyFrom(FIXEDPOINT& lvalue, const double& rvalue) {
 }
 
 template <int precision, int floor>
-inline void Clear(FIXEDPOINT& value) { value = floor; }
+inline void Clear(FIXEDPOINT& value) { value.value = 0; }
 
 template <int precision, int floor>
 inline void MergeFrom(FIXEDPOINT& lvalue, const double& rvalue) {
@@ -59,14 +59,12 @@ inline void MergeFrom(FIXEDPOINT& lvalue, const double& rvalue) {
 
 template <int precision, int floor>
 inline void ByteSize(int& total, int tagsize, const FIXEDPOINT& value) {
-	int v = int((value - floor) * FIXEDPOINT::Precision);
-	if (v != 0) { total += tagsize + WireFormatLite::Int32Size(v); }
+	if (value.value != 0) { total += tagsize + WireFormatLite::Int32Size(value.value); }
 }
 
 template <int precision, int floor>
 inline void Write(int field_number, const FIXEDPOINT& value, CodedOutputStream* output) {
-	int v = int((value - floor) * FIXEDPOINT::Precision);
-	if (v != 0) { WireFormatLite::WriteInt32(field_number, v, output); }
+	if (value.value != 0) { WireFormatLite::WriteInt32(field_number, value.value, output); }
 }
 
 template <int precision, int floor>
@@ -76,13 +74,8 @@ inline void WriteTag(int tag, const FIXEDPOINT& value, CodedOutputStream* output
 
 template <int precision, int floor>
 inline bool Read(FIXEDPOINT& value, CodedInputStream* input) {
-	int32 result;
-	bool success = WireFormatLite::ReadPrimitive<int32,
-		WireFormatLite::FieldType(Type<int32>::FieldType)>(input, &result);
-	if (success) {
-		value = double(result) / FIXEDPOINT::Precision + floor;
-	}
-	return success;
+	return WireFormatLite::ReadPrimitive<int32,
+		WireFormatLite::FieldType(Type<int32>::FieldType)>(input, &value.value);
 }
 
 template <int precision, int floor>
@@ -90,7 +83,7 @@ inline void ByteSize(int& total, int tagsize, List< FIXEDPOINT >* value) {
 	if (value == NULL) { return; }
 	int data_size = 0;
 	for (int i = 0; i < value->size(); i++) {
-		data_size += WireFormatLite::Int32Size(int((value->Get(i) - floor) * FIXEDPOINT::Precision));
+		data_size += WireFormatLite::Int32Size(value->Get(i).value);
 	}
 	if (data_size > 0) {
 		total += tagsize + WireFormatLite::Int32Size(data_size);
@@ -108,7 +101,7 @@ inline void Write(int field_number, List< FIXEDPOINT >* value, CodedOutputStream
 		output->WriteVarint32(value->_cached_size);
 	}
 	for (int i = 0; i < value->size(); i++) {
-		WireFormatLite::WriteInt32NoTag(int((value->Get(i) - floor) * FIXEDPOINT::Precision), output);
+		WireFormatLite::WriteInt32NoTag(value->Get(i).value, output);
 	}
 }
 

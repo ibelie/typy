@@ -40,6 +40,7 @@ public:                                                                  \
 	int ByteSize() const;                                                \
 	bool MergePartialFromCodedStream(CodedInputStream*);                 \
 	void SerializeWithCachedSizes(CodedOutputStream*) const;             \
+	bool SetPropertySequence(PyObject*);                                 \
                                                                          \
 	char* PropertyName(int);                                             \
 	int PropertyTag(char*);                                              \
@@ -147,6 +148,12 @@ public:
 		T* object = new T;
 		PyObject *k, *v;
 		Py_ssize_t pos = 0;
+		if (args) {
+			if (!object->SetPropertySequence(args)) {
+				delete object;
+				return NULL;
+			}
+		}
 		if (kwargs != NULL) {
 			while (PyDict_Next(kwargs, &pos, &k, &v)) {
 				if (PyObject_SetAttr(object, k, v) == -1) {

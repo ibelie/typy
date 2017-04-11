@@ -103,16 +103,16 @@ char* Fighter_Part1::Properties[] = {
 int Fighter_Part1::PropertyByteSize(int tag) const {
 	int size = 0;
 	switch(tag) {
-		case 1: ::typy::ByteSize(size, 1, p_hp); if (size == 0) { size = 1; } break;
-		case 2: ::typy::ByteSize(size, 1, p_isAwake); if (size == 0) { size = 1; } break;
-		case 3: ::typy::ByteSize(size, 1, p_pos); if (size == 0) { size = 1; } break;
-		case 4: ::typy::ByteSize(size, 1, p_posi); if (size == 0) { size = 1; } break;
-		case 5: ::typy::ByteSize(size, 1, p_posl); if (size == 0) { size = 1; } break;
-		case 6: ::typy::ByteSize(size, 1, p_poss); if (size == 0) { size = 1; } break;
-		case 7: ::typy::ByteSize(size, 1, p_pyd); if (size == 0) { size = 1; } break;
-		case 8: ::typy::ByteSize(size, 1, p_pyl); if (size == 0) { size = 1; } break;
-		case 9: ::typy::ByteSize(size, 1, p_pyv1); if (size == 0) { size = 1; } break;
-		case 10: ::typy::ByteSize(size, 1, p_pyv2); if (size == 0) { size = 1; } break;
+	case 1: ::typy::ByteSize(size, 1, p_hp); if (size == 0) { size = 1; } break;
+	case 2: ::typy::ByteSize(size, 1, p_isAwake); if (size == 0) { size = 1; } break;
+	case 3: ::typy::ByteSize(size, 1, p_pos); if (size == 0) { size = 1; } break;
+	case 4: ::typy::ByteSize(size, 1, p_posi); if (size == 0) { size = 1; } break;
+	case 5: ::typy::ByteSize(size, 1, p_posl); if (size == 0) { size = 1; } break;
+	case 6: ::typy::ByteSize(size, 1, p_poss); if (size == 0) { size = 1; } break;
+	case 7: ::typy::ByteSize(size, 1, p_pyd); if (size == 0) { size = 1; } break;
+	case 8: ::typy::ByteSize(size, 1, p_pyl); if (size == 0) { size = 1; } break;
+	case 9: ::typy::ByteSize(size, 1, p_pyv1); if (size == 0) { size = 1; } break;
+	case 10: ::typy::ByteSize(size, 1, p_pyv2); if (size == 0) { size = 1; } break;
 	}
 	return size;
 }
@@ -195,21 +195,40 @@ int Fighter_Part1::DeserializeProperty(CodedInputStream* input) {
 	int index = WireFormatLite::GetTagFieldNumber(tag);
 	switch(index) {
 	case 1: ::typy::Clear(p_hp); break;
-		case 2: ::typy::Clear(p_isAwake); break;
-		case 3: ::typy::Clear(p_pos); break;
-		case 4: ::typy::Clear(p_posi); break;
-		case 5: ::typy::Clear(p_posl); break;
-		case 6: ::typy::Clear(p_poss); break;
-		case 7: ::typy::Clear(p_pyd); break;
-		case 8: ::typy::Clear(p_pyl); break;
-		case 9: ::typy::Clear(p_pyv1); break;
-		case 10: ::typy::Clear(p_pyv2); break;
+	case 2: ::typy::Clear(p_isAwake); break;
+	case 3: ::typy::Clear(p_pos); break;
+	case 4: ::typy::Clear(p_posi); break;
+	case 5: ::typy::Clear(p_posl); break;
+	case 6: ::typy::Clear(p_poss); break;
+	case 7: ::typy::Clear(p_pyd); break;
+	case 8: ::typy::Clear(p_pyl); break;
+	case 9: ::typy::Clear(p_pyv1); break;
+	case 10: ::typy::Clear(p_pyv2); break;
 	}
 
 	if (!tagInput.ExpectAtEnd()) {
 		MergePartialFromCodedStream(input);
 	}
 	return index;
+}
+
+bool Fighter_Part1::SetPropertySequence(PyObject* args) {
+	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
+		switch(i) {
+		case 0: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 0), p_hp, "Property 'hp' expect float, but ")) { return false; } break;
+		case 1: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 1), p_isAwake, "Property 'isAwake' expect bool, but ")) { return false; } break;
+		case 2: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 2), p_pos, "Property 'pos' expect Vector2, but ")) { return false; } break;
+		case 3: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 3), p_posi, "Property 'posi' expect Dict(int32 -> float), but ")) { return false; } break;
+		case 4: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 4), p_posl, "Property 'posl' expect List(Vector2), but ")) { return false; } break;
+		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_poss, "Property 'poss' expect Dict(int32 -> Vector2), but ")) { return false; } break;
+		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_pyd, "Property 'pyd' expect Dict(int32 -> Python<Shadow_PyType>), but ")) { return false; } break;
+		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_pyl, "Property 'pyl' expect List(Python<Shadow_PyType>), but ")) { return false; } break;
+		case 8: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 8), p_pyv1, "Property 'pyv1' expect Variant(Integer, PyType), but ")) { return false; } break;
+		case 9: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 9), p_pyv2, "Property 'pyv2' expect Variant(Integer, PyType), but ")) { return false; } break;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		}
+	}
+	return true;
 }
 
 // ===================================================================

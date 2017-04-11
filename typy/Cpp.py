@@ -338,12 +338,13 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 	property_size = []
 	property_serialize = []
 	property_deserialize = []
+	property_sequence = []
 	getset_fields_part1 = []
 	getset_fields_part2 = []
 
 	tag = 0
 	read_field_args = [ReadFieldArgs(), ReadFieldArgs()]
-	for a, p in SortedMessage(cls.____properties__, getattr(cls, '____propertySequence__', None)):
+	for i, (a, p) in enumerate(SortedMessage(cls.____properties__, getattr(cls, '____propertySequence__', None))):
 		typ, star, info = _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits)
 
 		if first_fields == '_cached_size':
@@ -351,6 +352,7 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 		header_fields.append('%s%s p_%s;' % (typ, star, a))
 		clear_fields.append('::typy::Clear(p_%s);' % a)
 		merge_fields.append('::typy::MergeFrom(p_%s, from.p_%s);' % (a, a))
+		property_sequence.append('case %d: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, %d), p_%s, "Property \'%s\' expect %s, but ")) { return false; } break;' % (i, i, a, a, info))
 		getset_fields_part1.append('TYPY_GETSET(%s, p_%s, %s);' % (name, a, info))
 		getset_fields_part2.append('{"%s", (getter)Get_p_%s, (setter)Set_p_%s, "Property %s"},' % (a, a, a, a))
 
@@ -421,9 +423,10 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 			'\n\t'.join(bytesize_fields), name,
 			'\n\t'.join(read_fields), name, len(read_field_args) - 2, name,
 			',\n\t'.join(property_name or ['""']), name,
-			'\n\t\t'.join(property_size or ['case 0: break;']), name,
+			'\n\t'.join(property_size or ['case 0: break;']), name,
 			'\n\t'.join(property_serialize or ['case 0: break;']), name,
-			'\n\t\t'.join(property_deserialize or ['case 0: break;']),
+			'\n\t'.join(property_deserialize or ['case 0: break;']), name,
+			'\n\t\t'.join(property_sequence or ['case 0: break;']),
 			'\n'.join(getset_fields_part1), name,
 			'\n\t'.join(getset_fields_part2), name))
 
@@ -893,7 +896,7 @@ char* %s::Properties[] = {
 int %s::PropertyByteSize(int tag) const {
 	int size = 0;
 	switch(tag) {
-		%s
+	%s
 	}
 	return size;
 }
@@ -923,6 +926,16 @@ int %s::DeserializeProperty(CodedInputStream* input) {
 		MergePartialFromCodedStream(input);
 	}
 	return index;
+}
+
+bool %s::SetPropertySequence(PyObject* args) {
+	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
+		switch(i) {
+		%s
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %%d.", i); return false;
+		}
+	}
+	return true;
 }
 
 // ===================================================================

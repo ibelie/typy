@@ -87,13 +87,13 @@ char* Vector2::Properties[] = {
 int Vector2::PropertyByteSize(int tag) const {
 	int size = 0;
 	switch(tag) {
-		case 1: ::typy::ByteSize(size, 1, p_x); if (size == 0) { size = 1; } break;
-		case 2: ::typy::ByteSize(size, 1, p_y); if (size == 0) { size = 1; } break;
-		case 3: ::typy::ByteSize(size, 1, p_b); if (size == 0) { size = 1; } break;
-		case 4: ::typy::ByteSize(size, 1, p_e); if (size == 0) { size = 1; } break;
-		case 5: ::typy::ByteSize(size, 1, p_i); if (size == 0) { size = 1; } break;
-		case 6: ::typy::ByteSize(size, 1, p_p); if (size == 0) { size = 1; } break;
-		case 7: ::typy::ByteSize(size, 1, p_s); if (size == 0) { size = 1; } break;
+	case 1: ::typy::ByteSize(size, 1, p_x); if (size == 0) { size = 1; } break;
+	case 2: ::typy::ByteSize(size, 1, p_y); if (size == 0) { size = 1; } break;
+	case 3: ::typy::ByteSize(size, 1, p_b); if (size == 0) { size = 1; } break;
+	case 4: ::typy::ByteSize(size, 1, p_e); if (size == 0) { size = 1; } break;
+	case 5: ::typy::ByteSize(size, 1, p_i); if (size == 0) { size = 1; } break;
+	case 6: ::typy::ByteSize(size, 1, p_p); if (size == 0) { size = 1; } break;
+	case 7: ::typy::ByteSize(size, 1, p_s); if (size == 0) { size = 1; } break;
 	}
 	return size;
 }
@@ -158,18 +158,35 @@ int Vector2::DeserializeProperty(CodedInputStream* input) {
 	int index = WireFormatLite::GetTagFieldNumber(tag);
 	switch(index) {
 	case 1: ::typy::Clear(p_x); break;
-		case 2: ::typy::Clear(p_y); break;
-		case 3: ::typy::Clear(p_b); break;
-		case 4: ::typy::Clear(p_e); break;
-		case 5: ::typy::Clear(p_i); break;
-		case 6: ::typy::Clear(p_p); break;
-		case 7: ::typy::Clear(p_s); break;
+	case 2: ::typy::Clear(p_y); break;
+	case 3: ::typy::Clear(p_b); break;
+	case 4: ::typy::Clear(p_e); break;
+	case 5: ::typy::Clear(p_i); break;
+	case 6: ::typy::Clear(p_p); break;
+	case 7: ::typy::Clear(p_s); break;
 	}
 
 	if (!tagInput.ExpectAtEnd()) {
 		MergePartialFromCodedStream(input);
 	}
 	return index;
+}
+
+bool Vector2::SetPropertySequence(PyObject* args) {
+	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
+		switch(i) {
+		case 0: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 0), p_x, "Property 'x' expect float, but ")) { return false; } break;
+		case 1: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 1), p_y, "Property 'y' expect SINGLE_ARG(FixedPoint<1, -10>), but ")) { return false; } break;
+		case 2: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 2), p_b, "Property 'b' expect bytes, but ")) { return false; } break;
+		case 3: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 3), p_e, "Property 'e' expect Corpus, but ")) { return false; } break;
+		case 4: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 4), p_i, "Property 'i' expect Empty, but ")) { return false; } break;
+		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_p, "Property 'p' expect Python<Shadow_PyType>, but ")) { return false; } break;
+		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_s, "Property 's' expect string, but ")) { return false; } break;
+		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_t, "Property 't' expect Python<PyObject>, but ")) { return false; } break;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		}
+	}
+	return true;
 }
 
 // ===================================================================

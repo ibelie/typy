@@ -48,7 +48,7 @@ char* Empty::Properties[] = {
 int Empty::PropertyByteSize(int tag) const {
 	int size = 0;
 	switch(tag) {
-		case 0: break;
+	case 0: break;
 	}
 	return size;
 }
@@ -78,6 +78,16 @@ int Empty::DeserializeProperty(CodedInputStream* input) {
 		MergePartialFromCodedStream(input);
 	}
 	return index;
+}
+
+bool Empty::SetPropertySequence(PyObject* args) {
+	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
+		switch(i) {
+		case 0: break;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		}
+	}
+	return true;
 }
 
 // ===================================================================
