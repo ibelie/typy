@@ -252,7 +252,7 @@ def _build(_typy):
 		}),
 		'__cmp__': lambda self, other: self.x - other.x,
 		'__lt__': lambda self, other: self.x < other.x,
-		'__add__': lambda self, other: _Vector2(x = self.x + other.x, y = self.y + other.y),
+		'__add__': lambda self, other: self.__class__(x = self.x + other.x, y = self.y + other.y),
 	})
 	_Empty = _typy.Empty()
 	_Fighter = _typy.Fighter()
@@ -261,6 +261,7 @@ def _build(_typy):
 	print "hasattr(_Fighter(), 'prop')", hasattr(_Fighter(), 'prop')
 	print "hasattr(_Vector2, 'prop')", hasattr(_Vector2, 'prop')
 	print "hasattr(_Vector2(), 'prop')", hasattr(_Vector2(), 'prop')
+	print _Vector2().__class__, _Vector2
 
 
 	v = _Vector2(
