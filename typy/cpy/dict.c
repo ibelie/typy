@@ -79,6 +79,7 @@ bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* iter) {
 		if (!MetaDict_SetItem(type, self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
 			return false;
 		}
+		Py_XDECREF(item);
 	}
 	return true;
 }

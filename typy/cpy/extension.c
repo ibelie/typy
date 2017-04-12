@@ -59,6 +59,7 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 	*length -= size;
 	if (*value) {
 		Py_XDECREF(PyObject_CallMethod(*value, "Deserialize", "O", data));
+		Py_XDECREF(data);
 	}
 	return true;
 }
@@ -74,6 +75,7 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 			register size_t length = PyBytes_GET_SIZE(data);
 			size += IblPutUvarint(output + size, length);
 			memcpy(output + size, PyBytes_AS_STRING(data), length);
+			Py_XDECREF(data);
 			return size + length;
 		}
 	}
@@ -85,7 +87,7 @@ size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 	register size_t size = 0;
 	if (*value) {
 		register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
-		if (s) { size = PyInt_AsLong(s); }
+		if (s) { size = PyInt_AsLong(s); Py_DECREF(s); }
 	}
 	return tagsize + IblSizeVarint(size) + size;
 }
