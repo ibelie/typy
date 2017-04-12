@@ -19,7 +19,7 @@ def setup():
 		'typy/_typyd.%s' % suffix,
 		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
-	# os.system('python -B setup.py build')
+	os.system('python -B setup.py build')
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
@@ -195,7 +195,7 @@ def setup():
 
 
 def _build(_typy):
-	global Vector2, Fighter, Corpus, PyType, Empty
+	global Vector2, Fighter, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime
 
 	vPy = Vector2(
 		123,  # x
@@ -627,16 +627,21 @@ def _build(_typy):
 	fighter.vd.update(fighter.sd)
 	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
 
-	oData = '\n\x10WO2gOCkyKx6wL59B\x12\x00\x18\xae\x01"\x10WO2gOCkyKx6wL59B*8\x12\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x00@\xae\x01X\x01'
+	def TestSkillParam():
+		oData = '\n\x10WO2gOCkyKx6wL59B\x12\x00\x18\xae\x01"\x10WO2gOCkyKx6wL59B*8\x12\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x00@\xae\x01X\x01'
 
-	oPy = onInitRuntime()
-	oPy.ParseFromString(oData)
-	print oPy.Args()
+		oPy = onInitRuntime()
+		oPy.ParseFromString(oData)
+		print oPy.Args()
 
-	_onInitRuntime = _typy.onInitRuntime()
-	o = _onInitRuntime()
-	o.ParseFromString(oData)
-	print o.Args()
+		_typy.Vector3(Vector3)
+		_onInitRuntime = _typy.onInitRuntime()
+		o = _onInitRuntime()
+		o.ParseFromString(oData)
+		print o.Args()
+
+	TestSkillParam()
+	print 'TestSkillParam End'
 
 	return time.time() - startTime
 
