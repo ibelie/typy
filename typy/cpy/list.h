@@ -49,8 +49,14 @@ typedef struct {
 #define MetaList_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r), (e)))
 #define MetaList_IsPrimitive(m) (MetaList_FIELDTYPE(m) < MAX_PRIMITIVE_TYPE)
-void    MetaList_Clear(TypyMetaList*, TypyList*);
-bool    MetaList_Extend(TypyMetaList*, TypyList*, PyObject*);
+
+#define MetaList_Clear(m, ob) { \
+	register size_t i;                             \
+	for (i = 0; i < (ob)->list_length; i++) {      \
+		MetaList_CLEAR((m), &(ob)->list_items[i]); \
+	}                                              \
+	(ob)->list_length = 0;                         \
+}
 
 #define TypyList_TYPE(ob)              (((TypyList*)(ob))->list_type)
 #define TypyList_CLEAR(ob, f)          MetaList_CLEAR(TypyList_TYPE(ob), (f))
@@ -62,14 +68,12 @@ bool    MetaList_Extend(TypyMetaList*, TypyList*, PyObject*);
 #define TypyList_SET(ob, l, r)         MetaList_SET(TypyList_TYPE(ob), (l), (r))
 #define TypyList_CHECKSET(ob, l, r, e) MetaList_CHECKSET(TypyList_TYPE(ob), (l), (r), (e))
 #define TypyList_Clear(ob)             MetaList_Clear(TypyList_TYPE(ob), (ob))
-#define TypyList_Extend(ob, l)         MetaList_Extend(TypyList_TYPE(ob), (ob), (l))
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
+
 TypyMetaList* Typy_RegisterList(PyObject*, PyObject*);
 
-TypyField* TypyList_EnsureSize   (TypyList*, size_t);
-TypyList*  TypyList_New          (TypyMetaList*);
 TypyList*  TypyList_GetPyObject  (TypyMetaList*, TypyList**);
 bool       TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
 bool       TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);

@@ -43,47 +43,6 @@ static inline IblMap TypyDictMap_New(FieldType field_type) {
 
 //=============================================================================
 
-void MetaDict_Clear(TypyMetaDict* type, TypyDict* self) {
-	register IblMap_Item iter;
-	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
-		MetaValue_CLEAR(type, &((TypyDictMap)iter)->value);
-	}
-	IblMap_Clear(self->dict_map);
-}
-
-bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject* key, PyObject* value) {
-	TypyField k = 0;
-	if (!MetaKey_CHECKSET(type, &k, key, "Dict key type error: ")) {
-		return false;
-	}
-	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
-	if (!entry) { return false; }
-	return MetaValue_CHECKSET(type, &entry->value, value, "Dict value type error: ");
-}
-
-bool MetaDict_MergeDict(TypyMetaDict* type, TypyDict* self, PyObject* dict) {
-	PyObject *k, *v;
-	Py_ssize_t pos = 0;
-	while (PyDict_Next(dict, &pos, &k, &v)) {
-		if (!MetaDict_SetItem(type, self, k, v)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* iter) {
-	register Py_ssize_t i, n = _PyObject_LengthHint(iter, 0);
-	for (i = 0; i < n; i++) {
-		register PyObject* item = PyIter_Next(iter);
-		if (!MetaDict_SetItem(type, self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
-			return false;
-		}
-		Py_XDECREF(item);
-	}
-	return true;
-}
-
 TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
@@ -125,8 +84,68 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	return type;
 }
 
+static inline bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject* key, PyObject* value) {
+	TypyField k = 0;
+	if (!MetaKey_CHECKSET(type, &k, key, "Dict key type error: ")) {
+		return false;
+	}
+	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
+	if (!entry) { return false; }
+	return MetaValue_CHECKSET(type, &entry->value, value, "Dict value type error: ");
+}
+
+static inline bool MetaDict_MergeDict(TypyMetaDict* type, TypyDict* self, PyObject* dict) {
+	PyObject *k, *v;
+	Py_ssize_t pos = 0;
+	while (PyDict_Next(dict, &pos, &k, &v)) {
+		if (!MetaDict_SetItem(type, self, k, v)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+static inline bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* iter) {
+	register Py_ssize_t i, n = _PyObject_LengthHint(iter, 0);
+	for (i = 0; i < n; i++) {
+		register PyObject* item = PyIter_Next(iter);
+		if (!MetaDict_SetItem(type, self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
+			return false;
+		}
+		Py_XDECREF(item);
+	}
+	return true;
+}
+
 static void MetaDict_Dealloc(TypyMetaDict* type) {
 	free(type);
+}
+
+static TypyDict* TypyDict_New(TypyMetaDict* type) {
+	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
+	if (!dict) {
+		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %lu.", sizeof(TypyDict));
+		return NULL;
+	}
+	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));
+	if (!dict->dict_map) {
+		free(dict);
+		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");
+		return NULL;
+	}
+	(void)PyObject_INIT(dict, &TypyDictType);
+	TypyDict_TYPE(dict) = type;
+	return dict;
+}
+
+static void TypyDict_Dealloc(TypyDict* self) {
+	TypyDict_Clear(self);
+	IblMap_Free(self->dict_map);
+	free(self);
+}
+
+static PyObject* TypyDict_Repr(TypyMetaDict* type) {
+	return PyString_FromFormat("<Dict '" FULL_MODULE_NAME ".%s'>", type->dict_name);
 }
 
 //=============================================================================
@@ -143,23 +162,6 @@ TypyDict* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
 	TypyDict_FromValueOrNew(self, value, type, NULL);
 	Py_INCREF(self);
 	return self;
-}
-
-TypyDict* TypyDict_New(TypyMetaDict* type) {
-	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
-	if (!dict) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %lu.", sizeof(TypyDict));
-		return NULL;
-	}
-	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));
-	if (!dict->dict_map) {
-		free(dict);
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");
-		return NULL;
-	}
-	(void)PyObject_INIT(dict, &TypyDictType);
-	TypyDict_TYPE(dict) = type;
-	return dict;
 }
 
 bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, const char* err) {
@@ -280,16 +282,6 @@ size_t TypyDict_ByteSize(TypyMetaDict* type, TypyDict** value, int tagsize) {
 }
 
 
-static void TypyDict_Dealloc(TypyDict* self) {
-	TypyDict_Clear(self);
-	IblMap_Free(self->dict_map);
-	free(self);
-}
-
-static PyObject* TypyDict_Repr(TypyMetaDict* type) {
-	return PyString_FromFormat("<Dict '" FULL_MODULE_NAME ".%s'>", type->dict_name);
-}
-
 PyTypeObject TypyMetaDictType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaDict",            /* tp_name           */
@@ -317,7 +309,7 @@ PyTypeObject TypyMetaDictType = {
 //=============================================================================
 
 static int dict_AssSubscript(TypyDict* self, PyObject* key, PyObject* value) {
-	return TypyDict_SetItem(self, key, value) ? 0 : -1;
+	return MetaDict_SetItem(TypyDict_TYPE(self), self, key, value) ? 0 : -1;
 }
 
 static Py_ssize_t dict_Len(TypyDict* self) {
@@ -379,10 +371,10 @@ static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
 	if (!arg || arg == Py_None) {
 		Py_RETURN_NONE;
 	} else if (PyDict_Check(arg)) {
-		TypyDict_MergeDict(self, arg);
+		MetaDict_MergeDict(TypyDict_TYPE(self), self, arg);
 		Py_RETURN_NONE;
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL))) {
-		TypyDict_MergeIter(self, items);
+		MetaDict_MergeIter(TypyDict_TYPE(self), self, items);
 		Py_DECREF(items);
 		Py_RETURN_NONE;
 	} else {

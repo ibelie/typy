@@ -225,7 +225,7 @@ bool Fighter_Part1::SetPropertySequence(PyObject* args) {
 		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_pyl, "Property 'pyl' expect List(Python<Shadow_PyType>), but ")) { return false; } break;
 		case 8: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 8), p_pyv1, "Property 'pyv1' expect Variant(Integer, PyType), but ")) { return false; } break;
 		case 9: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 9), p_pyv2, "Property 'pyv2' expect Variant(Integer, PyType), but ")) { return false; } break;
-		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %lu.", i); return false;
 		}
 	}
 	return true;

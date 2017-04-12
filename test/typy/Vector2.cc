@@ -183,7 +183,7 @@ bool Vector2::SetPropertySequence(PyObject* args) {
 		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_p, "Property 'p' expect Python<Shadow_PyType>, but ")) { return false; } break;
 		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_s, "Property 's' expect string, but ")) { return false; } break;
 		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_t, "Property 't' expect Python<PyObject>, but ")) { return false; } break;
-		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %lu.", i); return false;
 		}
 	}
 	return true;

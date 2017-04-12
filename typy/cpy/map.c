@@ -95,8 +95,7 @@ static void _IblMap_Rehash(IblMap map, IblMap_Item new) {
 
 static inline void _IblMap_TreeRehash(IblMap map, IblMap_Item item) {
 	register IblTree next;
-	item = (IblMap_Item)IblTree_Begin((IblTree)item);
-	for (; item; item = (IblMap_Item)next) {
+	for (item = (IblMap_Item)IblTree_Begin((IblTree)item); item; item = (IblMap_Item)next) {
 		next = IblTree_Next((IblTree)item);
 		_IblMap_Rehash(map, item);
 	}

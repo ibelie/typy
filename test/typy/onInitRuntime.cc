@@ -255,7 +255,7 @@ bool onInitRuntime::SetPropertySequence(PyObject* args) {
 		case 9: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 9), p_specificEvents, "Property 'specificEvents' expect Dict(bytes -> List< int32 >), but ")) { return false; } break;
 		case 10: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 10), p_uiid, "Property 'uiid' expect int32, but ")) { return false; } break;
 		case 11: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 11), p_unitIndex, "Property 'unitIndex' expect int32, but ")) { return false; } break;
-		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %lu.", i); return false;
 		}
 	}
 	return true;

@@ -20,6 +20,7 @@ typedef struct {
 
 extern PyTypeObject TypyVariantType;
 extern PyTypeObject TypyMetaVariantType;
+
 TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 
 #define MetaVariant_CLEAR(m, s, i) \
@@ -39,16 +40,21 @@ TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 #define MetaVariant_READ(m, s, i, t, l) \
 	(abstract_Read[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
 
-void    MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self);
+#define MetaVariant_Clear(m, ob) { \
+	if ((ob)->variant_index >= 0 && (size_t)(ob)->variant_index < Meta_SIZE(m)) { \
+		MetaVariant_CLEAR((m), (ob), (ob)->variant_index);                        \
+		(ob)->variant_index = -1;                                                 \
+	}                                                                             \
+}
+
 #define TypyVariant_Clear(ob) MetaVariant_Clear(Typy_TYPE(ob), (ob))
 
-TypyVariant* TypyVariant_New          (TypyMetaObject*);
-PyObject*    TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
-size_t       TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
-size_t       TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
-bool         TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
-bool         TypyVariant_CheckAndSet  (TypyMetaObject*, TypyVariant**, PyObject*, const char*);
-void         TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);
+PyObject* TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
+size_t    TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
+size_t    TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
+bool      TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
+bool      TypyVariant_CheckAndSet  (TypyMetaObject*, TypyVariant**, PyObject*, const char*);
+void      TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);
 
 #ifdef __cplusplus
 }

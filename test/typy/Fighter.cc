@@ -570,7 +570,7 @@ bool Fighter::SetPropertySequence(PyObject* args) {
 		case 30: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 30), p_v4, "Property 'v4' expect Variant(Integer, Vector2, Float, String), but ")) { return false; } break;
 		case 31: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 31), p_vd, "Property 'vd' expect Dict(int32 -> VdesVector2), but ")) { return false; } break;
 		case 32: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 32), p_vl, "Property 'vl' expect List(VfpisVector2), but ")) { return false; } break;
-		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %lu.", i); return false;
 		}
 	}
 	return true;

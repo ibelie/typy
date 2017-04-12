@@ -62,14 +62,6 @@ int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
 	return field ? field->index : -1;
 }
 
-char* Meta_PropertyName(TypyMetaObject* type, int index) {
-	if (index < 0 || (size_t)index > type->meta_size) {
-		return NULL;
-	} else {
-		return type->meta_index2field[index];
-	}
-}
-
 //=============================================================================
 
 TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {

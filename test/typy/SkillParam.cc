@@ -195,7 +195,7 @@ bool SkillParam::SetPropertySequence(PyObject* args) {
 		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_origRot, "Property 'origRot' expect Python<Shadow_Vector3>, but ")) { return false; } break;
 		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_targetID, "Property 'targetID' expect bytes, but ")) { return false; } break;
 		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_targetIDs, "Property 'targetIDs' expect List(bytes), but ")) { return false; } break;
-		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %d.", i); return false;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %lu.", i); return false;
 		}
 	}
 	return true;

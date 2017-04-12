@@ -28,6 +28,7 @@ typedef struct {
 
 extern PyTypeObject TypyDictType;
 extern PyTypeObject TypyMetaDictType;
+
 TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 
 #define MetaKey_DESC(m) (((TypyMetaDict*)(m))->key_desc)
@@ -71,22 +72,21 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaDict_MERGEFROM(m, l, r) \
 	(abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 
-void    MetaDict_Clear     (TypyMetaDict*, TypyDict*);
-bool    MetaDict_SetItem   (TypyMetaDict*, TypyDict*, PyObject*, PyObject*);
-bool    MetaDict_MergeDict (TypyMetaDict*, TypyDict*, PyObject*);
-bool    MetaDict_MergeIter (TypyMetaDict*, TypyDict*, PyObject*);
+#define MetaDict_Clear(m, ob) { \
+	register IblMap_Item iter;                                                                  \
+	for (iter = IblMap_Begin((ob)->dict_map); iter; iter = IblMap_Next((ob)->dict_map, iter)) { \
+		MetaValue_CLEAR((m), &((TypyDictMap)iter)->value);                                      \
+	}                                                                                           \
+	IblMap_Clear((ob)->dict_map);                                                               \
+}
 
 #define TypyDict_TYPE(ob)               (((TypyDict*)(ob))->dict_type)
 #define TypyDict_Clear(ob)              MetaDict_Clear(TypyDict_TYPE(ob), (ob))
-#define TypyDict_SetItem(ob, k, v)      MetaDict_SetItem(TypyDict_TYPE(ob), (ob), (k), (v))
-#define TypyDict_MergeDict(ob, d)       MetaDict_MergeDict(TypyDict_TYPE(ob), (ob), (d))
-#define TypyDict_MergeIter(ob, i)       MetaDict_MergeIter(TypyDict_TYPE(ob), (ob), (i))
 #define TypyKey_GET(ob, k)              MetaKey_GET(TypyDict_TYPE(ob), (k))
 #define TypyKey_CHECKSET(ob, l, r, e)   MetaKey_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 #define TypyValue_GET(ob, v)            MetaValue_GET(TypyDict_TYPE(ob), (v))
 #define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 
-TypyDict* TypyDict_New         (TypyMetaDict*);
 TypyDict* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
 bool      TypyDict_CheckAndSet (TypyMetaDict*, TypyDict**, PyObject*, const char*);
 bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);

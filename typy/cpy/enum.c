@@ -78,7 +78,7 @@ static TypyEnum* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
 	return type;
 }
 
-void TypyEnum_Dealloc(TypyEnum* type) {
+static void TypyEnum_Dealloc(TypyEnum* type) {
 	if (type->enum_map) {
 		register TypyEnumMap item;
 		register IblMap_Item iter;

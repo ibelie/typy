@@ -46,7 +46,7 @@ bool TypyFixedPoint_CheckAndSet(TypyFixedPoint* type, TypyField* value, PyObject
 	return true;
 }
 
-void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
+static void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
 	free(type);
 }
 

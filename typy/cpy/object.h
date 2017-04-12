@@ -21,6 +21,8 @@ typedef struct {
 	TypyDescriptor meta_descriptor[1];
 } TypyMetaObject;
 
+void TypyMeta_Dealloc(TypyMetaObject*);
+
 #define Meta_NAME(m)         ((char*)(&(((TypyMetaObject*)(m))->meta_descriptor[((TypyMetaObject*)(m))->meta_size])))
 #define Meta_SIZE(m)         (((TypyMetaObject*)(m))->meta_size)
 #define Meta_DESC(m, i)      (((TypyMetaObject*)(m))->meta_descriptor[i])
@@ -31,9 +33,9 @@ typedef struct {
 #define Meta_WIRETYPE(m, i)  (Meta_DESC(m, i).desc_WireType)
 #define Meta_FromInitializer (field_type == FIELD_TYPE_OBJECT ? ((PyCFunctionObject*)typy_type)->m_self : typy_type)
 
-void  TypyMeta_Dealloc   (TypyMetaObject*);
-int   Meta_PropertyIndex (TypyMetaObject*, char*);
-char* Meta_PropertyName  (TypyMetaObject*, int);
+int     Meta_PropertyIndex   (TypyMetaObject*, char*);
+
+#define Meta_PropertyName(m, i) (((i) < 0 || (size_t)(i) > (m)->meta_size) ? NULL : (m)->meta_index2field[i])
 
 #define TypyObject_HEAD \
     PyObject_HEAD       \

@@ -8,20 +8,13 @@
 extern "C" {
 #endif
 
-void MetaVariant_Clear(TypyMetaObject* type, TypyVariant* self) {
-	register int i = self->variant_index;
-	if (i < 0 || (size_t)i >= Meta_SIZE(type)) { return; }
-	MetaVariant_CLEAR(type, self, i);
-	self->variant_index = -1;
-}
-
 TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
 	type->py_type = NULL;
 	return type;
 }
 
-TypyVariant* TypyVariant_New(TypyMetaObject* type) {
+static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 	TypyVariant* variant = (TypyVariant*)calloc(1, sizeof(TypyVariant));
 	if (!variant) {
 		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %lu.", sizeof(TypyVariant));
@@ -33,6 +26,25 @@ TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 	return variant;
 }
 
+static void TypyVariant_Dealloc(TypyVariant* self) {
+	TypyVariant_Clear(self);
+	free(self);
+}
+
+static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
+	return PyString_FromFormat("<Variant '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
+}
+
+//=============================================================================
+
+#define TypyVariant_FromValueOrNew(s, v, t, r) \
+	register TypyVariant* s = *(v);            \
+	if (!s) {                                  \
+		s = (TypyVariant*)TypyVariant_New(t);  \
+		if (!s) { return r; }                  \
+		*(v) = s;                              \
+	}
+
 PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	register TypyVariant* self = *value;
 	if (!self) { Py_RETURN_NONE; }
@@ -42,14 +54,6 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	}
 	Py_RETURN_NONE;
 }
-
-#define TypyVariant_FromValueOrNew(s, v, t, r) \
-	register TypyVariant* s = *(v);            \
-	if (!s) {                                  \
-		s = (TypyVariant*)TypyVariant_New(t);  \
-		if (!s) { return r; }                  \
-		*(v) = s;                              \
-	}
 
 bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject* arg, const char* err) {
 	if (arg == Py_None) {
@@ -220,15 +224,6 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 		TypyVariant_Clear(self);
 	}
 	MetaVariant_MERGEFROM(type, self, self->variant_index, rvalue->variant_value);
-}
-
-static void TypyVariant_Dealloc(TypyVariant* self) {
-	TypyVariant_Clear(self);
-	free(self);
-}
-
-static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
-	return PyString_FromFormat("<Variant '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
 }
 
 PyTypeObject TypyMetaVariantType = {

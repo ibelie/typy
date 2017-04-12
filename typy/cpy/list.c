@@ -8,15 +8,69 @@
 extern "C" {
 #endif
 
-void MetaList_Clear(TypyMetaList* type, TypyList* self) {
-	register size_t i;
-	for (i = 0; i < self->list_length; i++) {
-		MetaList_CLEAR(type, &self->list_items[i]);
+TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
+	char *name;
+	Py_ssize_t nameLen;
+	TypyMetaList* type;
+	PyObject* descriptor;
+	PyObject* typy_type = NULL;
+	uint8 wire_type, field_type;
+	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptor)) {
+		return NULL;
 	}
-	self->list_length = 0;
+
+	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
+	if (!type) {
+		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %lu.", sizeof(TypyMetaList) + nameLen);
+		return NULL;
+	}
+
+	type->list_name[nameLen] = 0;
+	memcpy(type->list_name, name, nameLen);
+	(void)PyObject_INIT(type, &TypyMetaListType);
+
+	if (!PyArg_ParseTuple(descriptor, "BB|O", &wire_type, &field_type, &typy_type)) {
+		free(type); return NULL;
+	}
+	type->list_desc.desc_type      = Meta_FromInitializer;
+	type->list_desc.desc_FieldType = field_type;
+	type->list_desc.desc_WireType  = wire_type;
+
+	return type;
 }
 
-bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) {
+static TypyList* TypyList_New(TypyMetaList* type) {
+	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
+	if (!list) {
+		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %lu.", sizeof(TypyList));
+		return NULL;
+	}
+	(void)PyObject_INIT(list, &TypyListType);
+	TypyList_TYPE(list) = type;
+	return list;
+}
+
+static TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
+	if (self->list_length + size > self->list_capacity) {
+		register size_t capacity = Ibl_Max(2 * self->list_capacity + size, MIN_LIST_CAPACITY);
+		register TypyField* buffer = (TypyField*)calloc(capacity, sizeof(TypyField));
+		if (!buffer) {
+			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %lu.\n", capacity * sizeof(TypyField));
+			return NULL;
+		}
+		self->list_capacity = capacity;
+		if (self->list_items) {
+			memcpy(buffer, self->list_items, self->list_length * sizeof(TypyField));
+			free(self->list_items);
+		}
+		self->list_items = buffer;
+	}
+	register TypyField* offset = &self->list_items[self->list_length];
+	self->list_length += size;
+	return offset;
+}
+
+static bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) {
 	if (PyList_CheckExact(list) || PyTuple_CheckExact(list) || (PyObject*)self == list) {
 		list = PySequence_Fast(list, "argument must be iterable");
 		if (!list) { return false; }
@@ -54,39 +108,20 @@ bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) {
 	return true;
 }
 
-TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
-	char *name;
-	Py_ssize_t nameLen;
-	TypyMetaList* type;
-	PyObject* descriptor;
-	PyObject* typy_type = NULL;
-	uint8 wire_type, field_type;
-	if (!PyArg_ParseTuple(args, "s#O", &name, &nameLen, &descriptor)) {
-		return NULL;
-	}
-
-	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
-	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %lu.", sizeof(TypyMetaList) + nameLen);
-		return NULL;
-	}
-
-	type->list_name[nameLen] = 0;
-	memcpy(type->list_name, name, nameLen);
-	(void)PyObject_INIT(type, &TypyMetaListType);
-
-	if (!PyArg_ParseTuple(descriptor, "BB|O", &wire_type, &field_type, &typy_type)) {
-		free(type); return NULL;
-	}
-	type->list_desc.desc_type      = Meta_FromInitializer;
-	type->list_desc.desc_FieldType = field_type;
-	type->list_desc.desc_WireType  = wire_type;
-
-	return type;
-}
-
 static void MetaList_Dealloc(TypyMetaList* type) {
 	free(type);
+}
+
+static void TypyList_Dealloc(TypyList* self) {
+	TypyList_Clear(self);
+	if (self->list_items) {
+		free(self->list_items);
+	}
+	free(self);
+}
+
+static PyObject* TypyList_Repr(TypyMetaList* type) {
+	return PyString_FromFormat("<List '" FULL_MODULE_NAME ".%s'>", type->list_name);
 }
 
 //=============================================================================
@@ -98,37 +133,6 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 		if (!s) { return r; }               \
 		*(v) = s;                           \
 	}
-
-TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
-	if (self->list_length + size > self->list_capacity) {
-		register size_t capacity = Ibl_Max(2 * self->list_capacity + size, MIN_LIST_CAPACITY);
-		register TypyField* buffer = (TypyField*)calloc(capacity, sizeof(TypyField));
-		if (!buffer) {
-			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %lu.\n", capacity * sizeof(TypyField));
-			return NULL;
-		}
-		self->list_capacity = capacity;
-		if (self->list_items) {
-			memcpy(buffer, self->list_items, self->list_length * sizeof(TypyField));
-			free(self->list_items);
-		}
-		self->list_items = buffer;
-	}
-	register TypyField* offset = &self->list_items[self->list_length];
-	self->list_length += size;
-	return offset;
-}
-
-TypyList* TypyList_New(TypyMetaList* type) {
-	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
-	if (!list) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %lu.", sizeof(TypyList));
-		return NULL;
-	}
-	(void)PyObject_INIT(list, &TypyListType);
-	TypyList_TYPE(list) = type;
-	return list;
-}
 
 TypyList* TypyList_GetPyObject(TypyMetaList* type, TypyList** value) {
 	TypyList_FromValueOrNew(self, value, type, NULL);
@@ -239,18 +243,6 @@ void TypyList_MergeFrom(TypyMetaList* type, TypyList** lvalue, TypyList* rvalue)
 	}
 }
 
-static void TypyList_Dealloc(TypyList* self) {
-	TypyList_Clear(self);
-	if (self->list_items) {
-		free(self->list_items);
-	}
-	free(self);
-}
-
-static PyObject* TypyList_Repr(TypyMetaList* type) {
-	return PyString_FromFormat("<List '" FULL_MODULE_NAME ".%s'>", type->list_name);
-}
-
 PyTypeObject TypyMetaListType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaList",            /* tp_name           */
@@ -314,7 +306,7 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 
 static PyObject* list_Extend(TypyList* self, PyObject* value) {
 	if (!PyObject_Not(value) && Py_TYPE(value)->tp_as_sequence) {
-		TypyList_Extend(self, value);
+		MetaList_Extend(TypyList_TYPE(self), self, value);
 	}
 	Py_RETURN_NONE;
 }
@@ -425,7 +417,7 @@ static int list_AssSubscript(TypyList* self, PyObject* slice, PyObject* value) {
 		goto list_asssubscript_fail;
 	}
 	TypyList_Clear(self);
-	if (!TypyList_Extend(self, new_list)) {
+	if (!MetaList_Extend(TypyList_TYPE(self), self, new_list)) {
 		goto list_asssubscript_fail;
 	}
 	Py_XDECREF(full_slice);

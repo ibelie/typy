@@ -103,7 +103,7 @@ static TypyPython* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 	return type;
 }
 
-void TypyPython_Dealloc(TypyPython* type) {
+static void TypyPython_Dealloc(TypyPython* type) {
 	Py_XDECREF(type->python_type);
 	free(type);
 }
