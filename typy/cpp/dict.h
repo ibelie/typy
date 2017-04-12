@@ -213,7 +213,7 @@ static PyObject* tp_Update(PyObject* self, PyObject* arg) {
 	} else if (PyDict_Check(arg)) {
 		::typy::MergeDict(arg, *static_cast<Dict<K, V>*>(self));
 		Py_RETURN_NONE;
-	} else if (items = PyObject_CallMethod(arg, "iteritems", NULL)) {
+	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
 		::typy::MergeIter(items, *static_cast<Dict<K, V>*>(self));
 		Py_DECREF(items);
 		Py_RETURN_NONE;

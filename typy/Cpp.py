@@ -935,7 +935,7 @@ bool %s::SetPropertySequence(PyObject* args) {
 	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
 		switch(i) {
 		%s
-		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %%d.", i); return false;
+		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %%lu.", i); return false;
 		}
 	}
 	return true;
