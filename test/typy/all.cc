@@ -3,19 +3,24 @@
 #include "typy.h"
 
 #include "PyType.h"
+#include "Vector3.h"
 #include "Corpus.h"
 #include "Empty.h"
 #include "Fighter.h"
 #include "Fighter_Part1.h"
 #include "Fighter_Part2.h"
+#include "SkillParam.h"
 #include "Vector2.h"
+#include "onInitRuntime.h"
 #include "list.h"
 #include "dict.h"
 
 namespace typy {
 
 bool InitModule(PyObject* m) {
-	return PyType_Ready(&Dict<int32, Corpus >::_Type) >= 0 && PyType_Ready(&Dict<int32, Corpus >::IterKey_Type) >= 0 && PyType_Ready(&Dict<int32, Corpus >::IterValue_Type) >= 0 && PyType_Ready(&Dict<int32, Corpus >::IterItem_Type) >= 0
+	return PyType_Ready(&Dict<bytes, List< int32 > >::_Type) >= 0 && PyType_Ready(&Dict<bytes, List< int32 > >::IterKey_Type) >= 0 && PyType_Ready(&Dict<bytes, List< int32 > >::IterValue_Type) >= 0 && PyType_Ready(&Dict<bytes, List< int32 > >::IterItem_Type) >= 0
+		&& PyType_Ready(&Dict<bytes, Vbbyfi >::_Type) >= 0 && PyType_Ready(&Dict<bytes, Vbbyfi >::IterKey_Type) >= 0 && PyType_Ready(&Dict<bytes, Vbbyfi >::IterValue_Type) >= 0 && PyType_Ready(&Dict<bytes, Vbbyfi >::IterItem_Type) >= 0
+		&& PyType_Ready(&Dict<int32, Corpus >::_Type) >= 0 && PyType_Ready(&Dict<int32, Corpus >::IterKey_Type) >= 0 && PyType_Ready(&Dict<int32, Corpus >::IterValue_Type) >= 0 && PyType_Ready(&Dict<int32, Corpus >::IterItem_Type) >= 0
 		&& PyType_Ready(&Dict<int32, List< VdesVector2 > >::_Type) >= 0 && PyType_Ready(&Dict<int32, List< VdesVector2 > >::IterKey_Type) >= 0 && PyType_Ready(&Dict<int32, List< VdesVector2 > >::IterValue_Type) >= 0 && PyType_Ready(&Dict<int32, List< VdesVector2 > >::IterItem_Type) >= 0
 		&& PyType_Ready(&Dict<int32, List< float > >::_Type) >= 0 && PyType_Ready(&Dict<int32, List< float > >::IterKey_Type) >= 0 && PyType_Ready(&Dict<int32, List< float > >::IterValue_Type) >= 0 && PyType_Ready(&Dict<int32, List< float > >::IterItem_Type) >= 0
 		&& PyType_Ready(&Dict<int32, Python<Shadow_PyType> >::_Type) >= 0 && PyType_Ready(&Dict<int32, Python<Shadow_PyType> >::IterKey_Type) >= 0 && PyType_Ready(&Dict<int32, Python<Shadow_PyType> >::IterValue_Type) >= 0 && PyType_Ready(&Dict<int32, Python<Shadow_PyType> >::IterItem_Type) >= 0
@@ -29,6 +34,7 @@ bool InitModule(PyObject* m) {
 		&& PyType_Ready(&Dict<string, bytes >::_Type) >= 0 && PyType_Ready(&Dict<string, bytes >::IterKey_Type) >= 0 && PyType_Ready(&Dict<string, bytes >::IterValue_Type) >= 0 && PyType_Ready(&Dict<string, bytes >::IterItem_Type) >= 0
 		&& PyType_Ready(&List< Corpus >::_Type) >= 0 && PyType_Ready(&List< Corpus >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Python<Shadow_PyType> >::_Type) >= 0 && PyType_Ready(&List< Python<Shadow_PyType> >::Iterator_Type) >= 0
+		&& PyType_Ready(&List< SkillParam >::_Type) >= 0 && PyType_Ready(&List< SkillParam >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VLf >::_Type) >= 0 && PyType_Ready(&List< VLf >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VdesVector2 >::_Type) >= 0 && PyType_Ready(&List< VdesVector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Vector2 >::_Type) >= 0 && PyType_Ready(&List< Vector2 >::Iterator_Type) >= 0
@@ -36,14 +42,18 @@ bool InitModule(PyObject* m) {
 		&& PyType_Ready(&List< Vfs >::_Type) >= 0 && PyType_Ready(&List< Vfs >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< bytes >::_Type) >= 0 && PyType_Ready(&List< bytes >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< float >::_Type) >= 0 && PyType_Ready(&List< float >::Iterator_Type) >= 0
+		&& PyType_Ready(&List< int32 >::_Type) >= 0 && PyType_Ready(&List< int32 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< string >::_Type) >= 0 && PyType_Ready(&List< string >::Iterator_Type) >= 0
 		&& InitCorpus(m)
 		&& Object<Empty>::Init(m)
 		&& Object<Fighter>::Init(m)
 		&& Object<Fighter_Part1>::Init(m)
 		&& Object<Fighter_Part2>::Init(m)
+		&& Object<SkillParam>::Init(m)
 		&& Object<Vector2>::Init(m)
-		&& Python<Shadow_PyType>::Init(m, "PyType");
+		&& Object<onInitRuntime>::Init(m)
+		&& Python<Shadow_PyType>::Init(m, "PyType")
+		&& Python<Shadow_Vector3>::Init(m, "Vector3");
 }
 
 } // namespace typy

@@ -181,3 +181,41 @@ Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('pyv1', 74, 1, 2, 12, ViPyType),
 	('pyv2', 82, 1, 2, 12, ViPyType),
 ))
+Li = _typyd.List('Li', (0, 1, ))
+Vector3 = _typyd.Python('Vector3')
+Vbbyfi = _typyd.Variant('Vbbyfi', (
+	
+	('Boolean', 8, 1, 0, 8, ),
+	('Bytes', 18, 1, 2, 9, ),
+	('Float', 29, 1, 5, 7, ),
+	('Integer', 32, 1, 0, 1, ),
+))
+DbyVbbyfi = _typyd.Dict('DbyVbbyfi', (2, 9, ), (2, 12, Vbbyfi))
+SkillParam = _typyd.Object('SkillParam', (
+	
+	('buckID', 10, 1, 2, 9, ),
+	('destPos', 18, 1, 2, 15, Vector3),
+	('destRot', 26, 1, 2, 15, Vector3),
+	('extraParam', 34, 1, 2, 14, DbyVbbyfi),
+	('origPos', 42, 1, 2, 15, Vector3),
+	('origRot', 50, 1, 2, 15, Vector3),
+	('targetID', 58, 1, 2, 9, ),
+	('targetIDs', 66, 1, 2, 13, Lby),
+))
+LSkillParam = _typyd.List('LSkillParam', (2, 11, SkillParam))
+DbyLi = _typyd.Dict('DbyLi', (2, 9, ), (2, 13, Li))
+onInitRuntime = _typyd.Object('onInitRuntime', (
+	
+	('buckID', 10, 1, 2, 9, ),
+	('events', 18, 1, 2, 13, Li),
+	('flowID', 24, 1, 0, 1, ),
+	('ownerID', 34, 1, 2, 9, ),
+	('params', 42, 1, 2, 13, LSkillParam),
+	('passBuckEvents', 50, 1, 2, 13, Li),
+	('prev', 56, 1, 0, 1, ),
+	('skillID', 64, 1, 0, 1, ),
+	('skillIdx', 72, 1, 0, 1, ),
+	('specificEvents', 82, 1, 2, 14, DbyLi),
+	('uiid', 88, 1, 0, 1, ),
+	('unitIndex', 96, 1, 0, 1, ),
+))

@@ -19,11 +19,11 @@ def setup():
 		'typy/_typyd.%s' % suffix,
 		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
-	os.system('python -B setup.py build')
+	# os.system('python -B setup.py build')
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
-	from typy import pb, Instance, Python, List, Dict, Object, Integer, Float, Double, FixedPoint, Bytes, String, Enum
+	from typy import pb, Instance, Python, List, Dict, Object, Integer, Boolean, Float, Double, FixedPoint, Bytes, String, Enum
 
 	class Corpus(Enum):
 		UNIVERSAL = 0, "UNIVERSAL"
@@ -145,6 +145,54 @@ def setup():
 		dv = pb.Instance(Integer, Dict(Integer, Float, String), label = 'dv')
 		fdv = pb.Instance(Integer, Dict(Integer, Float), label = 'fdv')
 	globals()['Fighter'] = Fighter
+
+	import struct
+
+	class Vector3(object):
+		def __init__(self, **kwargs):
+			self.x = self.y = self.z = 0
+			for k, v in kwargs.iteritems():
+				setattr(self, k, v)
+
+		def __str__(self):
+			return str(self.__dict__)
+
+		def ByteSize(self):
+			return 12
+
+		def Serialize(self):
+			return struct.pack('fff', self.x, self.y, self.z)
+
+		def Deserialize(self, data):
+			self.x, self.y, self.z = struct.unpack('fff', data)
+	globals()['Vector3'] = Vector3
+
+	class SkillParam(Object):
+		buckID = pb.Bytes
+		targetID = pb.Bytes
+		origPos = pb.Python(Vector3)
+		origRot = pb.Python(Vector3)
+		destPos = pb.Python(Vector3)
+		destRot = pb.Python(Vector3)
+		extraParam = pb.Dict(Bytes, Instance(Integer, Boolean, Float, Bytes))
+		targetIDs = pb.List(Bytes)
+	globals()['SkillParam'] = SkillParam
+
+	class onInitRuntime(Object):
+		skillID = pb.Integer
+		ownerID = pb.Bytes
+		skillIdx = pb.Integer
+		flowID = pb.Integer
+		unitIndex = pb.Integer
+		uiid = pb.Integer
+		prev = pb.Integer
+		buckID = pb.Bytes
+		params = pb.List(SkillParam)
+		events = pb.List(Integer)
+		specificEvents = pb.Dict(Bytes, List(Integer))
+		passBuckEvents = pb.List(Integer)
+	globals()['onInitRuntime'] = onInitRuntime
+
 
 def _build(_typy):
 	global Vector2, Fighter, Corpus, PyType, Empty
@@ -578,6 +626,17 @@ def _build(_typy):
 	fighter.vd = fighter.sd
 	fighter.vd.update(fighter.sd)
 	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
+
+	oData = '\n\x10WO2gOCkyKx6wL59B\x12\x00\x18\xae\x01"\x10WO2gOCkyKx6wL59B*8\x12\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x00@\xae\x01X\x01'
+
+	oPy = onInitRuntime()
+	oPy.ParseFromString(oData)
+	print oPy.Args()
+
+	_onInitRuntime = _typy.onInitRuntime()
+	o = _onInitRuntime()
+	o.ParseFromString(oData)
+	print o.Args()
 
 	return time.time() - startTime
 
