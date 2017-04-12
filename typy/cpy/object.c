@@ -435,6 +435,8 @@ static PyMethodDef Methods[] = {
 		"Serializes property to a string." },
 	{ "DeserializeProperty", (PyCFunction)Py_DeserializeProperty, METH_O,
 		"Deserialize property from a string and return name of the property." },
+	{ "Args", (PyCFunction)Typy_Args, METH_NOARGS,
+		"Get a property tuple can be used as args." },
 	{ NULL, NULL}
 };
 

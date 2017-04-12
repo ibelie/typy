@@ -302,6 +302,9 @@ except ImportError:
 	class Object(message.Message):
 		__metaclass__ = MetaObject
 
+		def Args(self):
+			return tuple([getattr(self, k) for k in self.____sortedProperty__])
+
 		def SerializeProperty(self, attr):
 			from io import BytesIO
 			out = BytesIO()

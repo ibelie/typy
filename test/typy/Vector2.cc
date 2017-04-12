@@ -189,6 +189,20 @@ bool Vector2::SetPropertySequence(PyObject* args) {
 	return true;
 }
 
+PyObject* Vector2::GetPropertySequence() {
+	PyObject* result = PyTuple_New(8);
+	if (result == NULL) { return result; }
+	PyTuple_SET_ITEM(result, 0, ::typy::GetPyObject(p_x));
+	PyTuple_SET_ITEM(result, 1, ::typy::GetPyObject(p_y));
+	PyTuple_SET_ITEM(result, 2, ::typy::GetPyObject(p_b));
+	PyTuple_SET_ITEM(result, 3, ::typy::GetPyObject(p_e));
+	PyTuple_SET_ITEM(result, 4, ::typy::GetPyObject(p_i));
+	PyTuple_SET_ITEM(result, 5, ::typy::GetPyObject(p_p));
+	PyTuple_SET_ITEM(result, 6, ::typy::GetPyObject(p_s));
+	PyTuple_SET_ITEM(result, 7, ::typy::GetPyObject(p_t));
+	return result;
+}
+
 // ===================================================================
 
 TYPY_GETSET(Vector2, p_x, float);

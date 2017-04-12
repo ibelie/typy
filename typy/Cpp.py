@@ -338,7 +338,8 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 	property_size = []
 	property_serialize = []
 	property_deserialize = []
-	property_sequence = []
+	set_property_sequence = []
+	get_property_sequence = []
 	getset_fields_part1 = []
 	getset_fields_part2 = []
 
@@ -352,7 +353,8 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 		header_fields.append('%s%s p_%s;' % (typ, star, a))
 		clear_fields.append('::typy::Clear(p_%s);' % a)
 		merge_fields.append('::typy::MergeFrom(p_%s, from.p_%s);' % (a, a))
-		property_sequence.append('case %d: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, %d), p_%s, "Property \'%s\' expect %s, but ")) { return false; } break;' % (i, i, a, a, info))
+		set_property_sequence.append('case %d: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, %d), p_%s, "Property \'%s\' expect %s, but ")) { return false; } break;' % (i, i, a, a, info))
+		get_property_sequence.append('PyTuple_SET_ITEM(result, %d, ::typy::GetPyObject(p_%s));' % (i, a))
 		getset_fields_part1.append('TYPY_GETSET(%s, p_%s, %s);' % (name, a, info))
 		getset_fields_part2.append('{"%s", (getter)Get_p_%s, (setter)Set_p_%s, "Property %s"},' % (a, a, a, a))
 
@@ -426,7 +428,8 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 			'\n\t'.join(property_size or ['case 0: break;']), name,
 			'\n\t'.join(property_serialize or ['case 0: break;']), name,
 			'\n\t'.join(property_deserialize or ['case 0: break;']), name,
-			'\n\t\t'.join(property_sequence or ['case 0: break;']),
+			'\n\t\t'.join(set_property_sequence or ['case 0: break;']), name, len(get_property_sequence),
+			'\n\t'.join(get_property_sequence),
 			'\n'.join(getset_fields_part1), name,
 			'\n\t'.join(getset_fields_part2), name))
 
@@ -936,6 +939,13 @@ bool %s::SetPropertySequence(PyObject* args) {
 		}
 	}
 	return true;
+}
+
+PyObject* %s::GetPropertySequence() {
+	PyObject* result = PyTuple_New(%d);
+	if (result == NULL) { return result; }
+	%s
+	return result;
 }
 
 // ===================================================================

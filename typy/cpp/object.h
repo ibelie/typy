@@ -41,6 +41,7 @@ public:                                                                  \
 	bool MergePartialFromCodedStream(CodedInputStream*);                 \
 	void SerializeWithCachedSizes(CodedOutputStream*) const;             \
 	bool SetPropertySequence(PyObject*);                                 \
+	PyObject* GetPropertySequence();                                     \
                                                                          \
 	char* PropertyName(int);                                             \
 	int PropertyTag(char*);                                              \
@@ -293,6 +294,10 @@ public:
 		}
 	}
 
+	static PyObject* tp_Args(PyObject* self) {
+		return static_cast<T*>(self)->GetPropertySequence();
+	}
+
 	static int half_cmp(PyObject* v, PyObject* w) {
 		ScopedPyObjectPtr result(CallObject(v, "__cmp__", w));
 		if (result == NULL || result.get() == Py_NotImplemented) {
@@ -430,6 +435,8 @@ PyMethodDef Object<T>::Methods[] = {
 		"Serializes property to a string." },
 	{ "DeserializeProperty", (PyCFunction)tp_DeserializeProperty, METH_O,
 		"Deserialize property from a string and return name of the property." },
+	{ "Args", (PyCFunction)tp_Args, METH_NOARGS,
+		"Get a property tuple can be used as args." },
 	{ NULL, NULL}
 };
 

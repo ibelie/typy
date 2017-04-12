@@ -263,6 +263,9 @@ def _build(_typy):
 	print "hasattr(_Vector2, 'prop')", hasattr(_Vector2, 'prop')
 	print "hasattr(_Vector2(), 'prop')", hasattr(_Vector2(), 'prop')
 	print _Vector2().__class__, _Vector2
+	print "isinstance(_Vector2(), _Vector2)", isinstance(_Vector2(), _Vector2)
+	print "isinstance(_Vector2, type)", isinstance(_Vector2, type)
+	print "issubclass(_Vector2, type)", issubclass(_Vector2, type)
 
 
 	v = _Vector2(
@@ -274,6 +277,7 @@ def _build(_typy):
 		p = PyType(pp = 123, ap = 'asdf'),
 		i = _Empty(),
 	)
+	print vPy.Args(), v.Args()
 	print vPy, vPy.x, vPy.y, vPy.s, vPy.b, vPy.e, vPy.p, vPy.i, vPy.p.pp
 	print v, v.x, v.y, v.s, v.b, v.e, v.p, v.i, v.p.pp
 

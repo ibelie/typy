@@ -309,6 +309,16 @@ int Typy_SetAttr(TypyObject* self, PyObject* arg, PyObject* value) {
 	return PyObject_GenericSetAttr((PyObject*)self, arg, value);
 }
 
+PyObject* Typy_Args(TypyObject* self) {
+	register PyObject* result = PyTuple_New(Typy_SIZE(self));
+	if (!result) { return result; }
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		PyTuple_SET_ITEM(result, i, Typy_GET(self, i));
+	}
+	return result;
+}
+
 //=============================================================================
 
 bool TypyObject_CheckAndSet(TypyMetaObject* type, TypyObject** value, PyObject* arg, const char* err) {

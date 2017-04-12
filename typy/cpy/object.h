@@ -95,6 +95,7 @@ void      Typy_SerializeProperty   (TypyObject*, byte*, int);
 int       Typy_DeserializeProperty (TypyObject*, byte*, size_t);
 int       Typy_SetAttr             (TypyObject*, PyObject*, PyObject*);
 PyObject* Typy_GetAttr             (TypyObject*, PyObject*);
+PyObject* Typy_Args                (TypyObject*);
 
 #define   Typy_PropertyName(ob, i)  Meta_PropertyName(Typy_TYPE(ob), i)
 #define   Typy_PropertyIndex(ob, k) Meta_PropertyIndex(Typy_TYPE(ob), k)

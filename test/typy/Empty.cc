@@ -90,6 +90,13 @@ bool Empty::SetPropertySequence(PyObject* args) {
 	return true;
 }
 
+PyObject* Empty::GetPropertySequence() {
+	PyObject* result = PyTuple_New(0);
+	if (result == NULL) { return result; }
+	
+	return result;
+}
+
 // ===================================================================
 
 

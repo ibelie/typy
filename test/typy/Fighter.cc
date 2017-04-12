@@ -576,6 +576,45 @@ bool Fighter::SetPropertySequence(PyObject* args) {
 	return true;
 }
 
+PyObject* Fighter::GetPropertySequence() {
+	PyObject* result = PyTuple_New(33);
+	if (result == NULL) { return result; }
+	PyTuple_SET_ITEM(result, 0, ::typy::GetPyObject(p_bd));
+	PyTuple_SET_ITEM(result, 1, ::typy::GetPyObject(p_bl));
+	PyTuple_SET_ITEM(result, 2, ::typy::GetPyObject(p_dd));
+	PyTuple_SET_ITEM(result, 3, ::typy::GetPyObject(p_dv));
+	PyTuple_SET_ITEM(result, 4, ::typy::GetPyObject(p_ed));
+	PyTuple_SET_ITEM(result, 5, ::typy::GetPyObject(p_el));
+	PyTuple_SET_ITEM(result, 6, ::typy::GetPyObject(p_fdd));
+	PyTuple_SET_ITEM(result, 7, ::typy::GetPyObject(p_fdv));
+	PyTuple_SET_ITEM(result, 8, ::typy::GetPyObject(p_fl));
+	PyTuple_SET_ITEM(result, 9, ::typy::GetPyObject(p_fld));
+	PyTuple_SET_ITEM(result, 10, ::typy::GetPyObject(p_flv));
+	PyTuple_SET_ITEM(result, 11, ::typy::GetPyObject(p_hp));
+	PyTuple_SET_ITEM(result, 12, ::typy::GetPyObject(p_isAwake));
+	PyTuple_SET_ITEM(result, 13, ::typy::GetPyObject(p_ld));
+	PyTuple_SET_ITEM(result, 14, ::typy::GetPyObject(p_ll));
+	PyTuple_SET_ITEM(result, 15, ::typy::GetPyObject(p_lv));
+	PyTuple_SET_ITEM(result, 16, ::typy::GetPyObject(p_nv));
+	PyTuple_SET_ITEM(result, 17, ::typy::GetPyObject(p_pos));
+	PyTuple_SET_ITEM(result, 18, ::typy::GetPyObject(p_posi));
+	PyTuple_SET_ITEM(result, 19, ::typy::GetPyObject(p_posl));
+	PyTuple_SET_ITEM(result, 20, ::typy::GetPyObject(p_poss));
+	PyTuple_SET_ITEM(result, 21, ::typy::GetPyObject(p_pyd));
+	PyTuple_SET_ITEM(result, 22, ::typy::GetPyObject(p_pyl));
+	PyTuple_SET_ITEM(result, 23, ::typy::GetPyObject(p_pyv1));
+	PyTuple_SET_ITEM(result, 24, ::typy::GetPyObject(p_pyv2));
+	PyTuple_SET_ITEM(result, 25, ::typy::GetPyObject(p_sd));
+	PyTuple_SET_ITEM(result, 26, ::typy::GetPyObject(p_sl));
+	PyTuple_SET_ITEM(result, 27, ::typy::GetPyObject(p_v1));
+	PyTuple_SET_ITEM(result, 28, ::typy::GetPyObject(p_v2));
+	PyTuple_SET_ITEM(result, 29, ::typy::GetPyObject(p_v3));
+	PyTuple_SET_ITEM(result, 30, ::typy::GetPyObject(p_v4));
+	PyTuple_SET_ITEM(result, 31, ::typy::GetPyObject(p_vd));
+	PyTuple_SET_ITEM(result, 32, ::typy::GetPyObject(p_vl));
+	return result;
+}
+
 // ===================================================================
 
 TYPY_GETSET(Fighter, p_bd, Dict(string -> bytes));

@@ -351,6 +351,30 @@ bool Fighter_Part2::SetPropertySequence(PyObject* args) {
 	return true;
 }
 
+PyObject* Fighter_Part2::GetPropertySequence() {
+	PyObject* result = PyTuple_New(18);
+	if (result == NULL) { return result; }
+	PyTuple_SET_ITEM(result, 0, ::typy::GetPyObject(p_bd));
+	PyTuple_SET_ITEM(result, 1, ::typy::GetPyObject(p_bl));
+	PyTuple_SET_ITEM(result, 2, ::typy::GetPyObject(p_ed));
+	PyTuple_SET_ITEM(result, 3, ::typy::GetPyObject(p_el));
+	PyTuple_SET_ITEM(result, 4, ::typy::GetPyObject(p_fl));
+	PyTuple_SET_ITEM(result, 5, ::typy::GetPyObject(p_hp));
+	PyTuple_SET_ITEM(result, 6, ::typy::GetPyObject(p_isAwake));
+	PyTuple_SET_ITEM(result, 7, ::typy::GetPyObject(p_ll));
+	PyTuple_SET_ITEM(result, 8, ::typy::GetPyObject(p_pos));
+	PyTuple_SET_ITEM(result, 9, ::typy::GetPyObject(p_posi));
+	PyTuple_SET_ITEM(result, 10, ::typy::GetPyObject(p_posl));
+	PyTuple_SET_ITEM(result, 11, ::typy::GetPyObject(p_poss));
+	PyTuple_SET_ITEM(result, 12, ::typy::GetPyObject(p_pyd));
+	PyTuple_SET_ITEM(result, 13, ::typy::GetPyObject(p_pyl));
+	PyTuple_SET_ITEM(result, 14, ::typy::GetPyObject(p_pyv1));
+	PyTuple_SET_ITEM(result, 15, ::typy::GetPyObject(p_pyv2));
+	PyTuple_SET_ITEM(result, 16, ::typy::GetPyObject(p_sd));
+	PyTuple_SET_ITEM(result, 17, ::typy::GetPyObject(p_sl));
+	return result;
+}
+
 // ===================================================================
 
 TYPY_GETSET(Fighter_Part2, p_bd, Dict(string -> bytes));
