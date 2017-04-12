@@ -5,11 +5,13 @@
 #ifndef TYPY_TYPE_H__
 #define TYPY_TYPE_H__
 
-#define HAVE_ROUND
+#ifdef _MSC_VER
+#	define HAVE_ROUND
+#endif
 
+#include <Python.h>
 #include <string>
 #include <string.h>
-#include <Python.h>
 #include <google/protobuf/map_field_lite.h>
 #include <google/protobuf/message_lite.h>
 #include <google/protobuf/wire_format_lite.h>
