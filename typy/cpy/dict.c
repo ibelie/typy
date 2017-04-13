@@ -414,7 +414,7 @@ static TypyDictIterator* dict_IterKey(TypyDict* self) {
 }
 
 static TypyDictIterator* dict_IterValue(TypyDict* self) {
-	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterKeyType, 0);
+	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterValueType, 0);
 	if (!it) { return NULL; }
 	it->it_result = NULL;
 	it->it_index = 0;
