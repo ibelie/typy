@@ -643,7 +643,11 @@ def _build(_typy):
 	TestSkillParam()
 
 	import copy
-	print copy.deepcopy(fighterPy).vd[321], copy.deepcopy(fighter).vd[321]
+	print copy.deepcopy(fighterPy).vd.pop(321), copy.deepcopy(fighter).vd.pop(321)
+	print fighterPy.vd.pop(4567, None), fighter.vd.pop(4567, 'NULL')
+	print fighterPy.posi.pop(4567, 'NULL'), fighter.posi.pop(4567, None)
+	print 4567 in fighterPy.posi, 4567 in fighter.posi
+	print fighterPy.vd.items(), fighter.vd.items()
 
 	return time.time() - startTime
 

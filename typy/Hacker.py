@@ -358,6 +358,17 @@ python_message._GetInitializeDefaultForMap = _GetInitializeDefaultForMap
 class _ScalarMap(containers.ScalarMap):
 	__slots__ = '_nestingList'
 	_is_present_in_parent = True
+	__marker = object()
+
+	def pop(self, key, default = __marker):
+		if key in self._values:
+			value = self[key]
+			del self._values[key]
+			self._message_listener.Modified()
+			return value
+		if default is self.__marker:
+			raise KeyError
+		return default
 
 	def __getitem__(self, key):
 		if getattr(self, '_nestingList', None):
@@ -377,6 +388,17 @@ containers.ScalarMap = _ScalarMap
 class _MessageMap(containers.MessageMap):
 	__slots__ = '_nestingList', '_nestingDict'
 	_is_present_in_parent = True
+	__marker = object()
+
+	def pop(self, key, default = __marker):
+		if key in self._values:
+			value = self[key]
+			del self._values[key]
+			self._message_listener.Modified()
+			return value
+		if default is self.__marker:
+			raise KeyError
+		return default
 
 	def __getitem__(self, key):
 		nesting = getattr(self, '_nestingList', None) or getattr(self, '_nestingDict', None)

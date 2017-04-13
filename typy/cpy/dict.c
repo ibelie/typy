@@ -366,6 +366,17 @@ static PyObject* dict_Keys(TypyDict* self) {
 	return keys;
 }
 
+static PyObject* dict_Items(TypyDict* self) {
+	PyObject* items = PyList_New(0);
+	if (!items) { return NULL; }
+	register IblMap_Item iter;
+	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
+		register TypyDictMap item = (TypyDictMap)iter;
+		PyList_Append(items, PyTuple_Pack(2, TypyKey_GET(self, &item->key), TypyValue_GET(self, &item->value)));
+	}
+	return items;
+}
+
 static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
 	PyObject* items;
 	if (!arg || arg == Py_None) {
@@ -400,6 +411,30 @@ static PyObject* dict_Subscript(TypyDict* self, PyObject* key) {
 	}
 }
 
+static PyObject* dict_Pop(TypyDict* self, PyObject* args) {
+	PyObject* key;
+	PyObject* failobj = Py_None;
+	TypyField k = 0;
+	if (!PyArg_UnpackTuple(args, "pop", 1, 2, &key, &failobj)) {
+		return NULL;
+	}
+	if (!TypyKey_CHECKSET(self, &k, key, "")) {
+		PyErr_Clear();
+		Py_INCREF(failobj);
+		return failobj;
+	}
+	register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
+	if (!entry) {
+		Py_INCREF(failobj);
+		return failobj;
+	} else {
+		register PyObject* value = TypyValue_GET(self, &entry->value);
+		TypyValue_CLEAR(self, &entry->value);
+		IblMap_Del(self->dict_map, &k);
+		return value;
+	}
+}
+
 //=============================================================================
 
 static TypyDictIterator* dict_IterKey(TypyDict* self) {
@@ -427,11 +462,11 @@ static TypyDictIterator* dict_IterValue(TypyDict* self) {
 static TypyDictIterator* dict_IterItem(TypyDict* self) {
 	TypyDictIterator* it = (TypyDictIterator*)PyType_GenericAlloc(&TypyDictIterItemType, 0);
 	if (!it) { return NULL; }
-    it->it_result = PyTuple_Pack(2, Py_None, Py_None);
-    if (!it->it_result) {
-        Py_DECREF(it);
-        return NULL;
-    }
+	it->it_result = PyTuple_Pack(2, Py_None, Py_None);
+	if (!it->it_result) {
+		Py_DECREF(it);
+		return NULL;
+	}
 	it->it_index = 0;
 	it->it = IblMap_Begin(self->dict_map);
 	Py_INCREF(self);
@@ -545,8 +580,12 @@ PyMethodDef TypyDict_Methods[] = {
 		"Removes all elements from the map." },
 	{ "get", (PyCFunction)dict_Get, METH_VARARGS,
 		"Get value or None." },
+	{ "pop", (PyCFunction)dict_Pop, METH_VARARGS,
+		"Remove specified key and return the corresponding value." },
 	{ "keys", (PyCFunction)dict_Keys, METH_NOARGS,
 		"Get key list of the map." },
+	{ "items", (PyCFunction)dict_Items, METH_NOARGS,
+		"Get item list of the map." },
 	{ "itervalues", (PyCFunction)dict_IterValue, METH_NOARGS,
 		"Iterator over values of the map." },
 	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,

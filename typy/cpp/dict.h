@@ -195,6 +195,32 @@ static PyObject* tp_Get(PyObject* self, PyObject* args) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_Pop(PyObject* self, PyObject* args) {
+	PyObject* key;
+	PyObject* failobj = Py_None;
+	if (!PyArg_UnpackTuple(args, "pop", 1, 2, &key, &failobj)) {
+		return NULL;
+	}
+	typename Type<K>::KeyType k;
+	if (!::typy::CheckAndSet(key, k, "")) {
+		PyErr_Clear();
+		Py_INCREF(failobj);
+		return failobj;
+	}
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	typename Dict<K, V>::iterator it = dict->find(k);
+	if (it == dict->end()) {
+		Py_INCREF(failobj);
+		return failobj;
+	} else {
+		PyObject* value = ::typy::GetPyObject(it->second);
+		::typy::Clear(it->second);
+		dict->erase(k);
+		return value;
+	}
+}
+
+template <typename K, typename V>
 static PyObject* tp_Keys(PyObject* self) {
 	PyObject* keys = PyList_New(0);
 	if (keys == NULL) { return NULL; }
@@ -203,6 +229,17 @@ static PyObject* tp_Keys(PyObject* self) {
 		PyList_Append(keys, ::typy::GetPyObject(it->first));
 	}
 	return keys;
+}
+
+template <typename K, typename V>
+static PyObject* tp_Items(PyObject* self) {
+	PyObject* items = PyList_New(0);
+	if (items == NULL) { return NULL; }
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	for (typename Dict<K, V>::const_iterator it = dict->begin(); it != dict->end(); ++it) {
+		PyList_Append(items, PyTuple_Pack(2, ::typy::GetPyObject(it->first), ::typy::GetPyObject(it->second)));
+	}
+	return items;
 }
 
 template <typename K, typename V>
@@ -399,8 +436,12 @@ PyMethodDef Dict<K, V>::Methods[] = {
 		"Removes all elements from the map." },
 	{ "get", (PyCFunction)::typy::dict::tp_Get<K, V>, METH_VARARGS,
 		"Get value or None." },
+	{ "pop", (PyCFunction)::typy::dict::tp_Pop<K, V>, METH_VARARGS,
+		"Remove specified key and return the corresponding value." },
 	{ "keys", (PyCFunction)::typy::dict::tp_Keys<K, V>, METH_NOARGS,
 		"Get key list of the map." },
+	{ "items", (PyCFunction)::typy::dict::tp_Items<K, V>, METH_NOARGS,
+		"Get item list of the map." },
 	{ "itervalues", (PyCFunction)::typy::dict::tp_IterValue<K, V>, METH_NOARGS,
 		"Iterator over values of the map." },
 	{ "iteritems", (PyCFunction)::typy::dict::tp_IterItem<K, V>, METH_NOARGS,

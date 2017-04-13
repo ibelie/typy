@@ -85,6 +85,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define TypyKey_GET(ob, k)              MetaKey_GET(TypyDict_TYPE(ob), (k))
 #define TypyKey_CHECKSET(ob, l, r, e)   MetaKey_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 #define TypyValue_GET(ob, v)            MetaValue_GET(TypyDict_TYPE(ob), (v))
+#define TypyValue_CLEAR(ob, v)          MetaValue_CLEAR(TypyDict_TYPE(ob), (v))
 #define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 
 TypyDict* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
