@@ -51,7 +51,7 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 	} else if (size > *length) {
 		return false;
 	} else if (!(*value)) {
-		*value = PyType_GenericAlloc(type->python_type, 0);
+		*value = PyObject_CallObject((PyObject*)type->python_type, NULL);
 	}
 	if (!size) { return true; }
 	register PyObject* data = PyBytes_FromStringAndSize((const char*)*input, size);
@@ -59,8 +59,8 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 	*length -= size;
 	if (*value) {
 		Py_XDECREF(PyObject_CallMethod(*value, "Deserialize", "O", data));
-		Py_XDECREF(data);
 	}
+	Py_XDECREF(data);
 	return true;
 }
 

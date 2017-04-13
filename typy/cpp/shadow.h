@@ -82,7 +82,7 @@ public:
 		input->ExpectAtEnd();
 		ScopedPyObjectPtr str(PyBytes_FromStringAndSize(static_cast<const char*>(data), size));
 		if (object == NULL) {
-			object = PyType_GenericAlloc(_Type, 0);
+			object = PyObject_CallObject((PyObject*)_Type, NULL);
 		}
 		if (object != NULL) {
 			ScopedPyObjectPtr result(PyObject_CallMethod(object, "Deserialize", "O", str.get()));
