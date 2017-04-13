@@ -419,6 +419,8 @@ static PyObject* object_nb_ipow(PyObject* v, PyObject* w, PyObject* z) {
 }
 
 static PyMethodDef Methods[] = {
+	{ "__deepcopy__", (PyCFunction)Py_DeepCopy, METH_VARARGS,
+		"Deep copy the object." },
 	{ "Clear", (PyCFunction)Py_Clear, METH_NOARGS,
 		"Clears the object." },
 	{ "CopyFrom", (PyCFunction)Py_CopyFrom, METH_O,

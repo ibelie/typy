@@ -98,7 +98,7 @@ class PythonMessage(object):
 			self.obj = msg
 
 	def ByteSize(self):
-		return len(self.obj.Serialize())
+		return self.obj.ByteSize()
 
 	def _InternalSerialize(self, write):
 		write(self.obj.Serialize())

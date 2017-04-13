@@ -302,6 +302,11 @@ except ImportError:
 	class Object(message.Message):
 		__metaclass__ = MetaObject
 
+		def __deepcopy__(self, memo = None):
+			clone = type(self)()
+			clone.MergeFromString(self.SerializeToString())
+			return clone
+
 		def Args(self):
 			return tuple([getattr(self, k) for k in self.____sortedProperty__])
 

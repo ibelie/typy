@@ -246,9 +246,9 @@ static void TypyNumeric_CopyFrom(TypyType type, TypyField* lvalue, TypyField rva
 }
 
 static void TypyPyObject_CopyFrom(TypyType type, PyObject** lvalue, PyObject* rvalue) {
+	if (*lvalue == rvalue) { return; }
 	Py_XDECREF(*lvalue);
-	if (!rvalue) { *lvalue = NULL; return; }
-	Py_INCREF(rvalue);
+	Py_XINCREF(rvalue);
 	*lvalue = rvalue;
 }
 
@@ -278,11 +278,10 @@ static void TypyNumeric_MergeFrom(TypyType type, TypyField* lvalue, TypyField rv
 }
 
 static void TypyPyObject_MergeFrom(TypyType type, PyObject** lvalue, PyObject* rvalue) {
-	if (rvalue != 0) {
-		Py_XDECREF(*lvalue);
-		Py_INCREF(rvalue);
-		*lvalue = rvalue;
-	}
+	if (!rvalue || *lvalue == rvalue) { return; }
+	Py_XDECREF(*lvalue);
+	Py_INCREF(rvalue);
+	*lvalue = rvalue;
 }
 
 MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {

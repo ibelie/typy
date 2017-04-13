@@ -232,6 +232,13 @@ public:
 		}
 	}
 
+	static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
+		T* object = new T;
+		ScopedPyObjectPtr data(tp_Serialize(self));
+		ScopedPyObjectPtr result(tp_MergeFromString(object, data.get()));
+		return object;
+	}
+
 	static PyObject* tp_ParseFromString(PyObject* self, PyObject* arg) {
 		static_cast<T*>(self)->Clear();
 		return tp_MergeFromString(self, arg);
@@ -419,6 +426,8 @@ public:
 
 template <typename T>
 PyMethodDef Object<T>::Methods[] = {
+	{ "__deepcopy__", (PyCFunction)tp_DeepCopy, METH_VARARGS,
+		"Deep copy the object." },
 	{ "Clear", (PyCFunction)tp_Clear, METH_NOARGS,
 		"Clears the object." },
 	{ "CopyFrom", (PyCFunction)tp_CopyFrom, METH_O,

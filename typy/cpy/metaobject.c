@@ -381,6 +381,20 @@ void TypyObject_MergeFrom(TypyMetaObject* type, TypyObject** lvalue, TypyObject*
 	Typy_MergeFrom(self, rvalue);
 }
 
+//=============================================================================
+
+PyObject* Py_DeepCopy(TypyObject* self, PyObject* args) {
+	register TypyObject* object = (TypyObject*)Typy_New(Typy_TYPE(self), NULL, NULL);
+	if (!object) { return NULL; }
+	size_t size = Typy_ByteSize(self);
+	if (size <= 0) { return (PyObject*)object; }
+	register byte* data = (byte*)calloc(size, sizeof(byte));
+	if (!data) { return (PyObject*)object; }
+	Typy_SerializeString(self, data);
+	Typy_MergeFromString(object, data, size);
+	return (PyObject*)object;
+}
+
 PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
 	register TypyObject* from = (TypyObject*)arg;
 	if (self == from) {

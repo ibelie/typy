@@ -42,10 +42,17 @@ public:
 	inline void CopyFrom(const Python& from) {
 		if (&from == this) { return; }
 		Py_XDECREF(object);
+		Py_XINCREF(from.object);
+		object = from.object;
+	}
+
+	inline void MergeFrom(const Python& from) {
+		if (&from == this || !from.object) { return; }
+		Py_XDECREF(object);
 		Py_INCREF(from.object);
 		object = from.object;
 	}
-	inline void MergeFrom(const Python& from) { CopyFrom(from); }
+
 	inline void CheckTypeAndMergeFrom(const Message& from) {
 		MergeFrom(*::google::protobuf::down_cast<const Python*>(&from));
 	}

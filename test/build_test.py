@@ -641,7 +641,9 @@ def _build(_typy):
 		print o.Args()
 
 	TestSkillParam()
-	print 'TestSkillParam End'
+
+	import copy
+	print copy.deepcopy(fighterPy).vd[321], copy.deepcopy(fighter).vd[321]
 
 	return time.time() - startTime
 
