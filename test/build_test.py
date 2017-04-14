@@ -658,6 +658,8 @@ def _build(_typy):
 
 	import copy
 	print copy.deepcopy(fighterPy).vd.pop(321), copy.deepcopy(fighter).vd.pop(321)
+	print len(fighterPy.SerializeToString()), len(copy.deepcopy(fighterPy).SerializeToString())
+	print len(fighter.SerializeToString()), len(copy.deepcopy(fighter).SerializeToString())
 	print fighterPy.vd.pop(4567, None), fighter.vd.pop(4567, 'NULL')
 	print fighterPy.posi.pop(4567, 'NULL'), fighter.posi.pop(4567, None)
 	print 4567 in fighterPy.posi, 4567 in fighter.posi
@@ -665,6 +667,8 @@ def _build(_typy):
 
 	print fighterPy.Json(), fighter.Json()
 	print Fighter.FromJson(fighter.Json()).vd.pop(321), _Fighter.FromJson(fighterPy.Json()).vd.pop(321)
+	print len(fighter.SerializeToString()), len(Fighter.FromJson(fighter.Json(True)).SerializeToString())
+	print len(fighterPy.SerializeToString()), len(_Fighter.FromJson(fighterPy.Json(True)).SerializeToString())
 
 	return time.time() - startTime
 
