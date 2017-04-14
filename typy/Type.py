@@ -138,6 +138,8 @@ class Bytes(Simple):
 		return '[Type:Bytes%s]' % repr(self.metadata)
 
 
+PythonTypes = {}
+
 class _Python(Type):
 	__slots__ = 'pyType', '__name__'
 	default = None
@@ -146,6 +148,9 @@ class _Python(Type):
 	def __init__(self, pyType, **metadata):
 		self.pyType = pyType if isinstance(pyType, type) else type(pyType)
 		self.__name__ = self.pyType.__name__
+		if self.__name__ in PythonTypes:
+			raise TypeError, 'Python type name "%s" already exists.' % self.__name__
+		PythonTypes[self.__name__] = self.pyType
 		if _typy is not None and hasattr(_typy, self.__name__):
 			getattr(_typy, self.__name__)(self.pyType)
 		super(_Python, self).__init__(**metadata)

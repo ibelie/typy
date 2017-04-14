@@ -44,6 +44,13 @@ def setup():
 		def __str__(self):
 			return str(self.__dict__)
 
+		@classmethod
+		def FromJson(cls, data):
+			return cls(**data)
+
+		def Json(self):
+			return self.__dict__
+
 		def ByteSize(self):
 			return len(repr(self.__dict__))
 
@@ -156,6 +163,13 @@ def setup():
 
 		def __str__(self):
 			return str(self.__dict__)
+
+		@classmethod
+		def FromJson(cls, data):
+			return cls(**data)
+
+		def Json(self):
+			return self.__dict__
 
 		def ByteSize(self):
 			return 12
