@@ -34,11 +34,12 @@ def _getProperties(mcs, bases, attrs):
 
 
 def Json(value, slim = False):
-	if hasattr(value, 'Json'):
-		data = value.Json(slim)
-		if value.__class__.__name__ in PythonTypes:
-			data['_t'] = value.__class__.__name__
-		return data;
+	if value.__class__.__name__ in PythonTypes:
+		data = value.Json()
+		data['_t'] = value.__class__.__name__
+		return data
+	elif hasattr(value, 'Json'):
+		return value.Json(slim)
 	elif hasattr(value, 'iteritems'):
 		return {str(int(k) if isinstance(k, int) else k): Json(v, slim) for k, v in value.iteritems()}
 	elif hasattr(value, '__iter__'):
@@ -323,23 +324,24 @@ except ImportError:
 
 		@classmethod
 		def FromJson(cls, data):
+			from typy.google.protobuf.internal import type_checkers
 			self = cls()
-			for k, v in data.iteritems():
-				if k == '_t': continue
-				o = getattr(self, k, None)
-				if hasattr(o, 'FromJson'):
-					o.FromJson(v)
-				elif not isinstance(v, dict) or '_t' not in v:
-					setattr(self, k, v)
-				elif v['_t'] in PythonTypes:
-					setattr(self, k, PythonTypes[v['_t']].FromJson({pk: pv for pk, pv in v.iteritems() if pk != '_t'}))
-				elif v['_t'] in TypyMetaObject.Objects:
-					setattr(self, k, TypyMetaObject.Objects[v['_t']].FromJson(v))
+			for key, value in data.iteritems():
+				if key == '_t': continue
+				o = getattr(self, key, None)
+				if not hasattr(o, '_key_checker'):
+					setattr(self, key, FromJson(value))
+				elif isinstance(o._key_checker, type_checkers.IntValueChecker):
+					setattr(self, key, {o._key_checker._TYPE(k): FromJson(v) for k, v in value.iteritems()})
+				elif isinstance(o._key_checker, type_checkers.TypeCheckerWithDefault):
+					setattr(self, key, {o._key_checker._acceptable_types[0](k): FromJson(v) for k, v in value.iteritems()})
+				else:
+					setattr(self, key, {k: FromJson(v) for k, v in value.iteritems()})
 			return self
 
 		def Json(self, slim = False):
 			if slim:
-				data = {name: Json(getattr(self, field.name), slim) for field, _ in self.ListFields()}
+				data = {field.name: Json(getattr(self, field.name), slim) for field, _ in self.ListFields()}
 			else:
 				data = {name: Json(getattr(self, name), slim) for name in self.____properties__}
 			data['_t'] = self.__class__.__name__
@@ -372,14 +374,14 @@ except ImportError:
 				self.MergeFromString(data)
 			return field and field.name
 
-def FromJson(data):
+def FromJson(data, keyType = None):
 	if isinstance(data, dict):
 		if '_t' not in data:
-			return {k: FromJson(v) for k, v in data.iteritems()}
+			return {keyType(k) if keyType else k: FromJson(v) for k, v in data.iteritems()}
 		elif data['_t'] in PythonTypes:
 			return PythonTypes[data['_t']].FromJson({k: v for k, v in data if k != '_t'})
-		elif data['_t'] in TypyMetaObject.Objects:
-			return TypyMetaObject.Objects[data['_t']].FromJson(data)
+		elif data['_t'] in MetaObject.Objects:
+			return MetaObject.Objects[data['_t']].FromJson(data)
 	elif isinstance(data, (list, tuple, set)):
 		return [FromJson(v) for v in data]
 	return data

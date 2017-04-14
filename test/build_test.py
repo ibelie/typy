@@ -663,6 +663,9 @@ def _build(_typy):
 	print 4567 in fighterPy.posi, 4567 in fighter.posi
 	print fighterPy.vd.items(), fighter.vd.items()
 
+	print fighterPy.Json(), fighter.Json()
+	print Fighter.FromJson(fighter.Json()).vd.pop(321), _Fighter.FromJson(fighterPy.Json()).vd.pop(321)
+
 	return time.time() - startTime
 
 cpptime = 0
