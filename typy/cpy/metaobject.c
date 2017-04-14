@@ -445,8 +445,9 @@ PyObject* Py_MergeFromString(TypyObject* self, PyObject* arg) {
 	Py_ssize_t size;
 	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
 		return NULL;
-	}
-	if ((size = Typy_MergeFromString(self, (byte*)data, size)) > 0) {
+	} else if (size <= 0) {
+		Py_RETURN_NONE;
+	} else if ((size = Typy_MergeFromString(self, (byte*)data, size)) > 0) {
 		return PyInt_FromLong(size);
 	} else {
 		PyErr_Format(PyExc_RuntimeError, "Error parsing object");
@@ -484,6 +485,8 @@ PyObject* Py_DeserializeProperty(TypyObject* self, PyObject* arg) {
 	Py_ssize_t size;
 	if (PyObject_AsReadBuffer(arg, &data, &size) < 0) {
 		return NULL;
+	} else if (size <= 0) {
+		Py_RETURN_NONE;
 	}
 	register int index = Typy_DeserializeProperty(self, (byte*)data, size);
 	if (index < 0) {
