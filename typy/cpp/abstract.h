@@ -611,6 +611,10 @@ inline bool FromJson(Dict<K, V>*& dict, PyObject* json) {
 
 template <typename T>
 inline bool FromJson(T*& value, PyObject* json) {
+	if (json == NULL || json == Py_None) {
+		Clear(value);
+		return true;
+	}
 	T* object = T::FromJson(json);
 	if (object == NULL) { return false; }
 	CopyFrom(value, object);

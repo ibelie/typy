@@ -99,6 +99,7 @@ VLf* VLf::FromJson(PyObject* json) {
 		if (::typy::FromJson(object->_value1, json)) { return object; }
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;
+	FormatTypeError(json, "Variant.FromJson error, ");
 	return NULL;
 }
 

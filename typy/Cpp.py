@@ -690,6 +690,7 @@ PyObject* %s::Json(bool slim) {
 	} else if (PyObject_HasAttrString(json, "__iter__")) {%s
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;
+	FormatTypeError(json, "Variant.FromJson error, ");
 	return NULL;
 }
 

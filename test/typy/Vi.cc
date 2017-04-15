@@ -108,6 +108,7 @@ Vi* Vi::FromJson(PyObject* json) {
 	} else if (PyObject_HasAttrString(json, "__iter__")) {
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;
+	FormatTypeError(json, "Variant.FromJson error, ");
 	return NULL;
 }
 
