@@ -116,7 +116,7 @@ public:
 		ScopedPyObjectPtr dict(PyDict_New());
 		if (dict == NULL) { return NULL; }
 		bool type_check = false;
-		Py_ssize_t size = _PyObject_LengthHint(iter.get(), 0);
+		Py_ssize_t size = _PyObject_LengthHint(json, 0);
 		for (Py_ssize_t i = 0; i < size; i++) {
 			ScopedPyObjectPtr item(PyIter_Next(iter.get()));
 			PyObject* k = PyTuple_GET_ITEM(item.get(), 0);

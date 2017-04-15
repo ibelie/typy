@@ -215,7 +215,7 @@ bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
 		if (value == NULL) { value = new Dict<K, V>; }
 		else { value->Clear(); }
-		register bool success = MergeIter(items, *value);
+		register bool success = MergeIter(items, _PyObject_LengthHint(arg, 0), *value);
 		Py_DECREF(items);
 		return success;
 	} else {
@@ -590,7 +590,7 @@ inline bool FromJson(Dict<K, V>*& dict, PyObject* json) {
 		return false;
 	}
 	if (dict == NULL) { dict = new Dict<K, V>; }
-	Py_ssize_t size = _PyObject_LengthHint(iter.get(), 0);
+	Py_ssize_t size = _PyObject_LengthHint(json, 0);
 	for (Py_ssize_t i = 0; i < size; i++) {
 		ScopedPyObjectPtr item(PyIter_Next(iter.get()));
 		typename Type<K>::KeyType key;

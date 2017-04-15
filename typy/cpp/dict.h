@@ -115,8 +115,7 @@ bool MergeDict(PyObject* arg, Dict<K, V>& value) {
 }
 
 template <typename K, typename V>
-bool MergeIter(PyObject* iter, Dict<K, V>& value) {
-	Py_ssize_t size = _PyObject_LengthHint(iter, 0);
+bool MergeIter(PyObject* iter, Py_ssize_t size, Dict<K, V>& value) {
 	for (Py_ssize_t i = 0; i < size; i++) {
 		ScopedPyObjectPtr item(PyIter_Next(iter));
 		if (!::typy::dict::SetItem<K, V>(&value, PyTuple_GET_ITEM(item.get(), 0),
@@ -251,7 +250,7 @@ static PyObject* tp_Update(PyObject* self, PyObject* arg) {
 		::typy::MergeDict(arg, *static_cast<Dict<K, V>*>(self));
 		Py_RETURN_NONE;
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
-		::typy::MergeIter(items, *static_cast<Dict<K, V>*>(self));
+		::typy::MergeIter(items, _PyObject_LengthHint(arg, 0), *static_cast<Dict<K, V>*>(self));
 		Py_DECREF(items);
 		Py_RETURN_NONE;
 	} else {
