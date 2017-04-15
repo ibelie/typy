@@ -105,7 +105,7 @@ PyObject* ViLVfs::Json(bool slim) {
 	if (!slim || _tag != 0) {
 		switch (_tag) {
 		case 1: return ::typy::Json(_value1, slim);
-	case 2: return ::typy::Json(_value2, slim);
+		case 2: return ::typy::Json(_value2, slim);
 		default: Py_RETURN_NONE;
 		}
 	} else {

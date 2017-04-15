@@ -126,9 +126,9 @@ PyObject* Vbbyfi::Json(bool slim) {
 	if (!slim || _tag != 0) {
 		switch (_tag) {
 		case 1: return ::typy::Json(_value1, slim);
-	case 2: return ::typy::Json(_value2, slim);
-	case 3: return ::typy::Json(_value3, slim);
-	case 4: return ::typy::Json(_value4, slim);
+		case 2: return ::typy::Json(_value2, slim);
+		case 3: return ::typy::Json(_value3, slim);
+		case 4: return ::typy::Json(_value4, slim);
 		default: Py_RETURN_NONE;
 		}
 	} else {
