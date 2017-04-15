@@ -94,38 +94,22 @@ PRIMITIVE_VALUE_TYPE(bool, Bool, BOOL, VARINT, kBoolSize);
 
 //=============================================================================
 
-#define FROM_JSON_KEY_INT(TYPE) \
+#define FROM_JSON_KEY_NUMBER(TYPE, PYTHON) \
 inline bool FromJsonKey(TYPE& value, PyObject* json) {                                        \
-	ScopedPyObjectPtr arg(PyNumber_Int(json));                                                \
+	ScopedPyObjectPtr arg(PyNumber_##PYTHON(json));                                                \
 	if (arg == NULL) { return false; }                                                        \
 	return CheckAndSet(arg.get(), value, "FromJsonKey expect a string of '" #TYPE "', but "); \
 }
 
-#define FROM_JSON_KEY_LONG(TYPE) \
-inline bool FromJsonKey(TYPE& value, PyObject* json) {                                        \
-	ScopedPyObjectPtr arg(PyNumber_Long(json));                                               \
-	if (arg == NULL) { return false; }                                                        \
-	return CheckAndSet(arg.get(), value, "FromJsonKey expect a string of '" #TYPE "', but "); \
-}
+FROM_JSON_KEY_NUMBER(int32, Int);
+FROM_JSON_KEY_NUMBER(int64, Long);
+FROM_JSON_KEY_NUMBER(uint32, Int);
+FROM_JSON_KEY_NUMBER(uint64, Long);
+FROM_JSON_KEY_NUMBER(float, Float);
+FROM_JSON_KEY_NUMBER(double, Float);
+FROM_JSON_KEY_NUMBER(bool, Int);
 
-#define FROM_JSON_KEY_FLOAT(TYPE) \
-inline bool FromJsonKey(TYPE& value, PyObject* json) {                                        \
-	ScopedPyObjectPtr arg(PyNumber_Float(json));                                              \
-	if (arg == NULL) { return false; }                                                        \
-	return CheckAndSet(arg.get(), value, "FromJsonKey expect a string of '" #TYPE "', but "); \
-}
-
-FROM_JSON_KEY_INT(int32);
-FROM_JSON_KEY_INT(uint32);
-FROM_JSON_KEY_INT(bool);
-FROM_JSON_KEY_LONG(int64);
-FROM_JSON_KEY_LONG(uint64);
-FROM_JSON_KEY_FLOAT(float);
-FROM_JSON_KEY_FLOAT(double);
-
-#undef FROM_JSON_KEY_INT
-#undef FROM_JSON_KEY_LONG
-#undef FROM_JSON_KEY_FLOAT
+#undef FROM_JSON_KEY_NUMBER
 
 //=============================================================================
 

@@ -22,6 +22,9 @@ typedef uint8  FieldType;
 #endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);
+typedef PyObject* (*ToJson)      (TypyType, TypyField*, bool);
+typedef bool      (*FromJson)    (TypyType, TypyField*, PyObject*);
+typedef bool      (*FromJsonKey) (TypyType, TypyField*, PyObject*);
 typedef bool      (*CheckAndSet) (TypyType, TypyField*, PyObject*, const char*);
 typedef void      (*CopyFrom)    (TypyType, TypyField*, TypyField);
 typedef void      (*MergeFrom)   (TypyType, TypyField*, TypyField);
@@ -52,6 +55,9 @@ extern Clear          abstract_Clear[MAX_FIELD_TYPE];
 extern Read           abstract_Read[MAX_FIELD_TYPE];
 extern Write          abstract_Write[MAX_FIELD_TYPE];
 extern ByteSize       abstract_ByteSize[MAX_FIELD_TYPE];
+extern ToJson         abstract_ToJson[MAX_FIELD_TYPE];
+extern FromJson       abstract_FromJson[MAX_FIELD_TYPE];
+extern FromJsonKey    abstract_FromJsonKey[MAX_FIELD_TYPE];
 
 extern IblMap_Hash    abstract_Hash[MAX_FIELD_TYPE];
 extern IblMap_Compare abstract_Compare[MAX_FIELD_TYPE];

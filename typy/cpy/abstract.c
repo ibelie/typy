@@ -642,3 +642,138 @@ IblMap_Compare abstract_Compare[MAX_FIELD_TYPE] = {
 
 //=============================================================================
 
+#define TO_JSON_SIMPLE(NAME, TYPE) \
+static PyObject* Typy##NAME##_ToJson(TypyType t, TYPE* v, bool s) { \
+	return (!s || v) ? Typy##NAME##_GetPyObject(t, v) : NULL;       \
+}
+
+TO_JSON_SIMPLE(Enum,       TypyField);
+TO_JSON_SIMPLE(Int32,      int32);
+TO_JSON_SIMPLE(Int64,      int64);
+TO_JSON_SIMPLE(Uint32,     uint32);
+TO_JSON_SIMPLE(Uint64,     uint64);
+TO_JSON_SIMPLE(FixedPoint, TypyField);
+TO_JSON_SIMPLE(Double,     double);
+TO_JSON_SIMPLE(Float,      float);
+TO_JSON_SIMPLE(Bool,       bool);
+TO_JSON_SIMPLE(PyObject,   PyObject*);
+
+#undef TO_JSON_SIMPLE
+
+ToJson abstract_ToJson[MAX_FIELD_TYPE] = {
+	(ToJson)TypyEnum_ToJson,       /* TYPE_ENUM       */
+	(ToJson)TypyInt32_ToJson,      /* TYPE_INT32      */
+	(ToJson)TypyInt64_ToJson,      /* TYPE_INT64      */
+	(ToJson)TypyUint32_ToJson,     /* TYPE_UINT32     */
+	(ToJson)TypyUint64_ToJson,     /* TYPE_UINT64     */
+	(ToJson)TypyFixedPoint_ToJson, /* TYPE_FIXEDPOINT */
+	(ToJson)TypyDouble_ToJson,     /* TYPE_DOUBLE     */
+	(ToJson)TypyFloat_ToJson,      /* TYPE_FLOAT      */
+	(ToJson)TypyBool_ToJson,       /* TYPE_BOOL       */
+	(ToJson)TypyPyObject_ToJson,   /* TYPE_BYTES      */
+	(ToJson)TypyPyObject_ToJson,   /* TYPE_STRING     */
+	(ToJson)0,  /* TYPE_OBJECT     */
+	(ToJson)0, /* TYPE_VARIANT    */
+	(ToJson)0, /* TYPE_LIST       */
+	(ToJson)0, /* TYPE_DICT       */
+	(ToJson)0,  /* TYPE_PYTHON     */
+};
+
+//=============================================================================
+
+#define FROM_JSON_SIMPLE(NAME, TYPE) \
+static bool Typy##NAME##_FromJson(TypyType t, TYPE* v, PyObject* arg) {     \
+	return Typy##NAME##_CheckAndSet(t, v, arg, #NAME " json type error, "); \
+}
+
+FROM_JSON_SIMPLE(Enum,       TypyField);
+FROM_JSON_SIMPLE(Int32,      int32);
+FROM_JSON_SIMPLE(Int64,      int64);
+FROM_JSON_SIMPLE(Uint32,     uint32);
+FROM_JSON_SIMPLE(Uint64,     uint64);
+FROM_JSON_SIMPLE(FixedPoint, TypyField);
+FROM_JSON_SIMPLE(Double,     double);
+FROM_JSON_SIMPLE(Float,      float);
+FROM_JSON_SIMPLE(Bool,       bool);
+FROM_JSON_SIMPLE(Bytes,      PyBytes);
+FROM_JSON_SIMPLE(String,     PyString);
+
+#undef FROM_JSON_SIMPLE
+
+FromJson abstract_FromJson[MAX_FIELD_TYPE] = {
+	(FromJson)TypyEnum_FromJson,       /* TYPE_ENUM       */
+	(FromJson)TypyInt32_FromJson,      /* TYPE_INT32      */
+	(FromJson)TypyInt64_FromJson,      /* TYPE_INT64      */
+	(FromJson)TypyUint32_FromJson,     /* TYPE_UINT32     */
+	(FromJson)TypyUint64_FromJson,     /* TYPE_UINT64     */
+	(FromJson)TypyFixedPoint_FromJson, /* TYPE_FIXEDPOINT */
+	(FromJson)TypyDouble_FromJson,     /* TYPE_DOUBLE     */
+	(FromJson)TypyFloat_FromJson,      /* TYPE_FLOAT      */
+	(FromJson)TypyBool_FromJson,       /* TYPE_BOOL       */
+	(FromJson)TypyBytes_FromJson,      /* TYPE_BYTES      */
+	(FromJson)TypyString_FromJson,     /* TYPE_STRING     */
+	(FromJson)0,  /* TYPE_OBJECT     */
+	(FromJson)0, /* TYPE_VARIANT    */
+	(FromJson)0, /* TYPE_LIST       */
+	(FromJson)0, /* TYPE_DICT       */
+	(FromJson)0,  /* TYPE_PYTHON     */
+};
+
+//=============================================================================
+
+#define FROM_JSON_KEY_NUMBER(NAME, TYPE, PYTHON) \
+static bool Typy##NAME##_FromJsonKey(TypyType t, TYPE* v, PyObject* arg) { \
+	register PyObject* value = PyNumber_##PYTHON(arg);                     \
+	if (!value) { return false; }                                          \
+	register bool success = Typy##NAME##_CheckAndSet(t, v, value,          \
+		"FromJsonKey expect a string of '" #TYPE "', but ");               \
+	Py_DECREF(value);                                                      \
+	return success;                                                        \
+}
+
+FROM_JSON_KEY_NUMBER(Enum,       TypyField, Int);
+FROM_JSON_KEY_NUMBER(Int32,      int32,     Int);
+FROM_JSON_KEY_NUMBER(Int64,      int64,     Long);
+FROM_JSON_KEY_NUMBER(Uint32,     uint32,    Int);
+FROM_JSON_KEY_NUMBER(Uint64,     uint64,    Long);
+FROM_JSON_KEY_NUMBER(FixedPoint, TypyField, Float);
+FROM_JSON_KEY_NUMBER(Float,      float,     Float);
+FROM_JSON_KEY_NUMBER(Double,     double,    Float);
+FROM_JSON_KEY_NUMBER(Bool,       bool,      Int);
+
+#undef FROM_JSON_KEY_NUMBER
+
+#define FROM_JSON_KEY_ERROR(NAME) \
+static bool Typy##NAME##_FromJsonKey(TypyType t, TypyField* v, PyObject* arg) { \
+	PyErr_Format(PyExc_TypeError, #NAME " cannot used as dict key.");           \
+	return false;                                                               \
+}
+
+FROM_JSON_KEY_ERROR(Object);
+FROM_JSON_KEY_ERROR(Variant);
+FROM_JSON_KEY_ERROR(List);
+FROM_JSON_KEY_ERROR(Dict);
+FROM_JSON_KEY_ERROR(Python);
+
+#undef FROM_JSON_KEY_ERROR
+
+FromJsonKey abstract_FromJsonKey[MAX_FIELD_TYPE] = {
+	(FromJsonKey)TypyEnum_FromJsonKey,       /* TYPE_ENUM       */
+	(FromJsonKey)TypyInt32_FromJsonKey,      /* TYPE_INT32      */
+	(FromJsonKey)TypyInt64_FromJsonKey,      /* TYPE_INT64      */
+	(FromJsonKey)TypyUint32_FromJsonKey,     /* TYPE_UINT32     */
+	(FromJsonKey)TypyUint64_FromJsonKey,     /* TYPE_UINT64     */
+	(FromJsonKey)TypyFixedPoint_FromJsonKey, /* TYPE_FIXEDPOINT */
+	(FromJsonKey)TypyDouble_FromJsonKey,     /* TYPE_DOUBLE     */
+	(FromJsonKey)TypyFloat_FromJsonKey,      /* TYPE_FLOAT      */
+	(FromJsonKey)TypyBool_FromJsonKey,       /* TYPE_BOOL       */
+	(FromJsonKey)TypyBytes_FromJson,         /* TYPE_BYTES      */
+	(FromJsonKey)TypyString_FromJson,        /* TYPE_STRING     */
+	(FromJsonKey)TypyObject_FromJsonKey,     /* TYPE_OBJECT     */
+	(FromJsonKey)TypyVariant_FromJsonKey,    /* TYPE_VARIANT    */
+	(FromJsonKey)TypyList_FromJsonKey,       /* TYPE_LIST       */
+	(FromJsonKey)TypyDict_FromJsonKey,       /* TYPE_DICT       */
+	(FromJsonKey)TypyPython_FromJsonKey,     /* TYPE_PYTHON     */
+};
+
+//=============================================================================
