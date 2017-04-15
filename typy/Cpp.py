@@ -686,6 +686,7 @@ PyObject* %s::Json(bool slim) {
 		if (PyBytes_Check(_t)) {
 			%s
 		}%s
+		PyErr_Clear();
 	} else if (PyObject_HasAttrString(json, "__iter__")) {%s
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;

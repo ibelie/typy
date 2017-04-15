@@ -127,6 +127,7 @@ Vfs* Vfs::FromJson(PyObject* json) {
 		if (PyBytes_Check(_t)) {
 			
 		}
+		PyErr_Clear();
 	} else if (PyObject_HasAttrString(json, "__iter__")) {
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;

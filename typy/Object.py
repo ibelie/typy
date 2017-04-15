@@ -313,6 +313,54 @@ except ImportError:
 				setattr(o, k, v)
 			return o
 
+	def _VariantFromJson(m, data):
+		if hasattr(data, 'iteritems'):
+			if '_t' in data:
+				if data['_t'] in PythonTypes:
+					return PythonTypes[data['_t']].FromJson({k: v for k, v in data.iteritems() if k != '_t'})
+				elif data['_t'] in MetaObject.Objects:
+					return MetaObject.Objects[data['_t']].FromJson(data)
+			d = m.fields_by_name['Dict']._default_constructor(m._concrete_class())
+			return _DictFromJson(d, data)
+		elif hasattr(data, '__iter__'):
+			return _FromJson(m.fields_by_name['List'].message_type, True, data)
+		else:
+			return data
+
+
+	def _FromJson(m, repeated, data):
+		if not m: return data
+		if repeated:
+			if m.oneofs:
+				return [_VariantFromJson(m, d) for d in data]
+			elif hasattr(m, '_concrete_class'):
+				return [m._concrete_class.FromJson(d) for d in data]
+			else:
+				return data
+		elif m.oneofs:
+			return _VariantFromJson(m, data)
+		elif hasattr(m, '_concrete_class'):
+			return m._concrete_class.FromJson(data)
+		else:
+			return data
+
+	def _DictFromJson(d, data):
+		from typy.google.protobuf.internal import type_checkers
+		_nestingDict = getattr(d, '_nestingDict', None)
+		if _nestingDict:
+			if isinstance(d._key_checker, type_checkers.IntValueChecker):
+				return {d._key_checker._TYPE(k): _DictFromJson(_nestingDict(), v) for k, v in data.iteritems()}
+			elif isinstance(d._key_checker, type_checkers.TypeCheckerWithDefault):
+				return {d._key_checker._acceptable_types[0](k): _DictFromJson(_nestingDict(), v) for k, v in data.iteritems()}
+			else:
+				return {k: _DictFromJson(_nestingDict(), v) for k, v in data.iteritems()}
+		else:
+			if isinstance(d._key_checker, type_checkers.IntValueChecker):
+				return {d._key_checker._TYPE(k): _FromJson(getattr(d, '_message_descriptor', None), getattr(d, '_nestingList', None), v) for k, v in data.iteritems()}
+			elif isinstance(d._key_checker, type_checkers.TypeCheckerWithDefault):
+				return {d._key_checker._acceptable_types[0](k): _FromJson(getattr(d, '_message_descriptor', None), getattr(d, '_nestingList', None), v) for k, v in data.iteritems()}
+			else:
+				return {k: _FromJson(getattr(d, '_message_descriptor', None), getattr(d, '_nestingList', None), v) for k, v in data.iteritems()}
 
 	class Object(message.Message):
 		__metaclass__ = MetaObject
@@ -324,19 +372,15 @@ except ImportError:
 
 		@classmethod
 		def FromJson(cls, data):
-			from typy.google.protobuf.internal import type_checkers
 			self = cls()
 			for key, value in data.iteritems():
 				if key == '_t': continue
 				o = getattr(self, key, None)
 				if not hasattr(o, '_key_checker'):
-					setattr(self, key, FromJson(value))
-				elif isinstance(o._key_checker, type_checkers.IntValueChecker):
-					setattr(self, key, {o._key_checker._TYPE(k): FromJson(v) for k, v in value.iteritems()})
-				elif isinstance(o._key_checker, type_checkers.TypeCheckerWithDefault):
-					setattr(self, key, {o._key_checker._acceptable_types[0](k): FromJson(v) for k, v in value.iteritems()})
+					field = getattr(self, reflection.GeneratedProtocolMessageType._DESCRIPTOR_KEY).fields_by_name[key]
+					setattr(self, key, _FromJson(field.message_type, field.label == descriptor.FieldDescriptor.LABEL_REPEATED, value))
 				else:
-					setattr(self, key, {k: FromJson(v) for k, v in value.iteritems()})
+					setattr(self, key, _DictFromJson(o, value))
 			return self
 
 		def Json(self, slim = False):

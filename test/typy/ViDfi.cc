@@ -121,6 +121,7 @@ ViDfi* ViDfi::FromJson(PyObject* json) {
 			
 		}
 		if (::typy::FromJson(object->_value1, json)) { return object; }
+		PyErr_Clear();
 	} else if (PyObject_HasAttrString(json, "__iter__")) {
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;

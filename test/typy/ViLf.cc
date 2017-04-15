@@ -120,6 +120,7 @@ ViLf* ViLf::FromJson(PyObject* json) {
 		if (PyBytes_Check(_t)) {
 			
 		}
+		PyErr_Clear();
 	} else if (PyObject_HasAttrString(json, "__iter__")) {
 		if (::typy::FromJson(object->_value2, json)) { return object; }
 	} else if (object->fromPyObject(json)) { return object; }
