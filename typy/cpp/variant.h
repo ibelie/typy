@@ -35,6 +35,8 @@ public:                                                                  \
 	bool MergePartialFromCodedStream(CodedInputStream*);                 \
 	void SerializeWithCachedSizes(CodedOutputStream*) const;             \
                                                                          \
+	PyObject* Json(bool);                                                \
+	static VARIANT* FromJson(PyObject*);                                 \
 	PyObject* toPyObject();                                              \
 	bool fromPyObject(PyObject* value);                                  \
                                                                          \

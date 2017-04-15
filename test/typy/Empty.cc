@@ -38,6 +38,38 @@ bool Empty::MergePartialFromCodedStream(CodedInputStream* input) {
 	return true;
 }
 
+PyObject* Empty::Json(bool slim) {
+	PyObject* json = PyDict_New();
+	if (json == NULL) { return NULL; }
+	PyObject* value = PyString_FromString(Empty::Name);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "_t", value);
+	
+	return json;
+}
+
+Empty* Empty::FromJson(PyObject* json) {
+	if (!PyObject_HasAttrString(json, "__getitem__")) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return false;
+	}
+	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+	if (value == NULL) {
+		FormatTypeError(json, "Json expect _t, ");
+		return NULL;
+	} else if (!PyBytes_Check(value)) {
+		FormatTypeError(value, "Json _t expect String, but ");
+		return NULL;
+	} else if (strcmp(PyBytes_AS_STRING(value), Empty::Name)) {
+		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
+			Empty::Name, PyBytes_AS_STRING(value));
+		return NULL;
+	}
+	Empty* object = new Empty();
+	
+	return object;
+}
+
 // ===================================================================
 
 const int Empty::PropertyCount = 0;

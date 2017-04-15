@@ -144,6 +144,36 @@ def _VariantSetter(properties):
 	return from_py_fields
 
 
+def _VariantFromJson(properties):
+	from Object import MetaObject
+	from Type import List, Dict, Python, Instance
+	from_json_objects = []
+	from_json_dict = ''
+	from_json_list = ''
+
+	typeDict = {t: (i + 1, p, typ, info) for i, (t, p, typ, info) in enumerate(properties)}
+
+	for tag, p, typ, info in typeDict.itervalues():
+		if isinstance(p, Instance) and len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
+			from_json_objects.append("""
+			if (!strcmp(PyBytes_AS_STRING(_t), "%s")) {
+				if (::typy::FromJson(object->_value%d, json)) { return object; }
+			}""" % (p.pyType[0].__name__, tag))
+		elif isinstance(p, Python):
+			from_json_objects.append("""
+			if (!strcmp(PyBytes_AS_STRING(_t), "%s")) {
+				if (::typy::FromJson(object->_value%d, json)) { return object; }
+			}""" % (p.pyType.__name__, tag))
+		elif isinstance(p, List):
+			from_json_list = """
+		if (::typy::FromJson(object->_value%d, json)) { return object; }""" % tag
+		elif isinstance(p, Dict):
+			from_json_dict = """
+		if (::typy::FromJson(object->_value%d, json)) { return object; }""" % tag
+
+	return from_json_objects, from_json_dict, from_json_list
+
+
 def _compareWrite(path, content):
 	import os
 	import codecs
@@ -249,6 +279,7 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 	bytesize_fields = []
 	read_fields = ['BEGINE_READ_CASE(%d)' % len(properties)]
 	to_py_fields = []
+	to_json = []
 
 	tag = 0
 	cppTypes = []
@@ -267,6 +298,7 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 		bytesize_fields.append('case %d: ::typy::ByteSize(total_size, %d, _value%d); break;' % (tag, _TagSize(tag), tag))
 		to_py_fields.append('case %d: return ::typy::GetPyObject(_value%d);' % (tag, tag))
 		read_fields.append('%s_READ_VARIANT_CASE(%d, _value%d, %s)' % (readPrefix, tag, tag, typ))
+		to_json.append('case %d: return ::typy::Json(_value%d, slim);' % (tag, tag))
 
 	read_fields.append('END_READ_CASE()')
 
@@ -274,6 +306,7 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 		_compareWrite(path + '%s.h' % name, TYPY_VARIANT_CLS_H__ % (
 			name, name, '\n'.join(sorted(ref_types)), name, '\n\t'.join(header_fields), name))
 
+		from_json_objects, from_json_dict, from_json_list = _VariantFromJson(cppTypes)
 		_compareWrite(path + '%s.cc' % name, TYPY_VARIANT_CLS_CC__ % (name, name, name,
 			'\n\t'.join(clear_fields), name, name,
 			'\n\t'.join(copy_fields), name, name,
@@ -282,7 +315,9 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 			'\n\t'.join(bytesize_fields), name,
 			'\n\t'.join(read_fields), name,
 			'\n\t'.join(to_py_fields), name,
-			''.join(_VariantSetter(cppTypes)), name, name, name))
+			''.join(_VariantSetter(cppTypes)), name,
+			'\n\t'.join(to_json), name, name, name, name,
+			'\n\t\t\t'.join(from_json_objects), from_json_dict, from_json_list, name, name, name))
 
 
 def _GenerateEnum(path, name, cls):
@@ -340,6 +375,8 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 	property_deserialize = []
 	set_property_sequence = []
 	get_property_sequence = []
+	from_json = []
+	to_json = []
 	getset_fields_part1 = []
 	getset_fields_part2 = []
 
@@ -373,6 +410,11 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 			::typy::WriteTag(%d, p_%s, output);
 		}
 		break;""" % (tag, tag, a, tag, a))
+			to_json.append("""value = ::typy::Json(p_%s, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "%s", value);""" % (a, a))
+			from_json.append("""value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("%s")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_%s, value)) { return NULL; }; }""" % (a, a))
 			read_field_args.append(ReadFieldArgs())
 			read_field_args[tag].name = a
 			read_field_args[tag].typename = typ
@@ -423,7 +465,9 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 			'\n\t'.join(merge_fields), name,
 			'\n\t'.join(write_fields), name,
 			'\n\t'.join(bytesize_fields), name,
-			'\n\t'.join(read_fields), name, len(read_field_args) - 2, name,
+			'\n\t'.join(read_fields), name, name,
+			'\n\t'.join(to_json), name, name, name, name, name, name,
+			'\n\t'.join(from_json), name, len(read_field_args) - 2, name,
 			',\n\t'.join(property_name or ['""']), name,
 			'\n\t'.join(property_size or ['case 0: break;']), name,
 			'\n\t'.join(property_serialize or ['case 0: break;']), name,
@@ -626,6 +670,30 @@ bool %s::fromPyObject(PyObject* value) {%s
 	return false;
 }
 
+PyObject* %s::Json(bool slim) {
+	if (!slim || _tag != 0) {
+		switch (_tag) {
+		%s
+		default: Py_RETURN_NONE;
+		}
+	} else {
+		return NULL;
+	}
+}
+
+%s* %s::FromJson(PyObject* json) {
+	%s* object = new %s;
+	if (PyObject_HasAttrString(json, "__getitem__")) {
+		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+		if (PyBytes_Check(_t)) {
+			%s
+		}%s
+	} else if (PyObject_HasAttrString(json, "__iter__")) {%s
+	} else if (object->fromPyObject(json)) { return object; }
+	delete object;
+	return NULL;
+}
+
 bool CheckAndSet(PyObject* arg, %s*& value, const char* err) {
 	if (arg == Py_None) {
 		delete value; value = NULL;
@@ -691,6 +759,14 @@ inline bool Read(ENUM& value, CodedInputStream* input) {
 		return true;
 	}
 	return false;
+}
+
+inline PyObject* Json(const ENUM& value, bool slim) {
+	return (!slim || value != 0) ? GetPyObject(value) : NULL;
+}
+
+inline bool FromJson(ENUM& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect Enum, but ");
 }
 
 inline void ByteSize(int& total, int tagsize, List<ENUM>* value) {
@@ -887,6 +963,38 @@ int %s::ByteSize() const {
 
 bool %s::MergePartialFromCodedStream(CodedInputStream* input) {
 	%s
+}
+
+PyObject* %s::Json(bool slim) {
+	PyObject* json = PyDict_New();
+	if (json == NULL) { return NULL; }
+	PyObject* value = PyString_FromString(%s::Name);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "_t", value);
+	%s
+	return json;
+}
+
+%s* %s::FromJson(PyObject* json) {
+	if (!PyObject_HasAttrString(json, "__getitem__")) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return false;
+	}
+	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+	if (value == NULL) {
+		FormatTypeError(json, "Json expect _t, ");
+		return NULL;
+	} else if (!PyBytes_Check(value)) {
+		FormatTypeError(value, "Json _t expect String, but ");
+		return NULL;
+	} else if (strcmp(PyBytes_AS_STRING(value), %s::Name)) {
+		PyErr_Format(PyExc_TypeError, "Object expect '%%.100s', but Json has type %%.100s",
+			%s::Name, PyBytes_AS_STRING(value));
+		return NULL;
+	}
+	%s* object = new %s();
+	%s
+	return object;
 }
 
 // ===================================================================

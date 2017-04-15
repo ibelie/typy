@@ -42,6 +42,8 @@ public:                                                                  \
 	void SerializeWithCachedSizes(CodedOutputStream*) const;             \
 	bool SetPropertySequence(PyObject*);                                 \
 	PyObject* GetPropertySequence();                                     \
+	PyObject* Json(bool);                                                \
+	static OBJECT* FromJson(PyObject*);                                  \
                                                                          \
 	char* PropertyName(int);                                             \
 	int PropertyTag(char*);                                              \
@@ -305,6 +307,18 @@ public:
 		return static_cast<T*>(self)->GetPropertySequence();
 	}
 
+	static PyObject* tp_Json(PyObject* self, PyObject* args) {
+		PyObject* slim = NULL;
+		if (!PyArg_ParseTuple(args, "|O", &slim)) {
+			return NULL;
+		}
+		return static_cast<T*>(self)->Json(PyObject_IsTrue(slim) == 1);
+	}
+
+	static PyObject* tp_FromJson(PyTypeObject* cls, PyObject* data) {
+		return T::FromJson(data);
+	}
+
 	static int half_cmp(PyObject* v, PyObject* w) {
 		ScopedPyObjectPtr result(CallObject(v, "__cmp__", w));
 		if (result == NULL || result.get() == Py_NotImplemented) {
@@ -446,6 +460,10 @@ PyMethodDef Object<T>::Methods[] = {
 		"Deserialize property from a string and return name of the property." },
 	{ "Args", (PyCFunction)tp_Args, METH_NOARGS,
 		"Get a property tuple can be used as args." },
+	{ "Json", (PyCFunction)tp_Json, METH_VARARGS,
+		"Get Json of the object." },
+	{ "FromJson", (PyCFunction)tp_FromJson, METH_O | METH_CLASS,
+		"Get object from Json." },
 	{ NULL, NULL}
 };
 

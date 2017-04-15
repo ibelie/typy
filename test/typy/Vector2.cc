@@ -71,6 +71,71 @@ bool Vector2::MergePartialFromCodedStream(CodedInputStream* input) {
 	END_READ_CASE()
 }
 
+PyObject* Vector2::Json(bool slim) {
+	PyObject* json = PyDict_New();
+	if (json == NULL) { return NULL; }
+	PyObject* value = PyString_FromString(Vector2::Name);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "_t", value);
+	value = ::typy::Json(p_x, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "x", value);
+	value = ::typy::Json(p_y, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "y", value);
+	value = ::typy::Json(p_b, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "b", value);
+	value = ::typy::Json(p_e, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "e", value);
+	value = ::typy::Json(p_i, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "i", value);
+	value = ::typy::Json(p_p, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "p", value);
+	value = ::typy::Json(p_s, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "s", value);
+	return json;
+}
+
+Vector2* Vector2::FromJson(PyObject* json) {
+	if (!PyObject_HasAttrString(json, "__getitem__")) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return false;
+	}
+	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+	if (value == NULL) {
+		FormatTypeError(json, "Json expect _t, ");
+		return NULL;
+	} else if (!PyBytes_Check(value)) {
+		FormatTypeError(value, "Json _t expect String, but ");
+		return NULL;
+	} else if (strcmp(PyBytes_AS_STRING(value), Vector2::Name)) {
+		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
+			Vector2::Name, PyBytes_AS_STRING(value));
+		return NULL;
+	}
+	Vector2* object = new Vector2();
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("x")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_x, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("y")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_y, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("b")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_b, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("e")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_e, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("i")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_i, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("p")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_p, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("s")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_s, value)) { return NULL; }; }
+	return object;
+}
+
 // ===================================================================
 
 const int Vector2::PropertyCount = 7;

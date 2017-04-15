@@ -79,6 +79,16 @@ inline bool Read(FIXEDPOINT& value, CodedInputStream* input) {
 }
 
 template <int precision, int floor>
+inline PyObject* Json(FIXEDPOINT& value, bool slim) {
+	return (!slim || value.value != 0) ? GetPyObject(value) : NULL;
+}
+
+template <int precision, int floor>
+inline bool FromJson(FIXEDPOINT& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson FixedPoint error, ");
+}
+
+template <int precision, int floor>
 inline void ByteSize(int& total, int tagsize, List< FIXEDPOINT >* value) {
 	if (value == NULL) { return; }
 	int data_size = 0;

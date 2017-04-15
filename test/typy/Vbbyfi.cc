@@ -122,6 +122,33 @@ bool Vbbyfi::fromPyObject(PyObject* value) {
 	return false;
 }
 
+PyObject* Vbbyfi::Json(bool slim) {
+	if (!slim || _tag != 0) {
+		switch (_tag) {
+		case 1: return ::typy::Json(_value1, slim);
+	case 2: return ::typy::Json(_value2, slim);
+	case 3: return ::typy::Json(_value3, slim);
+	case 4: return ::typy::Json(_value4, slim);
+		default: Py_RETURN_NONE;
+		}
+	} else {
+		return NULL;
+	}
+}
+
+Vbbyfi* Vbbyfi::FromJson(PyObject* json) {
+	Vbbyfi* object = new Vbbyfi;
+	if (PyObject_HasAttrString(json, "__getitem__")) {
+		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+		if (PyBytes_Check(_t)) {
+			
+		}
+	} else if (PyObject_HasAttrString(json, "__iter__")) {
+	} else if (object->fromPyObject(json)) { return object; }
+	delete object;
+	return NULL;
+}
+
 bool CheckAndSet(PyObject* arg, Vbbyfi*& value, const char* err) {
 	if (arg == Py_None) {
 		delete value; value = NULL;

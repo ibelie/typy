@@ -52,6 +52,14 @@ inline bool Read(ENUM& value, CodedInputStream* input) {
 	return false;
 }
 
+inline PyObject* Json(const ENUM& value, bool slim) {
+	return (!slim || value != 0) ? GetPyObject(value) : NULL;
+}
+
+inline bool FromJson(ENUM& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect Enum, but ");
+}
+
 inline void ByteSize(int& total, int tagsize, List<ENUM>* value) {
 	if (value == NULL) { return; }
 	int data_size = 0;

@@ -97,6 +97,55 @@ public:
 		return true;
 	}
 
+	inline PyObject* Json(bool slim) {
+		if (!slim || object != NULL) {
+			PyObject* json = object == NULL ? PyDict_New() : PyObject_CallMethod(object, "Json", NULL);
+			PyDict_SetItemString(json, "_t", PyString_FromString(_Type->tp_name));
+			return json;
+		} else {
+			return NULL;
+		}
+	}
+
+	inline static Python* FromJson(PyObject* json) {
+		ScopedPyObjectPtr iter(PyObject_CallMethod(json, "iteritems", NULL));
+		if (iter == NULL) {
+			FormatTypeError(json, "FromJson expect dict, but ");
+			return false;
+		}
+		ScopedPyObjectPtr dict(PyDict_New());
+		if (dict == NULL) { return NULL; }
+		bool type_check = false;
+		Py_ssize_t size = _PyObject_LengthHint(iter.get(), 0);
+		for (Py_ssize_t i = 0; i < size; i++) {
+			ScopedPyObjectPtr item(PyIter_Next(iter.get()));
+			PyObject* k = PyTuple_GET_ITEM(item.get(), 0);
+			PyObject* v = PyTuple_GET_ITEM(item.get(), 1);
+			if (PyBytes_Check(k) && !strcmp(PyBytes_AS_STRING(k), "_t")) {
+				if (!PyBytes_Check(v)) {
+					FormatTypeError(v, "Json _t expect String, but ");
+					return NULL;
+				} else if (strcmp(PyBytes_AS_STRING(v), _Type->tp_name)) {
+					PyErr_Format(PyExc_TypeError, "Python expect '%.100s', but Json has type %.100s",
+						_Type->tp_name, PyBytes_AS_STRING(v));
+					return NULL;
+				}
+				type_check = true;
+				continue;
+			}
+			PyDict_SetItem(dict.get(), k, v);
+		}
+		if (!type_check) {
+			FormatTypeError(json, "Json expect _t, ");
+			return NULL;
+		}
+		PyObject* o = PyObject_CallMethod((PyObject*)_Type, "FromJson", "O", dict.get());
+		if (o == NULL) { return NULL; }
+		Python* self = new Python;
+		self->object = o;
+		return self;
+	}
+
 	PyObject* object;
 
 	static PyObject* _Init(PyObject* m, PyObject* arg) {
@@ -148,13 +197,6 @@ inline void CopyFrom(Python<T>*& lvalue, Python<T>* rvalue) {
 template <typename T>
 inline void Clear(Python<T>*& value) {
 	delete value; value = NULL;
-}
-
-template <typename T>
-inline void MergeFrom(Python<T>*& lvalue, Python<T>* rvalue) {
-	if (rvalue == NULL) { return; }
-	if (lvalue == NULL) { lvalue = new Python<T>; }
-	lvalue->Python<T>::MergeFrom(*rvalue);
 }
 
 template <typename T>

@@ -76,7 +76,11 @@ inline void WriteTag(int tag, const TYPE& value, CodedOutputStream* output) {   
 	WireFormatLite::WriteTag(tag, WireFormatLite::WIRETYPE_##WIRETYPE, output); }         \
 inline bool Read(TYPE& value, CodedInputStream* input) {                                  \
 	return WireFormatLite::ReadPrimitive<TYPE,                                            \
-		WireFormatLite::FieldType(Type<TYPE>::FieldType)>(input, &value); }
+		WireFormatLite::FieldType(Type<TYPE>::FieldType)>(input, &value); }               \
+inline PyObject* Json(const TYPE& value, bool slim) {                                     \
+	return (!slim || value != 0) ? GetPyObject(value) : NULL; }                           \
+inline bool FromJson(TYPE& value, PyObject* json) {                                       \
+	return CheckAndSet(json, value, "FromJson expect '" #TYPE "', but "); }
 
 PRIMITIVE_VALUE_TYPE(int32, Int32, INT32, VARINT, Int32Size(value));
 PRIMITIVE_VALUE_TYPE(int64, Int64, INT64, VARINT, Int64Size(value));
@@ -87,6 +91,41 @@ PRIMITIVE_VALUE_TYPE(float, Float, FLOAT, FIXED32, kFloatSize);
 PRIMITIVE_VALUE_TYPE(bool, Bool, BOOL, VARINT, kBoolSize);
 
 #undef PRIMITIVE_VALUE_TYPE
+
+//=============================================================================
+
+#define FROM_JSON_KEY_INT(TYPE) \
+inline bool FromJsonKey(TYPE& value, PyObject* json) {                                        \
+	ScopedPyObjectPtr arg(PyNumber_Int(json));                                                \
+	if (arg == NULL) { return false; }                                                        \
+	return CheckAndSet(arg.get(), value, "FromJsonKey expect a string of '" #TYPE "', but "); \
+}
+
+#define FROM_JSON_KEY_LONG(TYPE) \
+inline bool FromJsonKey(TYPE& value, PyObject* json) {                                        \
+	ScopedPyObjectPtr arg(PyNumber_Long(json));                                               \
+	if (arg == NULL) { return false; }                                                        \
+	return CheckAndSet(arg.get(), value, "FromJsonKey expect a string of '" #TYPE "', but "); \
+}
+
+#define FROM_JSON_KEY_FLOAT(TYPE) \
+inline bool FromJsonKey(TYPE& value, PyObject* json) {                                        \
+	ScopedPyObjectPtr arg(PyNumber_Float(json));                                              \
+	if (arg == NULL) { return false; }                                                        \
+	return CheckAndSet(arg.get(), value, "FromJsonKey expect a string of '" #TYPE "', but "); \
+}
+
+FROM_JSON_KEY_INT(int32);
+FROM_JSON_KEY_INT(uint32);
+FROM_JSON_KEY_INT(bool);
+FROM_JSON_KEY_LONG(int64);
+FROM_JSON_KEY_LONG(uint64);
+FROM_JSON_KEY_FLOAT(float);
+FROM_JSON_KEY_FLOAT(double);
+
+#undef FROM_JSON_KEY_INT
+#undef FROM_JSON_KEY_LONG
+#undef FROM_JSON_KEY_FLOAT
 
 //=============================================================================
 
@@ -425,6 +464,147 @@ inline void WriteTag(int tag, Dict<K, V>* value, CodedOutputStream* output) {
 template <typename T>
 inline void WriteTag(int tag, T* value, CodedOutputStream* output) {
 	WireFormatLite::WriteTag(tag, WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+}
+
+//=============================================================================
+
+inline PyObject* Json(const ::std::string& value, bool slim) {
+	return (!slim || value.size() > 0) ? GetPyObject(value) : NULL;
+}
+
+inline PyObject* Json(const bytes& value, bool slim) {
+	return (!slim || (value != NULL && PyBytes_GET_SIZE(value) > 0)) ? GetPyObject(value) : NULL;
+}
+
+inline PyObject* Json(const string& value, bool slim) {
+	return (!slim || (value != NULL && PyUnicode_GET_SIZE(value) > 0)) ? GetPyObject(value) : NULL;
+}
+
+template <typename T>
+inline PyObject* Json(List<T>* value, bool slim) {
+	if (!slim || value != NULL) {
+		PyObject* list = PyList_New(value != NULL ? value->size() : 0);
+		if (list == NULL) { return NULL; }
+		for (int i = 0; value != NULL && i < value->size(); i++) {
+			PyList_SetItem(list, i, ::typy::Json(value->Get(i), slim));
+		}
+		return list;
+	} else {
+		return NULL;
+	}
+}
+
+template <typename K, typename V>
+inline PyObject* Json(Dict<K, V>* value, bool slim) {
+	if (!slim || value != NULL) {
+		PyObject* dict = PyDict_New();
+		for (typename Dict<K, V>::const_iterator it = value->begin(); it != value->end(); ++it) {
+			ScopedPyObjectPtr k(::typy::GetPyObject(it->first));
+			ScopedPyObjectPtr key(PyObject_Str(k.get()));
+			ScopedPyObjectPtr value(::typy::Json(it->second, slim));
+			PyDict_SetItem(dict, key.get(), value.get());
+		}
+		return dict;
+	} else {
+		return NULL;
+	}
+}
+
+template <typename T>
+inline PyObject* Json(T* value, bool slim) {
+	return (!slim || value != NULL) ? value->T::Json(slim) : NULL;
+}
+
+//=============================================================================
+
+inline bool FromJsonKey(::std::string& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+inline bool FromJsonKey(bytes& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+inline bool FromJsonKey(string& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+inline bool FromJson(::std::string& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+inline bool FromJson(bytes& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+inline bool FromJson(string& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+template <typename T>
+inline bool FromJson(List<T>*& value, PyObject* json) {
+	if (value == NULL) { value = new List<T>; }
+	if (PyList_CheckExact(json) || PyTuple_CheckExact(json)) {
+		ScopedPyObjectPtr list(PySequence_Fast(json, "argument must be iterable"));
+		if (list == NULL) { return false; }
+		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list.get());
+		register PyObject** src = PySequence_Fast_ITEMS(list.get());
+		for (i = 0; i < size; i++) {
+			if (!FromJson(*value->Add(), src[i])) {
+				value->RemoveLast();
+				return false;
+			}
+		}
+		return true;
+	}
+	register Py_ssize_t i, size = _PyObject_LengthHint(json, 0);
+	if (size < 0) { return false; } else if (!size) { return true; }
+	ScopedPyObjectPtr it(PyObject_GetIter(json));
+	if (it == NULL) { return false; }
+	register iternextfunc iternext = *it.get()->ob_type->tp_iternext;
+	for (i = 0; i < size; i++) {
+		ScopedPyObjectPtr(iternext(it.get()));
+		if (!FromJson(*value->Add(), ScopedPyObjectPtr(iternext(it.get())).get())) {
+			value->RemoveLast();
+			return false;
+		}
+	}
+	return true;
+}
+
+template <typename K, typename V>
+inline bool FromJson(Dict<K, V>*& dict, PyObject* json) {
+	ScopedPyObjectPtr iter(PyObject_CallMethod(json, "iteritems", NULL));
+	if (iter == NULL) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return false;
+	}
+	if (dict == NULL) { dict = new Dict<K, V>; }
+	Py_ssize_t size = _PyObject_LengthHint(iter.get(), 0);
+	for (Py_ssize_t i = 0; i < size; i++) {
+		ScopedPyObjectPtr item(PyIter_Next(iter.get()));
+		typename Type<K>::KeyType key;
+		if (!FromJsonKey(key, PyTuple_GET_ITEM(item.get(), 0))) { return false; }
+		typename Dict<K, V>::iterator it = dict->find(key);
+		if (PyTuple_GET_ITEM(item.get(), 1) == NULL) {
+			if (it != dict->end()) {
+				::typy::Clear(it->second);
+				dict->erase(key);
+			}
+		} else if (!FromJson((*dict)[key], PyTuple_GET_ITEM(item.get(), 1))) {
+			dict->erase(key);
+			return false;
+		}
+	}
+	return true;
+}
+
+template <typename T>
+inline bool FromJson(T*& value, PyObject* json) {
+	T* object = T::FromJson(json);
+	if (object == NULL) { return false; }
+	CopyFrom(value, object);
+	return true;
 }
 
 //=============================================================================

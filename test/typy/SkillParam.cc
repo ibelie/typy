@@ -74,6 +74,76 @@ bool SkillParam::MergePartialFromCodedStream(CodedInputStream* input) {
 	END_READ_CASE()
 }
 
+PyObject* SkillParam::Json(bool slim) {
+	PyObject* json = PyDict_New();
+	if (json == NULL) { return NULL; }
+	PyObject* value = PyString_FromString(SkillParam::Name);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "_t", value);
+	value = ::typy::Json(p_buckID, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "buckID", value);
+	value = ::typy::Json(p_destPos, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "destPos", value);
+	value = ::typy::Json(p_destRot, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "destRot", value);
+	value = ::typy::Json(p_extraParam, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "extraParam", value);
+	value = ::typy::Json(p_origPos, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "origPos", value);
+	value = ::typy::Json(p_origRot, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "origRot", value);
+	value = ::typy::Json(p_targetID, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "targetID", value);
+	value = ::typy::Json(p_targetIDs, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "targetIDs", value);
+	return json;
+}
+
+SkillParam* SkillParam::FromJson(PyObject* json) {
+	if (!PyObject_HasAttrString(json, "__getitem__")) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return false;
+	}
+	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+	if (value == NULL) {
+		FormatTypeError(json, "Json expect _t, ");
+		return NULL;
+	} else if (!PyBytes_Check(value)) {
+		FormatTypeError(value, "Json _t expect String, but ");
+		return NULL;
+	} else if (strcmp(PyBytes_AS_STRING(value), SkillParam::Name)) {
+		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
+			SkillParam::Name, PyBytes_AS_STRING(value));
+		return NULL;
+	}
+	SkillParam* object = new SkillParam();
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("destPos")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_destPos, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("destRot")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_destRot, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("extraParam")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_extraParam, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("origPos")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_origPos, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("origRot")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_origRot, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("targetID")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_targetID, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("targetIDs")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_targetIDs, value)) { return NULL; }; }
+	return object;
+}
+
 // ===================================================================
 
 const int SkillParam::PropertyCount = 8;

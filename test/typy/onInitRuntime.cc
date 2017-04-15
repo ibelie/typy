@@ -94,6 +94,96 @@ bool onInitRuntime::MergePartialFromCodedStream(CodedInputStream* input) {
 	END_READ_CASE()
 }
 
+PyObject* onInitRuntime::Json(bool slim) {
+	PyObject* json = PyDict_New();
+	if (json == NULL) { return NULL; }
+	PyObject* value = PyString_FromString(onInitRuntime::Name);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "_t", value);
+	value = ::typy::Json(p_buckID, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "buckID", value);
+	value = ::typy::Json(p_events, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "events", value);
+	value = ::typy::Json(p_flowID, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "flowID", value);
+	value = ::typy::Json(p_ownerID, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "ownerID", value);
+	value = ::typy::Json(p_params, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "params", value);
+	value = ::typy::Json(p_passBuckEvents, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "passBuckEvents", value);
+	value = ::typy::Json(p_prev, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "prev", value);
+	value = ::typy::Json(p_skillID, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "skillID", value);
+	value = ::typy::Json(p_skillIdx, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "skillIdx", value);
+	value = ::typy::Json(p_specificEvents, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "specificEvents", value);
+	value = ::typy::Json(p_uiid, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "uiid", value);
+	value = ::typy::Json(p_unitIndex, slim);
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "unitIndex", value);
+	return json;
+}
+
+onInitRuntime* onInitRuntime::FromJson(PyObject* json) {
+	if (!PyObject_HasAttrString(json, "__getitem__")) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return false;
+	}
+	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
+	if (value == NULL) {
+		FormatTypeError(json, "Json expect _t, ");
+		return NULL;
+	} else if (!PyBytes_Check(value)) {
+		FormatTypeError(value, "Json _t expect String, but ");
+		return NULL;
+	} else if (strcmp(PyBytes_AS_STRING(value), onInitRuntime::Name)) {
+		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
+			onInitRuntime::Name, PyBytes_AS_STRING(value));
+		return NULL;
+	}
+	onInitRuntime* object = new onInitRuntime();
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("events")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_events, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("flowID")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_flowID, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("ownerID")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_ownerID, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("params")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_params, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("passBuckEvents")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_passBuckEvents, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("prev")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_prev, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("skillID")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_skillID, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("skillIdx")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_skillIdx, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("specificEvents")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_specificEvents, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("uiid")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_uiid, value)) { return NULL; }; }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("unitIndex")).get());
+	if (value != NULL) { if (!::typy::FromJson(object->p_unitIndex, value)) { return NULL; }; }
+	return object;
+}
+
 // ===================================================================
 
 const int onInitRuntime::PropertyCount = 12;
