@@ -81,29 +81,21 @@ PyObject* SkillParam::Json(bool slim) {
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
 	value = ::typy::Json(p_buckID, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "buckID", value);
+	if (value != NULL) { PyDict_SetItemString(json, "buckID", value); }
 	value = ::typy::Json(p_destPos, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "destPos", value);
+	if (value != NULL) { PyDict_SetItemString(json, "destPos", value); }
 	value = ::typy::Json(p_destRot, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "destRot", value);
+	if (value != NULL) { PyDict_SetItemString(json, "destRot", value); }
 	value = ::typy::Json(p_extraParam, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "extraParam", value);
+	if (value != NULL) { PyDict_SetItemString(json, "extraParam", value); }
 	value = ::typy::Json(p_origPos, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "origPos", value);
+	if (value != NULL) { PyDict_SetItemString(json, "origPos", value); }
 	value = ::typy::Json(p_origRot, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "origRot", value);
+	if (value != NULL) { PyDict_SetItemString(json, "origRot", value); }
 	value = ::typy::Json(p_targetID, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "targetID", value);
+	if (value != NULL) { PyDict_SetItemString(json, "targetID", value); }
 	value = ::typy::Json(p_targetIDs, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "targetIDs", value);
+	if (value != NULL) { PyDict_SetItemString(json, "targetIDs", value); }
 	return json;
 }
 

@@ -206,104 +206,71 @@ PyObject* Fighter::Json(bool slim) {
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
 	value = ::typy::Json(p_bd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "bd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "bd", value); }
 	value = ::typy::Json(p_bl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "bl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "bl", value); }
 	value = ::typy::Json(p_dd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "dd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "dd", value); }
 	value = ::typy::Json(p_dv, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "dv", value);
+	if (value != NULL) { PyDict_SetItemString(json, "dv", value); }
 	value = ::typy::Json(p_ed, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "ed", value);
+	if (value != NULL) { PyDict_SetItemString(json, "ed", value); }
 	value = ::typy::Json(p_el, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "el", value);
+	if (value != NULL) { PyDict_SetItemString(json, "el", value); }
 	value = ::typy::Json(p_fdd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "fdd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "fdd", value); }
 	value = ::typy::Json(p_fdv, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "fdv", value);
+	if (value != NULL) { PyDict_SetItemString(json, "fdv", value); }
 	value = ::typy::Json(p_fl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "fl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "fl", value); }
 	value = ::typy::Json(p_fld, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "fld", value);
+	if (value != NULL) { PyDict_SetItemString(json, "fld", value); }
 	value = ::typy::Json(p_flv, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "flv", value);
+	if (value != NULL) { PyDict_SetItemString(json, "flv", value); }
 	value = ::typy::Json(p_hp, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "hp", value);
+	if (value != NULL) { PyDict_SetItemString(json, "hp", value); }
 	value = ::typy::Json(p_isAwake, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "isAwake", value);
+	if (value != NULL) { PyDict_SetItemString(json, "isAwake", value); }
 	value = ::typy::Json(p_ld, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "ld", value);
+	if (value != NULL) { PyDict_SetItemString(json, "ld", value); }
 	value = ::typy::Json(p_ll, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "ll", value);
+	if (value != NULL) { PyDict_SetItemString(json, "ll", value); }
 	value = ::typy::Json(p_lv, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "lv", value);
+	if (value != NULL) { PyDict_SetItemString(json, "lv", value); }
 	value = ::typy::Json(p_nv, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "nv", value);
+	if (value != NULL) { PyDict_SetItemString(json, "nv", value); }
 	value = ::typy::Json(p_pos, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pos", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pos", value); }
 	value = ::typy::Json(p_posi, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "posi", value);
+	if (value != NULL) { PyDict_SetItemString(json, "posi", value); }
 	value = ::typy::Json(p_posl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "posl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "posl", value); }
 	value = ::typy::Json(p_poss, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "poss", value);
+	if (value != NULL) { PyDict_SetItemString(json, "poss", value); }
 	value = ::typy::Json(p_pyd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyd", value); }
 	value = ::typy::Json(p_pyl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyl", value); }
 	value = ::typy::Json(p_pyv1, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyv1", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyv1", value); }
 	value = ::typy::Json(p_pyv2, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyv2", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyv2", value); }
 	value = ::typy::Json(p_sd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "sd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "sd", value); }
 	value = ::typy::Json(p_sl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "sl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "sl", value); }
 	value = ::typy::Json(p_v1, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "v1", value);
+	if (value != NULL) { PyDict_SetItemString(json, "v1", value); }
 	value = ::typy::Json(p_v2, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "v2", value);
+	if (value != NULL) { PyDict_SetItemString(json, "v2", value); }
 	value = ::typy::Json(p_v3, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "v3", value);
+	if (value != NULL) { PyDict_SetItemString(json, "v3", value); }
 	value = ::typy::Json(p_v4, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "v4", value);
+	if (value != NULL) { PyDict_SetItemString(json, "v4", value); }
 	value = ::typy::Json(p_vd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "vd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "vd", value); }
 	value = ::typy::Json(p_vl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "vl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "vl", value); }
 	return json;
 }
 

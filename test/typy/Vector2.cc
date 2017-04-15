@@ -78,26 +78,19 @@ PyObject* Vector2::Json(bool slim) {
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
 	value = ::typy::Json(p_x, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "x", value);
+	if (value != NULL) { PyDict_SetItemString(json, "x", value); }
 	value = ::typy::Json(p_y, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "y", value);
+	if (value != NULL) { PyDict_SetItemString(json, "y", value); }
 	value = ::typy::Json(p_b, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "b", value);
+	if (value != NULL) { PyDict_SetItemString(json, "b", value); }
 	value = ::typy::Json(p_e, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "e", value);
+	if (value != NULL) { PyDict_SetItemString(json, "e", value); }
 	value = ::typy::Json(p_i, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "i", value);
+	if (value != NULL) { PyDict_SetItemString(json, "i", value); }
 	value = ::typy::Json(p_p, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "p", value);
+	if (value != NULL) { PyDict_SetItemString(json, "p", value); }
 	value = ::typy::Json(p_s, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "s", value);
+	if (value != NULL) { PyDict_SetItemString(json, "s", value); }
 	return json;
 }
 

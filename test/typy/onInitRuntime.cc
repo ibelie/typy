@@ -101,41 +101,29 @@ PyObject* onInitRuntime::Json(bool slim) {
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
 	value = ::typy::Json(p_buckID, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "buckID", value);
+	if (value != NULL) { PyDict_SetItemString(json, "buckID", value); }
 	value = ::typy::Json(p_events, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "events", value);
+	if (value != NULL) { PyDict_SetItemString(json, "events", value); }
 	value = ::typy::Json(p_flowID, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "flowID", value);
+	if (value != NULL) { PyDict_SetItemString(json, "flowID", value); }
 	value = ::typy::Json(p_ownerID, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "ownerID", value);
+	if (value != NULL) { PyDict_SetItemString(json, "ownerID", value); }
 	value = ::typy::Json(p_params, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "params", value);
+	if (value != NULL) { PyDict_SetItemString(json, "params", value); }
 	value = ::typy::Json(p_passBuckEvents, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "passBuckEvents", value);
+	if (value != NULL) { PyDict_SetItemString(json, "passBuckEvents", value); }
 	value = ::typy::Json(p_prev, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "prev", value);
+	if (value != NULL) { PyDict_SetItemString(json, "prev", value); }
 	value = ::typy::Json(p_skillID, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "skillID", value);
+	if (value != NULL) { PyDict_SetItemString(json, "skillID", value); }
 	value = ::typy::Json(p_skillIdx, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "skillIdx", value);
+	if (value != NULL) { PyDict_SetItemString(json, "skillIdx", value); }
 	value = ::typy::Json(p_specificEvents, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "specificEvents", value);
+	if (value != NULL) { PyDict_SetItemString(json, "specificEvents", value); }
 	value = ::typy::Json(p_uiid, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "uiid", value);
+	if (value != NULL) { PyDict_SetItemString(json, "uiid", value); }
 	value = ::typy::Json(p_unitIndex, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "unitIndex", value);
+	if (value != NULL) { PyDict_SetItemString(json, "unitIndex", value); }
 	return json;
 }
 

@@ -91,35 +91,25 @@ PyObject* Fighter_Part1::Json(bool slim) {
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
 	value = ::typy::Json(p_hp, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "hp", value);
+	if (value != NULL) { PyDict_SetItemString(json, "hp", value); }
 	value = ::typy::Json(p_isAwake, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "isAwake", value);
+	if (value != NULL) { PyDict_SetItemString(json, "isAwake", value); }
 	value = ::typy::Json(p_pos, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pos", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pos", value); }
 	value = ::typy::Json(p_posi, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "posi", value);
+	if (value != NULL) { PyDict_SetItemString(json, "posi", value); }
 	value = ::typy::Json(p_posl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "posl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "posl", value); }
 	value = ::typy::Json(p_poss, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "poss", value);
+	if (value != NULL) { PyDict_SetItemString(json, "poss", value); }
 	value = ::typy::Json(p_pyd, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyd", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyd", value); }
 	value = ::typy::Json(p_pyl, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyl", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyl", value); }
 	value = ::typy::Json(p_pyv1, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyv1", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyv1", value); }
 	value = ::typy::Json(p_pyv2, slim);
-	if (value == NULL) { Py_DECREF(json); return NULL; }
-	PyDict_SetItemString(json, "pyv2", value);
+	if (value != NULL) { PyDict_SetItemString(json, "pyv2", value); }
 	return json;
 }
 
