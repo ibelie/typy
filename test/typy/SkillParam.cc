@@ -108,7 +108,7 @@ PyObject* SkillParam::Json(bool slim) {
 }
 
 SkillParam* SkillParam::FromJson(PyObject* json) {
-	if (!PyObject_HasAttrString(json, "__getitem__")) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		return NULL;
 	}
@@ -124,6 +124,7 @@ SkillParam* SkillParam::FromJson(PyObject* json) {
 			SkillParam::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	Py_DECREF(value);
 	SkillParam* object = new SkillParam();
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get());
 	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { return NULL; }; }

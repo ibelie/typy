@@ -308,7 +308,7 @@ PyObject* Fighter::Json(bool slim) {
 }
 
 Fighter* Fighter::FromJson(PyObject* json) {
-	if (!PyObject_HasAttrString(json, "__getitem__")) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		return NULL;
 	}
@@ -324,6 +324,7 @@ Fighter* Fighter::FromJson(PyObject* json) {
 			Fighter::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	Py_DECREF(value);
 	Fighter* object = new Fighter();
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("bd")).get());
 	if (value != NULL) { if (!::typy::FromJson(object->p_bd, value)) { return NULL; }; }

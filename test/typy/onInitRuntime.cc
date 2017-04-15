@@ -140,7 +140,7 @@ PyObject* onInitRuntime::Json(bool slim) {
 }
 
 onInitRuntime* onInitRuntime::FromJson(PyObject* json) {
-	if (!PyObject_HasAttrString(json, "__getitem__")) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		return NULL;
 	}
@@ -156,6 +156,7 @@ onInitRuntime* onInitRuntime::FromJson(PyObject* json) {
 			onInitRuntime::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	Py_DECREF(value);
 	onInitRuntime* object = new onInitRuntime();
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get());
 	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { return NULL; }; }

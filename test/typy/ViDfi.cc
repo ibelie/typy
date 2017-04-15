@@ -115,9 +115,9 @@ PyObject* ViDfi::Json(bool slim) {
 
 ViDfi* ViDfi::FromJson(PyObject* json) {
 	ViDfi* object = new ViDfi;
-	if (PyObject_HasAttrString(json, "__getitem__")) {
-		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
-		if (PyBytes_Check(_t)) {
+	if (PyObject_HasAttrString(json, "iteritems")) {
+		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		if (PyBytes_Check(_t.get())) {
 			
 		}
 		if (::typy::FromJson(object->_value1, json)) { return object; }

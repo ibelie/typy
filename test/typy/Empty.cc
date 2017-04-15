@@ -49,7 +49,7 @@ PyObject* Empty::Json(bool slim) {
 }
 
 Empty* Empty::FromJson(PyObject* json) {
-	if (!PyObject_HasAttrString(json, "__getitem__")) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		return NULL;
 	}
@@ -65,6 +65,7 @@ Empty* Empty::FromJson(PyObject* json) {
 			Empty::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	Py_DECREF(value);
 	Empty* object = new Empty();
 	
 	return object;

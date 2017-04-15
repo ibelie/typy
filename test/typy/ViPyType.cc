@@ -116,10 +116,10 @@ PyObject* ViPyType::Json(bool slim) {
 
 ViPyType* ViPyType::FromJson(PyObject* json) {
 	ViPyType* object = new ViPyType;
-	if (PyObject_HasAttrString(json, "__getitem__")) {
-		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
-		if (PyBytes_Check(_t)) {
-			if (!strcmp(PyBytes_AS_STRING(_t), "PyType")) {
+	if (PyObject_HasAttrString(json, "iteritems")) {
+		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		if (PyBytes_Check(_t.get())) {
+			if (!strcmp(PyBytes_AS_STRING(_t.get()), "PyType")) {
 				if (::typy::FromJson(object->_value2, json)) { return object; }
 			}
 		}

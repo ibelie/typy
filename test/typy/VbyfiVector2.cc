@@ -144,10 +144,10 @@ PyObject* VbyfiVector2::Json(bool slim) {
 
 VbyfiVector2* VbyfiVector2::FromJson(PyObject* json) {
 	VbyfiVector2* object = new VbyfiVector2;
-	if (PyObject_HasAttrString(json, "__getitem__")) {
-		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
-		if (PyBytes_Check(_t)) {
-			if (!strcmp(PyBytes_AS_STRING(_t), "Vector2")) {
+	if (PyObject_HasAttrString(json, "iteritems")) {
+		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		if (PyBytes_Check(_t.get())) {
+			if (!strcmp(PyBytes_AS_STRING(_t.get()), "Vector2")) {
 				if (::typy::FromJson(object->_value4, json)) { return object; }
 			}
 		}

@@ -155,11 +155,11 @@ def _VariantFromJson(properties):
 
 	for tag, p, typ, info in typeDict.itervalues():
 		if isinstance(p, Instance) and len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
-			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t), "%s")) {
+			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t.get()), "%s")) {
 				if (::typy::FromJson(object->_value%d, json)) { return object; }
 			}""" % (p.pyType[0].__name__, tag))
 		elif isinstance(p, Python):
-			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t), "%s")) {
+			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t.get()), "%s")) {
 				if (::typy::FromJson(object->_value%d, json)) { return object; }
 			}""" % (p.pyType.__name__, tag))
 		elif isinstance(p, List):
@@ -681,9 +681,9 @@ PyObject* %s::Json(bool slim) {
 
 %s* %s::FromJson(PyObject* json) {
 	%s* object = new %s;
-	if (PyObject_HasAttrString(json, "__getitem__")) {
-		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
-		if (PyBytes_Check(_t)) {
+	if (PyObject_HasAttrString(json, "iteritems")) {
+		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		if (PyBytes_Check(_t.get())) {
 			%s
 		}%s
 		PyErr_Clear();
@@ -975,7 +975,7 @@ PyObject* %s::Json(bool slim) {
 }
 
 %s* %s::FromJson(PyObject* json) {
-	if (!PyObject_HasAttrString(json, "__getitem__")) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		return NULL;
 	}
@@ -991,6 +991,7 @@ PyObject* %s::Json(bool slim) {
 			%s::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	Py_DECREF(value);
 	%s* object = new %s();
 	%s
 	return object;

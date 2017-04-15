@@ -89,9 +89,9 @@ PyObject* VLf::Json(bool slim) {
 
 VLf* VLf::FromJson(PyObject* json) {
 	VLf* object = new VLf;
-	if (PyObject_HasAttrString(json, "__getitem__")) {
-		PyObject* _t = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
-		if (PyBytes_Check(_t)) {
+	if (PyObject_HasAttrString(json, "iteritems")) {
+		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		if (PyBytes_Check(_t.get())) {
 			
 		}
 		PyErr_Clear();

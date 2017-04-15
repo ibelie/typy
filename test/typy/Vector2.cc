@@ -102,7 +102,7 @@ PyObject* Vector2::Json(bool slim) {
 }
 
 Vector2* Vector2::FromJson(PyObject* json) {
-	if (!PyObject_HasAttrString(json, "__getitem__")) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		return NULL;
 	}
@@ -118,6 +118,7 @@ Vector2* Vector2::FromJson(PyObject* json) {
 			Vector2::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	Py_DECREF(value);
 	Vector2* object = new Vector2();
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("x")).get());
 	if (value != NULL) { if (!::typy::FromJson(object->p_x, value)) { return NULL; }; }
