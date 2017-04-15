@@ -126,7 +126,7 @@ PyObject* Fighter_Part1::Json(bool slim) {
 Fighter_Part1* Fighter_Part1::FromJson(PyObject* json) {
 	if (!PyObject_HasAttrString(json, "__getitem__")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
-		return false;
+		return NULL;
 	}
 	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
 	if (value == NULL) {

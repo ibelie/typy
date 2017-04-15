@@ -51,7 +51,7 @@ PyObject* Empty::Json(bool slim) {
 Empty* Empty::FromJson(PyObject* json) {
 	if (!PyObject_HasAttrString(json, "__getitem__")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
-		return false;
+		return NULL;
 	}
 	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
 	if (value == NULL) {

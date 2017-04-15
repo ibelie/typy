@@ -104,7 +104,7 @@ PyObject* Vector2::Json(bool slim) {
 Vector2* Vector2::FromJson(PyObject* json) {
 	if (!PyObject_HasAttrString(json, "__getitem__")) {
 		FormatTypeError(json, "FromJson expect dict, but ");
-		return false;
+		return NULL;
 	}
 	PyObject* value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get());
 	if (value == NULL) {
