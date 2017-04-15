@@ -308,7 +308,7 @@ public:
 	}
 
 	static PyObject* tp_Json(PyObject* self, PyObject* args) {
-		PyObject* slim = NULL;
+		PyObject* slim = Py_False;
 		if (!PyArg_ParseTuple(args, "|O", &slim)) {
 			return NULL;
 		}

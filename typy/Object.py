@@ -343,7 +343,7 @@ except ImportError:
 			if slim:
 				data = {field.name: Json(getattr(self, field.name), slim) for field, _ in self.ListFields()}
 			else:
-				data = {name: Json(getattr(self, name), slim) for name in self.____properties__}
+				data = {name: Json(getattr(self, name), slim) for name, p in self.____properties__.iteritems() if pb in p.____keywords__}
 			data['_t'] = self.__class__.__name__
 			return data
 

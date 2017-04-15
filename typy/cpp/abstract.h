@@ -482,7 +482,9 @@ inline PyObject* Json(const string& value, bool slim) {
 
 template <typename T>
 inline PyObject* Json(List<T>* value, bool slim) {
-	if (!slim || value != NULL) {
+	if (!slim && value == NULL) {
+		return PyList_New(0);
+	} else if (!slim || value != NULL) {
 		PyObject* list = PyList_New(value != NULL ? value->size() : 0);
 		if (list == NULL) { return NULL; }
 		for (int i = 0; value != NULL && i < value->size(); i++) {
@@ -496,7 +498,9 @@ inline PyObject* Json(List<T>* value, bool slim) {
 
 template <typename K, typename V>
 inline PyObject* Json(Dict<K, V>* value, bool slim) {
-	if (!slim || value != NULL) {
+	if (!slim && value == NULL) {
+		return PyDict_New();
+	} else if (value != NULL) {
 		PyObject* dict = PyDict_New();
 		for (typename Dict<K, V>::const_iterator it = value->begin(); it != value->end(); ++it) {
 			ScopedPyObjectPtr k(::typy::GetPyObject(it->first));
@@ -512,7 +516,13 @@ inline PyObject* Json(Dict<K, V>* value, bool slim) {
 
 template <typename T>
 inline PyObject* Json(T* value, bool slim) {
-	return (!slim || value != NULL) ? value->T::Json(slim) : NULL;
+	if (!slim && value == NULL) {
+		Py_RETURN_NONE;
+	} else if (value != NULL) {
+		return value->T::Json(slim);
+	} else {
+		return NULL;
+	}
 }
 
 //=============================================================================
