@@ -80,22 +80,23 @@ PyObject* SkillParam::Json(bool slim) {
 	PyObject* value = PyString_FromString(SkillParam::Name);
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
+	Py_DECREF(value);
 	value = ::typy::Json(p_buckID, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "buckID", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "buckID", value); Py_DECREF(value); }
 	value = ::typy::Json(p_destPos, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "destPos", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "destPos", value); Py_DECREF(value); }
 	value = ::typy::Json(p_destRot, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "destRot", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "destRot", value); Py_DECREF(value); }
 	value = ::typy::Json(p_extraParam, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "extraParam", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "extraParam", value); Py_DECREF(value); }
 	value = ::typy::Json(p_origPos, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "origPos", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "origPos", value); Py_DECREF(value); }
 	value = ::typy::Json(p_origRot, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "origRot", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "origRot", value); Py_DECREF(value); }
 	value = ::typy::Json(p_targetID, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "targetID", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "targetID", value); Py_DECREF(value); }
 	value = ::typy::Json(p_targetIDs, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "targetIDs", value); }
+	if (value != NULL) { PyDict_SetItemString(json, "targetIDs", value); Py_DECREF(value); }
 	return json;
 }
 
@@ -119,21 +120,21 @@ SkillParam* SkillParam::FromJson(PyObject* json) {
 	Py_DECREF(value);
 	SkillParam* object = new SkillParam();
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("destPos")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_destPos, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_destPos, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("destRot")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_destRot, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_destRot, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("extraParam")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_extraParam, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_extraParam, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("origPos")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_origPos, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_origPos, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("origRot")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_origRot, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_origRot, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("targetID")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_targetID, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_targetID, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("targetIDs")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_targetIDs, value)) { return NULL; }; }
+	if (value != NULL) { if (!::typy::FromJson(object->p_targetIDs, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	return object;
 }
 

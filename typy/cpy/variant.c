@@ -226,6 +226,51 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 	MetaVariant_MERGEFROM(type, self, self->variant_index, rvalue->variant_value);
 }
 
+PyObject* TypyVariant_ToJson(TypyMetaObject* type, TypyVariant** value, bool slim) {
+	register TypyVariant* self = *value;
+	if (!slim && !self) {
+		Py_RETURN_NONE;
+	} else if (self) {
+		register int i = self->variant_index;
+		if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
+			return MetaVariant_TOJSON(type, self, i, slim);
+		}
+		Py_RETURN_NONE;
+	} else {
+		return NULL;
+	}
+}
+
+bool TypyVariant_FromJson(TypyMetaObject* type, TypyVariant** value, PyObject* json) {
+	register int index = -1;
+	if (!json || json == Py_None) { return true; }
+	TypyVariant_FromValueOrNew(self, value, type, false);
+	if (PyObject_HasAttrString(json, "iteritems")) {
+		register PyObject* _t = PyObject_GetItem(json, k_t);
+		if (PyBytes_Check(_t) && (index = Meta_PropertyIndex(type, PyBytes_AS_STRING(_t))) >= 0) {
+		} else if ((index = Meta_PropertyIndex(type, "Dict")) >= 0) {
+		} else {
+			FormatTypeError(json, "FromJson no suitable type, ");
+			Py_XDECREF(_t);
+			return false;
+		}
+		Py_XDECREF(_t);
+	} else if (PyObject_HasAttrString(json, "__iter__") && (index = Meta_PropertyIndex(type, "List")) >= 0) {
+	} else {
+		return TypyVariant_CheckAndSet(type, value, json, "FromJson CheckAndSet, ");
+	}
+	if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
+		MetaVariant_CLEAR(type, self, self->variant_index);
+	}
+	register bool success = MetaVariant_FROMJSON(type, self, index, json);
+	if (success) {
+		self->variant_index = index;
+	} else {
+		self->variant_index = -1;
+	}
+	return success;
+}
+
 PyTypeObject TypyMetaVariantType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaVariant",         /* tp_name           */

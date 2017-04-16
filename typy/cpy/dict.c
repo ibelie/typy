@@ -233,7 +233,12 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 
 	TypyDict_FromValueOrNew(self, dict, type, false);
 	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
-	item->value = value;
+	if (item) {
+		item->value = value;
+	} else {
+		MetaKey_CLEAR(type, &key);
+		MetaValue_CLEAR(type, &value);
+	}
 	*input += remain;
 	*length -= limit;
 	return remain == 0;
@@ -281,6 +286,62 @@ size_t TypyDict_ByteSize(TypyMetaDict* type, TypyDict** value, int tagsize) {
 	return size;
 }
 
+PyObject* TypyDict_ToJson(TypyMetaDict* type, TypyDict** value, bool slim) {
+	if (!slim && !(*value)) {
+		return PyDict_New();
+	} else if (*value) {
+		register PyObject* dict = PyDict_New();
+		register IblMap_Item iter;
+		for (iter = IblMap_Begin((*value)->dict_map); iter; iter = IblMap_Next((*value)->dict_map, iter)) {
+			register TypyDictMap item = (TypyDictMap)iter;
+			register PyObject* k = MetaKey_TOJSON(type, &item->key, slim);
+			register PyObject* key = PyObject_Str(k);
+			register PyObject* value = MetaValue_TOJSON(type, &item->value, slim);
+			PyDict_SetItem(dict, key, value);
+			Py_XDECREF(k);
+			Py_XDECREF(key);
+			Py_XDECREF(value);
+		}
+		return dict;
+	} else {
+		return NULL;
+	}
+}
+
+bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
+	PyObject* item = NULL;
+	TypyField key = 0, value = 0;
+	TypyDict_FromValueOrNew(self, dict, type, false);
+	if (!json || json == Py_None) { return true; }
+	PyObject* iter = PyObject_CallMethod(json, "iteritems", NULL);
+	if (!iter) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		goto fromjson_fail;
+	}
+	register Py_ssize_t i, size = _PyObject_LengthHint(json, 0);
+	for (i = 0; i < size; i++) {
+		item = PyIter_Next(iter);
+		if (!item) { goto fromjson_fail; }
+		if (!MetaKey_FROMJSON(type, &key, PyTuple_GET_ITEM(item, 0))) {
+			goto fromjson_fail;
+		} else if (!MetaValue_FROMJSON(type, &value, PyTuple_GET_ITEM(item, 1))) {
+			goto fromjson_fail;
+		}
+		register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &key);
+		if (!entry) { goto fromjson_fail; }
+		entry->value = value;
+		key = 0;
+		value = 0;
+	}
+	return true;
+
+fromjson_fail:
+	Py_XDECREF(iter);
+	Py_XDECREF(item);
+	MetaKey_CLEAR(type, &key);
+	MetaValue_CLEAR(type, &value);
+	return false;
+}
 
 PyTypeObject TypyMetaDictType = {
 	PyVarObject_HEAD_INIT(NULL, 0)

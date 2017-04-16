@@ -62,6 +62,61 @@ int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
 	return field ? field->index : -1;
 }
 
+PyObject* Meta_ToJson(TypyMetaObject* type, TypyObject* self, bool slim) {
+	register PyObject* json = PyDict_New();
+	if (json == NULL) { return NULL; }
+	register PyObject* value = PyString_FromString(Meta_NAME(type));
+	if (value == NULL) { Py_DECREF(json); return NULL; }
+	PyDict_SetItemString(json, "_t", value);
+	Py_DECREF(value);
+	register size_t i;
+	for (i = 0; i < type->meta_size; i++) {
+		value = Typy_TOJSON(self, i, slim);
+		if (value) {
+			PyDict_SetItemString(json, Meta_PropertyName(type, i), value);
+			Py_DECREF(value);
+		}
+	}
+	return json;
+}
+
+TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
+	if (!PyObject_HasAttrString(json, "iteritems")) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		return NULL;
+	}
+	register PyObject* value = PyObject_GetItem(json, k_t);
+	if (value == NULL) {
+		FormatTypeError(json, "Json expect _t, ");
+		return NULL;
+	} else if (!PyBytes_Check(value)) {
+		FormatTypeError(value, "Json _t expect String, but ");
+		return NULL;
+	} else if (strcmp(PyBytes_AS_STRING(value), Meta_NAME(type))) {
+		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
+			Meta_NAME(type), PyBytes_AS_STRING(value));
+		return NULL;
+	}
+	Py_DECREF(value);
+	register TypyObject* object = Typy_New(type, NULL, NULL);
+	if (!object) { return NULL; }
+	register size_t i;
+	for (i = 0; i < type->meta_size; i++) {
+		register PyObject* p = PyString_FromString(Meta_PropertyName(type, i));
+		value = PyObject_GetItem(json, p);
+		Py_XDECREF(p);
+		if (value) {
+			register bool success = Typy_FROMJSON(object, i, value);
+			Py_DECREF(value);
+			if (!success) {
+				Py_DECREF(object);
+				return NULL;
+			}
+		}
+	}
+	return object;
+}
+
 //=============================================================================
 
 TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
@@ -383,6 +438,18 @@ void TypyObject_MergeFrom(TypyMetaObject* type, TypyObject** lvalue, TypyObject*
 	Typy_MergeFrom(self, rvalue);
 }
 
+PyObject* TypyObject_ToJson(TypyMetaObject* type, TypyObject** value, bool slim) {
+	return Meta_ToJson(type, *value, slim);
+}
+
+bool TypyObject_FromJson(TypyMetaObject* type, TypyObject** value, PyObject* json) {
+	register TypyObject* object = Meta_FromJson(type, json);
+	if (!object) { return false; }
+	Py_XDECREF(*value);
+	*value = object;
+	return true;
+}
+
 //=============================================================================
 
 PyObject* Py_DeepCopy(TypyObject* self, PyObject* args) {
@@ -505,6 +572,18 @@ PyObject* Py_Clear(TypyObject* self) {
 PyObject* Py_ParseFromPyString(TypyObject* self, PyObject* arg) {
 	Typy_Clear(self);
 	return Py_MergeFromString(self, arg);
+}
+
+PyObject* Py_ToJson(TypyObject* self, PyObject* args) {
+	PyObject* slim = Py_False;
+	if (!PyArg_ParseTuple(args, "|O", &slim)) {
+		return NULL;
+	}
+	return Meta_ToJson(Typy_TYPE(self), self, PyObject_IsTrue(slim) == 1);
+}
+
+TypyObject* Py_FromJson(TypyMetaObject* type, PyObject* json) {
+	return Meta_FromJson(type, json);
 }
 
 // ===================================================================

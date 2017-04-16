@@ -100,7 +100,7 @@ public:
 	inline PyObject* Json(bool slim) {
 		if (!slim || object != NULL) {
 			PyObject* json = object == NULL ? PyDict_New() : PyObject_CallMethod(object, "Json", NULL);
-			PyDict_SetItemString(json, "_t", PyString_FromString(_Type->tp_name));
+			PyDict_SetItemString(json, "_t", ScopedPyObjectPtr(PyString_FromString(_Type->tp_name)).get());
 			return json;
 		} else {
 			return NULL;
@@ -111,7 +111,7 @@ public:
 		ScopedPyObjectPtr iter(PyObject_CallMethod(json, "iteritems", NULL));
 		if (iter == NULL) {
 			FormatTypeError(json, "FromJson expect dict, but ");
-			return false;
+			return NULL;
 		}
 		ScopedPyObjectPtr dict(PyDict_New());
 		if (dict == NULL) { return NULL; }

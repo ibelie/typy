@@ -21,10 +21,12 @@ extern PyTypeObject TypyPythonType;
 
 TypyPython* Typy_RegisterPython(PyObject*, PyObject*);
 
-bool   TypyPython_CheckAndSet (TypyPython*, PyObject**, PyObject*, const char*);
-bool   TypyPython_Read        (TypyPython*, PyObject**, byte**, size_t*);
-size_t TypyPython_Write       (TypyPython*, PyObject**, int, byte*);
-size_t TypyPython_ByteSize    (TypyPython*, PyObject**, int);
+PyObject* TypyPython_ToJson      (TypyPython*, PyObject**, bool);
+bool      TypyPython_FromJson    (TypyPython*, PyObject**, PyObject*);
+bool      TypyPython_CheckAndSet (TypyPython*, PyObject**, PyObject*, const char*);
+bool      TypyPython_Read        (TypyPython*, PyObject**, byte**, size_t*);
+size_t    TypyPython_Write       (TypyPython*, PyObject**, int, byte*);
+size_t    TypyPython_ByteSize    (TypyPython*, PyObject**, int);
 
 #ifdef __cplusplus
 }

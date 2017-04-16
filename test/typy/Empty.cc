@@ -44,6 +44,7 @@ PyObject* Empty::Json(bool slim) {
 	PyObject* value = PyString_FromString(Empty::Name);
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
+	Py_DECREF(value);
 	
 	return json;
 }

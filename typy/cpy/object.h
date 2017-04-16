@@ -21,22 +21,6 @@ typedef struct {
 	TypyDescriptor meta_descriptor[1];
 } TypyMetaObject;
 
-void TypyMeta_Dealloc(TypyMetaObject*);
-
-#define Meta_NAME(m)         ((char*)(&(((TypyMetaObject*)(m))->meta_descriptor[((TypyMetaObject*)(m))->meta_size])))
-#define Meta_SIZE(m)         (((TypyMetaObject*)(m))->meta_size)
-#define Meta_DESC(m, i)      (((TypyMetaObject*)(m))->meta_descriptor[i])
-#define Meta_TAG(m, i)       (Meta_DESC(m, i).desc_tag)
-#define Meta_TAGSIZE(m, i)   (Meta_DESC(m, i).desc_tagsize)
-#define Meta_FIELDTYPE(m, i) (Meta_DESC(m, i).desc_FieldType)
-#define Meta_TYPYTYPE(m, i)  (Meta_DESC(m, i).desc_type)
-#define Meta_WIRETYPE(m, i)  (Meta_DESC(m, i).desc_WireType)
-#define Meta_FromInitializer (field_type == FIELD_TYPE_OBJECT ? ((PyCFunctionObject*)typy_type)->m_self : typy_type)
-
-int     Meta_PropertyIndex   (TypyMetaObject*, char*);
-
-#define Meta_PropertyName(m, i) (((i) < 0 || (size_t)(i) > (m)->meta_size) ? NULL : (m)->meta_index2field[i])
-
 #define TypyObject_HEAD \
     PyObject_HEAD       \
     TypyMetaObject* meta_type;
@@ -46,6 +30,24 @@ typedef struct {
 	size_t    cached_size;
 	TypyField object_fields[1];
 } TypyObject;
+
+void TypyMeta_Dealloc(TypyMetaObject*);
+
+#define     Meta_NAME(m)            ((char*)(&(((TypyMetaObject*)(m))->meta_descriptor[((TypyMetaObject*)(m))->meta_size])))
+#define     Meta_SIZE(m)            (((TypyMetaObject*)(m))->meta_size)
+#define     Meta_DESC(m, i)         (((TypyMetaObject*)(m))->meta_descriptor[i])
+#define     Meta_TAG(m, i)          (Meta_DESC(m, i).desc_tag)
+#define     Meta_TAGSIZE(m, i)      (Meta_DESC(m, i).desc_tagsize)
+#define     Meta_FIELDTYPE(m, i)    (Meta_DESC(m, i).desc_FieldType)
+#define     Meta_TYPYTYPE(m, i)     (Meta_DESC(m, i).desc_type)
+#define     Meta_WIRETYPE(m, i)     (Meta_DESC(m, i).desc_WireType)
+#define     Meta_FromInitializer    (field_type == FIELD_TYPE_OBJECT ? ((PyCFunctionObject*)typy_type)->m_self : typy_type)
+#define     Meta_PropertyName(m, i) (((i) < 0 || (size_t)(i) > (m)->meta_size) ? NULL : (m)->meta_index2field[i])
+
+int         Meta_PropertyIndex      (TypyMetaObject*, char*);
+PyObject*   Meta_ToJson             (TypyMetaObject*, TypyObject*, bool);
+TypyObject* Meta_FromJson           (TypyMetaObject*, PyObject*);
+
 
 extern PyTypeObject TypyMetaObjectType;
 extern PyTypeObject BaseTypyObjectType;
@@ -84,6 +86,10 @@ PyCFunctionObject* Typy_RegisterObject(PyObject*, PyObject*);
 	(abstract_Write[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
 #define Typy_READ(ob, i, s, l) \
 	(abstract_Read[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
+#define Typy_TOJSON(ob, i, s) \
+	(abstract_ToJson[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s)))
+#define Typy_FROMJSON(ob, i, j) \
+	(abstract_FromJson[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (j)))
 
 void      Typy_Clear               (TypyObject*);
 void      Typy_Dealloc             (TypyObject*);
@@ -99,26 +105,30 @@ int       Typy_SetAttr             (TypyObject*, PyObject*, PyObject*);
 PyObject* Typy_GetAttr             (TypyObject*, PyObject*);
 PyObject* Typy_Args                (TypyObject*);
 
-#define   Typy_PropertyName(ob, i)  Meta_PropertyName(Typy_TYPE(ob), i)
-#define   Typy_PropertyIndex(ob, k) Meta_PropertyIndex(Typy_TYPE(ob), k)
+#define   Typy_PropertyName(ob, i)  Meta_PropertyName  (Typy_TYPE(ob), (i))
+#define   Typy_PropertyIndex(ob, k) Meta_PropertyIndex (Typy_TYPE(ob), (k))
 
 
 TypyObject* Typy_New               (TypyMetaObject*, PyObject*, PyObject*);
+PyObject*   TypyObject_ToJson      (TypyMetaObject*, TypyObject**, bool);
 size_t      TypyObject_ByteSize    (TypyMetaObject*, TypyObject**, int);
 size_t      TypyObject_Write       (TypyMetaObject*, TypyObject**, int, byte*);
+bool        TypyObject_FromJson    (TypyMetaObject*, TypyObject**, PyObject*);
 bool        TypyObject_Read        (TypyMetaObject*, TypyObject**, byte**, size_t*);
 bool        TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, const char*);
 void        TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
 
-PyObject* Py_DeepCopy            (TypyObject*, PyObject*);
-PyObject* Py_CopyFrom            (TypyObject*, PyObject*);
-PyObject* Py_MergeFrom           (TypyObject*, PyObject*);
-PyObject* Py_SerializeString     (TypyObject*);
-PyObject* Py_MergeFromString     (TypyObject*, PyObject*);
-PyObject* Py_DeserializeProperty (TypyObject*, PyObject*);
-PyObject* Py_SerializeProperty   (TypyObject*, PyObject*);
-PyObject* Py_Clear               (TypyObject*);
-PyObject* Py_ParseFromPyString   (TypyObject*, PyObject*);
+TypyObject* Py_FromJson            (TypyMetaObject*, PyObject*);
+PyObject*   Py_ToJson              (TypyObject*, PyObject*);
+PyObject*   Py_DeepCopy            (TypyObject*, PyObject*);
+PyObject*   Py_CopyFrom            (TypyObject*, PyObject*);
+PyObject*   Py_MergeFrom           (TypyObject*, PyObject*);
+PyObject*   Py_SerializeString     (TypyObject*);
+PyObject*   Py_MergeFromString     (TypyObject*, PyObject*);
+PyObject*   Py_DeserializeProperty (TypyObject*, PyObject*);
+PyObject*   Py_SerializeProperty   (TypyObject*, PyObject*);
+PyObject*   Py_Clear               (TypyObject*);
+PyObject*   Py_ParseFromPyString   (TypyObject*, PyObject*);
 
 #ifdef __cplusplus
 }

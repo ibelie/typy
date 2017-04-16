@@ -55,6 +55,7 @@ extern PyObject* kuint32max_py;
 extern PyObject* kint64min_py;
 extern PyObject* kint64max_py;
 extern PyObject* kuint64max_py;
+extern PyObject* k_t;
 
 typedef PyBytesObject* PyBytes;
 typedef PyUnicodeObject* PyString;

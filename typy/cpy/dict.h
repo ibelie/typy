@@ -46,6 +46,10 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 	(abstract_GetPyObject[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k)))
 #define MetaKey_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (l), (r), (e)))
+#define MetaKey_TOJSON(m, v, s) \
+	(abstract_ToJson[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (v), (s)))
+#define MetaKey_FROMJSON(m, v, j) \
+	(abstract_FromJson[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (v), (j)))
 
 #define MetaValue_DESC(m) (((TypyMetaDict*)(m))->value_desc)
 #define MetaValue_TYPYTYPE(m) (MetaValue_DESC(m).desc_type)
@@ -62,6 +66,10 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 	(abstract_GetPyObject[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
 #define MetaValue_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r), (e)))
+#define MetaValue_TOJSON(m, v, s) \
+	(abstract_ToJson[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), (s)))
+#define MetaValue_FROMJSON(m, v, j) \
+	(abstract_FromJson[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), (j)))
 
 #define MetaDict_DESC(m, i) (i ? MetaValue_DESC(m) : MetaKey_DESC(m))
 #define MetaDict_FIELDTYPE(m, i) (MetaDict_DESC(m, i).desc_FieldType)
@@ -89,6 +97,8 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 
 TypyDict* TypyDict_GetPyObject (TypyMetaDict*, TypyDict**);
+PyObject* TypyDict_ToJson      (TypyMetaDict*, TypyDict**, bool);
+bool      TypyDict_FromJson    (TypyMetaDict*, TypyDict**, PyObject*);
 bool      TypyDict_CheckAndSet (TypyMetaDict*, TypyDict**, PyObject*, const char*);
 bool      TypyDict_Read        (TypyMetaDict*, TypyDict**, byte**, size_t*);
 void      TypyDict_MergeFrom   (TypyMetaDict*, TypyDict**, TypyDict*);

@@ -672,11 +672,11 @@ ToJson abstract_ToJson[MAX_FIELD_TYPE] = {
 	(ToJson)TypyBool_ToJson,       /* TYPE_BOOL       */
 	(ToJson)TypyPyObject_ToJson,   /* TYPE_BYTES      */
 	(ToJson)TypyPyObject_ToJson,   /* TYPE_STRING     */
-	(ToJson)0,  /* TYPE_OBJECT     */
-	(ToJson)0, /* TYPE_VARIANT    */
-	(ToJson)0, /* TYPE_LIST       */
-	(ToJson)0, /* TYPE_DICT       */
-	(ToJson)0,  /* TYPE_PYTHON     */
+	(ToJson)TypyObject_ToJson,     /* TYPE_OBJECT     */
+	(ToJson)TypyVariant_ToJson,    /* TYPE_VARIANT    */
+	(ToJson)TypyList_ToJson,       /* TYPE_LIST       */
+	(ToJson)TypyDict_ToJson,       /* TYPE_DICT       */
+	(ToJson)TypyPython_ToJson,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -712,11 +712,11 @@ FromJson abstract_FromJson[MAX_FIELD_TYPE] = {
 	(FromJson)TypyBool_FromJson,       /* TYPE_BOOL       */
 	(FromJson)TypyBytes_FromJson,      /* TYPE_BYTES      */
 	(FromJson)TypyString_FromJson,     /* TYPE_STRING     */
-	(FromJson)0,  /* TYPE_OBJECT     */
-	(FromJson)0, /* TYPE_VARIANT    */
-	(FromJson)0, /* TYPE_LIST       */
-	(FromJson)0, /* TYPE_DICT       */
-	(FromJson)0,  /* TYPE_PYTHON     */
+	(FromJson)TypyObject_FromJson,     /* TYPE_OBJECT     */
+	(FromJson)TypyVariant_FromJson,    /* TYPE_VARIANT    */
+	(FromJson)TypyList_FromJson,       /* TYPE_LIST       */
+	(FromJson)TypyDict_FromJson,       /* TYPE_DICT       */
+	(FromJson)TypyPython_FromJson,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================

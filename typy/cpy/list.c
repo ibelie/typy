@@ -243,6 +243,61 @@ void TypyList_MergeFrom(TypyMetaList* type, TypyList** lvalue, TypyList* rvalue)
 	}
 }
 
+PyObject* TypyList_ToJson(TypyMetaList* type, TypyList** value, bool slim) {
+	if (!slim && !(*value)) {
+		return PyList_New(0);
+	} else if (*value) {
+		register size_t i;
+		register PyObject* list = PyList_New((*value)->list_length);
+		if (!list) { return NULL; }
+		for (i = 0; i < (*value)->list_length; i++) {
+			PyList_SetItem(list, i, MetaList_TOJSON(type, &(*value)->list_items[i], slim));
+		}
+		return list;
+	} else {
+		return NULL;
+	}
+}
+
+bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
+	TypyList_FromValueOrNew(self, value, type, false);
+	if (!json || json == Py_None) { return true; }
+	if (PyList_CheckExact(json) || PyTuple_CheckExact(json)) {
+		register PyObject* list = PySequence_Fast(json, "argument must be iterable");
+		if (!list) { return false; }
+		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list);
+		register TypyField* offset = TypyList_EnsureSize(self, size);
+		if (!offset) { Py_DECREF(list); return false; }
+		register PyObject** src = PySequence_Fast_ITEMS(list);
+		for (i = 0; i < size; i++) {
+			if (!MetaList_FROMJSON(type, offset++, src[i])) {
+				Py_DECREF(list);
+				return false;
+			}
+		}
+		Py_DECREF(list);
+		return true;
+	}
+	register Py_ssize_t i, size = _PyObject_LengthHint(json, 0);
+	if (size < 0) { return false; } else if (!size) { return true; }
+	register PyObject* it = PyObject_GetIter(json);
+	if (!it) { return false; }
+	register iternextfunc iternext = *it->ob_type->tp_iternext;
+	register TypyField* offset = TypyList_EnsureSize(self, size);
+	if (!offset) { Py_DECREF(it); return false; }
+	for (i = 0; i < size; i++) {
+		register PyObject* item = iternext(it);
+		register bool success = MetaList_FROMJSON(type, offset++, item);
+		Py_XDECREF(item);
+		if (!success) {
+			Py_DECREF(it);
+			return false;
+		}
+	}
+	Py_DECREF(it);
+	return true;
+}
+
 PyTypeObject TypyMetaListType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	FULL_MODULE_NAME ".MetaList",            /* tp_name           */

@@ -439,6 +439,10 @@ static PyMethodDef Methods[] = {
 		"Deserialize property from a string and return name of the property." },
 	{ "Args", (PyCFunction)Typy_Args, METH_NOARGS,
 		"Get a property tuple can be used as args." },
+	{ "Json", (PyCFunction)Py_ToJson, METH_VARARGS,
+		"Get Json of the object." },
+	{ "FromJson", (PyCFunction)Py_FromJson, METH_O | METH_CLASS,
+		"Get object from Json." },
 	{ NULL, NULL}
 };
 

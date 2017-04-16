@@ -409,9 +409,9 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 		}
 		break;""" % (tag, tag, a, tag, a))
 			to_json.append("""value = ::typy::Json(p_%s, slim);
-	if (value != NULL) { PyDict_SetItemString(json, "%s", value); }""" % (a, a))
+	if (value != NULL) { PyDict_SetItemString(json, "%s", value); Py_DECREF(value); }""" % (a, a))
 			from_json.append("""value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("%s")).get());
-	if (value != NULL) { if (!::typy::FromJson(object->p_%s, value)) { return NULL; }; }""" % (a, a))
+	if (value != NULL) { if (!::typy::FromJson(object->p_%s, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }""" % (a, a))
 			read_field_args.append(ReadFieldArgs())
 			read_field_args[tag].name = a
 			read_field_args[tag].typename = typ
@@ -970,6 +970,7 @@ PyObject* %s::Json(bool slim) {
 	PyObject* value = PyString_FromString(%s::Name);
 	if (value == NULL) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
+	Py_DECREF(value);
 	%s
 	return json;
 }

@@ -39,6 +39,10 @@ TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 	(abstract_Write[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (o)))
 #define MetaVariant_READ(m, s, i, t, l) \
 	(abstract_Read[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
+#define MetaVariant_TOJSON(m, s, i, l) \
+	(abstract_ToJson[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (l)))
+#define MetaVariant_FROMJSON(m, s, i, j) \
+	(abstract_FromJson[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (j)))
 
 #define MetaVariant_Clear(m, ob) { \
 	if ((ob)->variant_index >= 0 && (size_t)(ob)->variant_index < Meta_SIZE(m)) { \
@@ -50,8 +54,10 @@ TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 #define TypyVariant_Clear(ob) MetaVariant_Clear(Typy_TYPE(ob), (ob))
 
 PyObject* TypyVariant_GetPyObject  (TypyMetaObject*, TypyVariant**);
+PyObject* TypyVariant_ToJson       (TypyMetaObject*, TypyVariant**, bool);
 size_t    TypyVariant_ByteSize     (TypyMetaObject*, TypyVariant**, int);
 size_t    TypyVariant_Write        (TypyMetaObject*, TypyVariant**, int, byte*);
+bool      TypyVariant_FromJson     (TypyMetaObject*, TypyVariant**, PyObject*);
 bool      TypyVariant_Read         (TypyMetaObject*, TypyVariant**, byte**, size_t*);
 bool      TypyVariant_CheckAndSet  (TypyMetaObject*, TypyVariant**, PyObject*, const char*);
 void      TypyVariant_MergeFrom    (TypyMetaObject*, TypyVariant**, TypyVariant*);

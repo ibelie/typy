@@ -48,6 +48,10 @@ typedef struct {
 	(abstract_CopyFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
 #define MetaList_CHECKSET(m, l, r, e) \
 	(abstract_CheckAndSet[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r), (e)))
+#define MetaList_TOJSON(m, f, s) \
+	(abstract_ToJson[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (s)))
+#define MetaList_FROMJSON(m, f, j) \
+	(abstract_FromJson[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (j)))
 #define MetaList_IsPrimitive(m) (MetaList_FIELDTYPE(m) < MAX_PRIMITIVE_TYPE)
 
 #define MetaList_Clear(m, ob) { \
@@ -74,13 +78,15 @@ extern PyTypeObject TypyMetaListType;
 
 TypyMetaList* Typy_RegisterList(PyObject*, PyObject*);
 
-TypyList*  TypyList_GetPyObject  (TypyMetaList*, TypyList**);
-bool       TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
-bool       TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);
-bool       TypyList_Read         (TypyMetaList*, TypyList**, byte**, size_t*);
-void       TypyList_MergeFrom    (TypyMetaList*, TypyList**, TypyList*);
-size_t     TypyList_Write        (TypyMetaList*, TypyList**, int, byte*);
-size_t     TypyList_ByteSize     (TypyMetaList*, TypyList**, int);
+TypyList* TypyList_GetPyObject  (TypyMetaList*, TypyList**);
+PyObject* TypyList_ToJson       (TypyMetaList*, TypyList**, bool);
+bool      TypyList_FromJson     (TypyMetaList*, TypyList**, PyObject*);
+bool      TypyList_CheckAndSet  (TypyMetaList*, TypyList**, PyObject*, const char*);
+bool      TypyList_ReadRepeated (TypyMetaList*, TypyList**, byte**, size_t*);
+bool      TypyList_Read         (TypyMetaList*, TypyList**, byte**, size_t*);
+void      TypyList_MergeFrom    (TypyMetaList*, TypyList**, TypyList*);
+size_t    TypyList_Write        (TypyMetaList*, TypyList**, int, byte*);
+size_t    TypyList_ByteSize     (TypyMetaList*, TypyList**, int);
 
 
 typedef struct {

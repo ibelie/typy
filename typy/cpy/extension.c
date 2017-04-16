@@ -92,6 +92,67 @@ size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 	return tagsize + IblSizeVarint(size) + size;
 }
 
+PyObject* TypyPython_ToJson(TypyPython* type, PyObject** value, bool slim) {
+	if (!slim || *value) {
+		register PyObject* json = !(*value) ? PyDict_New() : PyObject_CallMethod(*value, "Json", NULL);
+		PyDict_SetItemString(json, "_t", PyString_FromString(type->python_type->tp_name));
+		return json;
+	} else {
+		return NULL;
+	}
+}
+
+bool TypyPython_FromJson(TypyPython* type, PyObject** value, PyObject* json) {
+	PyObject* item = NULL;
+	PyObject* dict = PyDict_New();
+	PyObject* iter = PyObject_CallMethod(json, "iteritems", NULL);
+	if (!iter) {
+		FormatTypeError(json, "FromJson expect dict, but ");
+		goto fromjson_fail;
+	} else if (!dict) {
+		goto fromjson_fail;
+	}
+
+	register bool type_check = false;
+	register Py_ssize_t i, size = _PyObject_LengthHint(json, 0);
+	for (i = 0; i < size; i++) {
+		item = PyIter_Next(iter);
+		if (!item) { goto fromjson_fail; }
+		register PyObject* k = PyTuple_GET_ITEM(item, 0);
+		register PyObject* v = PyTuple_GET_ITEM(item, 1);
+		if (PyBytes_Check(k) && !strcmp(PyBytes_AS_STRING(k), "_t")) {
+			if (!PyBytes_Check(v)) {
+				FormatTypeError(v, "Json _t expect String, but ");
+				goto fromjson_fail;
+			} else if (strcmp(PyBytes_AS_STRING(v), type->python_type->tp_name)) {
+				PyErr_Format(PyExc_TypeError, "Python expect '%.100s', but Json has type %.100s",
+					type->python_type->tp_name, PyBytes_AS_STRING(v));
+				goto fromjson_fail;
+			}
+			type_check = true;
+			continue;
+		}
+		PyDict_SetItem(dict, k, v);
+		Py_DECREF(item);
+		item = NULL;
+	}
+	if (!type_check) {
+		FormatTypeError(json, "Json expect _t, ");
+		goto fromjson_fail;
+	}
+	Py_XDECREF(*value);
+	*value = PyObject_CallMethod((PyObject*)type->python_type, "FromJson", "O", dict);
+	Py_DECREF(iter);
+	Py_DECREF(dict);
+	return *value ? true : false;
+
+fromjson_fail:
+	Py_XDECREF(dict);
+	Py_XDECREF(iter);
+	Py_XDECREF(item);
+	return false;
+}
+
 static TypyPython* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 	PyObject* python_type = Py_None;
 	if (PyArg_ParseTuple(args, "|O", &python_type)) {

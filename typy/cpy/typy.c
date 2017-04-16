@@ -92,6 +92,7 @@ PyObject* kuint32max_py;
 PyObject* kint64min_py;
 PyObject* kint64max_py;
 PyObject* kuint64max_py;
+PyObject* k_t;
 
 static PyTypeObject* PyTypeObjects[] = {
 	&TypyMetaDictType,
@@ -119,6 +120,7 @@ PyMODINIT_FUNC INITFUNC(void) {
 	kint64min_py = PyLong_FromLongLong(INT64_MIN);
 	kint64max_py = PyLong_FromLongLong(INT64_MAX);
 	kuint64max_py = PyLong_FromUnsignedLongLong(UINT64_MAX);
+	k_t = PyString_FromString("_t");
 
 	PyObject* m;
 #if PY_MAJOR_VERSION >= 3

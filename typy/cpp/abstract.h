@@ -468,10 +468,10 @@ template <typename T>
 inline PyObject* Json(List<T>* value, bool slim) {
 	if (!slim && value == NULL) {
 		return PyList_New(0);
-	} else if (!slim || value != NULL) {
-		PyObject* list = PyList_New(value != NULL ? value->size() : 0);
+	} else if (value != NULL) {
+		PyObject* list = PyList_New(value->size());
 		if (list == NULL) { return NULL; }
-		for (int i = 0; value != NULL && i < value->size(); i++) {
+		for (int i = 0; i < value->size(); i++) {
 			PyList_SetItem(list, i, ::typy::Json(value->Get(i), slim));
 		}
 		return list;
@@ -557,7 +557,6 @@ inline bool FromJson(List<T>*& value, PyObject* json) {
 	if (it == NULL) { return false; }
 	register iternextfunc iternext = *it.get()->ob_type->tp_iternext;
 	for (i = 0; i < size; i++) {
-		ScopedPyObjectPtr(iternext(it.get()));
 		if (!FromJson(*value->Add(), ScopedPyObjectPtr(iternext(it.get())).get())) {
 			value->RemoveLast();
 			return false;

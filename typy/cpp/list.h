@@ -50,7 +50,6 @@ bool ExtendList(PyObject* arg, List<T>& value) {
 	if (it == NULL) { return false; }
 	register iternextfunc iternext = *it.get()->ob_type->tp_iternext;
 	for (i = 0; i < size; i++) {
-		ScopedPyObjectPtr(iternext(it.get()));
 		if (!::typy::list::Append<T>(&value, ScopedPyObjectPtr(iternext(it.get())).get())) {
 			return false;
 		}
