@@ -571,7 +571,7 @@ def _build(_typy):
 	fighter3.ParseFromString(fDataPy)
 
 	print "\t\t_typy python _ty->_ty _ty->py py->_ty"
-	_printFighters(fighter, fighterPy, fighter2, fighterPy2, fighter3)
+	# _printFighters(fighter, fighterPy, fighter2, fighterPy2, fighter3)
 
 	print fighter == None
 
@@ -672,7 +672,7 @@ def _build(_typy):
 	print Fighter.FromJson(fighter.Json()).vd.pop(12), _Fighter.FromJson(fighterPy.Json()).vd.pop(12)
 	print len(fighter.SerializeToString()), len(Fighter.FromJson(fighter.Json(True)).SerializeToString())
 	print len(fighterPy.SerializeToString()), len(_Fighter.FromJson(fighterPy.Json(True)).SerializeToString())
-	# _printFighters(fighterPy, fighter, fighter, fighter, fighter)
+	_printFighters(fighterPy, Fighter.FromJson(fighterPy.Json()), Fighter.FromJson(fighter.Json()), _Fighter.FromJson(fighterPy.Json()), _Fighter.FromJson(fighter.Json()))
 
 	fighterPy.vd = fighterPy.sd
 	fighter.vd = fighter.sd
