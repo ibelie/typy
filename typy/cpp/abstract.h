@@ -465,6 +465,17 @@ inline PyObject* Json(const string& value, bool slim) {
 }
 
 template <typename T>
+inline PyObject* Json(T* value, bool slim) {
+	if (!slim && value == NULL) {
+		Py_RETURN_NONE;
+	} else if (value != NULL) {
+		return value->T::Json(slim);
+	} else {
+		return NULL;
+	}
+}
+
+template <typename T>
 inline PyObject* Json(List<T>* value, bool slim) {
 	if (!slim && value == NULL) {
 		return PyList_New(0);
@@ -498,17 +509,6 @@ inline PyObject* Json(Dict<K, V>* value, bool slim) {
 	}
 }
 
-template <typename T>
-inline PyObject* Json(T* value, bool slim) {
-	if (!slim && value == NULL) {
-		Py_RETURN_NONE;
-	} else if (value != NULL) {
-		return value->T::Json(slim);
-	} else {
-		return NULL;
-	}
-}
-
 //=============================================================================
 
 inline bool FromJsonKey(::std::string& value, PyObject* json) {
@@ -533,6 +533,18 @@ inline bool FromJson(bytes& value, PyObject* json) {
 
 inline bool FromJson(string& value, PyObject* json) {
 	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+template <typename T>
+inline bool FromJson(T*& value, PyObject* json) {
+	if (json == NULL || json == Py_None) {
+		Clear(value);
+		return true;
+	}
+	T* object = T::FromJson(json);
+	if (object == NULL) { return false; }
+	CopyFrom(value, object);
+	return true;
 }
 
 template <typename T>
@@ -583,18 +595,6 @@ inline bool FromJson(Dict<K, V>*& dict, PyObject* json) {
 			return false;
 		}
 	}
-	return true;
-}
-
-template <typename T>
-inline bool FromJson(T*& value, PyObject* json) {
-	if (json == NULL || json == Py_None) {
-		Clear(value);
-		return true;
-	}
-	T* object = T::FromJson(json);
-	if (object == NULL) { return false; }
-	CopyFrom(value, object);
 	return true;
 }
 
