@@ -422,7 +422,9 @@ static PyObject* dict_Keys(TypyDict* self) {
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
 		register TypyDictMap item = (TypyDictMap)iter;
-		PyList_Append(keys, TypyKey_GET(self, &item->key));
+		register PyObject* key = TypyKey_GET(self, &item->key);
+		PyList_Append(keys, key);
+		Py_XDECREF(key);
 	}
 	return keys;
 }
@@ -433,7 +435,13 @@ static PyObject* dict_Items(TypyDict* self) {
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
 		register TypyDictMap item = (TypyDictMap)iter;
-		PyList_Append(items, PyTuple_Pack(2, TypyKey_GET(self, &item->key), TypyValue_GET(self, &item->value)));
+		register PyObject* key = TypyKey_GET(self, &item->key);
+		register PyObject* value = TypyValue_GET(self, &item->value);
+		register PyObject* pare = PyTuple_Pack(2, key, value);
+		PyList_Append(items, pare);
+		Py_XDECREF(key);
+		Py_XDECREF(value);
+		Py_XDECREF(pare);
 	}
 	return items;
 }
