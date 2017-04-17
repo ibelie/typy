@@ -343,6 +343,10 @@ PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
 		Py_DECREF(PyMethod_GET_SELF(attr));
 		Py_INCREF(Typy_TYPE(self));
 		PyMethod_GET_SELF(attr) = (PyObject*)Typy_TYPE(self);
+	} else if (attr && PyCFunction_Check(attr) && PyCFunction_GET_SELF(attr) == (PyObject*)Typy_TYPE(self)->py_type) {
+		Py_DECREF(PyCFunction_GET_SELF(attr));
+		Py_INCREF(Typy_TYPE(self));
+		PyCFunction_GET_SELF(attr) = (PyObject*)Typy_TYPE(self);
 	}
 	return attr;
 }
@@ -651,6 +655,10 @@ static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
 		Py_DECREF(PyMethod_GET_SELF(attr));
 		Py_INCREF(type);
 		PyMethod_GET_SELF(attr) = (PyObject*)type;
+	} else if (attr && PyCFunction_Check(attr) && PyCFunction_GET_SELF(attr) == (PyObject*)type->py_type) {
+		Py_DECREF(PyCFunction_GET_SELF(attr));
+		Py_INCREF(type);
+		PyCFunction_GET_SELF(attr) = (PyObject*)type;
 	}
 	return attr;
 }
