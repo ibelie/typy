@@ -212,7 +212,11 @@ static PyObject* object_Call(PyObject* self, PyObject* args, PyObject* kwargs) {
 static PyObject* object_Repr(PyObject* self) {
 	PyObject* result = CallObject(self, "__repr__");
 	if (result) { return result; }
-	return PyString_FromFormat("<" FULL_MODULE_NAME ".%s instance at %p>", Typy_NAME(self), self);
+	register PyObject* json = Meta_ToJson(Typy_TYPE(self), (TypyObject*)self, false);
+	if (!json) { return NULL; }
+	register PyObject* repr = PyObject_Repr(json);
+	Py_DECREF(json);
+	return repr;
 }
 
 static PyObject* object_Str(PyObject* self) {

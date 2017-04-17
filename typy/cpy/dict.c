@@ -504,6 +504,14 @@ static PyObject* dict_Pop(TypyDict* self, PyObject* args) {
 	}
 }
 
+static PyObject* dict_Repr(TypyDict* self) {
+	register PyObject* json = TypyDict_ToJson(TypyDict_TYPE(self), &self, false);
+	if (!json) { return NULL; }
+	register PyObject* repr = PyObject_Repr(json);
+	Py_DECREF(json);
+	return repr;
+}
+
 //=============================================================================
 
 static TypyDictIterator* dict_IterKey(TypyDict* self) {
@@ -674,13 +682,13 @@ PyTypeObject TypyDictType = {
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */
 	0,                                        /* tp_compare        */
-	0,                                        /* tp_repr           */
+	(reprfunc)dict_Repr,                      /* tp_repr           */
 	0,                                        /* tp_as_number      */
 	0,                                        /* tp_as_sequence    */
 	&TypyDict_MpMethods,                      /* tp_as_mapping     */
 	PyObject_HashNotImplemented,              /* tp_hash           */
 	0,                                        /* tp_call           */
-	0,                                        /* tp_str            */
+	(reprfunc)dict_Repr,                      /* tp_str            */
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */

@@ -665,10 +665,6 @@ def _build(_typy):
 	print 4567 in fighterPy.posi, 4567 in fighter.posi
 	print fighterPy.vd.items(), fighter.vd.items()
 
-	print 'fighterPy Json'
-	print fighterPy.Json()
-	print 'fighter Json'
-	print fighter.Json()
 	print Fighter.FromJson(fighter.Json()).vd.pop(12), _Fighter.FromJson(fighterPy.Json()).vd.pop(12)
 	print len(fighter.SerializeToString()), len(Fighter.FromJson(fighter.Json(True)).SerializeToString())
 	print len(fighterPy.SerializeToString()), len(_Fighter.FromJson(fighterPy.Json(True)).SerializeToString())
