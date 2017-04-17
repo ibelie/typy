@@ -96,7 +96,7 @@ VLf* VLf::FromJson(PyObject* json) {
 		}
 		PyErr_Clear();
 	} else if (PyObject_HasAttrString(json, "__iter__")) {
-		if (::typy::FromJson(object->_value1, json)) { return object; }
+		if (::typy::FromJson(object->_value1, json)) { object->_tag = 1; return object; }
 	} else if (object->fromPyObject(json)) { return object; }
 	delete object;
 	FormatTypeError(json, "Variant.FromJson error, ");

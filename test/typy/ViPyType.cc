@@ -120,7 +120,7 @@ ViPyType* ViPyType::FromJson(PyObject* json) {
 		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
 		if (PyBytes_Check(_t.get())) {
 			if (!strcmp(PyBytes_AS_STRING(_t.get()), "PyType")) {
-				if (::typy::FromJson(object->_value2, json)) { return object; }
+				if (::typy::FromJson(object->_value2, json)) { object->_tag = 2; return object; }
 			}
 		}
 		PyErr_Clear();

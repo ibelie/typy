@@ -156,18 +156,18 @@ def _VariantFromJson(properties):
 	for tag, p, typ, info in typeDict.itervalues():
 		if isinstance(p, Instance) and len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
 			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t.get()), "%s")) {
-				if (::typy::FromJson(object->_value%d, json)) { return object; }
-			}""" % (p.pyType[0].__name__, tag))
+				if (::typy::FromJson(object->_value%d, json)) { object->_tag = %d; return object; }
+			}""" % (p.pyType[0].__name__, tag, tag))
 		elif isinstance(p, Python):
 			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t.get()), "%s")) {
-				if (::typy::FromJson(object->_value%d, json)) { return object; }
-			}""" % (p.pyType.__name__, tag))
+				if (::typy::FromJson(object->_value%d, json)) { object->_tag = %d; return object; }
+			}""" % (p.pyType.__name__, tag, tag))
 		elif isinstance(p, List):
 			from_json_list = """
-		if (::typy::FromJson(object->_value%d, json)) { return object; }""" % tag
+		if (::typy::FromJson(object->_value%d, json)) { object->_tag = %d; return object; }""" % (tag, tag)
 		elif isinstance(p, Dict):
 			from_json_dict = """
-		if (::typy::FromJson(object->_value%d, json)) { return object; }""" % tag
+		if (::typy::FromJson(object->_value%d, json)) { object->_tag = %d; return object; }""" % (tag, tag)
 
 	return from_json_objects, from_json_dict, from_json_list
 

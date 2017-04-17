@@ -120,7 +120,7 @@ ViDiVfs* ViDiVfs::FromJson(PyObject* json) {
 		if (PyBytes_Check(_t.get())) {
 			
 		}
-		if (::typy::FromJson(object->_value1, json)) { return object; }
+		if (::typy::FromJson(object->_value1, json)) { object->_tag = 1; return object; }
 		PyErr_Clear();
 	} else if (PyObject_HasAttrString(json, "__iter__")) {
 	} else if (object->fromPyObject(json)) { return object; }
