@@ -579,12 +579,7 @@ inline bool FromJson(Dict<K, V>*& dict, PyObject* json) {
 		typename Type<K>::KeyType key;
 		if (!FromJsonKey(key, PyTuple_GET_ITEM(item.get(), 0))) { return false; }
 		typename Dict<K, V>::iterator it = dict->find(key);
-		if (PyTuple_GET_ITEM(item.get(), 1) == NULL) {
-			if (it != dict->end()) {
-				::typy::Clear(it->second);
-				dict->erase(key);
-			}
-		} else if (!FromJson((*dict)[key], PyTuple_GET_ITEM(item.get(), 1))) {
+		if (!FromJson((*dict)[key], PyTuple_GET_ITEM(item.get(), 1))) {
 			dict->erase(key);
 			return false;
 		}
