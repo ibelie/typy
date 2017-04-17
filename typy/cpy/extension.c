@@ -95,7 +95,10 @@ size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 PyObject* TypyPython_ToJson(TypyPython* type, PyObject** value, bool slim) {
 	if (!slim || *value) {
 		register PyObject* json = !(*value) ? PyDict_New() : PyObject_CallMethod(*value, "Json", NULL);
-		PyDict_SetItemString(json, "_t", PyString_FromString(type->python_type->tp_name));
+		if (!json) { return NULL; }
+		register PyObject* _t = PyString_FromString(type->python_type->tp_name);
+		PyDict_SetItemString(json, "_t", _t);
+		Py_XDECREF(_t);
 		return json;
 	} else {
 		return NULL;

@@ -71,6 +71,7 @@ PyObject* Meta_ToJson(TypyMetaObject* type, TypyObject* self, bool slim) {
 	Py_DECREF(value);
 	register size_t i;
 	for (i = 0; i < type->meta_size; i++) {
+		if (!Typy_TAG(self, i)) { continue; }
 		value = Typy_TOJSON(self, i, slim);
 		if (value) {
 			PyDict_SetItemString(json, Meta_PropertyName(type, i), value);
