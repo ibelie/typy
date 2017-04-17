@@ -209,122 +209,123 @@ def setup():
 
 
 def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
-	print "hp\t", "\t", fighter1.hp, "\t", fighter2.hp, "\t", fighter3.hp, "\t", fighter4.hp, "\t", fighter5.hp
-	print "isAwake\t", "\t", fighter1.isAwake, "\t", fighter2.isAwake, "\t", fighter3.isAwake, "\t", fighter4.isAwake, "\t", fighter5.isAwake
-	print "pos.x\t", "\t", fighter1.pos.x, "\t", fighter2.pos.x, "\t", fighter3.pos.x, "\t", fighter4.pos.x, "\t", fighter5.pos.x
-	print "pos.y\t", "\t", fighter1.pos.y, "\t", fighter2.pos.y, "\t", fighter3.pos.y, "\t", fighter4.pos.y, "\t", fighter5.pos.y
-	print "pos.s\t", "\t", fighter1.pos.s, " ", fighter2.pos.s, " ", fighter3.pos.s, " ", fighter4.pos.s, " ", fighter5.pos.s
-	print "pos.b\t", "\t", fighter1.pos.b, " ", fighter2.pos.b, " ", fighter3.pos.b, " ", fighter4.pos.b, " ", fighter5.pos.b
-	print "pos.e\t", "\t", fighter1.pos.e, " ", fighter2.pos.e, " ", fighter3.pos.e, " ", fighter4.pos.e, " ", fighter5.pos.e
-	print "pos.p\t", "\t", fighter1.pos.p, " ", fighter2.pos.p, " ", fighter3.pos.p, " ", fighter4.pos.p, " ", fighter5.pos.p
-	print "posi[123]\t", fighter1.posi[123], "\t", fighter2.posi[123], "\t", fighter3.posi[123], "\t", fighter4.posi[123], "\t", fighter5.posi[123]
-	print "fl[0]\t", "\t", fighter1.fl[0], "\t", fighter2.fl[0], "\t", fighter3.fl[0], "\t", fighter4.fl[0], "\t", fighter5.fl[0]
-	print "fl[1]\t", "\t", fighter1.fl[1], "\t", fighter2.fl[1], "\t", fighter3.fl[1], "\t", fighter4.fl[1], "\t", fighter5.fl[1]
-	print "fl[2]\t", "\t", fighter1.fl[2], "\t", fighter2.fl[2], "\t", fighter3.fl[2], "\t", fighter4.fl[2], "\t", fighter5.fl[2]
+	print "hp\t", "\t", fighter1.hp, "\t\t", fighter2.hp, "\t\t", fighter3.hp, "\t\t", fighter4.hp, "\t\t", fighter5.hp
+	print "isAwake\t", "\t", fighter1.isAwake, "\t\t", fighter2.isAwake, "\t\t", fighter3.isAwake, "\t\t", fighter4.isAwake, "\t\t", fighter5.isAwake
+	print "pos.x\t", "\t", fighter1.pos.x, "\t\t", fighter2.pos.x, "\t\t", fighter3.pos.x, "\t\t", fighter4.pos.x, "\t\t", fighter5.pos.x
+	print "pos.y\t", "\t", fighter1.pos.y, "\t\t", fighter2.pos.y, "\t\t", fighter3.pos.y, "\t\t", fighter4.pos.y, "\t\t", fighter5.pos.y
+	print "pos.s\t", "\t", fighter1.pos.s, "\t", fighter2.pos.s, "\t", fighter3.pos.s, "\t", fighter4.pos.s, "\t", fighter5.pos.s
+	print "pos.b\t", "\t", fighter1.pos.b, "\t", fighter2.pos.b, "\t", fighter3.pos.b, "\t", fighter4.pos.b, "\t", fighter5.pos.b
+	print "pos.e\t", "\t", fighter1.pos.e, "\t\t", fighter2.pos.e, "\t\t", fighter3.pos.e, "\t\t", fighter4.pos.e, "\t\t", fighter5.pos.e
+	print "pos.p.pp\t", fighter1.pos.p.pp, "\t\t", fighter2.pos.p.pp, "\t\t", fighter3.pos.p.pp, "\t\t", fighter4.pos.p.pp, "\t\t", fighter5.pos.p.pp
+	print "pos.p.ap\t", fighter1.pos.p.ap, "\t\t", fighter2.pos.p.ap, "\t\t", fighter3.pos.p.ap, "\t\t", fighter4.pos.p.ap, "\t\t", fighter5.pos.p.ap
+	print "posi[123]\t", '%.3f' % fighter1.posi[123], "\t\t", '%.3f' % fighter2.posi[123], "\t\t", '%.3f' % fighter3.posi[123], "\t\t", '%.3f' % fighter4.posi[123], "\t\t", '%.3f' % fighter5.posi[123]
+	print "fl[0]\t", "\t", '%.3f' % fighter1.fl[0], "\t\t", '%.3f' % fighter2.fl[0], "\t\t", '%.3f' % fighter3.fl[0], "\t\t", '%.3f' % fighter4.fl[0], "\t\t", '%.3f' % fighter5.fl[0]
+	print "fl[1]\t", "\t", fighter1.fl[1], "\t\t", fighter2.fl[1], "\t\t", fighter3.fl[1], "\t\t", fighter4.fl[1], "\t\t", fighter5.fl[1]
+	print "fl[2]\t", "\t", '%.3f' % fighter1.fl[2], "\t\t", '%.3f' % fighter2.fl[2], "\t\t", '%.3f' % fighter3.fl[2], "\t\t", '%.3f' % fighter4.fl[2], "\t\t", '%.3f' % fighter5.fl[2]
 	print "bl[0]\t", "\t", fighter1.bl[0], "\t", fighter2.bl[0], "\t", fighter3.bl[0], "\t", fighter4.bl[0], "\t", fighter5.bl[0]
 	print "bl[1]\t", "\t", fighter1.bl[1], "\t", fighter2.bl[1], "\t", fighter3.bl[1], "\t", fighter4.bl[1], "\t", fighter5.bl[1]
 	print "bl[2]\t", "\t", fighter1.bl[2], "\t", fighter2.bl[2], "\t", fighter3.bl[2], "\t", fighter4.bl[2], "\t", fighter5.bl[2]
-	print "sl[0]\t", "\t", fighter1.sl[0], "\t", fighter2.sl[0], "\t", fighter3.sl[0], "\t", fighter4.sl[0], "\t", fighter5.sl[0]
-	print "sl[1]\t", "\t", fighter1.sl[1], "\t", fighter2.sl[1], "\t", fighter3.sl[1], "\t", fighter4.sl[1], "\t", fighter5.sl[1]
-	print "sl[2]\t", "\t", fighter1.sl[2], "\t", fighter2.sl[2], "\t", fighter3.sl[2], "\t", fighter4.sl[2], "\t", fighter5.sl[2]
-	print "el[0]\t", "\t", fighter1.el[0], "\t", fighter2.el[0], "\t", fighter3.el[0], "\t", fighter4.el[0], "\t", fighter5.el[0]
-	print "el[1]\t", "\t", fighter1.el[1], "\t", fighter2.el[1], "\t", fighter3.el[1], "\t", fighter4.el[1], "\t", fighter5.el[1]
-	print "el[2]\t", "\t", fighter1.el[2], "\t", fighter2.el[2], "\t", fighter3.el[2], "\t", fighter4.el[2], "\t", fighter5.el[2]
-	print "posl[0].x", "\t", fighter1.posl[0].x, "\t", fighter2.posl[0].x, "\t", fighter3.posl[0].x, "\t", fighter4.posl[0].x, "\t", fighter5.posl[0].x
-	print "posl[0].y", "\t", fighter1.posl[0].y, "\t", fighter2.posl[0].y, "\t", fighter3.posl[0].y, "\t", fighter4.posl[0].y, "\t", fighter5.posl[0].y
-	print "posl[0].s\t", fighter1.posl[0].s, " ", fighter2.posl[0].s, " ", fighter3.posl[0].s, " ", fighter4.posl[0].s, " ", fighter5.posl[0].s
-	print "posl[0].b\t", fighter1.posl[0].b, " ", fighter2.posl[0].b, " ", fighter3.posl[0].b, " ", fighter4.posl[0].b, " ", fighter5.posl[0].b
-	print "posl[0].e\t", fighter1.posl[0].e, " ", fighter2.posl[0].e, " ", fighter3.posl[0].e, " ", fighter4.posl[0].e, " ", fighter5.posl[0].e
-	print "posl[1].x", "\t", fighter1.posl[1].x, "\t", fighter2.posl[1].x, "\t", fighter3.posl[1].x, "\t", fighter4.posl[1].x, "\t", fighter5.posl[1].x
-	print "posl[1].y", "\t", fighter1.posl[1].y, "\t", fighter2.posl[1].y, "\t", fighter3.posl[1].y, "\t", fighter4.posl[1].y, "\t", fighter5.posl[1].y
-	print "posl[1].s\t", fighter1.posl[1].s, " ", fighter2.posl[1].s, " ", fighter3.posl[1].s, " ", fighter4.posl[1].s, " ", fighter5.posl[1].s
+	print "sl[0]\t", "\t", fighter1.sl[0], "\t\t", fighter2.sl[0], "\t\t", fighter3.sl[0], "\t\t", fighter4.sl[0], "\t\t", fighter5.sl[0]
+	print "sl[1]\t", "\t", fighter1.sl[1], "\t\t", fighter2.sl[1], "\t\t", fighter3.sl[1], "\t\t", fighter4.sl[1], "\t\t", fighter5.sl[1]
+	print "sl[2]\t", "\t", fighter1.sl[2], "\t\t", fighter2.sl[2], "\t\t", fighter3.sl[2], "\t\t", fighter4.sl[2], "\t\t", fighter5.sl[2]
+	print "el[0]\t", "\t", fighter1.el[0], "\t\t", fighter2.el[0], "\t\t", fighter3.el[0], "\t\t", fighter4.el[0], "\t\t", fighter5.el[0]
+	print "el[1]\t", "\t", fighter1.el[1], "\t\t", fighter2.el[1], "\t\t", fighter3.el[1], "\t\t", fighter4.el[1], "\t\t", fighter5.el[1]
+	print "el[2]\t", "\t", fighter1.el[2], "\t\t", fighter2.el[2], "\t\t", fighter3.el[2], "\t\t", fighter4.el[2], "\t\t", fighter5.el[2]
+	print "posl[0].x", "\t", fighter1.posl[0].x, "\t\t", fighter2.posl[0].x, "\t\t", fighter3.posl[0].x, "\t\t", fighter4.posl[0].x, "\t\t", fighter5.posl[0].x
+	print "posl[0].y", "\t", fighter1.posl[0].y, "\t\t", fighter2.posl[0].y, "\t\t", fighter3.posl[0].y, "\t\t", fighter4.posl[0].y, "\t\t", fighter5.posl[0].y
+	print "posl[0].s\t", fighter1.posl[0].s, "\t", fighter2.posl[0].s, "\t", fighter3.posl[0].s, "\t", fighter4.posl[0].s, "\t", fighter5.posl[0].s
+	print "posl[0].b\t", fighter1.posl[0].b, "\t", fighter2.posl[0].b, "\t", fighter3.posl[0].b, "\t", fighter4.posl[0].b, "\t", fighter5.posl[0].b
+	print "posl[0].e\t", fighter1.posl[0].e, "\t\t", fighter2.posl[0].e, "\t\t", fighter3.posl[0].e, "\t\t", fighter4.posl[0].e, "\t\t", fighter5.posl[0].e
+	print "posl[1].x", "\t", fighter1.posl[1].x, "\t\t", fighter2.posl[1].x, "\t\t", fighter3.posl[1].x, "\t\t", fighter4.posl[1].x, "\t\t", fighter5.posl[1].x
+	print "posl[1].y", "\t", fighter1.posl[1].y, "\t\t", fighter2.posl[1].y, "\t\t", fighter3.posl[1].y, "\t\t", fighter4.posl[1].y, "\t\t", fighter5.posl[1].y
+	print "posl[1].s\t", fighter1.posl[1].s, fighter2.posl[1].s, fighter3.posl[1].s, fighter4.posl[1].s, fighter5.posl[1].s
 	print "posl[1].b\t", fighter1.posl[1].b, " ", fighter2.posl[1].b, " ", fighter3.posl[1].b, " ", fighter4.posl[1].b, " ", fighter5.posl[1].b
-	print "posl[1].e\t", fighter1.posl[1].e, " ", fighter2.posl[1].e, " ", fighter3.posl[1].e, " ", fighter4.posl[1].e, " ", fighter5.posl[1].e
-	print "poss[321].x", "\t", fighter1.poss[321].x, "\t", fighter2.poss[321].x, "\t", fighter3.poss[321].x, "\t", fighter4.poss[321].x, "\t", fighter5.poss[321].x
-	print "poss[321].y", "\t", fighter1.poss[321].y, "\t", fighter2.poss[321].y, "\t", fighter3.poss[321].y, "\t", fighter4.poss[321].y, "\t", fighter5.poss[321].y
-	print "poss[321].s\t", fighter1.poss[321].s, " ", fighter2.poss[321].s, " ", fighter3.poss[321].s, " ", fighter4.poss[321].s, " ", fighter5.poss[321].s
-	print "poss[321].b\t", fighter1.poss[321].b, " ", fighter2.poss[321].b, " ", fighter3.poss[321].b, " ", fighter4.poss[321].b, " ", fighter5.poss[321].b
-	print "poss[321].e\t", fighter1.poss[321].e, " ", fighter2.poss[321].e, " ", fighter3.poss[321].e, " ", fighter4.poss[321].e, " ", fighter5.poss[321].e
-	print "poss[231].x", "\t", fighter1.poss[231].x, "\t", fighter2.poss[231].x, "\t", fighter3.poss[231].x, "\t", fighter4.poss[231].x, "\t", fighter5.poss[231].x
-	print "poss[231].y", "\t", fighter1.poss[231].y, "\t", fighter2.poss[231].y, "\t", fighter3.poss[231].y, "\t", fighter4.poss[231].y, "\t", fighter5.poss[231].y
-	print "poss[231].s\t", fighter1.poss[231].s, " ", fighter2.poss[231].s, " ", fighter3.poss[231].s, " ", fighter4.poss[231].s, " ", fighter5.poss[231].s
+	print "posl[1].e\t", fighter1.posl[1].e, "\t", fighter2.posl[1].e, "\t", fighter3.posl[1].e, "\t", fighter4.posl[1].e, "\t", fighter5.posl[1].e
+	print "poss[321].x", "\t", fighter1.poss[321].x, "\t\t", fighter2.poss[321].x, "\t\t", fighter3.poss[321].x, "\t\t", fighter4.poss[321].x, "\t\t", fighter5.poss[321].x
+	print "poss[321].y", "\t", fighter1.poss[321].y, "\t\t", fighter2.poss[321].y, "\t\t", fighter3.poss[321].y, "\t\t", fighter4.poss[321].y, "\t\t", fighter5.poss[321].y
+	print "poss[321].s\t", fighter1.poss[321].s, "\t", fighter2.poss[321].s, "\t", fighter3.poss[321].s, "\t", fighter4.poss[321].s, "\t", fighter5.poss[321].s
+	print "poss[321].b\t", fighter1.poss[321].b, "\t", fighter2.poss[321].b, "\t", fighter3.poss[321].b, "\t", fighter4.poss[321].b, "\t", fighter5.poss[321].b
+	print "poss[321].e\t", fighter1.poss[321].e, "\t\t", fighter2.poss[321].e, "\t\t", fighter3.poss[321].e, "\t\t", fighter4.poss[321].e, "\t\t", fighter5.poss[321].e
+	print "poss[231].x", "\t", fighter1.poss[231].x, "\t\t", fighter2.poss[231].x, "\t\t", fighter3.poss[231].x, "\t\t", fighter4.poss[231].x, "\t\t", fighter5.poss[231].x
+	print "poss[231].y", "\t", fighter1.poss[231].y, "\t\t", fighter2.poss[231].y, "\t\t", fighter3.poss[231].y, "\t\t", fighter4.poss[231].y, "\t\t", fighter5.poss[231].y
+	print "poss[231].s\t", fighter1.poss[231].s, fighter2.poss[231].s, fighter3.poss[231].s, fighter4.poss[231].s, fighter5.poss[231].s
 	print "poss[231].b\t", fighter1.poss[231].b, " ", fighter2.poss[231].b, " ", fighter3.poss[231].b, " ", fighter4.poss[231].b, " ", fighter5.poss[231].b
-	print "poss[231].e\t", fighter1.poss[231].e, " ", fighter2.poss[231].e, " ", fighter3.poss[231].e, " ", fighter4.poss[231].e, " ", fighter5.poss[231].e
+	print "poss[231].e\t", fighter1.poss[231].e, "\t", fighter2.poss[231].e, "\t", fighter3.poss[231].e, "\t", fighter4.poss[231].e, "\t", fighter5.poss[231].e
 	print u"bd[u'哈哈']\t", fighter1.bd[u'哈哈'], "\t", fighter2.bd[u'哈哈'], "\t", fighter3.bd[u'哈哈'], "\t", fighter4.bd[u'哈哈'], "\t", fighter5.bd[u'哈哈']
 	print "bd['asdf']\t", fighter1.bd['asdf'], "\t", fighter2.bd['asdf'], "\t", fighter3.bd['asdf'], "\t", fighter4.bd['asdf'], "\t", fighter5.bd['asdf']
-	print "sd[321]\t", "\t", fighter1.sd[321], "\t", fighter2.sd[321], "\t", fighter3.sd[321], "\t", fighter4.sd[321], "\t", fighter5.sd[321]
-	print "sd[231]\t", "\t", fighter1.sd[231], "\t", fighter2.sd[231], "\t", fighter3.sd[231], "\t", fighter4.sd[231], "\t", fighter5.sd[231]
-	print "ed[789]\t", "\t", fighter1.ed[789], "\t", fighter2.ed[789], "\t", fighter3.ed[789], "\t", fighter4.ed[789], "\t", fighter5.ed[789]
-	print "ed[567]\t", "\t", fighter1.ed[567], "\t", fighter2.ed[567], "\t", fighter3.ed[567], "\t", fighter4.ed[567], "\t", fighter5.ed[567]
-	print "ll[0][0]\t", fighter1.ll[0][0], "\t", fighter2.ll[0][0], "\t", fighter3.ll[0][0], "\t", fighter4.ll[0][0], "\t", fighter5.ll[0][0]
-	print "ll[0][1]\t", fighter1.ll[0][1], "\t", fighter2.ll[0][1], "\t", fighter3.ll[0][1], "\t", fighter4.ll[0][1], "\t", fighter5.ll[0][1]
-	print "ll[1][0]\t", fighter1.ll[1][0], "\t", fighter2.ll[1][0], "\t", fighter3.ll[1][0], "\t", fighter4.ll[1][0], "\t", fighter5.ll[1][0]
-	print "ll[1][1]\t", fighter1.ll[1][1], "\t", fighter2.ll[1][1], "\t", fighter3.ll[1][1], "\t", fighter4.ll[1][1], "\t", fighter5.ll[1][1]
-	print "ll[1][2]\t", fighter1.ll[1][2], "\t", fighter2.ll[1][2], "\t", fighter3.ll[1][2], "\t", fighter4.ll[1][2], "\t", fighter5.ll[1][2]
-	print "v1\t", "\t", fighter1.v1, " ", fighter2.v1, " ", fighter3.v1, " ", fighter4.v1, " ", fighter5.v1
-	print "v2\t", "\t", fighter1.v2, " ", fighter2.v2, " ", fighter3.v2, " ", fighter4.v2, " ", fighter5.v2
-	print "v3.x\t", "\t", fighter1.v3.x, "\t", fighter2.v3.x, "\t", fighter3.v3.x, "\t", fighter4.v3.x, "\t", fighter5.v3.x
-	print "v3.y\t", "\t", fighter1.v3.y, "\t", fighter2.v3.y, "\t", fighter3.v3.y, "\t", fighter4.v3.y, "\t", fighter5.v3.y
-	print "v3.s\t", "\t", fighter1.v3.s, " ", fighter2.v3.s, " ", fighter3.v3.s, " ", fighter4.v3.s, " ", fighter5.v3.s
-	print "v3.b\t", "\t", fighter1.v3.b, " ", fighter2.v3.b, " ", fighter3.v3.b, " ", fighter4.v3.b, " ", fighter5.v3.b
-	print "v3.e\t", "\t", fighter1.v3.e, " ", fighter2.v3.e, " ", fighter3.v3.e, " ", fighter4.v3.e, " ", fighter5.v3.e
-	print "v4\t", "\t", fighter1.v4, " ", fighter2.v4, " ", fighter3.v4, " ", fighter4.v4, " ", fighter5.v4
-	print "vl[0]\t", "\t", fighter1.vl[0], " ", fighter2.vl[0], " ", fighter3.vl[0], " ", fighter4.vl[0], " ", fighter5.vl[0]
-	print "vl[1]\t", "\t", fighter1.vl[1], " ", fighter2.vl[1], " ", fighter3.vl[1], " ", fighter4.vl[1], " ", fighter5.vl[1]
-	print "vl[2].x\t", "\t", fighter1.vl[2].x, "\t", fighter2.vl[2].x, "\t", fighter3.vl[2].x, "\t", fighter4.vl[2].x, "\t", fighter5.vl[2].x
-	print "vl[2].y\t", "\t", fighter1.vl[2].y, "\t", fighter2.vl[2].y, "\t", fighter3.vl[2].y, "\t", fighter4.vl[2].y, "\t", fighter5.vl[2].y
-	print "vl[2].s\t", "\t", fighter1.vl[2].s, " ", fighter2.vl[2].s, " ", fighter3.vl[2].s, " ", fighter4.vl[2].s, " ", fighter5.vl[2].s
-	print "vl[2].b\t", "\t", fighter1.vl[2].b, " ", fighter2.vl[2].b, " ", fighter3.vl[2].b, " ", fighter4.vl[2].b, " ", fighter5.vl[2].b
-	print "vl[2].e\t", "\t", fighter1.vl[2].e, " ", fighter2.vl[2].e, " ", fighter3.vl[2].e, " ", fighter4.vl[2].e, " ", fighter5.vl[2].e
-	print "vl[3]\t", "\t", fighter1.vl[3], " ", fighter2.vl[3], " ", fighter3.vl[3], " ", fighter4.vl[3], " ", fighter5.vl[3]
-	print "vd[12]\t", "\t", fighter1.vd[12], " ", fighter2.vd[12], " ", fighter3.vd[12], " ", fighter4.vd[12], " ", fighter5.vd[12]
-	print "vd[23]\t", "\t", fighter1.vd[23], " ", fighter2.vd[23], " ", fighter3.vd[23], " ", fighter4.vd[23], " ", fighter5.vd[23]
-	print "vd[34].x\t", fighter1.vd[34].x, "\t", fighter2.vd[34].x, "\t", fighter3.vd[34].x, "\t", fighter4.vd[34].x, "\t", fighter5.vd[34].x
-	print "vd[34].y\t", fighter1.vd[34].y, "\t", fighter2.vd[34].y, "\t", fighter3.vd[34].y, "\t", fighter4.vd[34].y, "\t", fighter5.vd[34].y
-	print "vd[34].s\t", fighter1.vd[34].s, " ", fighter2.vd[34].s, " ", fighter3.vd[34].s, " ", fighter4.vd[34].s, " ", fighter5.vd[34].s
+	print "sd[321]\t", "\t", fighter1.sd[321], "\t\t", fighter2.sd[321], "\t\t", fighter3.sd[321], "\t\t", fighter4.sd[321], "\t\t", fighter5.sd[321]
+	print "sd[231]\t", "\t", fighter1.sd[231], "\t\t", fighter2.sd[231], "\t\t", fighter3.sd[231], "\t\t", fighter4.sd[231], "\t\t", fighter5.sd[231]
+	print "ed[789]\t", "\t", fighter1.ed[789], "\t\t", fighter2.ed[789], "\t\t", fighter3.ed[789], "\t\t", fighter4.ed[789], "\t\t", fighter5.ed[789]
+	print "ed[567]\t", "\t", fighter1.ed[567], "\t\t", fighter2.ed[567], "\t\t", fighter3.ed[567], "\t\t", fighter4.ed[567], "\t\t", fighter5.ed[567]
+	print "ll[0][0]\t", '%.3f' % fighter1.ll[0][0], "\t\t", '%.3f' % fighter2.ll[0][0], "\t\t", '%.3f' % fighter3.ll[0][0], "\t\t", '%.3f' % fighter4.ll[0][0], "\t\t", '%.3f' % fighter5.ll[0][0]
+	print "ll[0][1]\t", '%.3f' % fighter1.ll[0][1], "\t\t", '%.3f' % fighter2.ll[0][1], "\t\t", '%.3f' % fighter3.ll[0][1], "\t\t", '%.3f' % fighter4.ll[0][1], "\t\t", '%.3f' % fighter5.ll[0][1]
+	print "ll[1][0]\t", '%.3f' % fighter1.ll[1][0], "\t\t", '%.3f' % fighter2.ll[1][0], "\t\t", '%.3f' % fighter3.ll[1][0], "\t\t", '%.3f' % fighter4.ll[1][0], "\t\t", '%.3f' % fighter5.ll[1][0]
+	print "ll[1][1]\t", '%.3f' % fighter1.ll[1][1], "\t\t", '%.3f' % fighter2.ll[1][1], "\t\t", '%.3f' % fighter3.ll[1][1], "\t\t", '%.3f' % fighter4.ll[1][1], "\t\t", '%.3f' % fighter5.ll[1][1]
+	print "ll[1][2]\t", '%.3f' % fighter1.ll[1][2], "\t", '%.3f' % fighter2.ll[1][2], "\t", '%.3f' % fighter3.ll[1][2], "\t", '%.3f' % fighter4.ll[1][2], "\t", '%.3f' % fighter5.ll[1][2]
+	print "v1\t", "\t", fighter1.v1, "\t\t", fighter2.v1, "\t\t", fighter3.v1, "\t\t", fighter4.v1, "\t\t", fighter5.v1
+	print "v2\t", "\t", fighter1.v2, "\t\t", fighter2.v2, "\t\t", fighter3.v2, "\t\t", fighter4.v2, "\t\t", fighter5.v2
+	print "v3.x\t", "\t", fighter1.v3.x, "\t\t", fighter2.v3.x, "\t\t", fighter3.v3.x, "\t\t", fighter4.v3.x, "\t\t", fighter5.v3.x
+	print "v3.y\t", "\t", fighter1.v3.y, "\t\t", fighter2.v3.y, "\t\t", fighter3.v3.y, "\t\t", fighter4.v3.y, "\t\t", fighter5.v3.y
+	print "v3.s\t", "\t", fighter1.v3.s, "\t", fighter2.v3.s, "\t", fighter3.v3.s, "\t", fighter4.v3.s, "\t", fighter5.v3.s
+	print "v3.b\t", "\t", fighter1.v3.b, "\t", fighter2.v3.b, "\t", fighter3.v3.b, "\t", fighter4.v3.b, "\t", fighter5.v3.b
+	print "v3.e\t", "\t", fighter1.v3.e, "\t\t", fighter2.v3.e, "\t\t", fighter3.v3.e, "\t\t", fighter4.v3.e, "\t\t", fighter5.v3.e
+	print "v4\t", "\t", '%.3f' % fighter1.v4, "\t", '%.3f' % fighter2.v4, "\t", '%.3f' % fighter3.v4, "\t", '%.3f' % fighter4.v4, "\t", '%.3f' % fighter5.v4
+	print "vl[0]\t", "\t", fighter1.vl[0], "\t\t", fighter2.vl[0], "\t\t", fighter3.vl[0], "\t\t", fighter4.vl[0], "\t\t", fighter5.vl[0]
+	print "vl[1]\t", "\t", fighter1.vl[1], "\t\t", fighter2.vl[1], "\t\t", fighter3.vl[1], "\t\t", fighter4.vl[1], "\t\t", fighter5.vl[1]
+	print "vl[2].x\t", "\t", fighter1.vl[2].x, "\t\t", fighter2.vl[2].x, "\t\t", fighter3.vl[2].x, "\t\t", fighter4.vl[2].x, "\t\t", fighter5.vl[2].x
+	print "vl[2].y\t", "\t", fighter1.vl[2].y, "\t\t", fighter2.vl[2].y, "\t\t", fighter3.vl[2].y, "\t\t", fighter4.vl[2].y, "\t\t", fighter5.vl[2].y
+	print "vl[2].s\t", "\t", fighter1.vl[2].s, "\t", fighter2.vl[2].s, "\t", fighter3.vl[2].s, "\t", fighter4.vl[2].s, "\t", fighter5.vl[2].s
+	print "vl[2].b\t", "\t", fighter1.vl[2].b, "\t", fighter2.vl[2].b, "\t", fighter3.vl[2].b, "\t", fighter4.vl[2].b, "\t", fighter5.vl[2].b
+	print "vl[2].e\t", "\t", fighter1.vl[2].e, "\t\t", fighter2.vl[2].e, "\t\t", fighter3.vl[2].e, "\t\t", fighter4.vl[2].e, "\t\t", fighter5.vl[2].e
+	print "vl[3]\t", "\t", fighter1.vl[3], "\t", fighter2.vl[3], "\t", fighter3.vl[3], "\t", fighter4.vl[3], "\t", fighter5.vl[3]
+	print "vd[12]\t", "\t", fighter1.vd[12], "\t\t", fighter2.vd[12], "\t\t", fighter3.vd[12], "\t\t", fighter4.vd[12], "\t\t", fighter5.vd[12]
+	print "vd[23]\t", "\t", fighter1.vd[23], "\t\t", fighter2.vd[23], "\t\t", fighter3.vd[23], "\t\t", fighter4.vd[23], "\t\t", fighter5.vd[23]
+	print "vd[34].x\t", fighter1.vd[34].x, "\t\t", fighter2.vd[34].x, "\t\t", fighter3.vd[34].x, "\t\t", fighter4.vd[34].x, "\t\t", fighter5.vd[34].x
+	print "vd[34].y\t", fighter1.vd[34].y, "\t\t", fighter2.vd[34].y, "\t\t", fighter3.vd[34].y, "\t\t", fighter4.vd[34].y, "\t\t", fighter5.vd[34].y
+	print "vd[34].s\t", fighter1.vd[34].s, fighter2.vd[34].s, fighter3.vd[34].s, fighter4.vd[34].s, fighter5.vd[34].s
 	print "vd[34].b\t", fighter1.vd[34].b, " ", fighter2.vd[34].b, " ", fighter3.vd[34].b, " ", fighter4.vd[34].b, " ", fighter5.vd[34].b
-	print "vd[34].e\t", fighter1.vd[34].e, " ", fighter2.vd[34].e, " ", fighter3.vd[34].e, " ", fighter4.vd[34].e, " ", fighter5.vd[34].e
-	print "vd[45]\t", "\t", fighter1.vd[45], " ", fighter2.vd[45], " ", fighter3.vd[45], " ", fighter4.vd[45], " ", fighter5.vd[45]
-	print "ld[12][0]\t", fighter1.ld[12][0], " ", fighter2.ld[12][0], " ", fighter3.ld[12][0], " ", fighter4.ld[12][0], " ", fighter5.ld[12][0]
-	print "ld[12][1]\t", fighter1.ld[12][1], " ", fighter2.ld[12][1], " ", fighter3.ld[12][1], " ", fighter4.ld[12][1], " ", fighter5.ld[12][1]
-	print "ld[34][0].x\t", fighter1.ld[34][0].x, "\t", fighter2.ld[34][0].x, "\t", fighter3.ld[34][0].x, "\t", fighter4.ld[34][0].x, "\t", fighter5.ld[34][0].x
-	print "ld[34][0].y\t", fighter1.ld[34][0].y, "\t", fighter2.ld[34][0].y, "\t", fighter3.ld[34][0].y, "\t", fighter4.ld[34][0].y, "\t", fighter5.ld[34][0].y
-	print "ld[34][0].s\t", fighter1.ld[34][0].s, " ", fighter2.ld[34][0].s, " ", fighter3.ld[34][0].s, " ", fighter4.ld[34][0].s, " ", fighter5.ld[34][0].s
+	print "vd[34].e\t", fighter1.vd[34].e, "\t", fighter2.vd[34].e, "\t", fighter3.vd[34].e, "\t", fighter4.vd[34].e, "\t", fighter5.vd[34].e
+	print "vd[45]\t", "\t", fighter1.vd[45], "\t", fighter2.vd[45], "\t", fighter3.vd[45], "\t", fighter4.vd[45], "\t", fighter5.vd[45]
+	print "ld[12][0]\t", fighter1.ld[12][0], "\t\t", fighter2.ld[12][0], "\t\t", fighter3.ld[12][0], "\t\t", fighter4.ld[12][0], "\t\t", fighter5.ld[12][0]
+	print "ld[12][1]\t", fighter1.ld[12][1], "\t\t", fighter2.ld[12][1], "\t\t", fighter3.ld[12][1], "\t\t", fighter4.ld[12][1], "\t\t", fighter5.ld[12][1]
+	print "ld[34][0].x\t", fighter1.ld[34][0].x, "\t\t", fighter2.ld[34][0].x, "\t\t", fighter3.ld[34][0].x, "\t\t", fighter4.ld[34][0].x, "\t\t", fighter5.ld[34][0].x
+	print "ld[34][0].y\t", fighter1.ld[34][0].y, "\t\t", fighter2.ld[34][0].y, "\t\t", fighter3.ld[34][0].y, "\t\t", fighter4.ld[34][0].y, "\t\t", fighter5.ld[34][0].y
+	print "ld[34][0].s\t", fighter1.ld[34][0].s, fighter2.ld[34][0].s, fighter3.ld[34][0].s, fighter4.ld[34][0].s, fighter5.ld[34][0].s
 	print "ld[34][0].b\t", fighter1.ld[34][0].b, " ", fighter2.ld[34][0].b, " ", fighter3.ld[34][0].b, " ", fighter4.ld[34][0].b, " ", fighter5.ld[34][0].b
-	print "ld[34][0].e\t", fighter1.ld[34][0].e, " ", fighter2.ld[34][0].e, " ", fighter3.ld[34][0].e, " ", fighter4.ld[34][0].e, " ", fighter5.ld[34][0].e
-	print "ld[34][1]\t", fighter1.ld[34][1], " ", fighter2.ld[34][1], " ", fighter3.ld[34][1], " ", fighter4.ld[34][1], " ", fighter5.ld[34][1]
-	print "fld[123][0]\t", fighter1.fld[123][0], " ", fighter2.fld[123][0], " ", fighter3.fld[123][0], " ", fighter4.fld[123][0], " ", fighter5.fld[123][0]
-	print "fld[123][1]\t", fighter1.fld[123][1], " ", fighter2.fld[123][1], " ", fighter3.fld[123][1], " ", fighter4.fld[123][1], " ", fighter5.fld[123][1]
-	print "pyl[0].pp\t", fighter1.pyl[0].pp, "\t", fighter2.pyl[0].pp, "\t", fighter3.pyl[0].pp, "\t", fighter4.pyl[0].pp, "\t", fighter5.pyl[0].pp
-	print "pyl[0].ap\t", fighter1.pyl[0].ap, "\t", fighter2.pyl[0].ap, "\t", fighter3.pyl[0].ap, "\t", fighter4.pyl[0].ap, "\t", fighter5.pyl[0].ap
-	print "pyl[1].pp\t", fighter1.pyl[1].pp, "\t", fighter2.pyl[1].pp, "\t", fighter3.pyl[1].pp, "\t", fighter4.pyl[1].pp, "\t", fighter5.pyl[1].pp
-	print "pyl[1].ap\t", fighter1.pyl[1].ap, "\t", fighter2.pyl[1].ap, "\t", fighter3.pyl[1].ap, "\t", fighter4.pyl[1].ap, "\t", fighter5.pyl[1].ap
-	print "pyd[321].pp\t", fighter1.pyd[321].pp, "\t", fighter2.pyd[321].pp, "\t", fighter3.pyd[321].pp, "\t", fighter4.pyd[321].pp, "\t", fighter5.pyd[321].pp
-	print "pyd[321].ap\t", fighter1.pyd[321].ap, "\t", fighter2.pyd[321].ap, "\t", fighter3.pyd[321].ap, "\t", fighter4.pyd[321].ap, "\t", fighter5.pyd[321].ap
-	print "pyd[654].pp\t", fighter1.pyd[654].pp, "\t", fighter2.pyd[654].pp, "\t", fighter3.pyd[654].pp, "\t", fighter4.pyd[654].pp, "\t", fighter5.pyd[654].pp
-	print "pyd[654].ap\t", fighter1.pyd[654].ap, "\t", fighter2.pyd[654].ap, "\t", fighter3.pyd[654].ap, "\t", fighter4.pyd[654].ap, "\t", fighter5.pyd[654].ap
-	print "pyv1\t", fighter1.pyv1, "\t", fighter2.pyv1, "\t", fighter3.pyv1, "\t", fighter4.pyv1, "\t", fighter5.pyv1
-	print "pyv2.pp\t", fighter1.pyv2.pp, "\t", fighter2.pyv2.pp, "\t", fighter3.pyv2.pp, "\t", fighter4.pyv2.pp, "\t", fighter5.pyv2.pp
-	print "pyv2.ap\t", fighter1.pyv2.ap, "\t", fighter2.pyv2.ap, "\t", fighter3.pyv2.ap, "\t", fighter4.pyv2.ap, "\t", fighter5.pyv2.ap
-	print "dd[12][111]\t", fighter1.dd[12][111], " ", fighter2.dd[12][111], " ", fighter3.dd[12][111], " ", fighter4.dd[12][111], " ", fighter5.dd[12][111]
-	print "dd[12][222]\t", fighter1.dd[12][222], " ", fighter2.dd[12][222], " ", fighter3.dd[12][222], " ", fighter4.dd[12][222], " ", fighter5.dd[12][222]
-	print "dd[34][333].x\t", fighter1.dd[34][333].x, "\t", fighter2.dd[34][333].x, "\t", fighter3.dd[34][333].x, "\t", fighter4.dd[34][333].x, "\t", fighter5.dd[34][333].x
-	print "dd[34][333].y\t", fighter1.dd[34][333].y, "\t", fighter2.dd[34][333].y, "\t", fighter3.dd[34][333].y, "\t", fighter4.dd[34][333].y, "\t", fighter5.dd[34][333].y
-	print "dd[34][333].s\t", fighter1.dd[34][333].s, " ", fighter2.dd[34][333].s, " ", fighter3.dd[34][333].s, " ", fighter4.dd[34][333].s, " ", fighter5.dd[34][333].s
-	print "dd[34][333].b\t", fighter1.dd[34][333].b, " ", fighter2.dd[34][333].b, " ", fighter3.dd[34][333].b, " ", fighter4.dd[34][333].b, " ", fighter5.dd[34][333].b
-	print "dd[34][333].e\t", fighter1.dd[34][333].e, " ", fighter2.dd[34][333].e, " ", fighter3.dd[34][333].e, " ", fighter4.dd[34][333].e, " ", fighter5.dd[34][333].e
-	print "dd[34][444]\t", fighter1.dd[34][444], " ", fighter2.dd[34][444], " ", fighter3.dd[34][444], " ", fighter4.dd[34][444], " ", fighter5.dd[34][444]
-	print "fdd[123][12]\t", fighter1.fdd[123][12], " ", fighter2.fdd[123][12], " ", fighter3.fdd[123][12], " ", fighter4.fdd[123][12], " ", fighter5.fdd[123][12]
-	print "fdd[123][23]\t", fighter1.fdd[123][23], " ", fighter2.fdd[123][23], " ", fighter3.fdd[123][23], " ", fighter4.fdd[123][23], " ", fighter5.fdd[123][23]
-	print "nv\t", "\t", fighter1.nv, "\t", fighter2.nv, "\t", fighter3.nv, "\t", fighter4.nv, "\t", fighter5.nv
-	print "lv[0]\t", "\t", fighter1.lv[0], "\t", fighter2.lv[0], "\t", fighter3.lv[0], "\t", fighter4.lv[0], "\t", fighter5.lv[0]
-	print "lv[1]\t", "\t", fighter1.lv[1], "\t", fighter2.lv[1], "\t", fighter3.lv[1], "\t", fighter4.lv[1], "\t", fighter5.lv[1]
-	print "flv[0]\t", "\t", fighter1.flv[0], "\t", fighter2.flv[0], "\t", fighter3.flv[0], "\t", fighter4.flv[0], "\t", fighter5.flv[0]
-	print "flv[1]\t", "\t", fighter1.flv[1], "\t", fighter2.flv[1], "\t", fighter3.flv[1], "\t", fighter4.flv[1], "\t", fighter5.flv[1]
-	print "dv[333]\t", "\t", fighter1.dv[333], "\t", fighter2.dv[333], "\t", fighter3.dv[333], "\t", fighter4.dv[333], "\t", fighter5.dv[333]
-	print "dv[444]\t", "\t", fighter1.dv[444], "\t", fighter2.dv[444], "\t", fighter3.dv[444], "\t", fighter4.dv[444], "\t", fighter5.dv[444]
-	print "fdv[333]\t", fighter1.fdv[333], "\t", fighter2.fdv[333], "\t", fighter3.fdv[333], "\t", fighter4.fdv[333], "\t", fighter5.fdv[333]
-	print "fdv[444]\t", fighter1.fdv[444], "\t", fighter2.fdv[444], "\t", fighter3.fdv[444], "\t", fighter4.fdv[444], "\t", fighter5.fdv[444]
+	print "ld[34][0].e\t", fighter1.ld[34][0].e, "\t", fighter2.ld[34][0].e, "\t", fighter3.ld[34][0].e, "\t", fighter4.ld[34][0].e, "\t", fighter5.ld[34][0].e
+	print "ld[34][1]\t", '%.3f' % fighter1.ld[34][1], "\t", '%.3f' % fighter2.ld[34][1], "\t", '%.3f' % fighter3.ld[34][1], "\t", '%.3f' % fighter4.ld[34][1], "\t", '%.3f' % fighter5.ld[34][1]
+	print "fld[123][0]\t", '%.3f' % fighter1.fld[123][0], "\t", '%.3f' % fighter2.fld[123][0], "\t", '%.3f' % fighter3.fld[123][0], "\t", '%.3f' % fighter4.fld[123][0], "\t", '%.3f' % fighter5.fld[123][0]
+	print "fld[123][1]\t", '%.3f' % fighter1.fld[123][1], "\t", '%.3f' % fighter2.fld[123][1], "\t", '%.3f' % fighter3.fld[123][1], "\t", '%.3f' % fighter4.fld[123][1], "\t", '%.3f' % fighter5.fld[123][1]
+	print "pyl[0].pp\t", fighter1.pyl[0].pp, "\t\t", fighter2.pyl[0].pp, "\t\t", fighter3.pyl[0].pp, "\t\t", fighter4.pyl[0].pp, "\t\t", fighter5.pyl[0].pp
+	print "pyl[0].ap\t", fighter1.pyl[0].ap, "\t\t", fighter2.pyl[0].ap, "\t\t", fighter3.pyl[0].ap, "\t\t", fighter4.pyl[0].ap, "\t\t", fighter5.pyl[0].ap
+	print "pyl[1].pp\t", fighter1.pyl[1].pp, "\t\t", fighter2.pyl[1].pp, "\t\t", fighter3.pyl[1].pp, "\t\t", fighter4.pyl[1].pp, "\t\t", fighter5.pyl[1].pp
+	print "pyl[1].ap\t", fighter1.pyl[1].ap, "\t\t", fighter2.pyl[1].ap, "\t\t", fighter3.pyl[1].ap, "\t\t", fighter4.pyl[1].ap, "\t\t", fighter5.pyl[1].ap
+	print "pyd[321].pp\t", fighter1.pyd[321].pp, "\t\t", fighter2.pyd[321].pp, "\t\t", fighter3.pyd[321].pp, "\t\t", fighter4.pyd[321].pp, "\t\t", fighter5.pyd[321].pp
+	print "pyd[321].ap\t", fighter1.pyd[321].ap, "\t\t", fighter2.pyd[321].ap, "\t\t", fighter3.pyd[321].ap, "\t\t", fighter4.pyd[321].ap, "\t\t", fighter5.pyd[321].ap
+	print "pyd[654].pp\t", fighter1.pyd[654].pp, "\t\t", fighter2.pyd[654].pp, "\t\t", fighter3.pyd[654].pp, "\t\t", fighter4.pyd[654].pp, "\t\t", fighter5.pyd[654].pp
+	print "pyd[654].ap\t", fighter1.pyd[654].ap, "\t\t", fighter2.pyd[654].ap, "\t\t", fighter3.pyd[654].ap, "\t\t", fighter4.pyd[654].ap, "\t\t", fighter5.pyd[654].ap
+	print "pyv1\t", "\t", fighter1.pyv1, "\t\t", fighter2.pyv1, "\t\t", fighter3.pyv1, "\t\t", fighter4.pyv1, "\t\t", fighter5.pyv1
+	print "pyv2.pp\t", "\t", fighter1.pyv2.pp, "\t\t", fighter2.pyv2.pp, "\t\t", fighter3.pyv2.pp, "\t\t", fighter4.pyv2.pp, "\t\t", fighter5.pyv2.pp
+	print "pyv2.ap\t", "\t", fighter1.pyv2.ap, "\t\t", fighter2.pyv2.ap, "\t\t", fighter3.pyv2.ap, "\t\t", fighter4.pyv2.ap, "\t\t", fighter5.pyv2.ap
+	print "dd[12][111]\t", fighter1.dd[12][111], "\t\t", fighter2.dd[12][111], "\t\t", fighter3.dd[12][111], "\t\t", fighter4.dd[12][111], "\t\t", fighter5.dd[12][111]
+	print "dd[12][222]\t", fighter1.dd[12][222], "\t\t", fighter2.dd[12][222], "\t\t", fighter3.dd[12][222], "\t\t", fighter4.dd[12][222], "\t\t", fighter5.dd[12][222]
+	print "dd[34][333].x\t", fighter1.dd[34][333].x, "\t\t", fighter2.dd[34][333].x, "\t\t", fighter3.dd[34][333].x, "\t\t", fighter4.dd[34][333].x, "\t\t", fighter5.dd[34][333].x
+	print "dd[34][333].y\t", fighter1.dd[34][333].y, "\t\t", fighter2.dd[34][333].y, "\t\t", fighter3.dd[34][333].y, "\t\t", fighter4.dd[34][333].y, "\t\t", fighter5.dd[34][333].y
+	print "dd[34][333].s\t", fighter1.dd[34][333].s, fighter2.dd[34][333].s, fighter3.dd[34][333].s, fighter4.dd[34][333].s, fighter5.dd[34][333].s
+	print "dd[34][333].b\t", fighter1.dd[34][333].b, "\t", fighter2.dd[34][333].b, "\t", fighter3.dd[34][333].b, "\t", fighter4.dd[34][333].b, "\t", fighter5.dd[34][333].b
+	print "dd[34][333].e\t", fighter1.dd[34][333].e, "\t", fighter2.dd[34][333].e, "\t", fighter3.dd[34][333].e, "\t", fighter4.dd[34][333].e, "\t", fighter5.dd[34][333].e
+	print "dd[34][444]\t", fighter1.dd[34][444], "\t", fighter2.dd[34][444], "\t", fighter3.dd[34][444], "\t", fighter4.dd[34][444], "\t", fighter5.dd[34][444]
+	print "fdd[123][12]\t", '%.3f' % fighter1.fdd[123][12], "\t", '%.3f' % fighter2.fdd[123][12], "\t", '%.3f' % fighter3.fdd[123][12], "\t", '%.3f' % fighter4.fdd[123][12], "\t", '%.3f' % fighter5.fdd[123][12]
+	print "fdd[123][23]\t", '%.3f' % fighter1.fdd[123][23], "\t", '%.3f' % fighter2.fdd[123][23], "\t", '%.3f' % fighter3.fdd[123][23], "\t", '%.3f' % fighter4.fdd[123][23], "\t", '%.3f' % fighter5.fdd[123][23]
+	print "nv\t", "\t", fighter1.nv, "\t\t", fighter2.nv, "\t\t", fighter3.nv, "\t\t", fighter4.nv, "\t\t", fighter5.nv
+	print "lv[0]\t", "\t", fighter1.lv[0], "\t\t", fighter2.lv[0], "\t\t", fighter3.lv[0], "\t\t", fighter4.lv[0], "\t\t", fighter5.lv[0]
+	print "lv[1]\t", "\t", fighter1.lv[1], "\t\t", fighter2.lv[1], "\t\t", fighter3.lv[1], "\t\t", fighter4.lv[1], "\t\t", fighter5.lv[1]
+	print "flv[0]\t", "\t", '%.3f' % fighter1.flv[0], "\t", '%.3f' % fighter2.flv[0], "\t", '%.3f' % fighter3.flv[0], "\t", '%.3f' % fighter4.flv[0], "\t", '%.3f' % fighter5.flv[0]
+	print "flv[1]\t", "\t", '%.3f' % fighter1.flv[1], "\t", '%.3f' % fighter2.flv[1], "\t", '%.3f' % fighter3.flv[1], "\t", '%.3f' % fighter4.flv[1], "\t", '%.3f' % fighter5.flv[1]
+	print "dv[333]\t", "\t", fighter1.dv[333], "\t\t", fighter2.dv[333], "\t\t", fighter3.dv[333], "\t\t", fighter4.dv[333], "\t\t", fighter5.dv[333]
+	print "dv[444]\t", "\t", fighter1.dv[444], "\t\t", fighter2.dv[444], "\t\t", fighter3.dv[444], "\t\t", fighter4.dv[444], "\t\t", fighter5.dv[444]
+	print "fdv[333]\t", '%.3f' % fighter1.fdv[333], "\t", '%.3f' % fighter2.fdv[333], "\t", '%.3f' % fighter3.fdv[333], "\t", '%.3f' % fighter4.fdv[333], "\t", '%.3f' % fighter5.fdv[333]
+	print "fdv[444]\t", '%.3f' % fighter1.fdv[444], "\t", '%.3f' % fighter2.fdv[444], "\t", '%.3f' % fighter3.fdv[444], "\t", '%.3f' % fighter4.fdv[444], "\t", '%.3f' % fighter5.fdv[444]
 
 
 def _build(_typy):
@@ -570,7 +571,7 @@ def _build(_typy):
 	fighter3.ParseFromString(fDataPy)
 
 	print "\t\t_typy python _ty->_ty _ty->py py->_ty"
-	# _printFighters(fighter, fighterPy, fighter2, fighterPy2, fighter3)
+	_printFighters(fighter, fighterPy, fighter2, fighterPy2, fighter3)
 
 	print fighter == None
 
@@ -640,11 +641,6 @@ def _build(_typy):
 	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
 	print 'v1', fighterPy.v1, fighter.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
 
-	fighterPy.vd = fighterPy.sd
-	fighter.vd = fighter.sd
-	fighter.vd.update(fighter.sd)
-	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
-
 	def TestSkillParam():
 		oData = '\n\x10WO2gOCkyKx6wL59B\x12\x00\x18\xae\x01"\x10WO2gOCkyKx6wL59B*8\x12\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x00@\xae\x01X\x01'
 
@@ -661,7 +657,7 @@ def _build(_typy):
 	TestSkillParam()
 
 	import copy
-	print copy.deepcopy(fighterPy).vd.pop(321), copy.deepcopy(fighter).vd.pop(321)
+	print copy.deepcopy(fighterPy).vd.pop(12), copy.deepcopy(fighter).vd.pop(12)
 	print len(fighterPy.SerializeToString()), len(copy.deepcopy(fighterPy).SerializeToString())
 	print len(fighter.SerializeToString()), len(copy.deepcopy(fighter).SerializeToString())
 	print fighterPy.vd.pop(4567, None), fighter.vd.pop(4567, 'NULL')
@@ -673,9 +669,15 @@ def _build(_typy):
 	print fighterPy.Json()
 	print 'fighter Json'
 	print fighter.Json()
-	print Fighter.FromJson(fighter.Json()).vd.pop(321), _Fighter.FromJson(fighterPy.Json()).vd.pop(321)
+	print Fighter.FromJson(fighter.Json()).vd.pop(12), _Fighter.FromJson(fighterPy.Json()).vd.pop(12)
 	print len(fighter.SerializeToString()), len(Fighter.FromJson(fighter.Json(True)).SerializeToString())
 	print len(fighterPy.SerializeToString()), len(_Fighter.FromJson(fighterPy.Json(True)).SerializeToString())
+	# _printFighters(fighterPy, fighter, fighter, fighter, fighter)
+
+	fighterPy.vd = fighterPy.sd
+	fighter.vd = fighter.sd
+	fighter.vd.update(fighter.sd)
+	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
 
 	return time.time() - startTime
 
@@ -693,6 +695,7 @@ def test_cpp():
 
 
 def test_cpy():
+	return
 	import os
 	from typy import GenerateDescriptor
 	GenerateDescriptor(os.path.dirname(__file__))
