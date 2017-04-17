@@ -375,6 +375,13 @@ static PyObject* tp_Pop(PyObject* self, PyObject* args) {
 }
 
 template <typename T>
+static PyObject* tp_Repr(PyObject* self) {
+	ScopedPyObjectPtr json(::typy::Json(static_cast<List<T>*>(self), false));
+	if (json == NULL) { return NULL; }
+	return PyObject_Repr(json.get());
+}
+
+template <typename T>
 static PyObject* tp_Iter(PyObject* self) {
 	typename List<T>::Iterator* it = reinterpret_cast<typename List<T>::Iterator*>(
 		PyType_GenericAlloc(&List<T>::Iterator_Type, 0));
@@ -469,13 +476,13 @@ PyTypeObject List<T>::_Type = {
 	0,                                       /* tp_getattr        */
 	0,                                       /* tp_setattr        */
 	0,                                       /* tp_compare        */
-	0,                                       /* tp_repr           */
+	(reprfunc)::typy::list::tp_Repr<T>,      /* tp_repr           */
 	0,                                       /* tp_as_number      */
 	&SqMethods,                              /* tp_as_sequence    */
 	&MpMethods,                              /* tp_as_mapping     */
 	PyObject_HashNotImplemented,             /* tp_hash           */
 	0,                                       /* tp_call           */
-	0,                                       /* tp_str            */
+	(reprfunc)::typy::list::tp_Repr<T>,      /* tp_str            */
 	0,                                       /* tp_getattro       */
 	0,                                       /* tp_setattro       */
 	0,                                       /* tp_as_buffer      */

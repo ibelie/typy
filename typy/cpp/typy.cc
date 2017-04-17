@@ -304,21 +304,6 @@ PyObject* tp_Call(PyObject* self, PyObject* args, PyObject* kwargs) {
 	return result;
 }
 
-PyObject* tp_Repr(PyObject* self) {
-	PyObject* result = CallObject(self, "__repr__");
-	if (result != NULL) { return result; }
-	return PyString_FromFormat("<%s instance at %p>", Py_TYPE(self)->tp_name, self);
-}
-
-PyObject* tp_Str(PyObject* self) {
-	PyObject* result = CallObject(self, "__str__");
-	if (result == NULL) {
-		PyErr_Clear();
-		return tp_Repr(self);
-	}
-	return result;
-}
-
 long tp_Hash(PyObject* self) {
 	ScopedPyObjectPtr result(CallObject(self, "__hash__"));
 	if (result == NULL) {

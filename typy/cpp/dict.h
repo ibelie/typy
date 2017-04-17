@@ -281,6 +281,13 @@ static PyObject* tp_Subscript(PyObject* self, PyObject* key) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_Repr(PyObject* self) {
+	ScopedPyObjectPtr json(::typy::Json(static_cast<Dict<K, V>*>(self), false));
+	if (json == NULL) { return NULL; }
+	return PyObject_Repr(json.get());
+}
+
+template <typename K, typename V>
 static PyObject* tp_IterKey(PyObject* self) {
 	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
 	typename Dict<K, V>::Iterator* it = reinterpret_cast<typename Dict<K, V>::Iterator*>(
@@ -465,13 +472,13 @@ PyTypeObject Dict<K, V>::_Type = {
 	0,                                           /* tp_getattr        */
 	0,                                           /* tp_setattr        */
 	0,                                           /* tp_compare        */
-	0,                                           /* tp_repr           */
+	(reprfunc)::typy::dict::tp_Repr<K, V>,       /* tp_repr           */
 	0,                                           /* tp_as_number      */
 	0,                                           /* tp_as_sequence    */
 	&MpMethods,                                  /* tp_as_mapping     */
 	PyObject_HashNotImplemented,                 /* tp_hash           */
 	0,                                           /* tp_call           */
-	0,                                           /* tp_str            */
+	(reprfunc)::typy::dict::tp_Repr<K, V>,       /* tp_str            */
 	0,                                           /* tp_getattro       */
 	0,                                           /* tp_setattro       */
 	0,                                           /* tp_as_buffer      */

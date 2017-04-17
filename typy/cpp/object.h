@@ -402,6 +402,23 @@ public:
 		return Py_NotImplemented;
 	}
 
+	static PyObject* tp_Repr(PyObject* self) {
+		PyObject* result = CallObject(self, "__repr__");
+		if (result != NULL) { return result; }
+		ScopedPyObjectPtr json(::typy::Json(static_cast<T*>(self), false));
+		if (json == NULL) { return NULL; }
+		return PyObject_Repr(json.get());
+	}
+
+	static PyObject* tp_Str(PyObject* self) {
+		PyObject* result = CallObject(self, "__str__");
+		if (result == NULL) {
+			PyErr_Clear();
+			return tp_Repr(self);
+		}
+		return result;
+	}
+
 	static PyObject* _Init(PyObject* m, PyObject* args) {
 		PyObject* attrs = Py_None;
 		PyObject* type = reinterpret_cast<PyObject*>(&_Type);
@@ -472,8 +489,6 @@ namespace object {
 Py_ssize_t tp_Len(PyObject* self);
 PyObject* tp_Item(PyObject* self, PyObject* key);
 PyObject* tp_Call(PyObject* self, PyObject* args, PyObject* kwargs);
-PyObject* tp_Repr(PyObject* self);
-PyObject* tp_Str(PyObject* self);
 PyObject* tp_nb_index(PyObject* self);
 PyObject* tp_Richcompare(PyObject* v, PyObject* w, int op);
 PyObject* tp_Getiter(PyObject* self);
@@ -602,13 +617,13 @@ PyTypeObject Object<T>::_Type = {
 	0,                                        /* tp_getattr        */
 	0,                                        /* tp_setattr        */
 	tp_Compare,                               /* tp_compare        */
-	(reprfunc)::typy::object::tp_Repr,        /* tp_repr           */
+	(reprfunc)tp_Repr,                        /* tp_repr           */
 	&NbMethods,                               /* tp_as_number      */
 	&SqMethods,                               /* tp_as_sequence    */
 	&MpMethods,                               /* tp_as_mapping     */
 	(hashfunc)::typy::object::tp_Hash,        /* tp_hash           */
 	::typy::object::tp_Call,                  /* tp_call           */
-	(reprfunc)::typy::object::tp_Str,         /* tp_str            */
+	(reprfunc)tp_Str,                         /* tp_str            */
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
