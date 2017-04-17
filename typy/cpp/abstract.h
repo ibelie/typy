@@ -578,7 +578,6 @@ inline bool FromJson(Dict<K, V>*& dict, PyObject* json) {
 		ScopedPyObjectPtr item(PyIter_Next(iter.get()));
 		typename Type<K>::KeyType key;
 		if (!FromJsonKey(key, PyTuple_GET_ITEM(item.get(), 0))) { return false; }
-		typename Dict<K, V>::iterator it = dict->find(key);
 		if (!FromJson((*dict)[key], PyTuple_GET_ITEM(item.get(), 1))) {
 			dict->erase(key);
 			return false;

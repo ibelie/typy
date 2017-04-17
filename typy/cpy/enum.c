@@ -69,6 +69,7 @@ static TypyEnum* TypyEnum_Initialize(TypyEnum* type, PyObject* args) {
 					return NULL;
 				}
 				register TypyEnumMap item = (TypyEnumMap)IblMap_Set(type->enum_map, &key);
+				Py_XDECREF(item->python);
 				Py_INCREF(v);
 				item->python = v;
 			}

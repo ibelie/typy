@@ -234,6 +234,7 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	TypyDict_FromValueOrNew(self, dict, type, false);
 	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 	if (item) {
+		MetaValue_CLEAR(type, &item->value);
 		item->value = value;
 	} else {
 		MetaKey_CLEAR(type, &key);
@@ -329,6 +330,7 @@ bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
 		}
 		register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 		if (!entry) { goto fromjson_fail; }
+		MetaValue_CLEAR(type, &entry->value);
 		entry->value = value;
 		key = 0;
 		value = 0;
