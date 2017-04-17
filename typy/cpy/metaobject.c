@@ -103,6 +103,7 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 	if (!object) { return NULL; }
 	register size_t i;
 	for (i = 0; i < type->meta_size; i++) {
+		if (!Meta_TAG(type, i)) { continue; }
 		register PyObject* p = PyString_FromString(Meta_PropertyName(type, i));
 		value = PyObject_GetItem(json, p);
 		Py_XDECREF(p);
@@ -114,6 +115,7 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 				return NULL;
 			}
 		}
+		PyErr_Clear();
 	}
 	return object;
 }

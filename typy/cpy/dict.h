@@ -49,7 +49,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaKey_TOJSON(m, v, s) \
 	(abstract_ToJson[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (v), (s)))
 #define MetaKey_FROMJSON(m, v, j) \
-	(abstract_FromJson[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (v), (j)))
+	(abstract_FromJsonKey[MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (v), (j)))
 
 #define MetaValue_DESC(m) (((TypyMetaDict*)(m))->value_desc)
 #define MetaValue_TYPYTYPE(m) (MetaValue_DESC(m).desc_type)
