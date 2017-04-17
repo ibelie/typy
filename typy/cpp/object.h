@@ -405,7 +405,7 @@ public:
 	static PyObject* tp_Repr(PyObject* self) {
 		PyObject* result = CallObject(self, "__repr__");
 		if (result != NULL) { return result; }
-		ScopedPyObjectPtr json(::typy::Json(static_cast<T*>(self), false));
+		ScopedPyObjectPtr json(static_cast<T*>(self)->T::Json(false));
 		if (json == NULL) { return NULL; }
 		return PyObject_Repr(json.get());
 	}
