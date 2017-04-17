@@ -225,7 +225,8 @@ static PyObject* tp_Keys(PyObject* self) {
 	if (keys == NULL) { return NULL; }
 	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
 	for (typename Dict<K, V>::const_iterator it = dict->begin(); it != dict->end(); ++it) {
-		PyList_Append(keys, ::typy::GetPyObject(it->first));
+		ScopedPyObjectPtr key(::typy::GetPyObject(it->first));
+		PyList_Append(keys, key.get());
 	}
 	return keys;
 }
@@ -236,7 +237,10 @@ static PyObject* tp_Items(PyObject* self) {
 	if (items == NULL) { return NULL; }
 	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
 	for (typename Dict<K, V>::const_iterator it = dict->begin(); it != dict->end(); ++it) {
-		PyList_Append(items, PyTuple_Pack(2, ::typy::GetPyObject(it->first), ::typy::GetPyObject(it->second)));
+		ScopedPyObjectPtr key(::typy::GetPyObject(it->first));
+		ScopedPyObjectPtr value(::typy::GetPyObject(it->second));
+		ScopedPyObjectPtr pare(PyTuple_Pack(2, key.get(), value.get()));
+		PyList_Append(items, pare.get());
 	}
 	return items;
 }
