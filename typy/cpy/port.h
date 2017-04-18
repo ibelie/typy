@@ -12,16 +12,6 @@
 
 #define SINGLE_ARG(...) __VA_ARGS__
 
-#ifndef true
-#	define true  1
-#endif
-#ifndef false
-#	define false 0
-#endif
-#ifndef bool
-#	define bool uint8
-#endif
-
 #undef NULL
 #ifdef __cplusplus
 #	define NULL 0
@@ -41,39 +31,48 @@
 
 #define IBL_ALIGNED_SIZE(SIZE) ((size_t)(((SIZE) + (sizeof(size_t) - 1)) & ~(sizeof(size_t) - 1)))
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef _MSC_VER
 
 typedef unsigned __int8 byte;
 
-typedef signed __int8 int8;
+typedef __int8  int8;
 typedef __int16 int16;
 typedef __int32 int32;
 typedef __int64 int64;
 
-typedef unsigned __int8 uint8;
+typedef unsigned __int8  uint8;
 typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
-#else
+#else /* _MSC_VER */
 
 typedef unsigned char byte;
 
-typedef signed char int8;
-typedef short int16;
-typedef int int32;
+typedef char      int8;
+typedef short     int16;
+typedef int       int32;
 typedef long long int64;
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
+typedef unsigned char      uint8;
+typedef unsigned short     uint16;
+typedef unsigned int       uint32;
 typedef unsigned long long uint64;
 
+#endif /* _MSC_VER */
+
+#ifndef __cplusplus
+#	ifndef true
+#		define true  1
+#	endif
+#	ifndef false
+#		define false 0
+#	endif
+#	ifndef bool
+#		define bool uint8
+#	endif
 #endif
+
 
 // long long macros to be used because gcc and vc++ use different suffixes,
 // and different size specifiers in format strings
@@ -93,7 +92,7 @@ typedef unsigned long long uint64;
 #	include <sys/param.h> // __BYTE_ORDER
 #	if ((defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)) || (defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN))
 #		define Ibl_LITTLE_ENDIAN 1
-#endif
+#	endif
 #endif
 
 #ifndef INT32_MAX
@@ -117,6 +116,10 @@ typedef unsigned long long uint64;
 
 #define Ibl_Max(a, b) ((a) > (b) ? (a) : (b))
 #define Ibl_Min(a, b) ((a) < (b) ? (a) : (b))
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct _bytes {
 	byte*  data;

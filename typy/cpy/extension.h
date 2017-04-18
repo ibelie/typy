@@ -34,7 +34,7 @@ typedef struct {
 #define TypyPython_COPY(L, R) memcpy((char*)(L) + TypyPython_OFFSET(python_type), (char*)(R) + TypyPython_OFFSET(python_type), TypyPython_OFFSET(python_name) - TypyPython_OFFSET(python_type))
 
 extern PyTypeObject TypyPythonType;
-extern TypyPython** TypyPythonBuiltin;
+extern TypyPython*  TypyPythonBuiltin;
 
 TypyPython* Typy_RegisterPython(PyObject*, PyObject*);
 

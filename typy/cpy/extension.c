@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
-static TypyPython* _TypyPythonBuiltin[] = { NULL };
-TypyPython** TypyPythonBuiltin = _TypyPythonBuiltin;
+static TypyPython _TypyPythonBuiltin[] = { { PyObject_HEAD_INIT(NULL) NULL} };
+TypyPython* TypyPythonBuiltin = _TypyPythonBuiltin;
 
 TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	char *name;
@@ -176,10 +176,10 @@ static TypyPython* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 		Py_XDECREF(type->python_type);
 		Py_INCREF(python_type);
 		type->python_type = (PyTypeObject*)python_type;
-		register TypyPython** p;
-		for (p = TypyPythonBuiltin; *p; p++) {
-			if ((*p)->python_type == type->python_type) {
-				TypyPython_COPY(type, *p);
+		register TypyPython* p;
+		for (p = TypyPythonBuiltin; p->python_type; p++) {
+			if (p->python_type == type->python_type) {
+				TypyPython_COPY(type, p);
 				break;
 			}
 		}

@@ -6,7 +6,9 @@
 #define TYPY_TYPE_H__
 
 #ifdef _MSC_VER
-#	define HAVE_ROUND
+#	ifndef HAVE_ROUND
+#		define HAVE_ROUND
+#	endif
 #endif
 #define PY_SSIZE_T_CLEAN
 
