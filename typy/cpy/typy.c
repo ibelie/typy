@@ -106,14 +106,14 @@ static TypyLongObject kint64min_obj;
 static TypyLongObject kint64max_obj;
 
 #define TypyLongObject_INIT(O, N) do { \
-	PyObject_INIT((O), &PyLong_Type);                                    \
-	register int i = 0;                                                  \
+	PyObject_INIT((O), &PyLong_Type);                                                           \
+	register int i = 0;                                                                         \
 	register unsigned PY_LONG_LONG t = (N) < 0 ? ((unsigned PY_LONG_LONG)(-1 - (N)) + 1) : (N); \
-	while (t) {                                                          \
-		((PyLongObject*)(O))->ob_digit[i++] = (digit)(t & PyLong_MASK);  \
-		t >>= PyLong_SHIFT;                                              \
-	}                                                                    \
-	((PyLongObject*)(O))->ob_size = (N) < 0 ? -i : i;                    \
+	while (t) {                                                                                 \
+		((PyLongObject*)(O))->ob_digit[i++] = (digit)(t & PyLong_MASK);                         \
+		t >>= PyLong_SHIFT;                                                                     \
+	}                                                                                           \
+	((PyLongObject*)(O))->ob_size = (N) < 0 ? -i : i;                                           \
 } while (0)
 
 #define TypyStringObject(N) struct { \
