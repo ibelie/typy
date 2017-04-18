@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+static TypyPython* _TypyPythonBuiltin[] = { NULL };
+TypyPython** TypyPythonBuiltin = _TypyPythonBuiltin;
+
 TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
@@ -16,14 +19,13 @@ TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 		return NULL;
 	}
 
-	type = (TypyPython*)malloc(IBL_ALIGNED_SIZE(sizeof(TypyPython) + sizeof(char) * nameLen));
+	type = (TypyPython*)calloc(1, IBL_ALIGNED_SIZE(sizeof(TypyPython) + sizeof(char) * nameLen));
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Register Python out of memory %lu.", sizeof(TypyPython) + nameLen);
 		return NULL;
 	}
 
 	type->python_type = &PyBaseObject_Type;
-	type->python_name[nameLen] = 0;
 	memcpy(type->python_name, name, nameLen);
 	(void)PyObject_INIT(type, &TypyPythonType);
 
@@ -54,12 +56,14 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 		*value = PyObject_CallObject((PyObject*)type->python_type, NULL);
 	}
 	if (!size) { return true; }
-	register PyObject* data = PyBytes_FromStringAndSize((const char*)*input, size);
+	if (!(*value)) { return false; }
 	*input += size;
 	*length -= size;
-	if (*value) {
-		Py_XDECREF(PyObject_CallMethod(*value, "Deserialize", "O", data));
+	if (type->python_read) {
+		return type->python_read(*value, (*input) - size, size);
 	}
+	register PyObject* data = PyBytes_FromStringAndSize((const char*)(*input) - size, size);
+	Py_XDECREF(PyObject_CallMethod(*value, "Deserialize", "O", data));
 	Py_XDECREF(data);
 	return true;
 }
@@ -70,12 +74,17 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 		size += Typy_WriteTag(output, tag);
 	}
 	if (*value) {
+		if ((type->python_cachedsize || type->python_bytesize) && type->python_write) {
+			register size_t length = type->python_cachedsize ? type->python_cachedsize(*value) : type->python_bytesize(*value);
+			size += IblPutUvarint(output + size, length);
+			return type->python_write(*value, output + size);
+		}
 		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
 		if (data) {
 			register size_t length = PyBytes_GET_SIZE(data);
 			size += IblPutUvarint(output + size, length);
 			memcpy(output + size, PyBytes_AS_STRING(data), length);
-			Py_XDECREF(data);
+			Py_DECREF(data);
 			return size + length;
 		}
 	}
@@ -86,6 +95,7 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 	register size_t size = 0;
 	if (*value) {
+		if (type->python_bytesize) { return type->python_bytesize(*value); }
 		register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
 		if (s) { size = PyInt_AsLong(s); Py_DECREF(s); }
 	}
@@ -94,7 +104,7 @@ size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 
 PyObject* TypyPython_ToJson(TypyPython* type, PyObject** value, bool slim) {
 	if (!slim || *value) {
-		register PyObject* json = !(*value) ? PyDict_New() : PyObject_CallMethod(*value, "Json", NULL);
+		register PyObject* json = !(*value) ? PyDict_New() : (type->python_tojson ? type->python_tojson(*value) : PyObject_CallMethod(*value, "Json", NULL));
 		if (!json) { return NULL; }
 		register PyObject* _t = PyString_FromString(type->python_type->tp_name);
 		PyDict_SetItemString(json, "_t", _t);
@@ -144,7 +154,11 @@ bool TypyPython_FromJson(TypyPython* type, PyObject** value, PyObject* json) {
 		goto fromjson_fail;
 	}
 	Py_XDECREF(*value);
-	*value = PyObject_CallMethod((PyObject*)type->python_type, "FromJson", "O", dict);
+	if (type->python_fromjson) {
+		*value = type->python_fromjson(type->python_type, dict);
+	} else {
+		*value = PyObject_CallMethod((PyObject*)type->python_type, "FromJson", "O", dict);
+	}
 	Py_DECREF(iter);
 	Py_DECREF(dict);
 	return *value ? true : false;
@@ -162,6 +176,13 @@ static TypyPython* TypyPython_Initialize(TypyPython* type, PyObject* args) {
 		Py_XDECREF(type->python_type);
 		Py_INCREF(python_type);
 		type->python_type = (PyTypeObject*)python_type;
+		register TypyPython** p;
+		for (p = TypyPythonBuiltin; *p; p++) {
+			if ((*p)->python_type == type->python_type) {
+				TypyPython_COPY(type, *p);
+				break;
+			}
+		}
 	}
 	Py_INCREF(type);
 	return type;
