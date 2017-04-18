@@ -39,6 +39,8 @@
 #	define IBL_ALIGN(X, FIELD) FIELD __attribute__((aligned(X)))
 #endif
 
+#define IBL_ALIGNED_SIZE(SIZE) ((size_t)(((SIZE) + (sizeof(size_t) - 1)) & ~(sizeof(size_t) - 1)))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -107,7 +109,7 @@ typedef unsigned long long uint64;
 #	define INT64_MIN (-INT64_MAX - 1)
 #endif
 #ifndef UINT32_MAX
-#	define UINT32_MAX 0xFFFFFFFFu
+#	define UINT32_MAX Ibl_ULONGLONG(0xFFFFFFFF)
 #endif
 #ifndef UINT64_MAX
 #	define UINT64_MAX Ibl_ULONGLONG(0xFFFFFFFFFFFFFFFF)

@@ -19,7 +19,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 		return NULL;
 	}
 
-	type = (TypyMetaList*)malloc(sizeof(TypyMetaList) + nameLen);
+	type = (TypyMetaList*)malloc(IBL_ALIGNED_SIZE(sizeof(TypyMetaList) + sizeof(char) * nameLen));
 	if (!type) {
 		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %lu.", sizeof(TypyMetaList) + nameLen);
 		return NULL;

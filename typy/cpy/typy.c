@@ -3,6 +3,7 @@
 // that can be found in the LICENSE file.
 
 #include "typy.h"
+#include "longintrepr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,14 +86,60 @@ static struct PyModuleDef _module = {
 #define INITFUNC_ERRORVAL
 #endif
 
-PyObject* kPythonZero;
-PyObject* kint32min_py;
-PyObject* kint32max_py;
-PyObject* kuint32max_py;
-PyObject* kint64min_py;
-PyObject* kint64max_py;
-PyObject* kuint64max_py;
-PyObject* k_t;
+static PyIntObject kPythonZeroObject;
+static PyIntObject kint32min_obj;
+static PyIntObject kint32max_obj;
+
+#define TypyIntObject_INIT(O, N) do { \
+	PyObject_INIT((O), &PyInt_Type);  \
+	((PyIntObject*)(O))->ob_ival = (N); \
+} while (0)
+
+#define TypyLongObject struct { \
+	PyObject_VAR_HEAD           \
+	digit ob_digit[5];          \
+}
+
+static TypyLongObject kuint32max_obj;
+static TypyLongObject kuint64max_obj;
+static TypyLongObject kint64min_obj;
+static TypyLongObject kint64max_obj;
+
+#define TypyLongObject_INIT(O, N) do { \
+	PyObject_INIT((O), &PyLong_Type);                                    \
+	register int i = 0;                                                  \
+	register unsigned PY_LONG_LONG t = (N) < 0 ? ((unsigned PY_LONG_LONG)(-1 - (N)) + 1) : (N); \
+	while (t) {                                                          \
+		((PyLongObject*)(O))->ob_digit[i++] = (digit)(t & PyLong_MASK);  \
+		t >>= PyLong_SHIFT;                                              \
+	}                                                                    \
+	((PyLongObject*)(O))->ob_size = (N) < 0 ? -i : i;                    \
+} while (0)
+
+#define TypyStringObject(N) struct { \
+	PyObject_VAR_HEAD                \
+	long ob_shash;                   \
+	int  ob_sstate;                  \
+	char ob_sval[N + 1];             \
+}
+
+static TypyStringObject(2) k_t_obj;
+
+#define TypyStringObject_INIT(O, S) do { \
+	PyObject_INIT_VAR((O), &PyString_Type, strlen(S));       \
+	((PyStringObject*)(O))->ob_shash = -1;                   \
+	((PyStringObject*)(O))->ob_sstate = SSTATE_NOT_INTERNED; \
+	strcpy(((PyStringObject*)(O))->ob_sval, (S));            \
+} while (0)
+
+PyObject* kPythonZero   = (PyObject*)&kPythonZeroObject;
+PyObject* kint32min_py  = (PyObject*)&kint32min_obj;
+PyObject* kint32max_py  = (PyObject*)&kint32max_obj;
+PyObject* kuint32max_py = (PyObject*)&kuint32max_obj;
+PyObject* kint64min_py  = (PyObject*)&kint64min_obj;
+PyObject* kint64max_py  = (PyObject*)&kint64max_obj;
+PyObject* kuint64max_py = (PyObject*)&kuint64max_obj;
+PyObject* k_t           = (PyObject*)&k_t_obj;
 
 static PyTypeObject* PyTypeObjects[] = {
 	&TypyMetaDictType,
@@ -113,14 +160,14 @@ static PyTypeObject* PyTypeObjects[] = {
 };
 
 PyMODINIT_FUNC INITFUNC(void) {
-	kPythonZero = PyInt_FromLong(0);
-	kint32min_py = PyInt_FromLong(INT32_MIN);
-	kint32max_py = PyInt_FromLong(INT32_MAX);
-	kuint32max_py = PyLong_FromLongLong(UINT32_MAX);
-	kint64min_py = PyLong_FromLongLong(INT64_MIN);
-	kint64max_py = PyLong_FromLongLong(INT64_MAX);
-	kuint64max_py = PyLong_FromUnsignedLongLong(UINT64_MAX);
-	k_t = PyString_FromString("_t");
+	TypyIntObject_INIT(kPythonZero, 0);
+	TypyIntObject_INIT(kint32min_py, INT32_MIN);
+	TypyIntObject_INIT(kint32max_py, INT32_MAX);
+	TypyLongObject_INIT(kuint32max_py, UINT32_MAX);
+	TypyLongObject_INIT(kuint64max_py, UINT64_MAX);
+	TypyLongObject_INIT(kint64min_py, INT64_MIN);
+	TypyLongObject_INIT(kint64max_py, INT64_MAX);
+	TypyStringObject_INIT(k_t, "_t");
 
 	PyObject* m;
 #if PY_MAJOR_VERSION >= 3
