@@ -77,7 +77,7 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 		if ((type->python_cachedsize || type->python_bytesize) && type->python_write) {
 			register size_t length = type->python_cachedsize ? type->python_cachedsize(*value) : type->python_bytesize(*value);
 			size += IblPutUvarint(output + size, length);
-			return type->python_write(*value, output + size);
+			return size + type->python_write(*value, output + size);
 		}
 		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
 		if (data) {
