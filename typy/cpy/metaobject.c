@@ -64,9 +64,9 @@ int Meta_PropertyIndex(TypyMetaObject* type, char* key) {
 
 PyObject* Meta_ToJson(TypyMetaObject* type, TypyObject* self, bool slim) {
 	register PyObject* json = PyDict_New();
-	if (json == NULL) { return NULL; }
+	if (!json) { return NULL; }
 	register PyObject* value = PyString_FromString(Meta_NAME(type));
-	if (value == NULL) { Py_DECREF(json); return NULL; }
+	if (!value) { Py_DECREF(json); return NULL; }
 	PyDict_SetItemString(json, "_t", value);
 	Py_DECREF(value);
 	register size_t i;
@@ -87,7 +87,7 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 		return NULL;
 	}
 	register PyObject* value = PyObject_GetItem(json, k_t);
-	if (value == NULL) {
+	if (!value) {
 		FormatTypeError(json, "Json expect _t, ");
 		return NULL;
 	} else if (!PyBytes_Check(value)) {
