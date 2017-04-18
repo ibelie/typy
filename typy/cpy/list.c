@@ -697,3 +697,7 @@ PyTypeObject TypyListIteratorType = {
 	TypyList_IteratorMethods,                     /* tp_methods        */
 	0,                                            /* tp_members        */
 };
+
+#ifdef __cplusplus
+}
+#endif

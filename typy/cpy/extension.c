@@ -220,3 +220,7 @@ PyTypeObject TypyPythonType = {
 	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
 	"A Typy Python",                          /* tp_doc            */
 };
+
+#ifdef __cplusplus
+}
+#endif

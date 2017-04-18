@@ -7,6 +7,10 @@
 
 #include "typy.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_VARINT_TYPE 6
 #define MAX_PRIMITIVE_TYPE 9
 #define MAX_FIELD_TYPE 16

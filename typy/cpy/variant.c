@@ -318,3 +318,7 @@ PyTypeObject TypyVariantType = {
 	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
 	"A Typy Variant",                         /* tp_doc            */
 };
+
+#ifdef __cplusplus
+}
+#endif

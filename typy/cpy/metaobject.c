@@ -739,3 +739,7 @@ PyTypeObject TypyMetaObjectType = {
 	0,                                       /* tp_alloc          */
 	MetaObject_New,                          /* tp_new            */
 };
+
+#ifdef __cplusplus
+}
+#endif

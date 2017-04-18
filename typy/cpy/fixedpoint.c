@@ -78,3 +78,7 @@ PyTypeObject TypyFixedPointType = {
 	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
 	"A Typy FixedPoint",                      /* tp_doc            */
 };
+
+#ifdef __cplusplus
+}
+#endif

@@ -119,3 +119,7 @@ PyTypeObject TypyEnumType = {
 	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
 	"A Typy Enum",                            /* tp_doc            */
 };
+
+#ifdef __cplusplus
+}
+#endif
