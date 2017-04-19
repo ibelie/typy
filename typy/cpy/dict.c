@@ -676,6 +676,8 @@ PyMethodDef TypyDict_Methods[] = {
 		"Remove specified key and return the corresponding value." },
 	{ "keys", (PyCFunction)dict_Keys, METH_NOARGS,
 		"Get key list of the map." },
+	{ "values", (PyCFunction)dict_Values, METH_NOARGS,
+		"Get value list of the map." },
 	{ "items", (PyCFunction)dict_Items, METH_NOARGS,
 		"Get item list of the map." },
 	{ "itervalues", (PyCFunction)dict_IterValue, METH_NOARGS,
