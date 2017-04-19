@@ -431,6 +431,19 @@ static PyObject* dict_Keys(TypyDict* self) {
 	return keys;
 }
 
+static PyObject* dict_Values(TypyDict* self) {
+	PyObject* values = PyList_New(0);
+	if (!values) { return NULL; }
+	register IblMap_Item iter;
+	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
+		register TypyDictMap item = (TypyDictMap)iter;
+		register PyObject* value = TypyKey_GET(self, &item->value);
+		PyList_Append(values, value);
+		Py_XDECREF(value);
+	}
+	return values;
+}
+
 static PyObject* dict_Items(TypyDict* self) {
 	PyObject* items = PyList_New(0);
 	if (!items) { return NULL; }

@@ -232,6 +232,18 @@ static PyObject* tp_Keys(PyObject* self) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_Values(PyObject* self) {
+	PyObject* values = PyList_New(0);
+	if (values == NULL) { return NULL; }
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	for (typename Dict<K, V>::const_iterator it = dict->begin(); it != dict->end(); ++it) {
+		ScopedPyObjectPtr value(::typy::GetPyObject(it->second));
+		PyList_Append(values, value.get());
+	}
+	return values;
+}
+
+template <typename K, typename V>
 static PyObject* tp_Items(PyObject* self) {
 	PyObject* items = PyList_New(0);
 	if (items == NULL) { return NULL; }
@@ -450,6 +462,8 @@ PyMethodDef Dict<K, V>::Methods[] = {
 		"Remove specified key and return the corresponding value." },
 	{ "keys", (PyCFunction)::typy::dict::tp_Keys<K, V>, METH_NOARGS,
 		"Get key list of the map." },
+	{ "values", (PyCFunction)::typy::dict::tp_Values<K, V>, METH_NOARGS,
+		"Get value list of the map." },
 	{ "items", (PyCFunction)::typy::dict::tp_Items<K, V>, METH_NOARGS,
 		"Get item list of the map." },
 	{ "itervalues", (PyCFunction)::typy::dict::tp_IterValue<K, V>, METH_NOARGS,
