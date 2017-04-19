@@ -80,6 +80,8 @@ def setVariant(obj, value):
 		setattr(obj, value.__class__.__name__, value)
 
 
+PythonMessageDelegate = {}
+
 class PythonMessage(object):
 	def __init__(self, obj):
 		self.obj = obj
@@ -98,13 +100,22 @@ class PythonMessage(object):
 			self.obj = msg
 
 	def ByteSize(self):
-		return self.obj.ByteSize()
+		if type(self.obj) in PythonMessageDelegate:
+			return PythonMessageDelegate[type(self.obj)].ByteSize(self.obj)
+		else:
+			return self.obj.ByteSize()
 
 	def _InternalSerialize(self, write):
-		write(self.obj.Serialize())
+		if type(self.obj) in PythonMessageDelegate:
+			write(PythonMessageDelegate[type(self.obj)].Serialize(self.obj))
+		else:
+			write(self.obj.Serialize())
 
 	def _InternalParse(self, buffer, pos, new_pos):
-		self.obj.Deserialize(buffer[pos: new_pos])
+		if type(self.obj) in PythonMessageDelegate:
+			PythonMessageDelegate[type(self.obj)].Deserialize(self.obj, buffer[pos: new_pos])
+		else:
+			self.obj.Deserialize(buffer[pos: new_pos])
 		return new_pos
 
 class PythonDescriptor(object):
