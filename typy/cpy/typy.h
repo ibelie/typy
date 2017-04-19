@@ -45,6 +45,41 @@
 #	endif
 #endif
 
+#define TypyIntObject_INIT(O, N) do { \
+	(void)PyObject_INIT((O), &PyInt_Type); \
+	((PyIntObject*)(O))->ob_ival = (N);    \
+} while (0)
+
+#define TypyLongObject struct { \
+	PyObject_VAR_HEAD           \
+	digit ob_digit[5];          \
+}
+
+#define TypyLongObject_INIT(O, N) do { \
+	(void)PyObject_INIT((O), &PyLong_Type);                                                     \
+	register int i = 0;                                                                         \
+	register unsigned PY_LONG_LONG t = (N) < 0 ? ((unsigned PY_LONG_LONG)(-1 - (N)) + 1) : (N); \
+	while (t) {                                                                                 \
+		((PyLongObject*)(O))->ob_digit[i++] = (digit)(t & PyLong_MASK);                         \
+		t >>= PyLong_SHIFT;                                                                     \
+	}                                                                                           \
+	((PyLongObject*)(O))->ob_size = (N) < 0 ? -i : i;                                           \
+} while (0)
+
+#define TypyStringObject(S) struct { \
+	PyObject_VAR_HEAD                \
+	long ob_shash;                   \
+	int  ob_sstate;                  \
+	char ob_sval[sizeof(S)];         \
+}
+
+#define TypyStringObject_INIT(O, S) do { \
+	(void)PyObject_INIT_VAR((O), &PyString_Type, strlen(S)); \
+	((PyStringObject*)(O))->ob_shash = -1;                   \
+	((PyStringObject*)(O))->ob_sstate = SSTATE_NOT_INTERNED; \
+	strcpy(((PyStringObject*)(O))->ob_sval, (S));            \
+} while (0)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
