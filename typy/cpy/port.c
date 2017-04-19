@@ -2,7 +2,9 @@
 // Use of this source code is governed by The MIT License
 // that can be found in the LICENSE file.
 
-#define _CRT_SECURE_NO_WARNINGS
+#ifndef _CRT_SECURE_NO_WARNINGS
+#	define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include "port.h"
 #include "sys/stat.h"
