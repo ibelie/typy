@@ -266,6 +266,7 @@ bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
 		register PyObject* list = PySequence_Fast(json, "argument must be iterable");
 		if (!list) { return false; }
 		register Py_ssize_t i, size = PySequence_Fast_GET_SIZE(list);
+		if (size == 0) { Py_DECREF(list); return true; }
 		register TypyField* offset = TypyList_EnsureSize(self, size);
 		if (!offset) { Py_DECREF(list); return false; }
 		register PyObject** src = PySequence_Fast_ITEMS(list);

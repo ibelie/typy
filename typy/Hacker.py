@@ -177,6 +177,7 @@ class BytesChecker(object):
 		return b''
 
 	def CheckValue(self, proposed_value):
+		if proposed_value is None: return None
 		if not isinstance(proposed_value, (str, unicode)):
 			message = ('%.1024r has type %s, but expected one of: %s' %
 				(proposed_value, type(proposed_value), (str, unicode)))
