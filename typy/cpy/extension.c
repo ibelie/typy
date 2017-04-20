@@ -95,9 +95,12 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 	register size_t size = 0;
 	if (*value) {
-		if (type->python_bytesize) { return type->python_bytesize(*value); }
-		register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
-		if (s) { size = PyInt_AsLong(s); Py_DECREF(s); }
+		if (type->python_bytesize) {
+			size = type->python_bytesize(*value);
+		} else {
+			register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
+			if (s) { size = PyInt_AsLong(s); Py_DECREF(s); }
+		}
 	}
 	return tagsize + IblSizeVarint(size) + size;
 }
