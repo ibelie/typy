@@ -33,7 +33,7 @@ void FormatTypeError(PyObject* arg, const char* err) {
 
 PyObject* CallObject(PyObject* self, const char *name) {
 	PyObject* method = PyDict_GetItemString(Py_TYPE(self)->tp_dict, name);
-	if (method != NULL && Py_TYPE(method) == &PyMethod_Type) {
+	if (method != NULL && PyMethod_Check(method)) {
 		descrgetfunc f = Py_TYPE(method)->tp_descr_get;
 		if (f != NULL) {
 			ScopedPyObjectPtr m(f(method, self, reinterpret_cast<PyObject*>(Py_TYPE(self))));

@@ -10,7 +10,7 @@ extern "C" {
 
 static PyObject* CallObject(PyObject* self, const char *name) {
 	PyObject* method = PyDict_GetItemString(Py_TYPE(self)->tp_dict, name);
-	if (method && Py_TYPE(method) == &PyMethod_Type) {
+	if (method && PyMethod_Check(method)) {
 		register descrgetfunc f = Py_TYPE(method)->tp_descr_get;
 		if (f) {
 			register PyObject* m = f(method, self, (PyObject*)Py_TYPE(self));
@@ -24,7 +24,7 @@ static PyObject* CallObject(PyObject* self, const char *name) {
 
 static PyObject* CallObject1(PyObject* self, const char *name, PyObject* arg1) {
 	PyObject* method = PyDict_GetItemString(Py_TYPE(self)->tp_dict, name);
-	if (method && Py_TYPE(method) == &PyMethod_Type) {
+	if (method && PyMethod_Check(method)) {
 		register descrgetfunc f = Py_TYPE(method)->tp_descr_get;
 		if (f) {
 			register PyObject* m = f(method, self, (PyObject*)Py_TYPE(self));
@@ -40,7 +40,7 @@ static PyObject* CallObject1(PyObject* self, const char *name, PyObject* arg1) {
 
 static PyObject* CallObject2(PyObject* self, const char *name, PyObject* arg1, PyObject* arg2) {
 	PyObject* method = PyDict_GetItemString(Py_TYPE(self)->tp_dict, name);
-	if (method && Py_TYPE(method) == &PyMethod_Type) {
+	if (method && PyMethod_Check(method)) {
 		descrgetfunc f = Py_TYPE(method)->tp_descr_get;
 		if (f) {
 			register PyObject* m = f(method, self, (PyObject*)Py_TYPE(self));
