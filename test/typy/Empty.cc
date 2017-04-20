@@ -66,6 +66,7 @@ Empty* Empty::FromJson(PyObject* json) {
 			Empty::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	PyErr_Clear();
 	Py_DECREF(value);
 	Empty* object = new Empty();
 	

@@ -6,6 +6,22 @@ project(typyd)
 
 cmake_minimum_required(VERSION 2.8)
 
+set(HEADER_FILES
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/abstract.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/dict.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/enum.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/extension.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/fixedpoint.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/list.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/map.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/object.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/port.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/protobuf.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/tree.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/typy.h"
+	"${PROJECT_SOURCE_DIR}/../typy/cpy/variant.h"
+)
+
 set(SOURCE_FILES
 	"${PROJECT_SOURCE_DIR}/main.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/abstract.c"
@@ -23,7 +39,8 @@ set(SOURCE_FILES
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/typy.c"
 	"${PROJECT_SOURCE_DIR}/../typy/cpy/variant.c"
 )
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 include_directories("${PROJECT_SOURCE_DIR}/../typy/cpy")
 add_definitions(-DTYPY_FIELD_SIZE_64)
 

@@ -642,17 +642,26 @@ def _build(_typy):
 	print 'v1', fighterPy.v1, fighter.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
 
 	def TestSkillParam():
-		oData = '\n\x10WO2gOCkyKx6wL59B\x12\x00\x18\xae\x01"\x10WO2gOCkyKx6wL59B*8\x12\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1a\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x002\x00@\xae\x01X\x01'
-
-		oPy = onInitRuntime()
-		oPy.ParseFromString(oData)
-		print oPy.Args()
-
 		_typy.Vector3(Vector3)
 		_onInitRuntime = _typy.onInitRuntime()
-		o = _onInitRuntime()
+		json = {
+			'_t': 'onInitRuntime',
+			'params': [
+				{
+					'_t': 'SkillParam',
+					'origPos': {'y': 0.0, 'x': 0.0, 'z': 0.0, '_t': 'Vector3'},
+				},
+			],
+		}
+
+		oPy = onInitRuntime.FromJson(json)
+		o = _onInitRuntime.FromJson(json)
+		oDataPy = oPy.SerializeToString()
+		oData = o.SerializeToString()
+		print len(oDataPy), [ord(c) for c in oDataPy]
+		print len(oData), [ord(c) for c in oData]
+
 		o.ParseFromString(oData)
-		print o.Args()
 
 	TestSkillParam()
 
@@ -674,6 +683,9 @@ def _build(_typy):
 	fighter.vd = fighter.sd
 	fighter.vd.update(fighter.sd)
 	print fighterPy.vd[321], fighterPy.vd[231], fighter.vd[321], fighter.vd[231]
+
+	print 'fighterPy.Json(True)', Fighter().Json(True)
+	print 'fighter.Json(True)', _Fighter().Json(True)
 
 	return time.time() - startTime
 

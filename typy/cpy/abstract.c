@@ -644,7 +644,7 @@ IblMap_Compare abstract_Compare[MAX_FIELD_TYPE] = {
 
 #define TO_JSON_SIMPLE(NAME, TYPE) \
 static PyObject* Typy##NAME##_ToJson(TypyType t, TYPE* v, bool s) { \
-	return (!s || v) ? Typy##NAME##_GetPyObject(t, v) : NULL;       \
+	return (!s || *v) ? Typy##NAME##_GetPyObject(t, v) : NULL;      \
 }
 
 TO_JSON_SIMPLE(Enum,       TypyField);

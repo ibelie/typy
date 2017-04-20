@@ -131,27 +131,28 @@ Fighter_Part1* Fighter_Part1::FromJson(PyObject* json) {
 			Fighter_Part1::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	PyErr_Clear();
 	Py_DECREF(value);
 	Fighter_Part1* object = new Fighter_Part1();
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("hp")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("hp")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_hp, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("isAwake")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("isAwake")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_isAwake, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pos")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pos")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_pos, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("posi")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("posi")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_posi, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("posl")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("posl")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_posl, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("poss")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("poss")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_poss, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyd")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyd")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_pyd, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyl")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyl")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_pyl, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyv1")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyv1")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_pyv1, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyv2")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("pyv2")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_pyv2, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	return object;
 }

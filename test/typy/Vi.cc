@@ -101,6 +101,7 @@ Vi* Vi::FromJson(PyObject* json) {
 	Vi* object = new Vi;
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		PyErr_Clear();
 		if (PyBytes_Check(_t.get())) {
 			
 		}

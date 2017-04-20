@@ -145,31 +145,32 @@ onInitRuntime* onInitRuntime::FromJson(PyObject* json) {
 			onInitRuntime::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	PyErr_Clear();
 	Py_DECREF(value);
 	onInitRuntime* object = new onInitRuntime();
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("buckID")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_buckID, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("events")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("events")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_events, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("flowID")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("flowID")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_flowID, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("ownerID")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("ownerID")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_ownerID, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("params")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("params")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_params, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("passBuckEvents")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("passBuckEvents")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_passBuckEvents, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("prev")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("prev")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_prev, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("skillID")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("skillID")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_skillID, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("skillIdx")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("skillIdx")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_skillIdx, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("specificEvents")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("specificEvents")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_specificEvents, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("uiid")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("uiid")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_uiid, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("unitIndex")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("unitIndex")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_unitIndex, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	return object;
 }

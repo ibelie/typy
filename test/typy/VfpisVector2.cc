@@ -146,6 +146,7 @@ VfpisVector2* VfpisVector2::FromJson(PyObject* json) {
 	VfpisVector2* object = new VfpisVector2;
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		PyErr_Clear();
 		if (PyBytes_Check(_t.get())) {
 			if (!strcmp(PyBytes_AS_STRING(_t.get()), "Vector2")) {
 				if (::typy::FromJson(object->_value4, json)) { object->_tag = 4; return object; }

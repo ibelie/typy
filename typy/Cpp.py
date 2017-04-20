@@ -410,7 +410,7 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 		break;""" % (tag, tag, a, tag, a))
 			to_json.append("""value = ::typy::Json(p_%s, slim);
 	if (value != NULL) { PyDict_SetItemString(json, "%s", value); Py_DECREF(value); }""" % (a, a))
-			from_json.append("""value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("%s")).get());
+			from_json.append("""value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("%s")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_%s, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }""" % (a, a))
 			read_field_args.append(ReadFieldArgs())
 			read_field_args[tag].name = a
@@ -682,6 +682,7 @@ PyObject* %s::Json(bool slim) {
 	%s* object = new %s;
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
+		PyErr_Clear();
 		if (PyBytes_Check(_t.get())) {
 			%s
 		}%s
@@ -992,6 +993,7 @@ PyObject* %s::Json(bool slim) {
 			%s::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	PyErr_Clear();
 	Py_DECREF(value);
 	%s* object = new %s();
 	%s

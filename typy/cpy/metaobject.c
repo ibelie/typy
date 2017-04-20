@@ -100,6 +100,7 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 		Py_DECREF(value);
 		return NULL;
 	}
+	PyErr_Clear();
 	Py_DECREF(value);
 
 	register TypyObject* object = Typy_New(type, NULL, NULL);
@@ -109,6 +110,7 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 		if (!Meta_TAG(type, i)) { continue; }
 		register PyObject* p = PyString_FromString(Meta_PropertyName(type, i));
 		value = PyObject_GetItem(json, p);
+		PyErr_Clear();
 		Py_XDECREF(p);
 		if (value) {
 			register bool success = Typy_FROMJSON(object, i, value);
@@ -118,7 +120,6 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 				return NULL;
 			}
 		}
-		PyErr_Clear();
 	}
 	return object;
 }
@@ -449,7 +450,13 @@ void TypyObject_MergeFrom(TypyMetaObject* type, TypyObject** lvalue, TypyObject*
 }
 
 PyObject* TypyObject_ToJson(TypyMetaObject* type, TypyObject** value, bool slim) {
-	return Meta_ToJson(type, *value, slim);
+	if (!slim && !(*value)) {
+		Py_RETURN_NONE;
+	} else if (*value) {
+		return Meta_ToJson(type, *value, slim);
+	} else {
+		return NULL;
+	}
 }
 
 bool TypyObject_FromJson(TypyMetaObject* type, TypyObject** value, PyObject* json) {

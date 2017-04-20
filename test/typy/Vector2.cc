@@ -112,21 +112,22 @@ Vector2* Vector2::FromJson(PyObject* json) {
 			Vector2::Name, PyBytes_AS_STRING(value));
 		return NULL;
 	}
+	PyErr_Clear();
 	Py_DECREF(value);
 	Vector2* object = new Vector2();
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("x")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("x")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_x, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("y")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("y")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_y, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("b")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("b")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_b, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("e")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("e")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_e, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("i")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("i")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_i, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("p")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("p")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_p, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
-	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("s")).get());
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("s")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_s, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	return object;
 }
