@@ -107,6 +107,9 @@ def setup():
 		def __cmp__(self, other):
 			return self.x - other.x
 
+		def __hash__(self):
+			return hash(self.x)
+
 		def __add__(self, other):
 			return Vector2(x = self.x + other.x, y = self.y + other.y)
 	globals()['Vector2'] = Vector2
@@ -433,6 +436,7 @@ def _build(_typy):
 			'e': self.e,
 			'p': self.p,
 		}),
+		'__hash__': lambda self: hash(self.x),
 		'__cmp__': lambda self, other: self.x - other.x,
 		'__lt__': lambda self, other: self.x < other.x,
 		'__add__': lambda self, other: self.__class__(x = self.x + other.x, y = self.y + other.y),
@@ -686,6 +690,9 @@ def _build(_typy):
 
 	print 'fighterPy.Json(True)', Fighter().Json(True)
 	print 'fighter.Json(True)', _Fighter().Json(True)
+
+	assert Vector2(x = 123) in {Vector2(x = 123): None}
+	assert _Vector2(x = 123) in {_Vector2(x = 123): None}
 
 	return time.time() - startTime
 

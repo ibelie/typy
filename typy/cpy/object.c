@@ -116,27 +116,50 @@ static PyObject* half_richcompare(PyObject* v, PyObject* w, int op) {
 	};
 	PyObject* result = CallObject1(v, name_op[op], w);
 	if (!result) {
-		if (op == 2) {
-			return v == w ? Py_True : Py_False;
-		} else if (op == 3) {
-			return v == w ? Py_True : Py_False;
-		} else {
-			Py_INCREF(Py_NotImplemented);
-			return Py_NotImplemented;
-		}
+		Py_INCREF(Py_NotImplemented);
+		return Py_NotImplemented;
 	}
 	return result;
 }
 
 static PyObject* object_Richcompare(PyObject* v, PyObject* w, int op) {
+	static bool cmp_op[3][6] = {
+		{ true,  true, false,  true, false, false},
+		{false,  true,  true, false, false,  true},
+		{false, false, false,  true,  true, false},
+	};
+	register PyObject* result;
 	static int swapped_op[] = {Py_GT, Py_GE, Py_EQ, Py_NE, Py_LT, Py_LE};
 	if (PyObject_TypeCheck(v, TypyObjectType)) {
-		return half_richcompare(v, w, op);
+		result = half_richcompare(v, w, op);
 	} else if (PyObject_TypeCheck(w, TypyObjectType)) {
-		return half_richcompare(w, v, swapped_op[op]);
+		result = half_richcompare(w, v, swapped_op[op]);
 	}
-	Py_INCREF(Py_NotImplemented);
-	return Py_NotImplemented;
+	if (result == Py_NotImplemented) {
+		Py_DECREF(Py_NotImplemented);
+		register int cmp = object_Compare(v, w);
+		if (cmp >= -1 && cmp <= 1) {
+			if (cmp_op[cmp + 1][op]) {
+				Py_RETURN_TRUE;
+			} else {
+				Py_RETURN_FALSE;
+			}
+		} else if (op == 2) {
+			if (v == w) {
+				Py_RETURN_TRUE;
+			} else {
+				Py_RETURN_FALSE;
+			}
+		} else if (op == 3) {
+			if (v == w) {
+				Py_RETURN_FALSE;
+			} else {
+				Py_RETURN_TRUE;
+			}
+		}
+		Py_INCREF(Py_NotImplemented);
+	}
+	return result;
 }
 
 static Py_ssize_t object_Len(PyObject* self) {

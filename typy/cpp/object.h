@@ -379,27 +379,50 @@ public:
 		};
 		PyObject* result = CallObject(v, name_op[op], w);
 		if (result == NULL) {
-			if (op == 2) {
-				return v == w ? Py_True : Py_False;
-			} else if (op == 3) {
-				return v == w ? Py_True : Py_False;
-			} else {
-				Py_INCREF(Py_NotImplemented);
-				return Py_NotImplemented;
-			}
+			Py_INCREF(Py_NotImplemented);
+			return Py_NotImplemented;
 		}
 		return result;
 	}
 
 	static PyObject* tp_Richcompare(PyObject* v, PyObject* w, int op) {
+		static bool cmp_op[3][6] = {
+			{ true,  true, false,  true, false, false},
+			{false,  true,  true, false, false,  true},
+			{false, false, false,  true,  true, false},
+		};
+		register PyObject* result;
 		static int swapped_op[] = {Py_GT, Py_GE, Py_EQ, Py_NE, Py_LT, Py_LE};
 		if (PyObject_TypeCheck(v, &_Type)) {
-			return half_richcompare(v, w, op);
+			result = half_richcompare(v, w, op);
 		} else if (PyObject_TypeCheck(w, &_Type)) {
-			return half_richcompare(w, v, swapped_op[op]);
+			result = half_richcompare(w, v, swapped_op[op]);
 		}
-		Py_INCREF(Py_NotImplemented);
-		return Py_NotImplemented;
+		if (result == Py_NotImplemented) {
+			Py_DECREF(Py_NotImplemented);
+			register int cmp = tp_Compare(v, w);
+			if (cmp >= -1 && cmp <= 1) {
+				if (cmp_op[cmp + 1][op]) {
+					Py_RETURN_TRUE;
+				} else {
+					Py_RETURN_FALSE;
+				}
+			} else if (op == 2) {
+				if (v == w) {
+					Py_RETURN_TRUE;
+				} else {
+					Py_RETURN_FALSE;
+				}
+			} else if (op == 3) {
+				if (v == w) {
+					Py_RETURN_FALSE;
+				} else {
+					Py_RETURN_TRUE;
+				}
+			}
+			Py_INCREF(Py_NotImplemented);
+		}
+		return result;
 	}
 
 	static PyObject* tp_Repr(PyObject* self) {
