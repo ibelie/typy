@@ -18,7 +18,7 @@ bool Typy_ReadByte(byte** buffer, size_t* buf_len, byte* x) {
 bool Typy_ReadVarint32(byte** buffer, size_t* buf_len, uint32* x) {
 	uint64 y;
 	register int size = IblUvarint(*buffer, *buf_len, &y);
-	if (size >= 0) {
+	if (size >= 0 && (size_t)size <= *buf_len) {
 		*buffer += size;
 		*buf_len -= size;
 		*x = (uint32)y;
@@ -30,7 +30,7 @@ bool Typy_ReadVarint32(byte** buffer, size_t* buf_len, uint32* x) {
 
 bool Typy_ReadVarint64(byte** buffer, size_t* buf_len, uint64* x) {
 	register int size = IblUvarint(*buffer, *buf_len, x);
-	if (size >= 0) {
+	if (size >= 0 && (size_t)size <= *buf_len) {
 		*buffer += size;
 		*buf_len -= size;
 		return true;
@@ -171,6 +171,10 @@ static inline bool _Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag) {
 		return false;
 
 	done:
+		if ((size_t)(ptr - *buffer) > *buf_len) {
+			*tag = 0;
+			return false;
+		}
 		*tag = result;
 		*buf_len -= (size_t)(ptr - *buffer);
 		*buffer = ptr;
@@ -178,10 +182,14 @@ static inline bool _Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag) {
 	} else {
 		uint64 temp;
 		register int size = IblUvarint(*buffer, *buf_len, &temp);
+		if (size < 0 || (size_t)size > *buf_len) {
+			*tag = 0;
+			return false;
+		}
 		*tag = (uint32)temp;
-		*buffer += size >= 0 ? size : 0;
-		*buf_len -= size >= 0 ? size : 0;
-		return size >= 0;
+		*buffer += size;
+		*buf_len -= size;
+		return true;
 	}
 }
 
