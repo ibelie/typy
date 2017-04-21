@@ -461,6 +461,28 @@ static PyObject* dict_Items(TypyDict* self) {
 	return items;
 }
 
+static PyObject* dict_SetDefault(TypyDict* self, PyObject* args) {
+	PyObject* key;
+	PyObject* failobj = Py_None;
+	TypyField k = 0;
+	if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &failobj)) {
+		return NULL;
+	} else if (!TypyKey_CHECKSET(self, &k, key, "")) {
+		return NULL;
+	}
+	register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
+	if (!entry) {
+		entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
+		if (!entry || !TypyValue_CHECKSET(self, &entry->value, failobj, "Dict value type error: ")) {
+			return NULL;
+		}
+		Py_INCREF(failobj);
+		return failobj;
+	} else {
+		return TypyValue_GET(self, &entry->value);
+	}
+}
+
 static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
 	PyObject* items;
 	if (!arg || arg == Py_None) {
@@ -684,6 +706,8 @@ PyMethodDef TypyDict_Methods[] = {
 		"Iterator over values of the map." },
 	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
+	{ "setdefault", (PyCFunction)dict_SetDefault, METH_VARARGS,
+		"Get value of the key, also set the default value if key not in the map." },
 	{ "update", (PyCFunction)dict_Update, METH_O,
 		"Update items from another map." },
 	{ NULL, NULL }

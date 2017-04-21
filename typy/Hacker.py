@@ -395,6 +395,14 @@ class _ScalarMap(containers.ScalarMap):
 			self._message_listener.Modified()
 		else:
 			super(_ScalarMap, self).__setitem__(key, value)
+
+	def setdefault(self, key, default = None):
+		if key in self._values:
+			return self[key]
+		else:
+			self[key] = default
+		return default
+
 containers.ScalarMap = _ScalarMap
 
 class _MessageMap(containers.MessageMap):
@@ -460,6 +468,13 @@ class _MessageMap(containers.MessageMap):
 		self._values[key] = value
 		self._message_listener.Modified()
 		value._is_present_in_parent = True
+
+	def setdefault(self, key, default = None):
+		if key in self._values:
+			return self[key]
+		else:
+			self[key] = default
+		return default
 
 	def MergeFrom(self, other):
 		for key in other:

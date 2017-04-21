@@ -346,6 +346,30 @@ static PyObject* tp_IterItem(PyObject* self) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_SetDefault(PyObject* self, PyObject* args) {
+	PyObject* key;
+	PyObject* failobj = Py_None;
+	typename Type<K>::KeyType k;
+	if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &failobj)) {
+		return NULL;
+	} else if (!::typy::CheckAndSet(key, k, "")) {
+		return NULL;
+	}
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	typename Dict<K, V>::iterator it = dict->find(k);
+	if (it == dict->end()) {
+		if (!::typy::CheckAndSet(failobj, (*dict)[k], "Dict value type error: ")) {
+			dict->erase(k);
+			return NULL;
+		}
+		Py_INCREF(failobj);
+		return failobj;
+	} else {
+		return ::typy::GetPyObject(it->second);
+	}
+}
+
+template <typename K, typename V>
 static void iter_Dealloc(typename Dict<K, V>::Iterator* it)
 {
 	Py_XDECREF(it->it_dict);
@@ -470,6 +494,8 @@ PyMethodDef Dict<K, V>::Methods[] = {
 		"Iterator over values of the map." },
 	{ "iteritems", (PyCFunction)::typy::dict::tp_IterItem<K, V>, METH_NOARGS,
 		"Iterator over the (key, value) items of the map." },
+	{ "setdefault", (PyCFunction)::typy::dict::tp_SetDefault<K, V>, METH_VARARGS,
+		"Get value of the key, also set the default value if key not in the map." },
 	{ "update", (PyCFunction)::typy::dict::tp_Update<K, V>, METH_O,
 		"Update items from another map." },
 	{ NULL, NULL }

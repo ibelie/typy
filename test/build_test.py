@@ -694,6 +694,9 @@ def _build(_typy):
 	assert Vector2(x = 123) in {Vector2(x = 123): None}
 	assert _Vector2(x = 123) in {_Vector2(x = 123): None}
 
+	print fighterPy.vd.setdefault(321, None), fighterPy.vd.setdefault(111, 987.654), fighterPy.vd[111]
+	print fighter.vd.setdefault(321, None), fighter.vd.setdefault(111, 987.654), fighter.vd[111]
+
 	return time.time() - startTime
 
 cpptime = 0
