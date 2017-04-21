@@ -256,7 +256,8 @@ size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length) {
 			if (!Typy_READ(self, index, &input, &remain)) {
 				return 0;
 			}
-		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
+		} else if (Typy_FIELDTYPE(self, index) == FIELD_TYPE_LIST &&
+			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
 			if (!TypyList_ReadRepeated(Typy_TYPYTYPE(self, index), (TypyList**)&Typy_FIELD(self, index), &input, &remain)) {
 				return 0;
 			}
@@ -312,7 +313,8 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 			if (!Typy_READ(self, index, &input, &remain)) {
 				goto handle_unusual;
 			}
-		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
+		} else if (Typy_FIELDTYPE(self, index) == FIELD_TYPE_LIST &&
+			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
 			if (!TypyList_ReadRepeated(Typy_TYPYTYPE(self, index), (TypyList**)&Typy_FIELD(self, index), &input, &remain)) {
 				goto handle_unusual;
 			}

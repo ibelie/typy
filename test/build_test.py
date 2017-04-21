@@ -210,6 +210,15 @@ def setup():
 		passBuckEvents = pb.List(Integer)
 	globals()['onInitRuntime'] = onInitRuntime
 
+	class playSoundVO_1(Object):
+		path = pb.String
+		interval = pb.Float
+	globals()['playSoundVO_1'] = playSoundVO_1
+
+	class playSoundVO_2(Object):
+		path = pb.String
+	globals()['playSoundVO_2'] = playSoundVO_2
+
 
 def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "hp\t", "\t", fighter1.hp, "\t\t", fighter2.hp, "\t\t", fighter3.hp, "\t\t", fighter4.hp, "\t\t", fighter5.hp
@@ -332,7 +341,7 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 
 
 def _build(_typy):
-	global Vector2, Fighter, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime
+	global Vector2, Fighter, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime, playSoundVO_1, playSoundVO_2
 
 	vPy = Vector2(
 		123,  # x
@@ -696,6 +705,11 @@ def _build(_typy):
 
 	print fighterPy.vd.setdefault(321, None), fighterPy.vd.setdefault(111, 987.654), fighterPy.vd[111]
 	print fighter.vd.setdefault(321, None), fighter.vd.setdefault(111, 987.654), fighter.vd[111]
+
+	_playSoundVO_1 = _typy.playSoundVO_1()
+	_playSoundVO_2 = _typy.playSoundVO_2()
+	playSoundVO_2().ParseFromString(playSoundVO_1(interval = 1, path = 'asdf').SerializeToString())
+	_playSoundVO_2().ParseFromString(_playSoundVO_1(interval = 1, path = 'asdf').SerializeToString())
 
 	return time.time() - startTime
 

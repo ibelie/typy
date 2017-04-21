@@ -181,6 +181,10 @@ Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('pyv1', 74, 1, 2, 12, ViPyType),
 	('pyv2', 82, 1, 2, 12, ViPyType),
 ))
+playSoundVO_2 = _typyd.Object('playSoundVO_2', (
+	
+	('path', 10, 1, 2, 10, ),
+))
 Li = _typyd.List('Li', (0, 1, ))
 Vector3 = _typyd.Python('Vector3')
 Vbbyfi = _typyd.Variant('Vbbyfi', (
@@ -218,4 +222,9 @@ onInitRuntime = _typyd.Object('onInitRuntime', (
 	('specificEvents', 82, 1, 2, 14, DbyLi),
 	('uiid', 88, 1, 0, 1, ),
 	('unitIndex', 96, 1, 0, 1, ),
+))
+playSoundVO_1 = _typyd.Object('playSoundVO_1', (
+	
+	('interval', 13, 1, 5, 7, ),
+	('path', 18, 1, 2, 10, ),
 ))

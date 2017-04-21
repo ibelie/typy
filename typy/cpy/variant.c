@@ -190,7 +190,8 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 			if (!MetaVariant_READ(type, self, index, input, &remain)) {
 				goto handle_unusual;
 			}
-		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
+		} else if (Meta_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
+			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
 			if (self->variant_index != index) {
 				TypyVariant_Clear(self);
 			}

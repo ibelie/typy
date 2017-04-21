@@ -214,7 +214,8 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 			if (!MetaDict_READ(type, index, index ? &value : &key, input, &remain)) {
 				return false;
 			}
-		} else if (TAG_WIRETYPE(tag) == MetaList_WIRETYPE(MetaDict_TYPYTYPE(type, index))) {
+		} else if (MetaDict_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
+			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(MetaDict_TYPYTYPE(type, index))) {
 			if (!TypyList_ReadRepeated(MetaDict_TYPYTYPE(type, index), (TypyList**)(index ? &value : &key), input, &remain)) {
 				return false;
 			}

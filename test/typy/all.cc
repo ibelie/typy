@@ -12,6 +12,8 @@
 #include "SkillParam.h"
 #include "Vector2.h"
 #include "onInitRuntime.h"
+#include "playSoundVO_1.h"
+#include "playSoundVO_2.h"
 #include "list.h"
 #include "dict.h"
 
@@ -52,6 +54,8 @@ bool InitModule(PyObject* m) {
 		&& Object<SkillParam>::Init(m)
 		&& Object<Vector2>::Init(m)
 		&& Object<onInitRuntime>::Init(m)
+		&& Object<playSoundVO_1>::Init(m)
+		&& Object<playSoundVO_2>::Init(m)
 		&& Python<Shadow_PyType>::Init(m, "PyType")
 		&& Python<Shadow_Vector3>::Init(m, "Vector3");
 }
