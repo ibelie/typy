@@ -711,6 +711,11 @@ def _build(_typy):
 	playSoundVO_2().ParseFromString(playSoundVO_1(interval = 1, path = 'asdf').SerializeToString())
 	_playSoundVO_2().ParseFromString(_playSoundVO_1(interval = 1, path = 'asdf').SerializeToString())
 
+	setattr(fighterPy, 'nv', None)
+	setattr(fighter, 'nv', None)
+	assert type(fighterPy.nv) is type(None)
+	assert type(fighter.nv) is type(None)
+
 	return time.time() - startTime
 
 cpptime = 0

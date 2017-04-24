@@ -302,9 +302,12 @@ def _AddPropertiesForNonRepeatedCompositeField(field, cls):
 
 	def getter(self):
 		field_value = self._fields.get(field, None)
-		if field_value is not None and field.message_type.oneofs:
-			attr = field_value.WhichOneof('Variant')
-			return None if attr is None else getattr(field_value, attr)
+		if field.message_type.oneofs:
+			if field_value is None:
+				return None
+			else:
+				attr = field_value.WhichOneof('Variant')
+				return None if attr is None else getattr(field_value, attr)
 		if field_value is None:
 			field_value = field._default_constructor(self)
 			field_value = self._fields.setdefault(field, field_value)
