@@ -9,12 +9,10 @@ Lby = _typyd.List('Lby', (2, 9, ))
 Corpus = _typyd.Enum('Corpus')
 FixedPoint_1_s10 = _typyd.FixedPoint(1, -10)
 Empty = _typyd.Object('Empty', (
-	
 ))
 PyType = _typyd.Python('PyType')
 PyObject = _typyd.Python('PyObject')
 Vector2 = _typyd.Object('Vector2', (
-	
 	('x', 13, 1, 5, 7, ),
 	('y', 16, 1, 0, 5, FixedPoint_1_s10),
 	('b', 26, 1, 2, 9, ),
@@ -25,7 +23,6 @@ Vector2 = _typyd.Object('Vector2', (
 	('t', 0, 0, 2, 15, PyObject),
 ))
 VdesVector2 = _typyd.Variant('VdesVector2', (
-	
 	('Double', 9, 1, 1, 6, ),
 	('Enum', 16, 1, 0, 0, Corpus),
 	('String', 26, 1, 2, 10, ),
@@ -34,13 +31,11 @@ VdesVector2 = _typyd.Variant('VdesVector2', (
 DiVdesVector2 = _typyd.Dict('DiVdesVector2', (0, 1, ), (2, 12, VdesVector2))
 DiDiVdesVector2 = _typyd.Dict('DiDiVdesVector2', (0, 1, ), (2, 14, DiVdesVector2))
 Vfs = _typyd.Variant('Vfs', (
-	
 	('Float', 13, 1, 5, 7, ),
 	('String', 18, 1, 2, 10, ),
 ))
 DiVfs = _typyd.Dict('DiVfs', (0, 1, ), (2, 12, Vfs))
 ViDiVfs = _typyd.Variant('ViDiVfs', (
-	
 	('Dict', 10, 1, 2, 14, DiVfs),
 	('Integer', 16, 1, 0, 1, ),
 ))
@@ -49,32 +44,27 @@ Le = _typyd.List('Le', (0, 0, Corpus))
 Dfi = _typyd.Dict('Dfi', (0, 1, ), (5, 7, ))
 DiDfi = _typyd.Dict('DiDfi', (0, 1, ), (2, 14, Dfi))
 ViDfi = _typyd.Variant('ViDfi', (
-	
 	('Dict', 10, 1, 2, 14, Dfi),
 	('Integer', 16, 1, 0, 1, ),
 ))
 Lf = _typyd.List('Lf', (5, 7, ))
 DiLf = _typyd.Dict('DiLf', (0, 1, ), (2, 13, Lf))
 ViLf = _typyd.Variant('ViLf', (
-	
 	('Integer', 8, 1, 0, 1, ),
 	('List', 18, 1, 2, 13, Lf),
 ))
 LVdesVector2 = _typyd.List('LVdesVector2', (2, 12, VdesVector2))
 DiLVdesVector2 = _typyd.Dict('DiLVdesVector2', (0, 1, ), (2, 13, LVdesVector2))
 VLf = _typyd.Variant('VLf', (
-	
 	('List', 10, 1, 2, 13, Lf),
 ))
 LVLf = _typyd.List('LVLf', (2, 12, VLf))
 LVfs = _typyd.List('LVfs', (2, 12, Vfs))
 ViLVfs = _typyd.Variant('ViLVfs', (
-	
 	('Integer', 8, 1, 0, 1, ),
 	('List', 18, 1, 2, 13, LVfs),
 ))
 Vi = _typyd.Variant('Vi', (
-	
 	('Integer', 8, 1, 0, 1, ),
 ))
 LVector2 = _typyd.List('LVector2', (2, 11, Vector2))
@@ -82,21 +72,18 @@ DiVector2 = _typyd.Dict('DiVector2', (0, 1, ), (2, 11, Vector2))
 DiPyType = _typyd.Dict('DiPyType', (0, 1, ), (2, 15, PyType))
 LPyType = _typyd.List('LPyType', (2, 15, PyType))
 ViPyType = _typyd.Variant('ViPyType', (
-	
 	('Integer', 8, 1, 0, 1, ),
 	('PyType', 18, 1, 2, 15, PyType),
 ))
 Dis = _typyd.Dict('Dis', (0, 1, ), (2, 10, ))
 Ls = _typyd.List('Ls', (2, 10, ))
 VbyfiVector2 = _typyd.Variant('VbyfiVector2', (
-	
 	('Bytes', 10, 1, 2, 9, ),
 	('Float', 21, 1, 5, 7, ),
 	('Integer', 24, 1, 0, 1, ),
 	('Vector2', 34, 1, 2, 11, Vector2),
 ))
 VfisVector2 = _typyd.Variant('VfisVector2', (
-	
 	('Float', 13, 1, 5, 7, ),
 	('Integer', 16, 1, 0, 1, ),
 	('String', 26, 1, 2, 10, ),
@@ -104,7 +91,6 @@ VfisVector2 = _typyd.Variant('VfisVector2', (
 ))
 FixedPoint_3_s0 = _typyd.FixedPoint(3, 0)
 VfpisVector2 = _typyd.Variant('VfpisVector2', (
-	
 	('FixedPoint', 8, 1, 0, 5, FixedPoint_3_s0),
 	('Integer', 16, 1, 0, 1, ),
 	('String', 26, 1, 2, 10, ),
@@ -112,7 +98,6 @@ VfpisVector2 = _typyd.Variant('VfpisVector2', (
 ))
 LVfpisVector2 = _typyd.List('LVfpisVector2', (2, 12, VfpisVector2))
 Fighter = _typyd.Object('Fighter', (
-	
 	('bd', 10, 1, 2, 14, Dbys),
 	('bl', 18, 1, 2, 13, Lby),
 	('dd', 26, 1, 2, 14, DiDiVdesVector2),
@@ -148,7 +133,6 @@ Fighter = _typyd.Object('Fighter', (
 	('vl', 266, 2, 2, 13, LVfpisVector2),
 ))
 Fighter_Part2 = _typyd.Object('Fighter_Part2', (
-	
 	('bd', 10, 1, 2, 14, Dbys),
 	('bl', 18, 1, 2, 13, Lby),
 	('ed', 26, 1, 2, 14, Dei),
@@ -169,7 +153,6 @@ Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('sl', 146, 2, 2, 13, Ls),
 ))
 Fighter_Part1 = _typyd.Object('Fighter_Part1', (
-	
 	('hp', 13, 1, 5, 7, ),
 	('isAwake', 16, 1, 0, 8, ),
 	('pos', 26, 1, 2, 11, Vector2),
@@ -182,13 +165,11 @@ Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('pyv2', 82, 1, 2, 12, ViPyType),
 ))
 playSoundVO_2 = _typyd.Object('playSoundVO_2', (
-	
 	('path', 10, 1, 2, 10, ),
 ))
 Li = _typyd.List('Li', (0, 1, ))
 Vector3 = _typyd.Python('Vector3')
 Vbbyfi = _typyd.Variant('Vbbyfi', (
-	
 	('Boolean', 8, 1, 0, 8, ),
 	('Bytes', 18, 1, 2, 9, ),
 	('Float', 29, 1, 5, 7, ),
@@ -196,7 +177,6 @@ Vbbyfi = _typyd.Variant('Vbbyfi', (
 ))
 DbyVbbyfi = _typyd.Dict('DbyVbbyfi', (2, 9, ), (2, 12, Vbbyfi))
 SkillParam = _typyd.Object('SkillParam', (
-	
 	('buckID', 10, 1, 2, 9, ),
 	('destPos', 18, 1, 2, 15, Vector3),
 	('destRot', 26, 1, 2, 15, Vector3),
@@ -209,7 +189,6 @@ SkillParam = _typyd.Object('SkillParam', (
 LSkillParam = _typyd.List('LSkillParam', (2, 11, SkillParam))
 DbyLi = _typyd.Dict('DbyLi', (2, 9, ), (2, 13, Li))
 onInitRuntime = _typyd.Object('onInitRuntime', (
-	
 	('buckID', 10, 1, 2, 9, ),
 	('events', 18, 1, 2, 13, Li),
 	('flowID', 24, 1, 0, 1, ),
@@ -224,7 +203,6 @@ onInitRuntime = _typyd.Object('onInitRuntime', (
 	('unitIndex', 96, 1, 0, 1, ),
 ))
 playSoundVO_1 = _typyd.Object('playSoundVO_1', (
-	
 	('interval', 13, 1, 5, 7, ),
 	('path', 18, 1, 2, 10, ),
 ))

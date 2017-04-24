@@ -38,8 +38,7 @@ def _GenerateVariant(name, properties, codes, types):
 	('%s', %d, %d, %d, %d, %s),""" % ((a, PackTag(i + 1, wire_type), _TagSize(i + 1), wire_type, field_type, typy_type)))
 
 	codes.append("""
-%s = _typyd.Variant('%s', (
-	%s
+%s = _typyd.Variant('%s', (%s
 ))""" % (name, name, ''.join(fields)))
 	types.add(name)
 
@@ -140,8 +139,7 @@ def _GenerateObject(name, cls, codes, types):
 	('%s', %d, %d, %d, %d, %s),""" % ((a, 0, 0, wire_type, field_type, typy_type)))
 
 	codes.append("""
-%s = _typyd.Object('%s', (
-	%s
+%s = _typyd.Object('%s', (%s
 ))""" % (name, name, ''.join(fields)))
 	types.add(name)
 
