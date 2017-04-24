@@ -47,6 +47,8 @@ typedef unsigned __int64 uint64;
 
 #else /* _MSC_VER */
 
+#include <stdint.h>
+
 typedef uint8_t  byte;
 
 typedef int8_t   int8;
