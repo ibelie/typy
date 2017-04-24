@@ -700,8 +700,8 @@ def _build(_typy):
 	print 'fighterPy.Json(True)', Fighter().Json(True)
 	print 'fighter.Json(True)', _Fighter().Json(True)
 
-	assert Vector2(x = 123) in {Vector2(x = 123): None}
-	assert _Vector2(x = 123) in {_Vector2(x = 123): None}
+	assert Vector2(x = 123, y = 1) in {Vector2(x = 123, y = 2): None}
+	assert _Vector2(x = 123, y = 1) in {_Vector2(x = 123, y = 2): None}
 
 	print fighterPy.vd.setdefault(321, None), fighterPy.vd.setdefault(111, 987.654), fighterPy.vd[111]
 	print fighter.vd.setdefault(321, None), fighter.vd.setdefault(111, 987.654), fighter.vd[111]

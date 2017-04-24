@@ -5,6 +5,7 @@
 
 # [joungtao] Kill magic attributes, make "composite field", "message map" and
 #	"repeated composite field" can be set directly.
+from typy.google.protobuf.message import Message
 from typy.google.protobuf.internal import python_message
 from typy.google.protobuf.internal import type_checkers
 from typy.google.protobuf.descriptor import FieldDescriptor
@@ -125,6 +126,14 @@ class PythonDescriptor(object):
 		self._concrete_class = cls
 		self.has_options = None
 		self.oneofs = None
+
+del Message.__eq__
+
+Origin_AddEqualsMethod = python_message._AddEqualsMethod
+def _AddEqualsMethod(message_descriptor, cls):
+	if not hasattr(cls, '__eq__') and not hasattr(cls, '__ne__') and not hasattr(cls, '__cmp__'):
+		Origin_AddEqualsMethod(message_descriptor, cls)
+python_message._AddEqualsMethod = _AddEqualsMethod
 
 def _AddHasFieldMethod(message_descriptor, cls):
 	from typy.google.protobuf import descriptor as descriptor_mod
