@@ -134,6 +134,9 @@ static PyObject* object_Richcompare(PyObject* v, PyObject* w, int op) {
 		result = half_richcompare(v, w, op);
 	} else if (PyObject_TypeCheck(w, TypyObjectType)) {
 		result = half_richcompare(w, v, swapped_op[op]);
+	} else {
+		Py_INCREF(Py_NotImplemented);
+		result = Py_NotImplemented;
 	}
 	if (result == Py_NotImplemented) {
 		Py_DECREF(Py_NotImplemented);
