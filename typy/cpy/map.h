@@ -17,15 +17,15 @@ extern "C" {
 	IBL_ALIGN(8, TYPE key)
 
 /* Every pointer to a map item can be cast to a IblMap_Item. */
-typedef struct {
+typedef struct _IblMap_Item {
 	IblMap_KEY(byte);
 } *IblMap_Item;
 
 typedef void* IblMap_Key;
-typedef size_t      (*IblMap_Hash)(IblMap_Key);
-typedef IblMap_Item (*IblMap_NewItem)(IblMap_Key);
-typedef void        (*IblMap_Dealloc)(IblMap_Item);
-typedef int         (*IblMap_Compare)(IblMap_Key, IblMap_Key);
+typedef size_t      (*IblMap_Hash)    (IblMap_Key);
+typedef IblMap_Item (*IblMap_NewItem) (IblMap_Key);
+typedef int         (*IblMap_Compare) (IblMap_Key, IblMap_Key);
+typedef void        (*IblMap_Dealloc) (IblMap_Item);
 
 typedef struct _IblMap {
 	size_t size;
@@ -42,15 +42,15 @@ typedef struct _IblMap {
 	{0, 0, NULL, HASH, ALLOC, DEALLOC, COMPARE}
 #define IblMap_Free(m) do { IblMap_Clear(m); free(m); (m) = NULL; } while (0)
 
-IblAPI(void) IblMap_Clear(IblMap);
-IblAPI(bool) IblMap_Del(IblMap, IblMap_Key);
-IblAPI(IblMap_Item) IblMap_Get(IblMap, IblMap_Key);
-IblAPI(IblMap_Item) IblMap_Set(IblMap, IblMap_Key);
+IblAPI(void)        IblMap_Clear (IblMap);
+IblAPI(bool)        IblMap_Del   (IblMap, IblMap_Key);
+IblAPI(IblMap_Item) IblMap_Get   (IblMap, IblMap_Key);
+IblAPI(IblMap_Item) IblMap_Set   (IblMap, IblMap_Key);
 
-IblAPI(IblMap_Item) IblMap_Begin(IblMap);
-IblAPI(IblMap_Item) IblMap_End(IblMap);
-IblAPI(IblMap_Item) IblMap_Next(IblMap, IblMap_Item);
-IblAPI(IblMap_Item) IblMap_Prev(IblMap, IblMap_Item);
+IblAPI(IblMap_Item) IblMap_Begin (IblMap);
+IblAPI(IblMap_Item) IblMap_End   (IblMap);
+IblAPI(IblMap_Item) IblMap_Next  (IblMap, IblMap_Item);
+IblAPI(IblMap_Item) IblMap_Prev  (IblMap, IblMap_Item);
 
 
 /* ============================================================================= */
@@ -82,10 +82,10 @@ IblAPI(IblMap_Item) IblMap_Prev(IblMap, IblMap_Item);
 	static inline IblMap NAME##_New(void) {                                       \
 		IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));                   \
 		if (map) {                                                                \
-			map->hash = (IblMap_Hash)IblStringHash;                               \
-			map->alloc = (IblMap_NewItem)_##NAME##_New;                           \
-			map->dealloc = (IblMap_Dealloc)_##NAME##_Free;                        \
-			map->compare = (IblMap_Compare)IblStringCompare;                      \
+			map->hash    = (IblMap_Hash)    IblStringHash;                        \
+			map->alloc   = (IblMap_NewItem) _##NAME##_New;                        \
+			map->dealloc = (IblMap_Dealloc) _##NAME##_Free;                       \
+			map->compare = (IblMap_Compare) IblStringCompare;                     \
 		}                                                                         \
 		return map;                                                               \
 	}                                                                             \
@@ -120,10 +120,10 @@ IblAPI(IblMap_Item) IblMap_Prev(IblMap, IblMap_Item);
 	static inline IblMap NAME##_New(void) {                                       \
 		IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));                   \
 		if (map) {                                                                \
-			map->hash = (IblMap_Hash)IblBytesHash;                                \
-			map->alloc = (IblMap_NewItem)_##NAME##_New;                           \
-			map->dealloc = (IblMap_Dealloc)_##NAME##_Free;                        \
-			map->compare = (IblMap_Compare)IblBytesCompare;                       \
+			map->hash    = (IblMap_Hash)    IblBytesHash;                         \
+			map->alloc   = (IblMap_NewItem) _##NAME##_New;                        \
+			map->dealloc = (IblMap_Dealloc) _##NAME##_Free;                       \
+			map->compare = (IblMap_Compare) IblBytesCompare;                      \
 		}                                                                         \
 		return map;                                                               \
 	}                                                                             \
@@ -151,10 +151,10 @@ IblAPI(IblMap_Item) IblMap_Prev(IblMap, IblMap_Item);
 	static inline IblMap NAME##_New(void) {                                       \
 		IblMap map = (IblMap)calloc(1, sizeof(struct _IblMap));                   \
 		if (map) {                                                                \
-			map->hash = (IblMap_Hash)_##NAME##_Hash;                              \
-			map->alloc = (IblMap_NewItem)_##NAME##_New;                           \
-			map->dealloc = (IblMap_Dealloc)_##NAME##_Free;                        \
-			map->compare = (IblMap_Compare)_##NAME##_Compare;                     \
+			map->hash    = (IblMap_Hash)    _##NAME##_Hash;                       \
+			map->alloc   = (IblMap_NewItem) _##NAME##_New;                        \
+			map->dealloc = (IblMap_Dealloc) _##NAME##_Free;                       \
+			map->compare = (IblMap_Compare) _##NAME##_Compare;                    \
 		}                                                                         \
 		return map;                                                               \
 	}                                                                             \
