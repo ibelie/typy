@@ -51,7 +51,7 @@ static void TypyFixedPoint_Dealloc(TypyFixedPoint* type) {
 }
 
 static PyObject* TypyFixedPoint_Repr(TypyFixedPoint* type) {
-	return PyString_FromFormat("<type '" FULL_MODULE_NAME ".FixedPoint' precision(%" Ibl_L_FORMAT "u) floor(%" Ibl_L_FORMAT "d)>",
+	return PyString_FromFormat("<type '" FULL_MODULE_NAME ".FixedPoint' precision(%u) floor(%d)>",
 		type->fp_precision, type->fp_floor);
 }
 
