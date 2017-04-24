@@ -21,7 +21,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaList*)malloc(IBL_ALIGNED_SIZE(sizeof(TypyMetaList) + sizeof(char) * nameLen));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %lu.", sizeof(TypyMetaList) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register List out of memory %zu.", sizeof(TypyMetaList) + nameLen);
 		return NULL;
 	}
 
@@ -42,7 +42,7 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 static TypyList* TypyList_New(TypyMetaList* type) {
 	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
 	if (!list) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %lu.", sizeof(TypyList));
+		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %zu.", sizeof(TypyList));
 		return NULL;
 	}
 	(void)PyObject_INIT(list, &TypyListType);
@@ -55,7 +55,7 @@ static TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
 		register size_t capacity = Ibl_Max(2 * self->list_capacity + size, MIN_LIST_CAPACITY);
 		register TypyField* buffer = (TypyField*)calloc(capacity, sizeof(TypyField));
 		if (!buffer) {
-			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %lu.\n", capacity * sizeof(TypyField));
+			PyErr_Format(PyExc_RuntimeError, "Alloc List buffer out of memory %zu.\n", capacity * sizeof(TypyField));
 			return NULL;
 		}
 		self->list_capacity = capacity;
@@ -121,7 +121,7 @@ static void TypyList_Dealloc(TypyList* self) {
 }
 
 static PyObject* TypyList_Repr(TypyMetaList* type) {
-	return PyString_FromFormat("<List '" FULL_MODULE_NAME ".%s'>", type->list_name);
+	return PyString_FromFormat("<List '" FULL_MODULE_NAME ".%.100s'>", type->list_name);
 }
 
 //=============================================================================
@@ -343,7 +343,7 @@ static PyObject* list_Item(TypyList* self, Py_ssize_t index) {
 		index = self->list_length + index;
 	}
 	if (index < 0 || (size_t)index >= self->list_length) {
-		PyErr_Format(PyExc_IndexError, "List index (%ld) out of range (%lu).\n", index, self->list_length);
+		PyErr_Format(PyExc_IndexError, "List index (%zd) out of range (%zu).\n", index, self->list_length);
 		return NULL;
 	}
 	return TypyList_GET(self, &self->list_items[index]);
@@ -354,7 +354,7 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 		index = self->list_length + index;
 	}
 	if (index < 0 || (size_t)index >= self->list_length) {
-		PyErr_Format(PyExc_IndexError, "List index (%ld) out of range (%lu).\n", index, self->list_length);
+		PyErr_Format(PyExc_IndexError, "List index (%zd) out of range (%zu).\n", index, self->list_length);
 		return -1;
 	}
 	return TypyList_CHECKSET(self, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;

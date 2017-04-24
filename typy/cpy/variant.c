@@ -17,7 +17,7 @@ TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 	TypyVariant* variant = (TypyVariant*)calloc(1, sizeof(TypyVariant));
 	if (!variant) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %lu.", sizeof(TypyVariant));
+		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %zu.", sizeof(TypyVariant));
 		return NULL;
 	}
 	(void)PyObject_INIT(variant, &TypyVariantType);
@@ -32,7 +32,7 @@ static void TypyVariant_Dealloc(TypyVariant* self) {
 }
 
 static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
-	return PyString_FromFormat("<Variant '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
+	return PyString_FromFormat("<Variant '" FULL_MODULE_NAME ".%.100s'>", Meta_NAME(type));
 }
 
 //=============================================================================

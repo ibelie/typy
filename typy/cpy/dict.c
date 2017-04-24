@@ -57,7 +57,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 	type = (TypyMetaDict*)malloc(IBL_ALIGNED_SIZE(sizeof(TypyMetaDict) + sizeof(char) * nameLen));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Dict out of memory %lu.", sizeof(TypyMetaDict) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Dict out of memory %zu.", sizeof(TypyMetaDict) + nameLen);
 		return NULL;
 	}
 
@@ -124,7 +124,7 @@ static void MetaDict_Dealloc(TypyMetaDict* type) {
 static TypyDict* TypyDict_New(TypyMetaDict* type) {
 	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
 	if (!dict) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %lu.", sizeof(TypyDict));
+		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %zu.", sizeof(TypyDict));
 		return NULL;
 	}
 	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));
@@ -145,7 +145,7 @@ static void TypyDict_Dealloc(TypyDict* self) {
 }
 
 static PyObject* TypyDict_Repr(TypyMetaDict* type) {
-	return PyString_FromFormat("<Dict '" FULL_MODULE_NAME ".%s'>", type->dict_name);
+	return PyString_FromFormat("<Dict '" FULL_MODULE_NAME ".%.100s'>", type->dict_name);
 }
 
 //=============================================================================

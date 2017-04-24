@@ -48,7 +48,7 @@ static PyTypeObject* PyTypeObjects[] = {
 void FormatTypeError(PyObject* arg, const char* err) {
 	PyObject* repr = PyObject_Repr(arg);
 	if (!repr) { return; }
-	PyErr_Format(PyExc_TypeError, "%s%.100s has type %.100s",
+	PyErr_Format(PyExc_TypeError, "%.100s%.100s has type %.100s",
 		err, PyString_AsString(repr), Py_TYPE(arg)->tp_name);
 	Py_DECREF(repr);
 }

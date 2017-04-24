@@ -15,7 +15,7 @@ IblMap_KEY_STRING(TypyFieldMap,
 PyTypeObject* _InheritTypyObjectType(void) {
 	register PyTypeObject* type = (PyTypeObject*)malloc(sizeof(PyTypeObject));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Inherit TypyObjectType out of memory %lu.", sizeof(PyTypeObject));
+		PyErr_Format(PyExc_RuntimeError, "Inherit TypyObjectType out of memory %zu.", sizeof(PyTypeObject));
 		return NULL;
 	}
 	memcpy(type, &BaseTypyObjectType, sizeof(PyTypeObject));
@@ -32,7 +32,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	Py_ssize_t pos = 0;
 	TypyObject* object = (TypyObject*)calloc(1, IBL_ALIGNED_SIZE(sizeof(TypyObject) + sizeof(TypyField) * type->meta_size));
 	if (!object) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Object out of memory %lu.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
+		PyErr_Format(PyExc_RuntimeError, "Alloc Object out of memory %zu.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
 		return NULL;
 	}
 	(void)PyObject_INIT(object, type->py_type);
@@ -148,7 +148,7 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	register size_t size = IBL_ALIGNED_SIZE(sizeof(TypyMetaObject) + sizeof(TypyDescriptor) * meta_size + sizeof(char) * nameLen);
 	register TypyMetaObject* type = (TypyMetaObject*)malloc(size);
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Meta out of memory %lu.", size);
+		PyErr_Format(PyExc_RuntimeError, "Register Meta out of memory %zu.", size);
 		return NULL;
 	}
 
@@ -158,7 +158,7 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	(void)PyObject_INIT(type, &TypyMetaObjectType);
 	type->meta_index2field = (char**)calloc(meta_size, sizeof(char*));
 	if (!type->meta_index2field) {
-		PyErr_Format(PyExc_RuntimeError, "Register Meta index2field out of memory %lu.", meta_size * sizeof(char*));
+		PyErr_Format(PyExc_RuntimeError, "Register Meta index2field out of memory %zu.", meta_size * sizeof(char*));
 		Py_DECREF(type); return NULL;
 	}
 	type->meta_field2index = TypyFieldMap_New();
@@ -657,7 +657,7 @@ static TypyMetaObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* arg
 }
 
 static PyObject* MetaObject_Repr(TypyMetaObject* type) {
-	return PyString_FromFormat("<Object '" FULL_MODULE_NAME ".%s'>", Meta_NAME(type));
+	return PyString_FromFormat("<Object '" FULL_MODULE_NAME ".%.100s'>", Meta_NAME(type));
 }
 
 static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {

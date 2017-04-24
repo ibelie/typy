@@ -81,10 +81,12 @@ typedef uint64_t uint64;
 #ifdef _MSC_VER
 #	define Ibl_LONGLONG(x)  x##I64
 #	define Ibl_ULONGLONG(x) x##UI64
+#	define Ibl_L_FORMAT "I32"   // As in printf("%I32d", ...)
 #	define Ibl_LL_FORMAT "I64"  // As in printf("%I64d", ...)
 #else
 #	define Ibl_LONGLONG(x)  x##LL
 #	define Ibl_ULONGLONG(x) x##ULL
+#	define Ibl_L_FORMAT "l"    // As in "%ld". Note that "q" is poor form also.
 #	define Ibl_LL_FORMAT "ll"  // As in "%lld". Note that "q" is poor form also.
 #endif
 

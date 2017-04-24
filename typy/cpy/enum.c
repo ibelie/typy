@@ -22,7 +22,7 @@ TypyEnum* Typy_RegisterEnum(PyObject* m, PyObject* args) {
 
 	type = (TypyEnum*)malloc(IBL_ALIGNED_SIZE(sizeof(TypyEnum) + sizeof(char) * nameLen));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Enum object out of memory %lu.", sizeof(TypyEnum) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Enum object out of memory %zu.", sizeof(TypyEnum) + nameLen);
 		return NULL;
 	}
 
@@ -93,7 +93,7 @@ static void TypyEnum_Dealloc(TypyEnum* type) {
 }
 
 static PyObject* TypyEnum_Repr(TypyEnum* type) {
-	return PyString_FromFormat("<Enum '" FULL_MODULE_NAME ".%s'>", type->enum_name);
+	return PyString_FromFormat("<Enum '" FULL_MODULE_NAME ".%.100s'>", type->enum_name);
 }
 
 PyTypeObject TypyEnumType = {

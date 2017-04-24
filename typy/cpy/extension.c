@@ -21,7 +21,7 @@ TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 
 	type = (TypyPython*)calloc(1, IBL_ALIGNED_SIZE(sizeof(TypyPython) + sizeof(char) * nameLen));
 	if (!type) {
-		PyErr_Format(PyExc_RuntimeError, "Register Python out of memory %lu.", sizeof(TypyPython) + nameLen);
+		PyErr_Format(PyExc_RuntimeError, "Register Python out of memory %zu.", sizeof(TypyPython) + nameLen);
 		return NULL;
 	}
 
@@ -197,7 +197,7 @@ static void TypyPython_Dealloc(TypyPython* type) {
 }
 
 static PyObject* TypyPython_Repr(TypyPython* type) {
-	return PyString_FromFormat("<Python '" FULL_MODULE_NAME ".%s'>", type->python_name);
+	return PyString_FromFormat("<Python '" FULL_MODULE_NAME ".%.100s'>", type->python_name);
 }
 
 PyTypeObject TypyPythonType = {

@@ -26,7 +26,7 @@ PyObject* GetPyObject(const ::std::string& value) {
 void FormatTypeError(PyObject* arg, const char* err) {
 	ScopedPyObjectPtr repr(PyObject_Repr(arg));
 	if (repr != NULL) {
-		PyErr_Format(PyExc_TypeError, "%s%.100s has type %.100s",
+		PyErr_Format(PyExc_TypeError, "%.100s%.100s has type %.100s",
 			err, PyString_AsString(repr.get()), Py_TYPE(arg)->tp_name);
 	}
 }
