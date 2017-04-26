@@ -119,8 +119,16 @@ ViPyType* ViPyType::FromJson(PyObject* json) {
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
 		PyErr_Clear();
-		if (PyBytes_Check(_t.get())) {
-			if (!strcmp(PyBytes_AS_STRING(_t.get()), "PyType")) {
+		ScopedPyObjectPtr _b;
+		if (_t == NULL) {
+		} else if (PyBytes_Check(_t.get())) {
+			Py_INCREF(_t.get());
+			_b.reset(_t.get());
+		} else if (PyUnicode_Check(_t.get())) {
+			_b.reset(PyUnicode_AsEncodedObject(_t.get(), "utf-8", NULL));
+		}
+		if (_b != NULL) {
+			if (!strcmp(PyBytes_AS_STRING(_b.get()), "PyType")) {
 				if (::typy::FromJson(object->_value2, json)) { object->_tag = 2; return object; }
 			}
 		}

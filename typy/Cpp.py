@@ -155,11 +155,11 @@ def _VariantFromJson(properties):
 
 	for tag, p, typ, info in typeDict.itervalues():
 		if isinstance(p, Instance) and len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
-			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t.get()), "%s")) {
+			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_b.get()), "%s")) {
 				if (::typy::FromJson(object->_value%d, json)) { object->_tag = %d; return object; }
 			}""" % (p.pyType[0].__name__, tag, tag))
 		elif isinstance(p, Python):
-			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_t.get()), "%s")) {
+			from_json_objects.append("""if (!strcmp(PyBytes_AS_STRING(_b.get()), "%s")) {
 				if (::typy::FromJson(object->_value%d, json)) { object->_tag = %d; return object; }
 			}""" % (p.pyType.__name__, tag, tag))
 		elif isinstance(p, List):
@@ -683,7 +683,15 @@ PyObject* %s::Json(bool slim) {
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		ScopedPyObjectPtr _t(PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("_t")).get()));
 		PyErr_Clear();
-		if (PyBytes_Check(_t.get())) {
+		ScopedPyObjectPtr _b;
+		if (_t == NULL) {
+		} else if (PyBytes_Check(_t.get())) {
+			Py_INCREF(_t.get());
+			_b.reset(_t.get());
+		} else if (PyUnicode_Check(_t.get())) {
+			_b.reset(PyUnicode_AsEncodedObject(_t.get(), "utf-8", NULL));
+		}
+		if (_b != NULL) {
 			%s
 		}%s
 		PyErr_Clear();
@@ -985,12 +993,20 @@ PyObject* %s::Json(bool slim) {
 	if (value == NULL) {
 		FormatTypeError(json, "Json expect _t, ");
 		return NULL;
-	} else if (!PyBytes_Check(value)) {
+	} else if (PyUnicode_Check(value)) {
+		PyObject* _value = PyUnicode_AsEncodedObject(value, "utf-8", NULL);
+		Py_DECREF(value);
+		value = _value;
+	} else if (PyBytes_Check(value)) {
+		Py_INCREF(value);
+	} else {
 		FormatTypeError(value, "Json _t expect String, but ");
 		return NULL;
-	} else if (strcmp(PyBytes_AS_STRING(value), %s::Name)) {
+	}
+	if (strcmp(PyBytes_AS_STRING(value), %s::Name)) {
 		PyErr_Format(PyExc_TypeError, "Object expect '%%.100s', but Json has type %%.100s",
 			%s::Name, PyBytes_AS_STRING(value));
+		Py_DECREF(value);
 		return NULL;
 	}
 	PyErr_Clear();

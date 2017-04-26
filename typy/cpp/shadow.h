@@ -121,18 +121,37 @@ public:
 			ScopedPyObjectPtr item(PyIter_Next(iter.get()));
 			PyObject* k = PyTuple_GET_ITEM(item.get(), 0);
 			PyObject* v = PyTuple_GET_ITEM(item.get(), 1);
-			if (PyBytes_Check(k) && !strcmp(PyBytes_AS_STRING(k), "_t")) {
-				if (!PyBytes_Check(v)) {
+			PyObject* _k = NULL;
+			if (PyUnicode_Check(k)) {
+				_k = PyUnicode_AsEncodedObject(k, "utf-8", NULL);
+			} else if (PyBytes_Check(k)) {
+				Py_XINCREF(k);
+				_k = k;
+			}
+			if (_k != NULL && !strcmp(PyBytes_AS_STRING(_k), "_t")) {
+				PyObject* _v = NULL;
+				if (PyUnicode_Check(v)) {
+					_v = PyUnicode_AsEncodedObject(v, "utf-8", NULL);
+				} else if (PyBytes_Check(v)) {
+					Py_XINCREF(v);
+					_v = v;
+				}
+				if (_v == NULL) {
 					FormatTypeError(v, "Json _t expect String, but ");
+					Py_XDECREF(_k);
 					return NULL;
-				} else if (strcmp(PyBytes_AS_STRING(v), _Type->tp_name)) {
+				} else if (strcmp(PyBytes_AS_STRING(_v), _Type->tp_name)) {
 					PyErr_Format(PyExc_TypeError, "Python expect '%.100s', but Json has type %.100s",
-						_Type->tp_name, PyBytes_AS_STRING(v));
+						_Type->tp_name, PyBytes_AS_STRING(_v));
+					Py_XDECREF(_k);
+					Py_XDECREF(_v);
 					return NULL;
 				}
+				Py_XDECREF(_v);
 				type_check = true;
 				continue;
 			}
+			Py_XDECREF(_k);
 			PyDict_SetItem(dict.get(), k, v);
 		}
 		if (!type_check) {

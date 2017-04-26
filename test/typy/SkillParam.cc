@@ -109,12 +109,20 @@ SkillParam* SkillParam::FromJson(PyObject* json) {
 	if (value == NULL) {
 		FormatTypeError(json, "Json expect _t, ");
 		return NULL;
-	} else if (!PyBytes_Check(value)) {
+	} else if (PyUnicode_Check(value)) {
+		PyObject* _value = PyUnicode_AsEncodedObject(value, "utf-8", NULL);
+		Py_DECREF(value);
+		value = _value;
+	} else if (PyBytes_Check(value)) {
+		Py_INCREF(value);
+	} else {
 		FormatTypeError(value, "Json _t expect String, but ");
 		return NULL;
-	} else if (strcmp(PyBytes_AS_STRING(value), SkillParam::Name)) {
+	}
+	if (strcmp(PyBytes_AS_STRING(value), SkillParam::Name)) {
 		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
 			SkillParam::Name, PyBytes_AS_STRING(value));
+		Py_DECREF(value);
 		return NULL;
 	}
 	PyErr_Clear();
