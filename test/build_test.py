@@ -340,6 +340,17 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "fdv[444]\t", '%.3f' % fighter1.fdv[444], "\t", '%.3f' % fighter2.fdv[444], "\t", '%.3f' % fighter3.fdv[444], "\t", '%.3f' % fighter4.fdv[444], "\t", '%.3f' % fighter5.fdv[444]
 
 
+def _toUnicodeJson(json):
+	if isinstance(json, str):
+		return unicode(json)
+	elif isinstance(json, list):
+		return [_toUnicodeJson(v) for v in json]
+	elif isinstance(json, dict):
+		return {unicode(k): _toUnicodeJson(v) for k, v in json.iteritems()}
+	else:
+		return json
+
+
 def _build(_typy):
 	global Vector2, Fighter, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime, playSoundVO_1, playSoundVO_2
 
@@ -688,8 +699,8 @@ def _build(_typy):
 	print fighterPy.vd.items(), fighter.vd.items()
 
 	print Fighter.FromJson(fighter.Json()).vd.pop(12), _Fighter.FromJson(fighterPy.Json()).vd.pop(12)
-	print len(fighter.SerializeToString()), len(Fighter.FromJson(fighter.Json(True)).SerializeToString())
-	print len(fighterPy.SerializeToString()), len(_Fighter.FromJson(fighterPy.Json(True)).SerializeToString())
+	print len(fighter.SerializeToString()), len(Fighter.FromJson(_toUnicodeJson(fighter.Json(True))).SerializeToString())
+	print len(fighterPy.SerializeToString()), len(_Fighter.FromJson(_toUnicodeJson(fighterPy.Json(True))).SerializeToString())
 	_printFighters(fighterPy, Fighter.FromJson(fighterPy.Json()), Fighter.FromJson(fighter.Json()), _Fighter.FromJson(fighterPy.Json()), _Fighter.FromJson(fighter.Json()))
 
 	fighterPy.vd = fighterPy.sd
