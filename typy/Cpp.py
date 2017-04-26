@@ -997,9 +997,7 @@ PyObject* %s::Json(bool slim) {
 		PyObject* _value = PyUnicode_AsEncodedObject(value, "utf-8", NULL);
 		Py_DECREF(value);
 		value = _value;
-	} else if (PyBytes_Check(value)) {
-		Py_INCREF(value);
-	} else {
+	} else if (!PyBytes_Check(value)) {
 		FormatTypeError(value, "Json _t expect String, but ");
 		return NULL;
 	}
