@@ -101,26 +101,20 @@ class PythonMessage(object):
 	def ByteSize(self):
 		if type(self.obj) in PythonDelegate:
 			return PythonDelegate[type(self.obj)].ByteSize(self.obj)
-		elif hasattr(self.obj, 'ByteSize'):
-			return self.obj.ByteSize()
 		else:
-			return PythonDelegate[object].ByteSize(self.obj)
+			return self.obj.ByteSize()
 
 	def _InternalSerialize(self, write):
 		if type(self.obj) in PythonDelegate:
 			write(PythonDelegate[type(self.obj)].Serialize(self.obj))
-		elif hasattr(self.obj, 'Serialize'):
-			write(self.obj.Serialize())
 		else:
-			write(PythonDelegate[object].Serialize(self.obj))
+			write(self.obj.Serialize())
 
 	def _InternalParse(self, buffer, pos, new_pos):
 		if type(self.obj) in PythonDelegate:
 			PythonDelegate[type(self.obj)].Deserialize(self.obj, buffer[pos: new_pos])
-		elif hasattr(self.obj, 'Deserialize'):
-			self.obj.Deserialize(buffer[pos: new_pos])
 		else:
-			PythonDelegate[object].Deserialize(self.obj, buffer[pos: new_pos])
+			self.obj.Deserialize(buffer[pos: new_pos])
 		return new_pos
 
 class PythonDescriptor(object):
