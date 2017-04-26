@@ -90,11 +90,18 @@ TypyObject* Meta_FromJson(TypyMetaObject* type, PyObject* json) {
 	if (!value) {
 		FormatTypeError(json, "Json expect _t, ");
 		return NULL;
-	} else if (!PyBytes_Check(value)) {
+	} else if (PyUnicode_Check(value)) {
+		register PyObject* _value = PyUnicode_AsEncodedObject(value, "utf-8", NULL);
+		Py_DECREF(value);
+		value = _value;
+	} else if (PyBytes_Check(value)) {
+		Py_INCREF(value);
+	} else {
 		FormatTypeError(value, "Json _t expect String, but ");
 		Py_DECREF(value);
 		return NULL;
-	} else if (strcmp(PyBytes_AS_STRING(value), Meta_NAME(type))) {
+	}
+	if (strcmp(PyBytes_AS_STRING(value), Meta_NAME(type))) {
 		PyErr_Format(PyExc_TypeError, "Object expect '%.100s', but Json has type %.100s",
 			Meta_NAME(type), PyBytes_AS_STRING(value));
 		Py_DECREF(value);

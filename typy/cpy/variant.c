@@ -249,6 +249,11 @@ bool TypyVariant_FromJson(TypyMetaObject* type, TypyVariant** value, PyObject* j
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		register PyObject* _t = PyObject_GetItem(json, k_t);
 		PyErr_Clear();
+		if (_t && PyUnicode_Check(_t)) {
+			register PyObject* _b = PyUnicode_AsEncodedObject(_t, "utf-8", NULL);
+			Py_DECREF(_t);
+			_t = _b;
+		}
 		if (_t && PyBytes_Check(_t) && (index = Meta_PropertyIndex(type, PyBytes_AS_STRING(_t))) >= 0) {
 		} else if ((index = Meta_PropertyIndex(type, "Dict")) >= 0) {
 		} else {

@@ -119,6 +119,8 @@ PyObject* TypyPython_ToJson(TypyPython* type, PyObject** value, bool slim) {
 }
 
 bool TypyPython_FromJson(TypyPython* type, PyObject** value, PyObject* json) {
+	PyObject* _k = NULL;
+	PyObject* _v = NULL;
 	PyObject* item = NULL;
 	PyObject* dict = PyDict_New();
 	PyObject* iter = PyObject_CallMethod(json, "iteritems", NULL);
@@ -136,21 +138,38 @@ bool TypyPython_FromJson(TypyPython* type, PyObject** value, PyObject* json) {
 		if (!item) { goto fromjson_fail; }
 		register PyObject* k = PyTuple_GET_ITEM(item, 0);
 		register PyObject* v = PyTuple_GET_ITEM(item, 1);
-		if (PyBytes_Check(k) && !strcmp(PyBytes_AS_STRING(k), "_t")) {
-			if (!PyBytes_Check(v)) {
+		if (PyUnicode_Check(k)) {
+			_k = PyUnicode_AsEncodedObject(k, "utf-8", NULL);
+		} else if (PyBytes_Check(k)) {
+			Py_XINCREF(k);
+			_k = k;
+		}
+
+		if (_k && !strcmp(PyBytes_AS_STRING(_k), "_t")) {
+			if (PyUnicode_Check(v)) {
+				_v = PyUnicode_AsEncodedObject(v, "utf-8", NULL);
+			} else if (PyBytes_Check(v)) {
+				Py_XINCREF(v);
+				_v = v;
+			}
+			if (!_v) {
 				FormatTypeError(v, "Json _t expect String, but ");
 				goto fromjson_fail;
-			} else if (strcmp(PyBytes_AS_STRING(v), type->python_type->tp_name)) {
+			} else if (strcmp(PyBytes_AS_STRING(_v), type->python_type->tp_name)) {
 				PyErr_Format(PyExc_TypeError, "Python expect '%.100s', but Json has type %.100s",
-					type->python_type->tp_name, PyBytes_AS_STRING(v));
+					type->python_type->tp_name, PyBytes_AS_STRING(_v));
 				goto fromjson_fail;
 			}
 			type_check = true;
+			Py_XDECREF(_v);
+			_v = NULL;
 			continue;
 		}
 		PyDict_SetItem(dict, k, v);
 		Py_DECREF(item);
 		item = NULL;
+		Py_XDECREF(_k);
+		_k = NULL;
 	}
 	if (!type_check) {
 		FormatTypeError(json, "Json expect _t, ");
@@ -167,6 +186,8 @@ bool TypyPython_FromJson(TypyPython* type, PyObject** value, PyObject* json) {
 	return *value ? true : false;
 
 fromjson_fail:
+	Py_XDECREF(_k);
+	Py_XDECREF(_v);
 	Py_XDECREF(dict);
 	Py_XDECREF(iter);
 	Py_XDECREF(item);
