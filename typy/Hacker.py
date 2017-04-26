@@ -10,7 +10,7 @@ from typy.google.protobuf.internal import python_message
 from typy.google.protobuf.internal import type_checkers
 from typy.google.protobuf.descriptor import FieldDescriptor
 from typy.google.protobuf import text_format
-from Type import toType, FixedPoint, List, Dict, Instance
+from Type import toType, FixedPoint, List, Dict, Instance, PythonDelegate
 from Enum import MetaEnum
 
 def setVariant(obj, value):
@@ -81,8 +81,6 @@ def setVariant(obj, value):
 		setattr(obj, value.__class__.__name__, value)
 
 
-PythonMessageDelegate = {}
-
 class PythonMessage(object):
 	def __init__(self, obj):
 		self.obj = obj
@@ -101,20 +99,20 @@ class PythonMessage(object):
 			self.obj = msg
 
 	def ByteSize(self):
-		if type(self.obj) in PythonMessageDelegate:
-			return PythonMessageDelegate[type(self.obj)].ByteSize(self.obj)
+		if type(self.obj) in PythonDelegate:
+			return PythonDelegate[type(self.obj)].ByteSize(self.obj)
 		else:
 			return self.obj.ByteSize()
 
 	def _InternalSerialize(self, write):
-		if type(self.obj) in PythonMessageDelegate:
-			write(PythonMessageDelegate[type(self.obj)].Serialize(self.obj))
+		if type(self.obj) in PythonDelegate:
+			write(PythonDelegate[type(self.obj)].Serialize(self.obj))
 		else:
 			write(self.obj.Serialize())
 
 	def _InternalParse(self, buffer, pos, new_pos):
-		if type(self.obj) in PythonMessageDelegate:
-			PythonMessageDelegate[type(self.obj)].Deserialize(self.obj, buffer[pos: new_pos])
+		if type(self.obj) in PythonDelegate:
+			PythonDelegate[type(self.obj)].Deserialize(self.obj, buffer[pos: new_pos])
 		else:
 			self.obj.Deserialize(buffer[pos: new_pos])
 		return new_pos

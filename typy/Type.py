@@ -139,6 +139,7 @@ class Bytes(Simple):
 
 
 PythonTypes = {}
+PythonDelegate = {}
 
 class _Python(Type):
 	__slots__ = 'pyType', '__name__'
