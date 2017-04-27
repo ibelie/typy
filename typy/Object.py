@@ -430,8 +430,8 @@ def FromJson(data, keyType = None):
 			return {keyType(k) if keyType else k: FromJson(v) for k, v in data.iteritems()}
 		elif data['_t'] in PythonTypes:
 			if PythonTypes[data['_t']] in PythonDelegate:
-				return PythonDelegate[PythonTypes[data['_t']]].FromJson({k: v for k, v in data if k != '_t'})
-			return PythonTypes[data['_t']].FromJson({k: v for k, v in data if k != '_t'})
+				return PythonDelegate[PythonTypes[data['_t']]].FromJson({k: v for k, v in data.iteritems() if k != '_t'})
+			return PythonTypes[data['_t']].FromJson({k: v for k, v in data.iteritems() if k != '_t'})
 		elif data['_t'] in MetaObject.Objects:
 			return MetaObject.Objects[data['_t']].FromJson(data)
 	elif isinstance(data, (list, tuple, set)):
