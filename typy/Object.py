@@ -34,11 +34,7 @@ def _getProperties(mcs, bases, attrs):
 
 
 def Json(value, slim = False):
-	if type(value) in PythonDelegate:
-		data = PythonDelegate[type(value)].Json(value)
-		data['_t'] = value.__class__.__name__
-		return data
-	elif value.__class__.__name__ in PythonTypes:
+	if value.__class__.__name__ in PythonTypes:
 		data = value.Json()
 		data['_t'] = value.__class__.__name__
 		return data
@@ -48,6 +44,10 @@ def Json(value, slim = False):
 		return {str(k): Json(v, slim) for k, v in value.iteritems()}
 	elif hasattr(value, '__iter__'):
 		return [Json(value[i], slim) for i in xrange(len(value))]
+	elif type(value) in PythonDelegate:
+		data = PythonDelegate[type(value)].Json(value)
+		data['_t'] = value.__class__.__name__
+		return data
 	else:
 		return value
 
