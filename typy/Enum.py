@@ -45,7 +45,7 @@ class MetaEnum(type):
 		if clsname in mcs.Enums:
 			raise TypeError, 'Enum name "%s" already exists.' % clsname
 
-		for k in enum.iterkeys():
+		for k in enum:
 			del attrs[k]
 		attrs.setdefault('__slots__', ())
 		cls = super(MetaEnum, mcs).__new__(mcs, clsname, bases, attrs)

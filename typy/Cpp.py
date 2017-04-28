@@ -202,8 +202,8 @@ def _RecordNesting(prefix, types):
 		'Enum': 'e',
 	}
 	properties = {'Enum' if isEnum(p) else p.__name__: toType(p) for p in types if p is not None}
-	names = sorted([shortName[k] for k in properties.iterkeys() if k in shortName])
-	for name in sorted([k for k in properties.iterkeys() if k not in shortName]):
+	names = sorted([shortName[k] for k in properties if k in shortName])
+	for name in sorted([k for k in properties if k not in shortName]):
 		prop = properties[name]
 		if isinstance(prop, Instance):
 			if len(prop.pyType) == 1 and not isinstance(prop.pyType[0], List):
