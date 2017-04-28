@@ -663,7 +663,11 @@ PyObject* %s::toPyObject() {
 	}
 }
 
-bool %s::fromPyObject(PyObject* value) {%s
+bool %s::fromPyObject(PyObject* value) {
+	if (value == NULL || value == Py_None) {
+		Clear();
+		return true;
+	}%s
 	return false;
 }
 

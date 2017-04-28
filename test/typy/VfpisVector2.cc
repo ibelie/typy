@@ -86,6 +86,10 @@ PyObject* VfpisVector2::toPyObject() {
 }
 
 bool VfpisVector2::fromPyObject(PyObject* value) {
+	if (value == NULL || value == Py_None) {
+		Clear();
+		return true;
+	}
 	if (PyBool_Check(value)) {
 		if (_tag != 0 && _tag != 2) { Clear(); }
 		::typy::CopyFrom(_value2, PyInt_AsLong(value));

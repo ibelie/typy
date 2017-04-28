@@ -357,6 +357,14 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 		PyErr_Format(PyExc_IndexError, "List index (%zd) out of range (%zu).\n", index, self->list_length);
 		return -1;
 	}
+	if (!arg) {
+		TypyList_CLEAR(self, &self->list_items[index]);
+		for (; (size_t)index < self->list_length - 1; index++) {
+			self->list_items[index] = self->list_items[index + 1];
+		}
+		self->list_length--;
+		return 0;
+	}
 	return TypyList_CHECKSET(self, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;
 }
 

@@ -734,6 +734,8 @@ def _build(_typy):
 
 	del fighterPy.vd[321]
 	del fighter.vd[321]
+	del fighterPy.vl[0]
+	del fighter.vl[0]
 
 	print copy.deepcopy(fighterPy.vl)
 	print copy.deepcopy(fighter.vl)

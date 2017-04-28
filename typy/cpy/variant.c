@@ -56,7 +56,7 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 }
 
 bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject* arg, const char* err) {
-	if (arg == Py_None) {
+	if (!arg || arg == Py_None) {
 		Py_XDECREF(*value);
 		*value = NULL;
 		return true;

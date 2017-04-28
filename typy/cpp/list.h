@@ -186,6 +186,19 @@ static int tp_AssignItem(PyObject* self, Py_ssize_t index, PyObject* arg) {
 	if (index < 0) {
 		index = o->size() + index;
 	}
+	if (arg == NULL) {
+		typename List<T>::iterator it = o->begin();
+		for (Py_ssize_t i = 0; it != o->end(); ++it, ++i) {
+			if (i == index) { break; }
+		}
+		if (it == o->end()) {
+			PyErr_SetString(PyExc_ValueError, "del(i): i not in container");
+			return -1;
+		}
+		::typy::Clear(*it);
+		o->erase(it);
+		return 0;
+	}
 	return ::typy::CheckAndSet(arg, *o->Mutable(index), "List item type error: ") ? 0 : -1;
 }
 

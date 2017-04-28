@@ -65,6 +65,10 @@ PyObject* VLf::toPyObject() {
 }
 
 bool VLf::fromPyObject(PyObject* value) {
+	if (value == NULL || value == Py_None) {
+		Clear();
+		return true;
+	}
 	if (PyObject_TypeCheck(value, &List< float >::_Type) || PySequence_Check(value)) {
 		if (_tag != 0 && _tag != 1) { Clear(); }
 		if (::typy::CheckAndSet(value, _value1, "List of Variant expect List(float), but ")) {

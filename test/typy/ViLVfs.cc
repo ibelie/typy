@@ -72,6 +72,10 @@ PyObject* ViLVfs::toPyObject() {
 }
 
 bool ViLVfs::fromPyObject(PyObject* value) {
+	if (value == NULL || value == Py_None) {
+		Clear();
+		return true;
+	}
 	if (PyBool_Check(value)) {
 		if (_tag != 0 && _tag != 1) { Clear(); }
 		::typy::CopyFrom(_value1, PyInt_AsLong(value));
