@@ -384,6 +384,7 @@ static PyObject* list_Concat(TypyList* self, PyObject* other) {
 		register TypyList* rvalue = (TypyList*)other;
 		TypyList* list = TypyList_New(TypyList_TYPE(self));
 		if (!list) { return NULL; }
+		if (self->list_length + rvalue->list_length == 0) { return (PyObject*)list; }
 		register TypyField* offset = TypyList_EnsureSize(list, self->list_length + rvalue->list_length);
 		if (!offset) { Py_DECREF(list); return NULL; }
 		register size_t i;

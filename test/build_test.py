@@ -729,6 +729,8 @@ def _build(_typy):
 
 	print 'fighterPy.vl + fighterPy2.vl', fighterPy.vl + fighterPy2.vl
 	print 'fighter.vl + fighter2.vl', fighter.vl + fighter2.vl
+	print 'Fighter().vl + Fighter().vl', Fighter().vl + Fighter().vl
+	print '_Fighter().vl + _Fighter().vl', _Fighter().vl + _Fighter().vl
 
 	return time.time() - startTime
 
