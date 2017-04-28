@@ -727,6 +727,9 @@ def _build(_typy):
 	assert type(fighterPy.nv) is type(None)
 	assert type(fighter.nv) is type(None)
 
+	print 'fighterPy.vl + fighterPy2.vl', fighterPy.vl + fighterPy2.vl
+	print 'fighter.vl + fighter2.vl', fighter.vl + fighter2.vl
+
 	return time.time() - startTime
 
 cpptime = 0

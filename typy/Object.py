@@ -34,7 +34,7 @@ def _getProperties(mcs, bases, attrs):
 
 
 def Json(value, slim = False):
-	if value.__class__.__name__ in PythonTypes:
+	if value.__class__.__name__ in PythonTypes and hasattr(value, 'Json'):
 		data = value.Json()
 		data['_t'] = value.__class__.__name__
 		return data

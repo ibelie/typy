@@ -495,6 +495,9 @@ containers.MessageMap = _MessageMap
 class _RepeatedScalarFieldContainer(containers.RepeatedScalarFieldContainer):
 	_is_present_in_parent = True
 
+	def __add__(self, other):
+		return [v for v in self] + [v for v in other]
+
 	def __init__(self, message_listener, type_checker):
 		containers.BaseContainer.__init__(self, message_listener)
 		self._type_checker = type_checker
@@ -518,6 +521,9 @@ class _RepeatedCompositeFieldContainer(containers.RepeatedCompositeFieldContaine
 		elif isinstance(self._message_descriptor, PythonDescriptor):
 			return self._values[key].obj
 		return super(_RepeatedCompositeFieldContainer, self).__getitem__(key)
+
+	def __add__(self, other):
+		return [v for v in self] + [v for v in other]
 
 	def __iter__(self):
 		if self._message_descriptor.oneofs:
