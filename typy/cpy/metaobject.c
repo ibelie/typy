@@ -430,7 +430,7 @@ size_t TypyObject_Write(TypyMetaObject* type, TypyObject** value, int tag, byte*
 #define TypyObject_FromValueOrNew(s, v, t, r) \
 	register TypyObject* s = *(v);                \
 	if (!s) {                                     \
-		s = (TypyObject*)Typy_New(t, NULL, NULL); \
+		s = Typy_New(t, NULL, NULL);              \
 		if (!s) { return r; }                     \
 		*(v) = s;                                 \
 	}
@@ -477,7 +477,7 @@ bool TypyObject_FromJson(TypyMetaObject* type, TypyObject** value, PyObject* jso
 //=============================================================================
 
 PyObject* Py_DeepCopy(TypyObject* self, PyObject* args) {
-	register TypyObject* object = (TypyObject*)Typy_New(Typy_TYPE(self), NULL, NULL);
+	register TypyObject* object = Typy_New(Typy_TYPE(self), NULL, NULL);
 	if (!object) { return NULL; }
 	size_t size = Typy_ByteSize(self);
 	if (size <= 0) { return (PyObject*)object; }

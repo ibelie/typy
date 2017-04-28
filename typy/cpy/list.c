@@ -129,7 +129,7 @@ static PyObject* TypyList_Repr(TypyMetaList* type) {
 #define TypyList_FromValueOrNew(s, v, t, r) \
 	register TypyList* s = *(v);            \
 	if (!s) {                               \
-		s = (TypyList*)TypyList_New(t);     \
+		s = TypyList_New(t);                \
 		if (!s) { return r; }               \
 		*(v) = s;                           \
 	}
@@ -360,29 +360,158 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 	return TypyList_CHECKSET(self, &self->list_items[index], arg, "List item type error: ") ? 0 : -1;
 }
 
-static PyObject* list_Extend(TypyList* self, PyObject* value) {
-	if (!PyObject_Not(value) && Py_TYPE(value)->tp_as_sequence) {
-		MetaList_Extend(TypyList_TYPE(self), self, value);
+static PyObject* list_Extend(TypyList* self, PyObject* other) {
+	if (!PyObject_Not(other) && Py_TYPE(other)->tp_as_sequence) {
+		if (!MetaList_Extend(TypyList_TYPE(self), self, other)) {
+			return NULL;
+		}
 	}
 	Py_RETURN_NONE;
 }
 
+static PyObject* list_PyList(TypyList* self) {
+	PyObject* list = PyList_New(self->list_length);
+	if (!list) { return NULL; }
+	register size_t i;
+	for (i = 0; i < self->list_length; i++) {
+		PyList_SET_ITEM(list, i, TypyList_GET(self, &self->list_items[i]));
+	}
+	return list;
+}
+
+static PyObject* list_Concat(TypyList* self, PyObject* other) {
+	if (PyObject_TypeCheck(other, &TypyListType) && TypyList_TYPE(other) == TypyList_TYPE(self)) {
+		register TypyList* rvalue = (TypyList*)other;
+		TypyList* list = TypyList_New(TypyList_TYPE(self));
+		if (!list) { return NULL; }
+		register TypyField* offset = TypyList_EnsureSize(list, self->list_length + rvalue->list_length);
+		if (!offset) { Py_DECREF(list); return NULL; }
+		register size_t i;
+		for (i = 0; i < self->list_length; i++) {
+			TypyList_SET(list, offset++, self->list_items[i]);
+		}
+		for (i = 0; i < rvalue->list_length; i++) {
+			TypyList_SET(list, offset++, rvalue->list_items[i]);
+		}
+		return (PyObject*)list;
+	} else {
+		PyObject* list = list_PyList(self);
+		if (!list) { return NULL; }
+		Py_XDECREF(PySequence_InPlaceConcat(list, other));
+		return list;
+	}
+}
+
+static PyObject* list_InplaceConcat(TypyList* self, PyObject* other) {
+	if (!PyObject_Not(other) && Py_TYPE(other)->tp_as_sequence) {
+		if (!MetaList_Extend(TypyList_TYPE(self), self, other)) {
+			return NULL;
+		}
+	}
+	Py_INCREF(self);
+	return (PyObject*)self;
+}
+
+static PyObject* list_Repeat(TypyList* self, Py_ssize_t n) {
+	register size_t size = self->list_length;
+	if (n <= 0 || size == 0) {
+		return (PyObject*)TypyList_New(TypyList_TYPE(self));
+	} else if (n > 0 && size > (size_t)PY_SSIZE_T_MAX / n) {
+		return PyErr_NoMemory();
+	}
+	register TypyList* list = TypyList_New(TypyList_TYPE(self));
+	if (!list) { return NULL; }
+	register TypyField* offset = TypyList_EnsureSize(list, size * n);
+	if (!offset) { Py_DECREF(list); return NULL; }
+	register Py_ssize_t i;
+	for (i = 0; i < n; i++) {
+		register size_t j;
+		for (j = 0; j < size; j++) {
+			TypyList_SET(list, offset++, self->list_items[j]);
+		}
+	}
+	return (PyObject*)list;
+}
+
+static PyObject* list_InplaceRepeat(TypyList* self, Py_ssize_t n) {
+	register size_t size = self->list_length;
+	if (n < 1) { TypyList_Clear(self); }
+	if (size == 0 || n <= 1) {
+		Py_INCREF(self);
+		return (PyObject*)self;
+	} else if (size > (size_t)PY_SSIZE_T_MAX / n) {
+		return PyErr_NoMemory();
+	}
+	register TypyField* offset = TypyList_EnsureSize(self, size * (n - 1));
+	if (!offset) { return PyErr_NoMemory(); }
+	register Py_ssize_t i;
+	for (i = 1; i < n; i++) {
+		register size_t j;
+		for (j = 0; j < size; j++) {
+			TypyList_SET(self, offset++, self->list_items[j]);
+		}
+	}
+	Py_INCREF(self);
+	return (PyObject*)self;
+}
+
+static int list_Contains(TypyList* self, PyObject* value) {
+	register size_t i;
+	register int cmp = 0;
+	for (i = 0; cmp == 0 && i < self->list_length; i++) {
+		register PyObject* item = TypyList_GET(self, &self->list_items[i]);
+		cmp = PyObject_RichCompareBool(value, item, Py_EQ);
+		Py_XDECREF(item);
+	}
+	return cmp;
+}
+
+static PyObject* list_Slice(TypyList* self, Py_ssize_t ilow, Py_ssize_t ihigh) {
+	if (ilow < 0) {
+		ilow = 0;
+	} else if ((size_t)ilow > self->list_length) {
+		ilow = self->list_length;
+	}
+	if (ihigh < ilow) {
+		ihigh = ilow;
+	} else if ((size_t)ihigh > self->list_length) {
+		ihigh = self->list_length;
+	}
+
+	register TypyList* slice = TypyList_New(TypyList_TYPE(self));
+	if (!slice) { return NULL; }
+	register TypyField* offset = TypyList_EnsureSize(slice, ihigh - ilow);
+	if (!offset) { Py_DECREF(slice); return NULL; }
+	register Py_ssize_t i;
+	for (i = ilow; i < ihigh; i++) {
+		TypyList_SET(slice, offset++, self->list_items[i]);
+	}
+	return (PyObject*)slice;
+}
+
+static int list_AssignSlice(TypyList* self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject* value) {
+	register PyObject* list = list_PyList(self);
+	if (!list) { return -1; }
+	if (PySequence_SetSlice(list, ilow, ihigh, value) < 0) {
+		Py_DECREF(list);
+		return -1;
+	}
+
+	TypyList_Clear(self);
+	return MetaList_Extend(TypyList_TYPE(self), self, list) ? 0 : -1;
+}
+
 static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
-	Py_ssize_t from;
-	Py_ssize_t to;
-	Py_ssize_t step;
-	Py_ssize_t length;
-	Py_ssize_t slicelength;
-	bool return_list = false;
+	Py_ssize_t from, to, step, slicelength;
 #if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(slice)) {
-		from = to = PyInt_AsLong(slice);
+		return list_Item(self, PyInt_AsLong(slice));
 	} else  /* NOLINT */
 #endif
 	if (PyLong_Check(slice)) {
-		from = to = PyLong_AsLong(slice);
+		return list_Item(self, PyLong_AsLong(slice));
 	} else if (PySlice_Check(slice)) {
-		length = self->list_length;
+		register Py_ssize_t length = (Py_ssize_t)self->list_length;
 #if PY_MAJOR_VERSION >= 3
 		if (PySlice_GetIndicesEx(slice,
 #else
@@ -391,64 +520,46 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 				length, &from, &to, &step, &slicelength) == -1) {
 			return NULL;
 		}
-		return_list = true;
+
+		register TypyList* slice = TypyList_New(TypyList_TYPE(self));
+		if (!slice) { return NULL; }
+		register Py_ssize_t i;
+		if (from <= to) {
+			if (step < 0) { return (PyObject*)slice; }
+			for (i = from; i < to; i += step) {
+				if (i < 0 || i >= length) { break; }
+				register TypyField* offset = TypyList_EnsureSize(slice, 1);
+				if (!offset) { Py_DECREF(slice); return NULL; }
+				TypyList_SET(slice, offset, self->list_items[i]);
+			}
+		} else {
+			if (step > 0) { return (PyObject*)slice; }
+			for (i = from; i > to; i += step) {
+				if (i < 0 || i >= length) { break; }
+				register TypyField* offset = TypyList_EnsureSize(slice, 1);
+				if (!offset) { Py_DECREF(slice); return NULL; }
+				TypyList_SET(slice, offset, self->list_items[i]);
+			}
+		}
+		return (PyObject*)slice;
+
 	} else {
 		PyErr_SetString(PyExc_TypeError, "list indices must be integers");
 		return NULL;
 	}
-
-	if (!return_list) {
-		return list_Item(self, from);
-	}
-
-	PyObject* list = PyList_New(0);
-	register Py_ssize_t index;
-	if (!list) { return NULL; }
-	if (from <= to) {
-		if (step < 0) {
-			return list;
-		}
-		for (index = from; index < to; index += step) {
-			if (index < 0 || index >= length) {
-				break;
-			}
-			register PyObject* s = list_Item(self, index);
-			PyList_Append(list, s);
-			Py_XDECREF(s);
-		}
-	} else {
-		if (step > 0) {
-			return list;
-		}
-		for (index = from; index > to; index += step) {
-			if (index < 0 || index >= length) {
-				break;
-			}
-			register PyObject* s = list_Item(self, index);
-			PyList_Append(list, s);
-			Py_XDECREF(s);
-		}
-	}
-	return list;
 }
 
 static int list_AssSubscript(TypyList* self, PyObject* slice, PyObject* value) {
-	Py_ssize_t from;
-	Py_ssize_t to;
-	Py_ssize_t step;
-	Py_ssize_t length;
-	Py_ssize_t slicelength;
-	bool create_list = false;
-
+	Py_ssize_t from, to, step, slicelength;
 #if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(slice)) {
-		from = to = PyInt_AsLong(slice);
+		return list_AssignItem(self, PyInt_AsLong(slice), value);
 	} else  /* NOLINT */
 #endif
 	if (PyLong_Check(slice)) {
-		from = to = PyLong_AsLong(slice);
+		return list_AssignItem(self, PyLong_AsLong(slice), value);
 	} else if (PySlice_Check(slice)) {
-		length = self->list_length;
+		register Py_ssize_t length = self->list_length;
 #if PY_MAJOR_VERSION >= 3
 		if (PySlice_GetIndicesEx(slice,
 #else
@@ -457,33 +568,11 @@ static int list_AssSubscript(TypyList* self, PyObject* slice, PyObject* value) {
 				length, &from, &to, &step, &slicelength) == -1) {
 			return -1;
 		}
-		create_list = true;
+		return list_AssignSlice(self, from, to, value);
 	} else {
 		PyErr_SetString(PyExc_TypeError, "list indices must be integers");
 		return -1;
 	}
-
-	if (!create_list) {
-		return list_AssignItem(self, from, value);
-	}
-
-	register PyObject* full_slice = PySlice_New(NULL, NULL, NULL);
-	register PyObject* new_list = list_Subscript(self, full_slice);
-	if (PySequence_SetSlice(new_list, from, to, value) < 0) {
-		goto list_asssubscript_fail;
-	}
-	TypyList_Clear(self);
-	if (!MetaList_Extend(TypyList_TYPE(self), self, new_list)) {
-		goto list_asssubscript_fail;
-	}
-	Py_XDECREF(full_slice);
-	Py_XDECREF(new_list);
-	return 0;
-
-list_asssubscript_fail:
-	Py_XDECREF(full_slice);
-	Py_XDECREF(new_list);
-	return -1;
 }
 
 static PyObject* list_Insert(TypyList* self, PyObject* args) {
@@ -594,12 +683,16 @@ static PyObject* iter_Next(TypyListIterator* it)
 }
 
 static PySequenceMethods TypyList_SqMethods = {
-	(lenfunc)list_Len,                /* sq_length   */
-	0,                                /* sq_concat   */
-	0,                                /* sq_repeat   */
-	(ssizeargfunc)list_Item,          /* sq_item     */
-	0,                                /* sq_slice    */
-	(ssizeobjargproc)list_AssignItem, /* sq_ass_item */
+	(lenfunc)list_Len,                      /* sq_length         */
+	(binaryfunc)list_Concat,                /* sq_concat         */
+	(ssizeargfunc)list_Repeat,              /* sq_repeat         */
+	(ssizeargfunc)list_Item,                /* sq_item           */
+	(ssizessizeargfunc)list_Slice,          /* sq_slice          */
+	(ssizeobjargproc)list_AssignItem,       /* sq_ass_item       */
+	(ssizessizeobjargproc)list_AssignSlice, /* sq_ass_slice      */
+	(objobjproc)list_Contains,              /* sq_contains       */
+	(binaryfunc)list_InplaceConcat,         /* sq_inplace_concat */
+	(ssizeargfunc)list_InplaceRepeat,       /* sq_inplace_repeat */
 };
 
 static PyMappingMethods TypyList_MpMethods = {

@@ -153,7 +153,7 @@ static PyObject* TypyDict_Repr(TypyMetaDict* type) {
 #define TypyDict_FromValueOrNew(s, v, t, r) \
 	register TypyDict* s = *(v);            \
 	if (!s) {                               \
-		s = (TypyDict*)TypyDict_New(t);     \
+		s = TypyDict_New(t);                \
 		if (!s) { return r; }               \
 		*(v) = s;                           \
 	}

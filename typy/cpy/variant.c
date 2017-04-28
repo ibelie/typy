@@ -40,7 +40,7 @@ static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
 #define TypyVariant_FromValueOrNew(s, v, t, r) \
 	register TypyVariant* s = *(v);            \
 	if (!s) {                                  \
-		s = (TypyVariant*)TypyVariant_New(t);  \
+		s = TypyVariant_New(t);  \
 		if (!s) { return r; }                  \
 		*(v) = s;                              \
 	}

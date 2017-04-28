@@ -245,6 +245,24 @@ static PyObject* tp_InplaceConcat(PyObject* self, PyObject* other) {
 }
 
 template <typename T>
+static PyObject* tp_Repeat(PyObject* self, Py_ssize_t n) {
+	List<T>* o = static_cast<List<T>*>(self);
+	if (n <= 0) {
+		return new List<T>;
+	} else if (n > 0 && o->size() > PY_SSIZE_T_MAX / n) {
+		return PyErr_NoMemory();
+	}
+	List<T>* list = new List<T>;
+	if (list == NULL) { return NULL; }
+	for (Py_ssize_t i = 0; i < n; i++) {
+		for (typename List<T>::iterator it = o->begin(); it != o->end(); ++it) {
+			::typy::CopyFrom(*list->Add(), *it);
+		}
+	}
+	return list;
+}
+
+template <typename T>
 static PyObject* tp_InplaceRepeat(PyObject* self, Py_ssize_t n) {
 	List<T>* list = static_cast<List<T>*>(self);
 	int size = list->size();
@@ -262,24 +280,6 @@ static PyObject* tp_InplaceRepeat(PyObject* self, Py_ssize_t n) {
 	}
 	Py_INCREF(self);
 	return self;
-}
-
-template <typename T>
-static PyObject* tp_Repeat(PyObject* self, Py_ssize_t n) {
-	List<T>* o = static_cast<List<T>*>(self);
-	if (n <= 0) {
-		return new List<T>;
-	} else if (n > 0 && o->size() > PY_SSIZE_T_MAX / n) {
-		return PyErr_NoMemory();
-	}
-	List<T>* list = new List<T>;
-	if (list == NULL) { return NULL; }
-	for (Py_ssize_t i = 0; i < n; i++) {
-		for (typename List<T>::iterator it = o->begin(); it != o->end(); ++it) {
-			::typy::CopyFrom(*list->Add(), *it);
-		}
-	}
-	return list;
 }
 
 template <typename T>
