@@ -480,7 +480,7 @@ static PyObject* list_Slice(TypyList* self, Py_ssize_t ilow, Py_ssize_t ihigh) {
 	}
 
 	register TypyList* slice = TypyList_New(TypyList_TYPE(self));
-	if (!slice) { return NULL; }
+	if (!slice) { return NULL; } else if (ihigh == ilow) { return (PyObject*)slice; }
 	register TypyField* offset = TypyList_EnsureSize(slice, ihigh - ilow);
 	if (!offset) { Py_DECREF(slice); return NULL; }
 	register Py_ssize_t i;
