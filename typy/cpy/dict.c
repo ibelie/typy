@@ -88,6 +88,13 @@ static inline bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject
 	TypyField k = 0;
 	if (!MetaKey_CHECKSET(type, &k, key, "Dict key type error: ")) {
 		return false;
+	} else if (!value) {
+		register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
+		if (entry) {
+			TypyValue_CLEAR(self, &entry->value);
+			IblMap_Del(self->dict_map, &k);
+		}
+		return true;
 	}
 	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
 	if (!entry) { return false; }

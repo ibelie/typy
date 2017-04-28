@@ -732,6 +732,9 @@ def _build(_typy):
 	print 'Fighter().vl + Fighter().vl', Fighter().vl + Fighter().vl
 	print '_Fighter().vl + _Fighter().vl', _Fighter().vl + _Fighter().vl
 
+	del fighterPy.vd[321]
+	del fighter.vd[321]
+
 	return time.time() - startTime
 
 cpptime = 0
