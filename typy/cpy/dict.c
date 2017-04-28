@@ -553,6 +553,18 @@ static PyObject* dict_Repr(TypyDict* self) {
 	return repr;
 }
 
+static PyObject* dict_DeepCopy(TypyDict* self, PyObject* args) {
+	TypyDict* dict = NULL;
+	register PyObject* json = TypyDict_ToJson(TypyDict_TYPE(self), &self, false);
+	if (!json) { return NULL; }
+	if (!TypyDict_FromJson(TypyDict_TYPE(self), &dict, json)) {
+		Py_XDECREF(dict);
+		dict = NULL;
+	}
+	Py_DECREF(json);
+	return (PyObject*)dict;
+}
+
 //=============================================================================
 
 static TypyDictIterator* dict_IterKey(TypyDict* self) {
@@ -705,26 +717,28 @@ PyMappingMethods TypyDict_MpMethods = {
 };
 
 PyMethodDef TypyDict_Methods[] = {
+	{ "__deepcopy__", (PyCFunction)dict_DeepCopy, METH_VARARGS,
+		"Deep copy the dict." },
 	{ "clear", (PyCFunction)dict_Clear, METH_NOARGS,
-		"Removes all elements from the map." },
+		"Removes all elements from the dict." },
 	{ "get", (PyCFunction)dict_Get, METH_VARARGS,
 		"Get value or None." },
 	{ "pop", (PyCFunction)dict_Pop, METH_VARARGS,
 		"Remove specified key and return the corresponding value." },
 	{ "keys", (PyCFunction)dict_Keys, METH_NOARGS,
-		"Get key list of the map." },
+		"Get key list of the dict." },
 	{ "values", (PyCFunction)dict_Values, METH_NOARGS,
-		"Get value list of the map." },
+		"Get value list of the dict." },
 	{ "items", (PyCFunction)dict_Items, METH_NOARGS,
-		"Get item list of the map." },
+		"Get item list of the dict." },
 	{ "itervalues", (PyCFunction)dict_IterValue, METH_NOARGS,
-		"Iterator over values of the map." },
+		"Iterator over values of the dict." },
 	{ "iteritems", (PyCFunction)dict_IterItem, METH_NOARGS,
-		"Iterator over the (key, value) items of the map." },
+		"Iterator over the (key, value) items of the dict." },
 	{ "setdefault", (PyCFunction)dict_SetDefault, METH_VARARGS,
-		"Get value of the key, also set the default value if key not in the map." },
+		"Get value of the key, also set the default value if key not in the dict." },
 	{ "update", (PyCFunction)dict_Update, METH_O,
-		"Update items from another map." },
+		"Update items from another dict." },
 	{ NULL, NULL }
 };
 

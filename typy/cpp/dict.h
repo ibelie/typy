@@ -296,6 +296,20 @@ static PyObject* tp_Repr(PyObject* self) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
+	Dict<K, V>* dict = NULL;
+	ScopedPyObjectPtr json(::typy::Json(static_cast<Dict<K, V>*>(self), false));
+	if (json == NULL) { return NULL; }
+	if (!::typy::FromJson(dict, json.get())) {
+		if (dict != NULL) {
+			delete dict;
+			dict = NULL;
+		}
+	}
+	return dict;
+}
+
+template <typename K, typename V>
 static PyObject* tp_IterKey(PyObject* self) {
 	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
 	typename Dict<K, V>::Iterator* it = reinterpret_cast<typename Dict<K, V>::Iterator*>(
@@ -486,26 +500,28 @@ PyMappingMethods Dict<K, V>::MpMethods = {
 
 template <typename K, typename V>
 PyMethodDef Dict<K, V>::Methods[] = {
+	{ "__deepcopy__", (PyCFunction)::typy::dict::tp_DeepCopy<K, V>, METH_VARARGS,
+		"Deep copy the dict." },
 	{ "clear", (PyCFunction)::typy::dict::tp_Clear<K, V>, METH_NOARGS,
-		"Removes all elements from the map." },
+		"Removes all elements from the dict." },
 	{ "get", (PyCFunction)::typy::dict::tp_Get<K, V>, METH_VARARGS,
 		"Get value or None." },
 	{ "pop", (PyCFunction)::typy::dict::tp_Pop<K, V>, METH_VARARGS,
 		"Remove specified key and return the corresponding value." },
 	{ "keys", (PyCFunction)::typy::dict::tp_Keys<K, V>, METH_NOARGS,
-		"Get key list of the map." },
+		"Get key list of the dict." },
 	{ "values", (PyCFunction)::typy::dict::tp_Values<K, V>, METH_NOARGS,
-		"Get value list of the map." },
+		"Get value list of the dict." },
 	{ "items", (PyCFunction)::typy::dict::tp_Items<K, V>, METH_NOARGS,
-		"Get item list of the map." },
+		"Get item list of the dict." },
 	{ "itervalues", (PyCFunction)::typy::dict::tp_IterValue<K, V>, METH_NOARGS,
-		"Iterator over values of the map." },
+		"Iterator over values of the dict." },
 	{ "iteritems", (PyCFunction)::typy::dict::tp_IterItem<K, V>, METH_NOARGS,
-		"Iterator over the (key, value) items of the map." },
+		"Iterator over the (key, value) items of the dict." },
 	{ "setdefault", (PyCFunction)::typy::dict::tp_SetDefault<K, V>, METH_VARARGS,
-		"Get value of the key, also set the default value if key not in the map." },
+		"Get value of the key, also set the default value if key not in the dict." },
 	{ "update", (PyCFunction)::typy::dict::tp_Update<K, V>, METH_O,
-		"Update items from another map." },
+		"Update items from another dict." },
 	{ NULL, NULL }
 };
 

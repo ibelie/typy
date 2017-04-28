@@ -19,7 +19,7 @@ def setup():
 		'typy/_typyd.%s' % suffix,
 		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
-	os.system('python -B setup.py build')
+	# os.system('python -B setup.py build')
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
@@ -734,6 +734,11 @@ def _build(_typy):
 
 	del fighterPy.vd[321]
 	del fighter.vd[321]
+
+	print copy.deepcopy(fighterPy.vl)
+	print copy.deepcopy(fighter.vl)
+	print copy.deepcopy(fighterPy.vd)
+	print copy.deepcopy(fighter.vd)
 
 	return time.time() - startTime
 

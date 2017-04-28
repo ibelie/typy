@@ -637,6 +637,18 @@ static PyObject* list_Repr(TypyList* self) {
 	return repr;
 }
 
+static PyObject* list_DeepCopy(TypyList* self, PyObject* args) {
+	TypyList* list = NULL;
+	register PyObject* json = TypyList_ToJson(TypyList_TYPE(self), &self, false);
+	if (!json) { return NULL; }
+	if (!TypyList_FromJson(TypyList_TYPE(self), &list, json)) {
+		Py_XDECREF(list);
+		list = NULL;
+	}
+	Py_DECREF(json);
+	return (PyObject*)list;
+}
+
 //=============================================================================
 
 static TypyListIterator* list_Iter(TypyList* self) {
@@ -703,6 +715,8 @@ static PyMappingMethods TypyList_MpMethods = {
 };
 
 static PyMethodDef TypyList_Methods[] = {
+	{ "__deepcopy__", (PyCFunction)list_DeepCopy, METH_VARARGS,
+		"Deep copy the list." },
 	{ "append", (PyCFunction)list_Append, METH_O,
 		"Appends an object to the list." },
 	{ "extend", (PyCFunction)list_Extend, METH_O,

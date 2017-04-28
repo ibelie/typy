@@ -382,6 +382,10 @@ class _ScalarMap(containers.ScalarMap):
 	_is_present_in_parent = True
 	__marker = object()
 
+	def __deepcopy__(self, memo = None):
+		import copy
+		return {key: copy.deepcopy(self[key]) for key in self}
+
 	def pop(self, key, default = __marker):
 		if key in self._values:
 			value = self[key]
@@ -419,6 +423,10 @@ class _MessageMap(containers.MessageMap):
 	__slots__ = '_nestingList', '_nestingDict'
 	_is_present_in_parent = True
 	__marker = object()
+
+	def __deepcopy__(self, memo = None):
+		import copy
+		return {key: copy.deepcopy(self[key]) for key in self}
 
 	def pop(self, key, default = __marker):
 		if key in self._values:
@@ -495,6 +503,10 @@ containers.MessageMap = _MessageMap
 class _RepeatedScalarFieldContainer(containers.RepeatedScalarFieldContainer):
 	_is_present_in_parent = True
 
+	def __deepcopy__(self, memo = None):
+		import copy
+		return [copy.deepcopy(value) for value in self]
+
 	def __add__(self, other):
 		return [v for v in self] + [v for v in other]
 
@@ -508,6 +520,10 @@ containers.RepeatedScalarFieldContainer = _RepeatedScalarFieldContainer
 
 class _RepeatedCompositeFieldContainer(containers.RepeatedCompositeFieldContainer):
 	_is_present_in_parent = True
+
+	def __deepcopy__(self, memo = None):
+		import copy
+		return [copy.deepcopy(value) for value in self]
 
 	def __init__(self, message_listener, message_descriptor):
 		containers.BaseContainer.__init__(self, message_listener)

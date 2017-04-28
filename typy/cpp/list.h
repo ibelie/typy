@@ -468,6 +468,20 @@ static PyObject* tp_Repr(PyObject* self) {
 }
 
 template <typename T>
+static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
+	List<T>* list = NULL;
+	ScopedPyObjectPtr json(::typy::Json(static_cast<List<T>*>(self), false));
+	if (json == NULL) { return NULL; }
+	if (!::typy::FromJson(list, json.get())) {
+		if (list != NULL) {
+			delete list;
+			list = NULL;
+		}
+	}
+	return list;
+}
+
+template <typename T>
 static PyObject* tp_Iter(PyObject* self) {
 	typename List<T>::Iterator* it = reinterpret_cast<typename List<T>::Iterator*>(
 		PyType_GenericAlloc(&List<T>::Iterator_Type, 0));
@@ -542,6 +556,8 @@ PyMappingMethods List<T>::MpMethods = {
 
 template <typename T>
 PyMethodDef List<T>::Methods[] = {
+	{ "__deepcopy__", (PyCFunction)::typy::list::tp_DeepCopy<T>, METH_VARARGS,
+		"Deep copy the list." },
 	{ "append", (PyCFunction)::typy::list::tp_Append<T>, METH_O,
 		"Appends an object to the list." },
 	{ "extend", (PyCFunction)::typy::list::tp_Extend<T>, METH_O,
