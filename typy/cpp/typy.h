@@ -266,6 +266,7 @@ public:
 		WireType = WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
 	};
 
+	static PySequenceMethods SqMethods;
 	static PyMappingMethods MpMethods;
 	static PyMethodDef Methods[];
 	static PyTypeObject _Type;

@@ -157,17 +157,13 @@ static PyObject* tp_Clear(PyObject* self) {
 }
 
 template <typename K, typename V>
-static PyObject* tp_Contains(PyObject* self, PyObject* key) {
+static int tp_Contains(PyObject* self, PyObject* key) {
 	typename Type<K>::KeyType k;
 	if (!::typy::CheckAndSet(key, k, "")) {
 		PyErr_Clear();
-		Py_RETURN_FALSE;
+		return 0;
 	}
-	if (static_cast<Dict<K, V>*>(self)->count(k) == 0) {
-		Py_RETURN_FALSE;
-	} else {
-		Py_RETURN_TRUE;
-	}
+	return static_cast<Dict<K, V>*>(self)->count(k) == 0 ? 0 : 1;
 }
 
 template <typename K, typename V>
@@ -468,6 +464,20 @@ void Dict<K, V>::Clear() {
 }
 
 template <typename K, typename V>
+PySequenceMethods Dict<K, V>::SqMethods = {
+	0,                                           /* sq_length         */
+	0,                                           /* sq_concat         */
+	0,                                           /* sq_repeat         */
+	0,                                           /* sq_item           */
+	0,                                           /* sq_slice          */
+	0,                                           /* sq_ass_item       */
+	0,                                           /* sq_ass_slice      */
+	(objobjproc)::typy::dict::tp_Contains<K, V>, /* sq_contains       */
+	0,                                           /* sq_inplace_concat */
+	0,                                           /* sq_inplace_repeat */
+};
+
+template <typename K, typename V>
 PyMappingMethods Dict<K, V>::MpMethods = {
 	(lenfunc)::typy::dict::tp_Len<K, V>,                /* mp_length        */
 	(binaryfunc)::typy::dict::tp_Subscript<K, V>,       /* mp_subscript     */
@@ -476,8 +486,6 @@ PyMappingMethods Dict<K, V>::MpMethods = {
 
 template <typename K, typename V>
 PyMethodDef Dict<K, V>::Methods[] = {
-	{ "__contains__", ::typy::dict::tp_Contains<K, V>, METH_O,
-		"Tests whether a key is a member of the map." },
 	{ "clear", (PyCFunction)::typy::dict::tp_Clear<K, V>, METH_NOARGS,
 		"Removes all elements from the map." },
 	{ "get", (PyCFunction)::typy::dict::tp_Get<K, V>, METH_VARARGS,
@@ -514,7 +522,7 @@ PyTypeObject Dict<K, V>::_Type = {
 	0,                                           /* tp_compare        */
 	(reprfunc)::typy::dict::tp_Repr<K, V>,       /* tp_repr           */
 	0,                                           /* tp_as_number      */
-	0,                                           /* tp_as_sequence    */
+	&SqMethods,                                  /* tp_as_sequence    */
 	&MpMethods,                                  /* tp_as_mapping     */
 	PyObject_HashNotImplemented,                 /* tp_hash           */
 	0,                                           /* tp_call           */

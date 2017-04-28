@@ -385,17 +385,13 @@ static PyObject* dict_Clear(TypyDict* self) {
 	Py_RETURN_NONE;
 }
 
-static PyObject* dict_Contains(TypyDict* self, PyObject* key) {
+static int dict_Contains(TypyDict* self, PyObject* key) {
 	TypyField k = 0;
 	if (!TypyKey_CHECKSET(self, &k, key, "")) {
 		PyErr_Clear();
-		Py_RETURN_FALSE;
+		return 0;
 	}
-	if (IblMap_Get(self->dict_map, &k)) {
-		Py_RETURN_FALSE;
-	} else {
-		Py_RETURN_TRUE;
-	}
+	return IblMap_Get(self->dict_map, &k) ? 1 : 0;
 }
 
 static PyObject* dict_Get(TypyDict* self, PyObject* args) {
@@ -682,6 +678,19 @@ static PyObject* iter_NextItem(TypyDictIterator* it)
 	return NULL;
 }
 
+PySequenceMethods TypyDict_SqMethods = {
+	0,                                /* sq_length         */
+	0,                                /* sq_concat         */
+	0,                                /* sq_repeat         */
+	0,                                /* sq_item           */
+	0,                                /* sq_slice          */
+	0,                                /* sq_ass_item       */
+	0,                                /* sq_ass_slice      */
+	(objobjproc)dict_Contains,        /* sq_contains       */
+	0,                                /* sq_inplace_concat */
+	0,                                /* sq_inplace_repeat */
+};
+
 PyMappingMethods TypyDict_MpMethods = {
 	(lenfunc)dict_Len,                /* mp_length        */
 	(binaryfunc)dict_Subscript,       /* mp_subscript     */
@@ -689,8 +698,6 @@ PyMappingMethods TypyDict_MpMethods = {
 };
 
 PyMethodDef TypyDict_Methods[] = {
-	{ "__contains__", (PyCFunction)dict_Contains, METH_O,
-		"Tests whether a key is a member of the map." },
 	{ "clear", (PyCFunction)dict_Clear, METH_NOARGS,
 		"Removes all elements from the map." },
 	{ "get", (PyCFunction)dict_Get, METH_VARARGS,

@@ -190,30 +190,155 @@ static int tp_AssignItem(PyObject* self, Py_ssize_t index, PyObject* arg) {
 }
 
 template <typename T>
-static PyObject* tp_Extend(PyObject* self, PyObject* value) {
-	if (!PyObject_Not(value) && Py_TYPE(value)->tp_as_sequence != NULL) {
-		::typy::ExtendList(value, *static_cast<List<T>*>(self));
+static PyObject* tp_Extend(PyObject* self, PyObject* other) {
+	if (!PyObject_Not(other) && Py_TYPE(other)->tp_as_sequence != NULL) {
+		if (!::typy::ExtendList(other, *static_cast<List<T>*>(self))) {
+			return NULL;
+		}
 	}
 	Py_RETURN_NONE;
 }
 
 template <typename T>
+static PyObject* tp_PyList(PyObject* self) {
+	List<T>* o = static_cast<List<T>*>(self);
+	PyObject* list = PyList_New(o->size());
+	if (list == NULL) { return NULL; }
+	typename List<T>::iterator it = o->begin();
+	for (Py_ssize_t i = 0; it != o->end(); ++it, ++i) {
+		PyList_SET_ITEM(list, i, ::typy::GetPyObject(*it));
+	}
+	return list;
+}
+
+template <typename T>
+static PyObject* tp_Concat(PyObject* self, PyObject* other) {
+	if (PyObject_TypeCheck(other, Py_TYPE(self))) {
+		List<T>* list = new List<T>;
+		if (list == NULL) { return NULL; }
+		List<T>* o1 = static_cast<List<T>*>(self);
+		List<T>* o2 = static_cast<List<T>*>(self);
+		for (typename List<T>::iterator it = o1->begin(); it != o1->end(); ++it) {
+			::typy::CopyFrom(*list->Add(), *it);
+		}
+		for (typename List<T>::iterator it = o2->begin(); it != o2->end(); ++it) {
+			::typy::CopyFrom(*list->Add(), *it);
+		}
+		return list;
+	} else {
+		PyObject* list = tp_PyList<T>(self);
+		if (list == NULL) { return NULL; }
+		Py_XDECREF(PySequence_InPlaceConcat(list, other));
+		return list;
+	}
+}
+
+template <typename T>
+static PyObject* tp_InplaceConcat(PyObject* self, PyObject* other) {
+	if (!PyObject_Not(other) && Py_TYPE(other)->tp_as_sequence != NULL) {
+		if (!::typy::ExtendList(other, *static_cast<List<T>*>(self))) {
+			return NULL;
+		}
+	}
+	Py_INCREF(self);
+	return self;
+}
+
+template <typename T>
+static PyObject* tp_InplaceRepeat(PyObject* self, Py_ssize_t n) {
+	List<T>* list = static_cast<List<T>*>(self);
+	int size = list->size();
+	if (n < 1) { list->Clear(); }
+	if (size == 0 || n <= 1) {
+		Py_INCREF(self);
+		return self;
+	} else if (size > PY_SSIZE_T_MAX / n) {
+		return PyErr_NoMemory();
+	}
+	for (Py_ssize_t i = 1; i < n; i++) {
+		for (int j = 0; j < size; j++) {
+			::typy::CopyFrom(*list->Add(), list->Get(j));
+		}
+	}
+	Py_INCREF(self);
+	return self;
+}
+
+template <typename T>
+static PyObject* tp_Repeat(PyObject* self, Py_ssize_t n) {
+	List<T>* o = static_cast<List<T>*>(self);
+	if (n <= 0) {
+		return new List<T>;
+	} else if (n > 0 && o->size() > PY_SSIZE_T_MAX / n) {
+		return PyErr_NoMemory();
+	}
+	List<T>* list = new List<T>;
+	if (list == NULL) { return NULL; }
+	for (Py_ssize_t i = 0; i < n; i++) {
+		for (typename List<T>::iterator it = o->begin(); it != o->end(); ++it) {
+			::typy::CopyFrom(*list->Add(), *it);
+		}
+	}
+	return list;
+}
+
+template <typename T>
+static int tp_Contains(PyObject* self, PyObject* value) {
+	int cmp = 0;
+	List<T>* list = static_cast<List<T>*>(self);
+	for (int i = 0; cmp == 0 && i < list->size(); i++) {
+		ScopedPyObjectPtr item(::typy::GetPyObject(list->Get(i)));
+		cmp = PyObject_RichCompareBool(value, item.get(), Py_EQ);
+	}
+	return cmp;
+}
+
+template <typename T>
+static PyObject* tp_Slice(PyObject* self, Py_ssize_t ilow, Py_ssize_t ihigh) {
+	List<T>* list = static_cast<List<T>*>(self);
+	if (ilow < 0) {
+		ilow = 0;
+	} else if (ilow > list->size()) {
+		ilow = list->size();
+	}
+	if (ihigh < ilow) {
+		ihigh = ilow;
+	} else if (ihigh > list->size()) {
+		ihigh = list->size();
+	}
+
+	List<T>* slice = new List<T>;
+	if (slice == NULL) { return NULL; }
+	for (Py_ssize_t i = ilow; i < ihigh; i++) {
+		::typy::CopyFrom(*slice->Add(), list->Get(i));
+	}
+	return slice;
+}
+
+template <typename T>
+static int tp_AssignSlice(PyObject* self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject* value) {
+	ScopedPyObjectPtr list(tp_PyList<T>(self));
+	if (list == NULL) { return -1; }
+	if (PySequence_SetSlice(list.get(), ilow, ihigh, value) < 0) {
+		return -1;
+	}
+
+	static_cast<List<T>*>(self)->Clear();
+	return ::typy::ExtendList(list.get(), *static_cast<List<T>*>(self)) ? 0 : -1;
+}
+
+template <typename T>
 static PyObject* tp_Subscript(PyObject* self, PyObject* slice) {
-	Py_ssize_t from;
-	Py_ssize_t to;
-	Py_ssize_t step;
-	Py_ssize_t length;
-	Py_ssize_t slicelength;
-	bool return_list = false;
 #if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(slice)) {
-		from = to = PyInt_AsLong(slice);
+		return tp_Item<T>(self, PyInt_AsLong(slice));
 	} else  /* NOLINT */
 #endif
 	if (PyLong_Check(slice)) {
-		from = to = PyLong_AsLong(slice);
+		return tp_Item<T>(self, PyLong_AsLong(slice));
 	} else if (PySlice_Check(slice)) {
-		length = tp_Len<T>(self);
+		Py_ssize_t from, to, step, slicelength;
+		Py_ssize_t length = tp_Len<T>(self);
 #if PY_MAJOR_VERSION >= 3
 		if (PySlice_GetIndicesEx(slice,
 #else
@@ -222,64 +347,45 @@ static PyObject* tp_Subscript(PyObject* self, PyObject* slice) {
 				length, &from, &to, &step, &slicelength) == -1) {
 			return NULL;
 		}
-		return_list = true;
+
+		List<T>* slice = new List<T>;
+		if (slice == NULL) { return NULL; }
+		List<T>* list = static_cast<List<T>*>(self);
+
+		if (from <= to) {
+			if (step < 0) { return slice; }
+			for (Py_ssize_t i = from; i < to; i += step) {
+				if (i < 0 || i >= length) { break; }
+				::typy::CopyFrom(*slice->Add(), list->Get(i));
+			}
+		} else {
+			if (step > 0) { return slice; }
+			for (Py_ssize_t i = from; i > to; i += step) {
+				if (i < 0 || i >= length) { break; }
+				::typy::CopyFrom(*slice->Add(), list->Get(i));
+			}
+		}
+
+		return slice;
+
 	} else {
 		PyErr_SetString(PyExc_TypeError, "list indices must be integers");
 		return NULL;
 	}
-
-	if (!return_list) {
-		return tp_Item<T>(self, from);
-	}
-
-	PyObject* list = PyList_New(0);
-	if (list == NULL) {
-		return NULL;
-	}
-	if (from <= to) {
-		if (step < 0) {
-			return list;
-		}
-		for (Py_ssize_t index = from; index < to; index += step) {
-			if (index < 0 || index >= length) {
-				break;
-			}
-			ScopedPyObjectPtr s(tp_Item<T>(self, index));
-			PyList_Append(list, s.get());
-		}
-	} else {
-		if (step > 0) {
-			return list;
-		}
-		for (Py_ssize_t index = from; index > to; index += step) {
-			if (index < 0 || index >= length) {
-				break;
-			}
-			ScopedPyObjectPtr s(tp_Item<T>(self, index));
-			PyList_Append(list, s.get());
-		}
-	}
-	return list;
 }
 
 template <typename T>
 static int tp_AssSubscript(PyObject* self, PyObject* slice, PyObject* value) {
-	Py_ssize_t from;
-	Py_ssize_t to;
-	Py_ssize_t step;
-	Py_ssize_t length;
-	Py_ssize_t slicelength;
-	bool create_list = false;
-
 #if PY_MAJOR_VERSION < 3
 	if (PyInt_Check(slice)) {
-		from = to = PyInt_AsLong(slice);
+		return tp_AssignItem<T>(self, PyInt_AsLong(slice), value);
 	} else  /* NOLINT */
 #endif
 	if (PyLong_Check(slice)) {
-		from = to = PyLong_AsLong(slice);
+		return tp_AssignItem<T>(self, PyLong_AsLong(slice), value);
 	} else if (PySlice_Check(slice)) {
-		length = tp_Len<T>(self);
+		Py_ssize_t from, to, step, slicelength;
+		Py_ssize_t length = tp_Len<T>(self);
 #if PY_MAJOR_VERSION >= 3
 		if (PySlice_GetIndicesEx(slice,
 #else
@@ -288,30 +394,11 @@ static int tp_AssSubscript(PyObject* self, PyObject* slice, PyObject* value) {
 				length, &from, &to, &step, &slicelength) == -1) {
 			return -1;
 		}
-		create_list = true;
+		return tp_AssignSlice<T>(self, from, to, value);
 	} else {
 		PyErr_SetString(PyExc_TypeError, "list indices must be integers");
 		return -1;
 	}
-
-	if (!create_list) {
-		return tp_AssignItem<T>(self, from, value);
-	}
-
-	ScopedPyObjectPtr full_slice(PySlice_New(NULL, NULL, NULL));
-	if (full_slice == NULL) {
-		return -1;
-	}
-	ScopedPyObjectPtr new_list(tp_Subscript<T>(self, full_slice.get()));
-	if (new_list == NULL) {
-		return -1;
-	}
-	if (PySequence_SetSlice(new_list.get(), from, to, value) < 0) {
-		return -1;
-	}
-
-	static_cast<List<T>*>(self)->Clear();
-	return ::typy::ExtendList(new_list.get(), *static_cast<List<T>*>(self)) ? 0 : -1;
 }
 
 template <typename T>
@@ -321,13 +408,12 @@ static PyObject* tp_Insert(PyObject* self, PyObject* args) {
 	if (!PyArg_ParseTuple(args, "lO", &index, &value)) {
 		return NULL;
 	}
-	ScopedPyObjectPtr full_slice(PySlice_New(NULL, NULL, NULL));
-	ScopedPyObjectPtr new_list(tp_Subscript<T>(self, full_slice.get()));
-	if (PyList_Insert(new_list.get(), index, value) < 0) {
+	ScopedPyObjectPtr list(tp_PyList<T>(self));
+	if (PyList_Insert(list.get(), index, value) < 0) {
 		return NULL;
 	}
 	static_cast<List<T>*>(self)->Clear();
-	if (!::typy::ExtendList(new_list.get(), *static_cast<List<T>*>(self))) {
+	if (!::typy::ExtendList(list.get(), *static_cast<List<T>*>(self))) {
 		return NULL;
 	}
 	Py_RETURN_NONE;
@@ -435,12 +521,16 @@ static PyObject* iter_Next(typename List<T>::Iterator* it)
 
 template <typename T>
 PySequenceMethods List<T>::SqMethods = {
-	(lenfunc)::typy::list::tp_Len<T>,                /* sq_length   */
-	0,                                               /* sq_concat   */
-	0,                                               /* sq_repeat   */
-	(ssizeargfunc)::typy::list::tp_Item<T>,          /* sq_item     */
-	0,                                               /* sq_slice    */
-	(ssizeobjargproc)::typy::list::tp_AssignItem<T>, /* sq_ass_item */
+	(lenfunc)::typy::list::tp_Len<T>,                      /* sq_length         */
+	(binaryfunc)::typy::list::tp_Concat<T>,                /* sq_concat         */
+	(ssizeargfunc)::typy::list::tp_Repeat<T>,              /* sq_repeat         */
+	(ssizeargfunc)::typy::list::tp_Item<T>,                /* sq_item           */
+	(ssizessizeargfunc)::typy::list::tp_Slice<T>,          /* sq_slice          */
+	(ssizeobjargproc)::typy::list::tp_AssignItem<T>,       /* sq_ass_item       */
+	(ssizessizeobjargproc)::typy::list::tp_AssignSlice<T>, /* sq_ass_slice      */
+	(objobjproc)::typy::list::tp_Contains<T>,              /* sq_contains       */
+	(binaryfunc)::typy::list::tp_InplaceConcat<T>,         /* sq_inplace_concat */
+	(ssizeargfunc)::typy::list::tp_InplaceRepeat<T>,       /* sq_inplace_repeat */
 };
 
 template <typename T>
