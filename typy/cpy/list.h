@@ -28,30 +28,30 @@ typedef struct {
 	TypyField*    list_items;
 } TypyList;
 
-#define MetaList_DESC(m) (((TypyMetaList*)(m))->list_desc)
-#define MetaList_TYPYTYPE(m) (MetaList_DESC(m).desc_type)
+#define MetaList_DESC(m)      (((TypyMetaList*)(m))->list_desc)
+#define MetaList_TYPYTYPE(m)  (MetaList_DESC(m).desc_type)
 #define MetaList_FIELDTYPE(m) (MetaList_DESC(m).desc_FieldType)
-#define MetaList_WIRETYPE(m) (MetaList_DESC(m).desc_WireType)
+#define MetaList_WIRETYPE(m)  (MetaList_DESC(m).desc_WireType)
 #define MetaList_CLEAR(m, f) \
-	(abstract_Clear[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
+	(abstract_Clear       [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
 #define MetaList_READ(m, f, i, l) \
-	(abstract_Read[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (i), (l)))
+	(abstract_Read        [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (i), (l)))
 #define MetaList_WRITE(m, f, t, o) \
-	(abstract_Write[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t), (o)))
+	(abstract_Write       [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t), (o)))
 #define MetaList_BYTESIZE(m, f, t) \
-	(abstract_ByteSize[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t)))
+	(abstract_ByteSize    [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t)))
 #define MetaList_MERGEFROM(m, l, r) \
-	(abstract_MergeFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
+	(abstract_MergeFrom   [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
 #define MetaList_GET(m, f) \
-	(abstract_GetPyObject[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
+	(abstract_GetPyObject [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
 #define MetaList_SET(m, l, r) \
-	(abstract_CopyFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
+	(abstract_CopyFrom    [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
 #define MetaList_CHECKSET(m, l, r, e) \
-	(abstract_CheckAndSet[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r), (e)))
+	(abstract_CheckAndSet [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r), (e)))
 #define MetaList_TOJSON(m, f, s) \
-	(abstract_ToJson[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (s)))
+	(abstract_ToJson      [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (s)))
 #define MetaList_FROMJSON(m, f, j) \
-	(abstract_FromJson[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (j)))
+	(abstract_FromJson    [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (j)))
 #define MetaList_IsPrimitive(m) (MetaList_FIELDTYPE(m) < MAX_PRIMITIVE_TYPE)
 
 #define MetaList_Clear(m, ob) { \

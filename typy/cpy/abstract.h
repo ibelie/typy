@@ -52,20 +52,20 @@ typedef struct {
 	WireType      desc_WireType;
 } TypyNestDesc;
 
-extern GetPyObject    abstract_GetPyObject[MAX_FIELD_TYPE];
-extern CheckAndSet    abstract_CheckAndSet[MAX_FIELD_TYPE];
-extern CopyFrom       abstract_CopyFrom[MAX_FIELD_TYPE];
-extern MergeFrom      abstract_MergeFrom[MAX_FIELD_TYPE];
-extern Clear          abstract_Clear[MAX_FIELD_TYPE];
-extern Read           abstract_Read[MAX_FIELD_TYPE];
-extern Write          abstract_Write[MAX_FIELD_TYPE];
-extern ByteSize       abstract_ByteSize[MAX_FIELD_TYPE];
-extern ToJson         abstract_ToJson[MAX_FIELD_TYPE];
-extern FromJson       abstract_FromJson[MAX_FIELD_TYPE];
-extern FromJsonKey    abstract_FromJsonKey[MAX_FIELD_TYPE];
+extern GetPyObject    abstract_GetPyObject [MAX_FIELD_TYPE];
+extern CheckAndSet    abstract_CheckAndSet [MAX_FIELD_TYPE];
+extern CopyFrom       abstract_CopyFrom    [MAX_FIELD_TYPE];
+extern MergeFrom      abstract_MergeFrom   [MAX_FIELD_TYPE];
+extern Clear          abstract_Clear       [MAX_FIELD_TYPE];
+extern Read           abstract_Read        [MAX_FIELD_TYPE];
+extern Write          abstract_Write       [MAX_FIELD_TYPE];
+extern ByteSize       abstract_ByteSize    [MAX_FIELD_TYPE];
+extern ToJson         abstract_ToJson      [MAX_FIELD_TYPE];
+extern FromJson       abstract_FromJson    [MAX_FIELD_TYPE];
+extern FromJsonKey    abstract_FromJsonKey [MAX_FIELD_TYPE];
 
-extern IblMap_Hash    abstract_Hash[MAX_FIELD_TYPE];
-extern IblMap_Compare abstract_Compare[MAX_FIELD_TYPE];
+extern IblMap_Hash    abstract_Hash        [MAX_FIELD_TYPE];
+extern IblMap_Compare abstract_Compare     [MAX_FIELD_TYPE];
 
 #ifdef __cplusplus
 }

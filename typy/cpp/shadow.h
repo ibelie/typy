@@ -178,13 +178,9 @@ public:
 	}
 
 	static bool Init(PyObject* m, const char* name) {
-		PyCFunctionObject* method = reinterpret_cast<PyCFunctionObject*>(
-			PyType_GenericAlloc(&PyCFunction_Type, 0));
-		method->m_ml = &_InitDef;
-		method->m_self = m;
-		method->m_module = NULL;
-		PyModule_AddObject(m, name, reinterpret_cast<PyObject*>(method));
-		return true;
+		ScopedPyObjectPtr method(PyCFunction_NewEx(&_InitDef, m, NULL));
+		if (method == NULL) { return false; }
+		return PyDict_SetItemString(PyModule_GetDict(m), name, method.get()) == 0;
 	}
 
 private:

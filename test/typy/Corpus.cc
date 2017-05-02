@@ -51,13 +51,9 @@ bool InitCorpus(PyObject* m) {
 	kCorpusNEWS = PyInt_FromLong(4);
 	kCorpusPRODUCTS = PyInt_FromLong(5);
 	kCorpusVIDEO = PyInt_FromLong(6);
-	PyCFunctionObject* method = reinterpret_cast<PyCFunctionObject*>(
-		PyType_GenericAlloc(&PyCFunction_Type, 0));
-	method->m_ml = &CorpusMethod;
-	method->m_self = m;
-	method->m_module = NULL;
-	PyModule_AddObject(m, CorpusMethod.ml_name, reinterpret_cast<PyObject*>(method));
-	return true;
+	ScopedPyObjectPtr method(PyCFunction_NewEx(&CorpusMethod, m, NULL));
+	if (method == NULL) { return false; }
+	return PyDict_SetItemString(PyModule_GetDict(m), CorpusMethod.ml_name, method.get()) == 0;
 }
 
 PyObject* GetPyObject(const ENUM& value) {

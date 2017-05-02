@@ -24,25 +24,25 @@ extern PyTypeObject TypyMetaVariantType;
 TypyMetaObject* Typy_RegisterVariant(PyObject*, PyObject*);
 
 #define MetaVariant_CLEAR(m, s, i) \
-	(abstract_Clear[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
+	(abstract_Clear       [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
 #define MetaVariant_GET(m, s, i) \
-	(abstract_GetPyObject[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
+	(abstract_GetPyObject [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
 #define MetaVariant_SET(m, s, i, f) \
-	(abstract_CopyFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+	(abstract_CopyFrom    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
 #define MetaVariant_CHECKSET(m, s, i, v, e) \
-	(abstract_CheckAndSet[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (v), (e)))
+	(abstract_CheckAndSet [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (v), (e)))
 #define MetaVariant_MERGEFROM(m, s, i, f) \
-	(abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+	(abstract_MergeFrom   [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
 #define MetaVariant_BYTESIZE(m, s, i, t) \
-	(abstract_ByteSize[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t)))
+	(abstract_ByteSize    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t)))
 #define MetaVariant_WRITE(m, s, i, t, o) \
-	(abstract_Write[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (o)))
+	(abstract_Write       [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (o)))
 #define MetaVariant_READ(m, s, i, t, l) \
-	(abstract_Read[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
+	(abstract_Read        [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
 #define MetaVariant_TOJSON(m, s, i, l) \
-	(abstract_ToJson[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (l)))
+	(abstract_ToJson      [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (l)))
 #define MetaVariant_FROMJSON(m, s, i, j) \
-	(abstract_FromJson[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (j)))
+	(abstract_FromJson    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (j)))
 
 #define MetaVariant_Clear(m, ob) { \
 	if ((ob)->variant_index >= 0 && (size_t)(ob)->variant_index < Meta_SIZE(m)) { \

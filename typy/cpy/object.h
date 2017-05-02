@@ -53,43 +53,43 @@ extern PyTypeObject TypyMetaObjectType;
 extern PyTypeObject BaseTypyObjectType;
 extern PyTypeObject* TypyObjectType;
 
-PyTypeObject*      _InheritTypyObjectType(void);
-TypyMetaObject*    _Typy_RegisterMeta(PyObject*);
-PyCFunctionObject* Typy_RegisterObject(PyObject*, PyObject*);
+PyTypeObject*   _InheritTypyObjectType (void);
+TypyMetaObject* _Typy_RegisterMeta     (PyObject*);
+PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 
-#define Typy_TYPE(ob) (((TypyObject*)(ob))->meta_type)
-#define Typy_SIZE(ob) (Typy_TYPE(ob)->meta_size)
-#define Typy_NAME(ob) Meta_NAME(Typy_TYPE(ob))
+#define Typy_NAME(ob)     Meta_NAME(Typy_TYPE(ob))
+#define Typy_TYPE(ob)     (((TypyObject*)(ob))->meta_type)
 #define Typy_FIELD(ob, i) (((TypyObject*)(ob))->object_fields[i])
-#define Typy_DESC(ob, i) (Typy_TYPE(ob)->meta_descriptor[i])
+#define Typy_SIZE(ob)     (Typy_TYPE(ob)->meta_size)
+#define Typy_DESC(ob, i)  (Typy_TYPE(ob)->meta_descriptor[i])
 #define Typy_TypeCheck(ob, m) \
 	PyObject_TypeCheck(ob, TypyObjectType) && PyObject_IsSubclass((PyObject*)Typy_TYPE(ob), (PyObject*)m)
 
-#define Typy_TAG(ob, i) (Typy_DESC(ob, i).desc_tag)
-#define Typy_TAGSIZE(ob, i) (Typy_DESC(ob, i).desc_tagsize)
+#define Typy_TAG(ob, i)       (Typy_DESC(ob, i).desc_tag)
+#define Typy_TAGSIZE(ob, i)   (Typy_DESC(ob, i).desc_tagsize)
 #define Typy_FIELDTYPE(ob, i) (Typy_DESC(ob, i).desc_FieldType)
-#define Typy_TYPYTYPE(ob, i) (Typy_DESC(ob, i).desc_type)
-#define Typy_WIRETYPE(ob, i) (Typy_DESC(ob, i).desc_WireType)
+#define Typy_TYPYTYPE(ob, i)  (Typy_DESC(ob, i).desc_type)
+#define Typy_WIRETYPE(ob, i)  (Typy_DESC(ob, i).desc_WireType)
 #define Typy_CLEAR(ob, i) \
-	(abstract_Clear[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
+	(abstract_Clear       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define Typy_GET(ob, i) \
-	(abstract_GetPyObject[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
+	(abstract_GetPyObject [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define Typy_SET(ob, i, f) \
-	(abstract_CopyFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
+	(abstract_CopyFrom    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_CHECKSET(ob, i, v, e) \
-	(abstract_CheckAndSet[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (v), (e)))
+	(abstract_CheckAndSet [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (v), (e)))
 #define Typy_MERGEFROM(ob, i, f) \
-	(abstract_MergeFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
+	(abstract_MergeFrom   [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_BYTESIZE(ob, i, t) \
-	(abstract_ByteSize[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t)))
+	(abstract_ByteSize    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t)))
 #define Typy_WRITE(ob, i, t, o) \
-	(abstract_Write[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
+	(abstract_Write       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
 #define Typy_READ(ob, i, s, l) \
-	(abstract_Read[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
+	(abstract_Read        [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
 #define Typy_TOJSON(ob, i, s) \
-	(abstract_ToJson[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s)))
+	(abstract_ToJson      [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s)))
 #define Typy_FROMJSON(ob, i, j) \
-	(abstract_FromJson[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (j)))
+	(abstract_FromJson    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (j)))
 
 void      Typy_Clear               (TypyObject*);
 void      Typy_Dealloc             (TypyObject*);

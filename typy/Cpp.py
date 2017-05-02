@@ -887,13 +887,9 @@ static PyMethodDef %sMethod = { "%s", (PyCFunction)_Init%s, METH_O,
 
 bool Init%s(PyObject* m) {
 	%s
-	PyCFunctionObject* method = reinterpret_cast<PyCFunctionObject*>(
-		PyType_GenericAlloc(&PyCFunction_Type, 0));
-	method->m_ml = &%sMethod;
-	method->m_self = m;
-	method->m_module = NULL;
-	PyModule_AddObject(m, %sMethod.ml_name, reinterpret_cast<PyObject*>(method));
-	return true;
+	ScopedPyObjectPtr method(PyCFunction_NewEx(&%sMethod, m, NULL));
+	if (method == NULL) { return false; }
+	return PyDict_SetItemString(PyModule_GetDict(m), %sMethod.ml_name, method.get()) == 0;
 }
 
 PyObject* GetPyObject(const ENUM& value) {

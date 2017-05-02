@@ -701,16 +701,13 @@ static PyObject* MetaObject_New(PyTypeObject* cls, PyObject* args, PyObject* kwa
 static PyMethodDef _InitDef = { "InitObject", (PyCFunction)MetaObject_Initialize, METH_VARARGS,
 	"Initialize Object Type." };
 
-PyCFunctionObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
+PyObject* Typy_RegisterObject(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
-	register PyCFunctionObject* initializer = (PyCFunctionObject*)PyType_GenericAlloc(&PyCFunction_Type, 0);
-	if (!initializer) { Py_DECREF(type); return NULL; }
-	initializer->m_ml = &_InitDef;
-	initializer->m_self = (PyObject*)type;
-	initializer->m_module = NULL;
+	register PyObject* method = PyCFunction_NewEx(&_InitDef, (PyObject*)type, NULL);
+	Py_XDECREF(type);
+	if (!type || !method) { return NULL; }
 	type->py_type = TypyObjectType;
-
-	return initializer;
+	return method;
 }
 
 PyTypeObject TypyMetaObjectType = {
