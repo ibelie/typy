@@ -63,7 +63,7 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #define Typy_SIZE(ob)     (Typy_TYPE(ob)->meta_size)
 #define Typy_DESC(ob, i)  (Typy_TYPE(ob)->meta_descriptor[i])
 #define Typy_TypeCheck(ob, m) \
-	PyObject_TypeCheck(ob, TypyObjectType) && PyObject_IsSubclass((PyObject*)Typy_TYPE(ob), (PyObject*)m)
+	(PyObject_TypeCheck((ob), TypyObjectType) && Typy_TYPE(ob) == (m))
 
 #define Typy_TAG(ob, i)       (Typy_DESC(ob, i).desc_tag)
 #define Typy_TAGSIZE(ob, i)   (Typy_DESC(ob, i).desc_tagsize)
