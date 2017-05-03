@@ -561,6 +561,8 @@ class _RepeatedCompositeFieldContainer(containers.RepeatedCompositeFieldContaine
 
 		if isinstance(self._message_descriptor, PythonDescriptor):
 			item = PythonMessage(item)
+		else:
+			assert type(item) is self._message_descriptor._concrete_class
 		self._values.append(item)
 		if not self._message_listener.dirty:
 			self._message_listener.Modified()
