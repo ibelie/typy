@@ -101,18 +101,30 @@ class PythonMessage(object):
 	def ByteSize(self):
 		if type(self.obj) in PythonDelegate:
 			return PythonDelegate[type(self.obj)].ByteSize(self.obj)
+		elif hasattr(self.obj, 'iteritems') and dict in PythonDelegate:
+			return PythonDelegate[dict].ByteSize(self.obj)
+		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
+			return PythonDelegate[list].ByteSize(self.obj)
 		else:
 			return self.obj.ByteSize()
 
 	def _InternalSerialize(self, write):
 		if type(self.obj) in PythonDelegate:
 			write(PythonDelegate[type(self.obj)].Serialize(self.obj))
+		elif hasattr(self.obj, 'iteritems') and dict in PythonDelegate:
+			write(PythonDelegate[dict].Serialize(self.obj))
+		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
+			write(PythonDelegate[list].Serialize(self.obj))
 		else:
 			write(self.obj.Serialize())
 
 	def _InternalParse(self, buffer, pos, new_pos):
 		if type(self.obj) in PythonDelegate:
 			PythonDelegate[type(self.obj)].Deserialize(self.obj, buffer[pos: new_pos])
+		elif hasattr(self.obj, 'iteritems') and dict in PythonDelegate:
+			PythonDelegate[dict].Deserialize(self.obj, buffer[pos: new_pos])
+		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
+			PythonDelegate[list].Deserialize(self.obj, buffer[pos: new_pos])
 		else:
 			self.obj.Deserialize(buffer[pos: new_pos])
 		return new_pos
