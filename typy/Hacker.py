@@ -681,13 +681,13 @@ def DecodeFixedPoint(decoder, precision, floor):
 
 def _AttachFixedPointHelpers(cls, field, precision, floor):
 	is_repeated = (field.label == FieldDescriptor.LABEL_REPEATED)
-	is_packed = (is_repeated and wire_format.IsTypePackable(FieldDescriptor.TYPE_INT32))
+	is_packed = (is_repeated and wire_format.IsTypePackable(FieldDescriptor.TYPE_INT64))
 	sizer = FixedPointSizer(encoder._SignedVarintSize, precision, floor, is_repeated)
 	field._encoder = encoder._SimpleEncoder(wire_format.WIRETYPE_VARINT, EncodeFixedPoint(encoder._EncodeSignedVarint, precision, floor, is_repeated), sizer)(field.number, is_repeated, is_packed)
 	field._sizer = encoder._SimpleSizer(sizer)(field.number, is_repeated, is_packed)
 	oneof_descriptor = None if field.containing_oneof is None else field
-	tag_bytes = encoder.TagBytes(field.number, type_checkers.FIELD_TYPE_TO_WIRE_TYPE[FieldDescriptor.TYPE_INT32])
-	field_decoder = decoder._SimpleDecoder(wire_format.WIRETYPE_VARINT, DecodeFixedPoint(decoder._DecodeSignedVarint32, precision, floor))(field.number, is_repeated, is_packed, field, field._default_constructor)
+	tag_bytes = encoder.TagBytes(field.number, type_checkers.FIELD_TYPE_TO_WIRE_TYPE[FieldDescriptor.TYPE_INT64])
+	field_decoder = decoder._SimpleDecoder(wire_format.WIRETYPE_VARINT, DecodeFixedPoint(decoder._DecodeSignedVarint, precision, floor))(field.number, is_repeated, is_packed, field, field._default_constructor)
 	cls._decoders_by_tag[tag_bytes] = (field_decoder, oneof_descriptor)
 	if is_packed:
 		tag_bytes = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
