@@ -36,7 +36,7 @@ bool TypyPython_CheckAndSet(TypyPython* type, PyObject** value, PyObject* arg, c
 	if (arg == Py_None) {
 		Py_XDECREF(*value);
 		return true;
-	} else if (PyObject_TypeCheck(arg, type->python_type)) {
+	} else if (PyObject_TypeCheck(arg, type->python_type) || (type->python_type == &PyList_Type && PySequence_Check(arg))) {
 		Py_INCREF(arg);
 		*value = arg;
 		return true;

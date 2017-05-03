@@ -219,7 +219,7 @@ inline bool CheckAndSet(PyObject* arg, Python<T>*& value, const char* err) {
 	if (arg == Py_None) {
 		Clear(value);
 		return true;
-	} else if (PyObject_TypeCheck(arg, Python<T>::_Type)) {
+	} else if (PyObject_TypeCheck(arg, Python<T>::_Type) || (Python<T>::_Type == &PyList_Type && PySequence_Check(arg))) {
 		if (value == NULL) { value = new Python<T>; }
 		else { value->Clear(); }
 		Py_INCREF(arg);
