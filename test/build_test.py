@@ -742,6 +742,9 @@ def _build(_typy):
 	print copy.deepcopy(fighterPy.vd)
 	print copy.deepcopy(fighter.vd)
 
+	assert Fighter().pos is None
+	assert _Fighter().pos is None
+
 	return time.time() - startTime
 
 cpptime = 0
