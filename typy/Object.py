@@ -41,7 +41,7 @@ def Json(value, slim = False):
 	elif hasattr(value, 'Json'):
 		return value.Json(slim)
 	elif hasattr(value, 'iteritems'):
-		return {str(k): Json(v, slim) for k, v in value.iteritems()}
+		return {str(int(k) if isinstance(k, int) else k): Json(v, slim) for k, v in value.iteritems()}
 	elif hasattr(value, '__iter__'):
 		return [Json(value[i], slim) for i in xrange(len(value))]
 	elif type(value) in PythonDelegate:
