@@ -248,11 +248,12 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "posl[0].s\t", fighter1.posl[0].s, "\t", fighter2.posl[0].s, "\t", fighter3.posl[0].s, "\t", fighter4.posl[0].s, "\t", fighter5.posl[0].s
 	print "posl[0].b\t", fighter1.posl[0].b, "\t", fighter2.posl[0].b, "\t", fighter3.posl[0].b, "\t", fighter4.posl[0].b, "\t", fighter5.posl[0].b
 	print "posl[0].e\t", fighter1.posl[0].e, "\t\t", fighter2.posl[0].e, "\t\t", fighter3.posl[0].e, "\t\t", fighter4.posl[0].e, "\t\t", fighter5.posl[0].e
-	print "posl[1].x", "\t", fighter1.posl[1].x, "\t\t", fighter2.posl[1].x, "\t\t", fighter3.posl[1].x, "\t\t", fighter4.posl[1].x, "\t\t", fighter5.posl[1].x
-	print "posl[1].y", "\t", fighter1.posl[1].y, "\t\t", fighter2.posl[1].y, "\t\t", fighter3.posl[1].y, "\t\t", fighter4.posl[1].y, "\t\t", fighter5.posl[1].y
-	print "posl[1].s\t", fighter1.posl[1].s, fighter2.posl[1].s, fighter3.posl[1].s, fighter4.posl[1].s, fighter5.posl[1].s
-	print "posl[1].b\t", fighter1.posl[1].b, " ", fighter2.posl[1].b, " ", fighter3.posl[1].b, " ", fighter4.posl[1].b, " ", fighter5.posl[1].b
-	print "posl[1].e\t", fighter1.posl[1].e, "\t", fighter2.posl[1].e, "\t", fighter3.posl[1].e, "\t", fighter4.posl[1].e, "\t", fighter5.posl[1].e
+	print "posl[1]", "\t", fighter1.posl[1], "\t\t", fighter2.posl[1], "\t\t", fighter3.posl[1], "\t\t", fighter4.posl[1], "\t\t", fighter5.posl[1]
+	print "posl[2].x", "\t", fighter1.posl[2].x, "\t\t", fighter2.posl[2].x, "\t\t", fighter3.posl[2].x, "\t\t", fighter4.posl[2].x, "\t\t", fighter5.posl[2].x
+	print "posl[2].y", "\t", fighter1.posl[2].y, "\t\t", fighter2.posl[2].y, "\t\t", fighter3.posl[2].y, "\t\t", fighter4.posl[2].y, "\t\t", fighter5.posl[2].y
+	print "posl[2].s\t", fighter1.posl[2].s, fighter2.posl[2].s, fighter3.posl[2].s, fighter4.posl[2].s, fighter5.posl[2].s
+	print "posl[2].b\t", fighter1.posl[2].b, " ", fighter2.posl[2].b, " ", fighter3.posl[2].b, " ", fighter4.posl[2].b, " ", fighter5.posl[2].b
+	print "posl[2].e\t", fighter1.posl[2].e, "\t", fighter2.posl[2].e, "\t", fighter3.posl[2].e, "\t", fighter4.posl[2].e, "\t", fighter5.posl[2].e
 	print "poss[321].x", "\t", fighter1.poss[321].x, "\t\t", fighter2.poss[321].x, "\t\t", fighter3.poss[321].x, "\t\t", fighter4.poss[321].x, "\t\t", fighter5.poss[321].x
 	print "poss[321].y", "\t", fighter1.poss[321].y, "\t\t", fighter2.poss[321].y, "\t\t", fighter3.poss[321].y, "\t\t", fighter4.poss[321].y, "\t\t", fighter5.poss[321].y
 	print "poss[321].s\t", fighter1.poss[321].s, "\t", fighter2.poss[321].s, "\t", fighter3.poss[321].s, "\t", fighter4.poss[321].s, "\t", fighter5.poss[321].s
@@ -263,6 +264,8 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "poss[231].s\t", fighter1.poss[231].s, fighter2.poss[231].s, fighter3.poss[231].s, fighter4.poss[231].s, fighter5.poss[231].s
 	print "poss[231].b\t", fighter1.poss[231].b, " ", fighter2.poss[231].b, " ", fighter3.poss[231].b, " ", fighter4.poss[231].b, " ", fighter5.poss[231].b
 	print "poss[231].e\t", fighter1.poss[231].e, "\t", fighter2.poss[231].e, "\t", fighter3.poss[231].e, "\t", fighter4.poss[231].e, "\t", fighter5.poss[231].e
+	print "poss[320]", "\t", fighter1.poss[320], "\t\t", fighter2.poss[320], "\t\t", fighter3.poss[320], "\t\t", fighter4.poss[320], "\t\t", fighter5.poss[320]
+	print "poss[230]\t", fighter1.poss[230], "\t", fighter2.poss[230], "\t", fighter3.poss[230], "\t", fighter4.poss[230], "\t", fighter5.poss[230]
 	print u"bd[u'哈哈']\t", fighter1.bd[u'哈哈'], "\t", fighter2.bd[u'哈哈'], "\t", fighter3.bd[u'哈哈'], "\t", fighter4.bd[u'哈哈'], "\t", fighter5.bd[u'哈哈']
 	print "bd['asdf']\t", fighter1.bd['asdf'], "\t", fighter2.bd['asdf'], "\t", fighter3.bd['asdf'], "\t", fighter4.bd['asdf'], "\t", fighter5.bd['asdf']
 	print "sd[321]\t", "\t", fighter1.sd[321], "\t\t", fighter2.sd[321], "\t\t", fighter3.sd[321], "\t\t", fighter4.sd[321], "\t\t", fighter5.sd[321]
@@ -310,12 +313,15 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "fld[123][1]\t", '%.3f' % fighter1.fld[123][1], "\t", '%.3f' % fighter2.fld[123][1], "\t", '%.3f' % fighter3.fld[123][1], "\t", '%.3f' % fighter4.fld[123][1], "\t", '%.3f' % fighter5.fld[123][1]
 	print "pyl[0].pp\t", fighter1.pyl[0].pp, "\t\t", fighter2.pyl[0].pp, "\t\t", fighter3.pyl[0].pp, "\t\t", fighter4.pyl[0].pp, "\t\t", fighter5.pyl[0].pp
 	print "pyl[0].ap\t", fighter1.pyl[0].ap, "\t\t", fighter2.pyl[0].ap, "\t\t", fighter3.pyl[0].ap, "\t\t", fighter4.pyl[0].ap, "\t\t", fighter5.pyl[0].ap
-	print "pyl[1].pp\t", fighter1.pyl[1].pp, "\t\t", fighter2.pyl[1].pp, "\t\t", fighter3.pyl[1].pp, "\t\t", fighter4.pyl[1].pp, "\t\t", fighter5.pyl[1].pp
-	print "pyl[1].ap\t", fighter1.pyl[1].ap, "\t\t", fighter2.pyl[1].ap, "\t\t", fighter3.pyl[1].ap, "\t\t", fighter4.pyl[1].ap, "\t\t", fighter5.pyl[1].ap
+	print "pyl[1]\t", fighter1.pyl[1], "\t\t", fighter2.pyl[1], "\t\t", fighter3.pyl[1], "\t\t", fighter4.pyl[1], "\t\t", fighter5.pyl[1]
+	print "pyl[2].pp\t", fighter1.pyl[2].pp, "\t\t", fighter2.pyl[2].pp, "\t\t", fighter3.pyl[2].pp, "\t\t", fighter4.pyl[2].pp, "\t\t", fighter5.pyl[2].pp
+	print "pyl[2].ap\t", fighter1.pyl[2].ap, "\t\t", fighter2.pyl[2].ap, "\t\t", fighter3.pyl[2].ap, "\t\t", fighter4.pyl[2].ap, "\t\t", fighter5.pyl[2].ap
 	print "pyd[321].pp\t", fighter1.pyd[321].pp, "\t\t", fighter2.pyd[321].pp, "\t\t", fighter3.pyd[321].pp, "\t\t", fighter4.pyd[321].pp, "\t\t", fighter5.pyd[321].pp
 	print "pyd[321].ap\t", fighter1.pyd[321].ap, "\t\t", fighter2.pyd[321].ap, "\t\t", fighter3.pyd[321].ap, "\t\t", fighter4.pyd[321].ap, "\t\t", fighter5.pyd[321].ap
 	print "pyd[654].pp\t", fighter1.pyd[654].pp, "\t\t", fighter2.pyd[654].pp, "\t\t", fighter3.pyd[654].pp, "\t\t", fighter4.pyd[654].pp, "\t\t", fighter5.pyd[654].pp
 	print "pyd[654].ap\t", fighter1.pyd[654].ap, "\t\t", fighter2.pyd[654].ap, "\t\t", fighter3.pyd[654].ap, "\t\t", fighter4.pyd[654].ap, "\t\t", fighter5.pyd[654].ap
+	print "pyd[320]\t", fighter1.pyd[320], "\t\t", fighter2.pyd[320], "\t\t", fighter3.pyd[320], "\t\t", fighter4.pyd[320], "\t\t", fighter5.pyd[320]
+	print "pyd[650]\t", fighter1.pyd[650], "\t\t", fighter2.pyd[650], "\t\t", fighter3.pyd[650], "\t\t", fighter4.pyd[650], "\t\t", fighter5.pyd[650]
 	print "pyv1\t", "\t", fighter1.pyv1, "\t\t", fighter2.pyv1, "\t\t", fighter3.pyv1, "\t\t", fighter4.pyv1, "\t\t", fighter5.pyv1
 	print "pyv2.pp\t", "\t", fighter1.pyv2.pp, "\t\t", fighter2.pyv2.pp, "\t\t", fighter3.pyv2.pp, "\t\t", fighter4.pyv2.pp, "\t\t", fighter5.pyv2.pp
 	print "pyv2.ap\t", "\t", fighter1.pyv2.ap, "\t\t", fighter2.pyv2.ap, "\t\t", fighter3.pyv2.ap, "\t\t", fighter4.pyv2.ap, "\t\t", fighter5.pyv2.ap
@@ -385,12 +391,14 @@ def _build(_typy):
 		v2 = "adsf",
 		v3 = vPy,
 		v4 = 345.123,
-		poss = {321: vPy},
+		poss = {321: vPy, 320: None},
 	)
 	fighterPy.hp += 12
 	fighterPy.poss[231] = vPy2
+	fighterPy.poss[230] = None
 	fighterPy.posi[123] = 0.456
 	fighterPy.posl.append(vPy)
+	fighterPy.posl.append(None)
 	fighterPy.posl.append(vPy2)
 	fighterPy.bd[u"哈哈"] = "aaa 0.123"
 	fighterPy.bd["asdf"] = "bbb 456"
@@ -410,8 +418,9 @@ def _build(_typy):
 	fighterPy.vd[45] = 345.123
 	fighterPy.ld = {12: [Corpus.IMAGES, "adsf"], 34: [vPy2, 345.123]}
 	fighterPy.fld = {123: [222.111, 345.123]}
-	fighterPy.pyl = [PyType(pp = 123, ap = 'asdf'), PyType(pp = 456, ap = 'xxxx')]
-	fighterPy.pyd = {321: PyType(pp = 123, ap = 'asdf'), 654: PyType(pp = 456, ap = 'xxxx')}
+	fighterPy.pyl = [PyType(pp = 123, ap = 'asdf'), None, PyType(pp = 456, ap = 'xxxx')]
+	fighterPy.pyd = {321: PyType(pp = 123, ap = 'asdf'), 654: PyType(pp = 456, ap = 'xxxx'), 320: None}
+	fighterPy.pyd[650] = None
 	fighterPy.pyv1 = 123
 	fighterPy.pyv2 = PyType(pp = 123, ap = 'asdf')
 	fighterPy.dd = {12: {111: Corpus.IMAGES, 222: "adsf"}, 34: {333: vPy2, 444: 345.123}}
@@ -545,12 +554,14 @@ def _build(_typy):
 		v2 = "adsf",
 		v3 = v,
 		v4 = 345.123,
-		poss = {321: v},
+		poss = {321: v, 320: None},
 	)
 	fighter.hp += 12
 	fighter.poss[231] = v2
+	fighter.poss[230] = None
 	fighter.posi[123] = 0.456
 	fighter.posl.append(v)
+	fighter.posl.append(None)
 	fighter.posl.append(v2)
 	fighter.bd[u"哈哈"] = "aaa 0.123"
 	fighter.bd["asdf"] = "bbb 456"
@@ -570,8 +581,9 @@ def _build(_typy):
 	fighter.vd[45] = 345.123
 	fighter.ld = {12: [Corpus.IMAGES, "adsf"], 34: [v2, 345.123]}
 	fighter.fld = {123: [222.111, 345.123]}
-	fighter.pyl = [PyType(pp = 123, ap = 'asdf'), PyType(pp = 456, ap = 'xxxx')]
-	fighter.pyd = {321: PyType(pp = 123, ap = 'asdf'), 654: PyType(pp = 456, ap = 'xxxx')}
+	fighter.pyl = [PyType(pp = 123, ap = 'asdf'), None, PyType(pp = 456, ap = 'xxxx')]
+	fighter.pyd = {321: PyType(pp = 123, ap = 'asdf'), 654: PyType(pp = 456, ap = 'xxxx'), 320: None}
+	fighter.pyd[650] = None
 	fighter.pyv1 = 123
 	fighter.pyv2 = PyType(pp = 123, ap = 'asdf')
 	fighter.dd = {12: {111: Corpus.IMAGES, 222: "adsf"}, 34: {333: v2, 444: 345.123}}
