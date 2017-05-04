@@ -106,7 +106,7 @@ class PythonMessage(object):
 		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
 			return PythonDelegate[list].ByteSize(self.obj)
 		else:
-			return self.obj.ByteSize()
+			return self.obj is not None and self.obj.ByteSize() or 0
 
 	def _InternalSerialize(self, write):
 		if type(self.obj) in PythonDelegate:
@@ -116,7 +116,7 @@ class PythonMessage(object):
 		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
 			write(PythonDelegate[list].Serialize(self.obj))
 		else:
-			write(self.obj.Serialize())
+			self.obj is not None and write(self.obj.Serialize())
 
 	def _InternalParse(self, buffer, pos, new_pos):
 		if type(self.obj) in PythonDelegate:
@@ -126,7 +126,7 @@ class PythonMessage(object):
 		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
 			PythonDelegate[list].Deserialize(self.obj, buffer[pos: new_pos])
 		else:
-			self.obj.Deserialize(buffer[pos: new_pos])
+			pos < new_pos and self.obj.Deserialize(buffer[pos: new_pos])
 		return new_pos
 
 class PythonDescriptor(object):
@@ -505,7 +505,8 @@ class _MessageMap(containers.MessageMap):
 			value = PythonMessage(value)
 		self._values[key] = value
 		self._message_listener.Modified()
-		value._is_present_in_parent = True
+		if value is not None:
+			value._is_present_in_parent = True
 
 	def setdefault(self, key, default = None):
 		if key in self._values:
@@ -582,11 +583,12 @@ class _RepeatedCompositeFieldContainer(containers.RepeatedCompositeFieldContaine
 		if isinstance(self._message_descriptor, PythonDescriptor):
 			item = PythonMessage(item)
 		else:
-			assert type(item) is self._message_descriptor._concrete_class
+			assert item is None or type(item) is self._message_descriptor._concrete_class
 		self._values.append(item)
 		if not self._message_listener.dirty:
 			self._message_listener.Modified()
-		item._is_present_in_parent = True
+		if item is not None:
+			item._is_present_in_parent = True
 containers.RepeatedCompositeFieldContainer = _RepeatedCompositeFieldContainer
 
 from typy.google.protobuf.internal import decoder
@@ -637,7 +639,7 @@ def _MessageSizer(field_number, is_repeated, is_packed):
 			if value._message_descriptor.oneofs:
 				value = value._values
 			for element in value:
-				l = element.ByteSize()
+				l = element and element.ByteSize() or 0
 				result += encoder._VarintSize(l) + l
 			return result
 		return RepeatedFieldSize
@@ -655,8 +657,11 @@ def _MessageEncoder(field_number, is_repeated, is_packed):
 				value = value._values
 			for element in value:
 				write(tag)
-				encoder._EncodeVarint(write, element.ByteSize())
-				element._InternalSerialize(write)
+				if element is None:
+					encoder._EncodeVarint(write, 0)
+				else:
+					encoder._EncodeVarint(write, element.ByteSize())
+					element._InternalSerialize(write)
 		return EncodeRepeatedField
 	else:
 		return Origin_MessageEncoder(field_number, is_repeated, is_packed)
