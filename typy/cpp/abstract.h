@@ -301,7 +301,12 @@ template <typename T>
 inline void ByteSize(int& total, int tagsize, List<T>* value) {
 	if (value != NULL) {
 		for (int i = 0; i < value->size(); i++) {
-			ByteSize(total, tagsize, value->Get(i));
+			typename Type<T>::ValueType item = value->Get(i);
+			if (item != NULL) {
+				ByteSize(total, tagsize, item);
+			} else {
+				total += tagsize + CodedOutputStream::VarintSize32(0);
+			}
 		}
 	}
 }
@@ -397,7 +402,13 @@ template <typename T>
 inline void Write(int field_number, List<T>* value, CodedOutputStream* output) {
 	if (value != NULL) {
 		for (unsigned int i = 0, n = value->size(); i < n; i++) {
-			Write(field_number, value->Get(i), output);
+			typename Type<T>::ValueType item = value->Get(i);
+			if (item != NULL) {
+				Write(field_number, item, output);
+			} else {
+				WireFormatLite::WriteTag(field_number, WireFormatLite::WireType(Type<T>::WireType), output);
+				output->WriteVarint32(0);
+			}
 		}
 	}
 }

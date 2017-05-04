@@ -618,7 +618,9 @@ def _MapDecoder(field_descriptor, new_default, is_message_map):
 			if submsg._InternalParse(buffer, pos, new_pos) != new_pos:
 				raise decoder._DecodeError('Unexpected end-group tag.')
 
-			if getattr(value, '_nestingList', None) or getattr(value, '_nestingDict', None):
+			if submsg.value is None:
+				value.__setitem__(submsg.key, None)
+			elif getattr(value, '_nestingList', None) or getattr(value, '_nestingDict', None):
 				value.__getitem__(submsg.key).MergeFrom(submsg.value)
 			elif isinstance(value._message_descriptor, PythonDescriptor):
 				value.__setitem__(submsg.key, submsg.value)
