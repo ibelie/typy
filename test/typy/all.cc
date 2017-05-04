@@ -9,6 +9,7 @@
 #include "Fighter.h"
 #include "Fighter_Part1.h"
 #include "Fighter_Part2.h"
+#include "RPG.h"
 #include "SkillParam.h"
 #include "Vector2.h"
 #include "onInitRuntime.h"
@@ -51,6 +52,7 @@ bool InitModule(PyObject* m) {
 		&& Object<Fighter>::Init(m)
 		&& Object<Fighter_Part1>::Init(m)
 		&& Object<Fighter_Part2>::Init(m)
+		&& Object<RPG>::Init(m)
 		&& Object<SkillParam>::Init(m)
 		&& Object<Vector2>::Init(m)
 		&& Object<onInitRuntime>::Init(m)

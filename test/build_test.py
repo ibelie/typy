@@ -156,6 +156,10 @@ def setup():
 		fdv = pb.Instance(Integer, Dict(Integer, Float), label = 'fdv')
 	globals()['Fighter'] = Fighter
 
+	class RPG(Object):
+		fighter = pb.Instance(Fighter, label = 'fighter')
+	globals()['RPG'] = RPG
+
 	import struct
 
 	class Vector3(object):
@@ -358,7 +362,12 @@ def _toUnicodeJson(json):
 
 
 def _build(_typy):
-	global Vector2, Fighter, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime, playSoundVO_1, playSoundVO_2
+	global Vector2, Fighter, RPG, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime, playSoundVO_1, playSoundVO_2
+
+	f1 = Fighter(pos = Vector2())
+	assert ord(RPG(f1).SerializeToString()[1]) + 2 == len(RPG(f1).SerializeToString())
+	f1.pos.b = 'asdf'
+	assert ord(RPG(f1).SerializeToString()[1]) + 2 == len(RPG(f1).SerializeToString())
 
 	vPy = Vector2(
 		123,  # x

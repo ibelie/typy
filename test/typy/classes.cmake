@@ -7,6 +7,7 @@ set(CLASSES
 	"${_TYPY_DIR}/Fighter_Part1.cc"
 	"${_TYPY_DIR}/playSoundVO_2.cc"
 	"${_TYPY_DIR}/onInitRuntime.cc"
+	"${_TYPY_DIR}/RPG.cc"
 	"${_TYPY_DIR}/playSoundVO_1.cc"
 	"${_TYPY_DIR}/SkillParam.cc"
 	"${_TYPY_DIR}/Empty.cc"

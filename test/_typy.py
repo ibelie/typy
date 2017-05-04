@@ -202,6 +202,9 @@ onInitRuntime = _typyd.Object('onInitRuntime', (
 	('uiid', 88, 1, 0, 1, ),
 	('unitIndex', 96, 1, 0, 1, ),
 ))
+RPG = _typyd.Object('RPG', (
+	('fighter', 10, 1, 2, 11, Fighter),
+))
 playSoundVO_1 = _typyd.Object('playSoundVO_1', (
 	('interval', 13, 1, 5, 7, ),
 	('path', 18, 1, 2, 10, ),
