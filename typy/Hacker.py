@@ -145,6 +145,16 @@ def _AddEqualsMethod(message_descriptor, cls):
 		Origin_AddEqualsMethod(message_descriptor, cls)
 python_message._AddEqualsMethod = _AddEqualsMethod
 
+Origin_AddByteSizeMethod = python_message._AddByteSizeMethod
+def _AddByteSizeMethod(message_descriptor, cls):
+	Origin_AddByteSizeMethod(message_descriptor, cls)
+	Origin_ByteSize = cls.ByteSize
+	def ByteSize(self):
+		self._cached_byte_size_dirty = True
+		return Origin_ByteSize(self)
+	cls.ByteSize = ByteSize
+python_message._AddByteSizeMethod = _AddByteSizeMethod
+
 def _AddHasFieldMethod(message_descriptor, cls):
 	from typy.google.protobuf import descriptor as descriptor_mod
 	is_proto3 = (message_descriptor.syntax == "proto3")
