@@ -340,12 +340,12 @@ except ImportError:
 			if m.oneofs:
 				return [_VariantFromJson(m, d) for d in data]
 			elif hasattr(m, '_concrete_class') and hasattr(m._concrete_class, 'FromJson'):
-				return [m._concrete_class.FromJson(d) for d in data]
+				return [None if d is None else m._concrete_class.FromJson(d) for d in data]
 			else:
 				return data
 		elif m.oneofs:
 			return _VariantFromJson(m, data)
-		elif hasattr(m, '_concrete_class') and hasattr(m._concrete_class, 'FromJson'):
+		elif data is not None and hasattr(m, '_concrete_class') and hasattr(m._concrete_class, 'FromJson'):
 			return m._concrete_class.FromJson(data)
 		else:
 			return data
@@ -354,14 +354,18 @@ except ImportError:
 		from typy.google.protobuf.internal import type_checkers
 		_nestingDict = getattr(d, '_nestingDict', None)
 		if _nestingDict:
-			if isinstance(d._key_checker, type_checkers.IntValueChecker):
+			if data is None:
+				return {}
+			elif isinstance(d._key_checker, type_checkers.IntValueChecker):
 				return {d._key_checker._TYPE(k): _DictFromJson(_nestingDict(), v) for k, v in data.iteritems()}
 			elif isinstance(d._key_checker, type_checkers.TypeCheckerWithDefault):
 				return {d._key_checker._acceptable_types[0](k): _DictFromJson(_nestingDict(), v) for k, v in data.iteritems()}
 			else:
 				return {k: _DictFromJson(_nestingDict(), v) for k, v in data.iteritems()}
 		else:
-			if isinstance(d._key_checker, type_checkers.IntValueChecker):
+			if data is None:
+				return None
+			elif isinstance(d._key_checker, type_checkers.IntValueChecker):
 				return {d._key_checker._TYPE(k): _FromJson(getattr(d, '_message_descriptor', None), getattr(d, '_nestingList', None), v) for k, v in data.iteritems()}
 			elif isinstance(d._key_checker, type_checkers.TypeCheckerWithDefault):
 				return {d._key_checker._acceptable_types[0](k): _FromJson(getattr(d, '_message_descriptor', None), getattr(d, '_nestingList', None), v) for k, v in data.iteritems()}
@@ -378,15 +382,16 @@ except ImportError:
 
 		@classmethod
 		def FromJson(cls, data):
+			if data is None: return None
 			self = cls()
 			for key, value in data.iteritems():
 				if key == '_t': continue
 				o = getattr(self, key, None)
 				if not hasattr(o, '_key_checker'):
 					field = getattr(self, reflection.GeneratedProtocolMessageType._DESCRIPTOR_KEY).fields_by_name[key]
-					setattr(self, key, _FromJson(field.message_type, field.label == descriptor.FieldDescriptor.LABEL_REPEATED, value))
+					setattr(self, key, None if value is None else _FromJson(field.message_type, field.label == descriptor.FieldDescriptor.LABEL_REPEATED, value))
 				else:
-					setattr(self, key, _DictFromJson(o, value))
+					setattr(self, key, None if value is None else _DictFromJson(o, value))
 			return self
 
 		def Json(self, slim = False):

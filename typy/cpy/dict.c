@@ -273,10 +273,14 @@ size_t TypyDict_Write(TypyMetaDict* type, TypyDict** value, int tag, byte* outpu
 		size += Typy_WriteTag(output + size, tag);
 		register TypyDictMap item = (TypyDictMap)iter;
 		register size_t entry_size = MetaKey_BYTESIZE(type, &item->key);
-		entry_size += MetaValue_BYTESIZE(type, &item->value);
+		if (item->value) {
+			entry_size += MetaValue_BYTESIZE(type, &item->value);
+		}
 		size += IblPutUvarint(output + size, entry_size);
 		size += MetaKey_WRITE(type, &item->key, output + size);
-		size += MetaValue_WRITE(type, &item->value, output + size);
+		if (item->value) {
+			size += MetaValue_WRITE(type, &item->value, output + size);
+		}
 	}
 	return size;
 }
@@ -289,7 +293,9 @@ size_t TypyDict_ByteSize(TypyMetaDict* type, TypyDict** value, int tagsize) {
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
 		register TypyDictMap item = (TypyDictMap)iter;
 		register size_t entry_size = MetaKey_BYTESIZE(type, &item->key);
-		entry_size += MetaValue_BYTESIZE(type, &item->value);
+		if (item->value) {
+			entry_size += MetaValue_BYTESIZE(type, &item->value);
+		}
 		size += tagsize + IblSizeVarint(entry_size) + entry_size;
 	}
 	return size;
@@ -305,7 +311,14 @@ PyObject* TypyDict_ToJson(TypyMetaDict* type, TypyDict** value, bool slim) {
 			register TypyDictMap item = (TypyDictMap)iter;
 			register PyObject* k = MetaKey_TOJSON(type, &item->key, slim);
 			register PyObject* key = PyObject_Str(k);
-			register PyObject* value = MetaValue_TOJSON(type, &item->value, slim);
+			register PyObject* value = NULL;
+			if (item->value) {
+				value = MetaValue_TOJSON(type, &item->value, slim);
+			}
+			if (!value) {
+				Py_INCREF(Py_None);
+				value = Py_None;
+			}
 			PyDict_SetItem(dict, key, value);
 			Py_XDECREF(k);
 			Py_XDECREF(key);

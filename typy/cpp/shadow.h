@@ -108,6 +108,9 @@ public:
 	}
 
 	inline static Python* FromJson(PyObject* json) {
+		if (!json || json == Py_None) {
+			return new Python;
+		}
 		ScopedPyObjectPtr iter(PyObject_CallMethod(json, "iteritems", NULL));
 		if (iter == NULL) {
 			FormatTypeError(json, "FromJson expect dict, but ");

@@ -121,11 +121,16 @@ PyObject* TypyPython_ToJson(TypyPython* type, PyObject** value, bool slim) {
 }
 
 bool TypyPython_FromJson(TypyPython* type, PyObject** value, PyObject* json) {
-	PyObject* _k = NULL;
-	PyObject* _v = NULL;
-	PyObject* item = NULL;
-	PyObject* dict = PyDict_New();
-	PyObject* iter = PyObject_CallMethod(json, "iteritems", NULL);
+	if (!json || json == Py_None) {
+		Py_XDECREF(*value);
+		*value = NULL;
+		return true;
+	}
+	register PyObject* _k = NULL;
+	register PyObject* _v = NULL;
+	register PyObject* item = NULL;
+	register PyObject* dict = PyDict_New();
+	register PyObject* iter = PyObject_CallMethod(json, "iteritems", NULL);
 	if (!iter) {
 		FormatTypeError(json, "FromJson expect dict, but ");
 		goto fromjson_fail;

@@ -269,7 +269,7 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "poss[231].b\t", fighter1.poss[231].b, " ", fighter2.poss[231].b, " ", fighter3.poss[231].b, " ", fighter4.poss[231].b, " ", fighter5.poss[231].b
 	print "poss[231].e\t", fighter1.poss[231].e, "\t", fighter2.poss[231].e, "\t", fighter3.poss[231].e, "\t", fighter4.poss[231].e, "\t", fighter5.poss[231].e
 	print "poss[320]", "\t", fighter1.poss[320], "\t\t", fighter2.poss[320], "\t\t", fighter3.poss[320], "\t\t", fighter4.poss[320], "\t\t", fighter5.poss[320]
-	print "poss[230]\t", fighter1.poss[230], "\t", fighter2.poss[230], "\t", fighter3.poss[230], "\t", fighter4.poss[230], "\t", fighter5.poss[230]
+	print "poss[230]", "\t", fighter1.poss[230], "\t\t", fighter2.poss[230], "\t\t", fighter3.poss[230], "\t\t", fighter4.poss[230], "\t\t", fighter5.poss[230]
 	print u"bd[u'哈哈']\t", fighter1.bd[u'哈哈'], "\t", fighter2.bd[u'哈哈'], "\t", fighter3.bd[u'哈哈'], "\t", fighter4.bd[u'哈哈'], "\t", fighter5.bd[u'哈哈']
 	print "bd['asdf']\t", fighter1.bd['asdf'], "\t", fighter2.bd['asdf'], "\t", fighter3.bd['asdf'], "\t", fighter4.bd['asdf'], "\t", fighter5.bd['asdf']
 	print "sd[321]\t", "\t", fighter1.sd[321], "\t\t", fighter2.sd[321], "\t\t", fighter3.sd[321], "\t\t", fighter4.sd[321], "\t\t", fighter5.sd[321]
@@ -317,7 +317,7 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "fld[123][1]\t", '%.3f' % fighter1.fld[123][1], "\t", '%.3f' % fighter2.fld[123][1], "\t", '%.3f' % fighter3.fld[123][1], "\t", '%.3f' % fighter4.fld[123][1], "\t", '%.3f' % fighter5.fld[123][1]
 	print "pyl[0].pp\t", fighter1.pyl[0].pp, "\t\t", fighter2.pyl[0].pp, "\t\t", fighter3.pyl[0].pp, "\t\t", fighter4.pyl[0].pp, "\t\t", fighter5.pyl[0].pp
 	print "pyl[0].ap\t", fighter1.pyl[0].ap, "\t\t", fighter2.pyl[0].ap, "\t\t", fighter3.pyl[0].ap, "\t\t", fighter4.pyl[0].ap, "\t\t", fighter5.pyl[0].ap
-	print "pyl[1]\t", fighter1.pyl[1], "\t\t", fighter2.pyl[1], "\t\t", fighter3.pyl[1], "\t\t", fighter4.pyl[1], "\t\t", fighter5.pyl[1]
+	print "pyl[1]\t", "\t", fighter1.pyl[1], "\t\t", fighter2.pyl[1], "\t\t", fighter3.pyl[1], "\t\t", fighter4.pyl[1], "\t\t", fighter5.pyl[1]
 	print "pyl[2].pp\t", fighter1.pyl[2].pp, "\t\t", fighter2.pyl[2].pp, "\t\t", fighter3.pyl[2].pp, "\t\t", fighter4.pyl[2].pp, "\t\t", fighter5.pyl[2].pp
 	print "pyl[2].ap\t", fighter1.pyl[2].ap, "\t\t", fighter2.pyl[2].ap, "\t\t", fighter3.pyl[2].ap, "\t\t", fighter4.pyl[2].ap, "\t\t", fighter5.pyl[2].ap
 	print "pyd[321].pp\t", fighter1.pyd[321].pp, "\t\t", fighter2.pyd[321].pp, "\t\t", fighter3.pyd[321].pp, "\t\t", fighter4.pyd[321].pp, "\t\t", fighter5.pyd[321].pp

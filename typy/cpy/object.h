@@ -120,7 +120,7 @@ bool        TypyObject_Read        (TypyMetaObject*, TypyObject**, byte**, size_
 bool        TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, const char*);
 void        TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
 
-TypyObject* Py_FromJson            (TypyMetaObject*, PyObject*);
+PyObject*   Py_FromJson            (TypyMetaObject*, PyObject*);
 PyObject*   Py_ToJson              (TypyObject*, PyObject*);
 PyObject*   Py_DeepCopy            (TypyObject*, PyObject*);
 PyObject*   Py_CopyFrom            (TypyObject*, PyObject*);

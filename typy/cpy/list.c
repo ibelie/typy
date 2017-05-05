@@ -188,7 +188,12 @@ size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* outpu
 		}
 	} else {
 		for (i = 0; i < self->list_length; i++) {
-			size += MetaList_WRITE(type, &self->list_items[i], tag, output + size);
+			if (self->list_items[i]) {
+				size += MetaList_WRITE(type, &self->list_items[i], tag, output + size);
+			} else {
+				size += Typy_WriteTag(output + size, tag);
+				size += IblPutUvarint(output + size, 0);
+			}
 		}
 	}
 	return size;
@@ -206,7 +211,11 @@ size_t TypyList_ByteSize(TypyMetaList* type, TypyList** value, int tagsize) {
 		size += tagsize + IblSizeVarint(size);
 	} else {
 		for (i = 0; i < self->list_length; i++) {
-			size += MetaList_BYTESIZE(type, &self->list_items[i], tagsize);
+			if (self->list_items[i]) {
+				size += MetaList_BYTESIZE(type, &self->list_items[i], tagsize);
+			} else {
+				size += tagsize + IblSizeVarint(0);
+			}
 		}
 	}
 	return size;
@@ -251,7 +260,15 @@ PyObject* TypyList_ToJson(TypyMetaList* type, TypyList** value, bool slim) {
 		register PyObject* list = PyList_New((*value)->list_length);
 		if (!list) { return NULL; }
 		for (i = 0; i < (*value)->list_length; i++) {
-			PyList_SetItem(list, i, MetaList_TOJSON(type, &(*value)->list_items[i], slim));
+			register PyObject* item = NULL;
+			if ((*value)->list_items[i]) {
+				item = MetaList_TOJSON(type, &(*value)->list_items[i], slim);
+			}
+			if (!item) {
+				Py_INCREF(Py_None);
+				item = Py_None;
+			}
+			PyList_SetItem(list, i, item);
 		}
 		return list;
 	} else {

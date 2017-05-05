@@ -467,6 +467,11 @@ PyObject* TypyObject_ToJson(TypyMetaObject* type, TypyObject** value, bool slim)
 }
 
 bool TypyObject_FromJson(TypyMetaObject* type, TypyObject** value, PyObject* json) {
+	if (!json || json == Py_None) {
+		Py_XDECREF(*value);
+		*value = NULL;
+		return true;
+	}
 	register TypyObject* object = Meta_FromJson(type, json);
 	if (!object) { return false; }
 	Py_XDECREF(*value);
@@ -606,8 +611,12 @@ PyObject* Py_ToJson(TypyObject* self, PyObject* args) {
 	return Meta_ToJson(Typy_TYPE(self), self, PyObject_IsTrue(slim) == 1);
 }
 
-TypyObject* Py_FromJson(TypyMetaObject* type, PyObject* json) {
-	return Meta_FromJson(type, json);
+PyObject* Py_FromJson(TypyMetaObject* type, PyObject* json) {
+	if (!json || json == Py_None) {
+		Py_RETURN_NONE;
+	} else {
+		return (PyObject*)Meta_FromJson(type, json);
+	}
 }
 
 // ===================================================================
