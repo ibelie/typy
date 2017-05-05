@@ -3,6 +3,8 @@
 # Use of this source code is governed by The MIT License
 # that can be found in the LICENSE file.
 
+SETUP_TYPYD = True
+
 def setup():
 	import os
 	import sys
@@ -19,7 +21,8 @@ def setup():
 		'typy/_typyd.%s' % suffix,
 		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
-	os.system('python -B setup.py build')
+	global SETUP_TYPYD
+	SETUP_TYPYD and os.system('python -B setup.py build')
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
@@ -771,10 +774,13 @@ def _build(_typy):
 cpptime = 0
 cpytime = 0
 
+GEN_CPP = True
+
 def test_cpp():
 	import os
 	from typy import GenerateExtention
-	GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
+	global GEN_CPP
+	GEN_CPP and GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
 	from typy import _typy
 	global cpptime, cpytime
 	cpptime = _build(_typy)

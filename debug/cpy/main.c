@@ -22,6 +22,7 @@ int main()
 "sys.path.append('/home/joungtao/program/typy')\n"
 "sys.path.append('/home/joungtao/program/typy/test')\n"
 "import build_test\n"
+"build_test.SETUP_TYPYD = False\n"
 "build_test.setup()\n"
 "build_test.test_cpy()\n"
 );
