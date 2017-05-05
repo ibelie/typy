@@ -496,7 +496,7 @@ inline PyObject* Json(List<T>* value, bool slim) {
 		for (int i = 0; i < value->size(); i++) {
 			PyObject* item = NULL;
 			typename Type<T>::ValueType v = value->Get(i);
-			if (v != NULL) {
+			if (v) {
 				item = ::typy::Json(v, slim);
 			}
 			if (item == NULL) {
@@ -521,7 +521,7 @@ inline PyObject* Json(Dict<K, V>* value, bool slim) {
 			ScopedPyObjectPtr k(::typy::GetPyObject(it->first));
 			ScopedPyObjectPtr key(PyObject_Str(k.get()));
 			ScopedPyObjectPtr value;
-			if (it->second != NULL) {
+			if (it->second) {
 				value.reset(::typy::Json(it->second, slim));
 			}
 			if (value == NULL) {
