@@ -494,7 +494,16 @@ inline PyObject* Json(List<T>* value, bool slim) {
 		PyObject* list = PyList_New(value->size());
 		if (list == NULL) { return NULL; }
 		for (int i = 0; i < value->size(); i++) {
-			PyList_SetItem(list, i, ::typy::Json(value->Get(i), slim));
+			PyObject* item = NULL;
+			typename Type<T>::ValueType v = value->Get(i);
+			if (v != NULL) {
+				item = ::typy::Json(v, slim);
+			}
+			if (item == NULL) {
+				Py_INCREF(Py_None);
+				item = Py_None;
+			}
+			PyList_SetItem(list, i, item);
 		}
 		return list;
 	} else {
@@ -511,7 +520,14 @@ inline PyObject* Json(Dict<K, V>* value, bool slim) {
 		for (typename Dict<K, V>::const_iterator it = value->begin(); it != value->end(); ++it) {
 			ScopedPyObjectPtr k(::typy::GetPyObject(it->first));
 			ScopedPyObjectPtr key(PyObject_Str(k.get()));
-			ScopedPyObjectPtr value(::typy::Json(it->second, slim));
+			ScopedPyObjectPtr value;
+			if (it->second != NULL) {
+				value.reset(::typy::Json(it->second, slim));
+			}
+			if (value == NULL) {
+				Py_INCREF(Py_None);
+				value.reset(Py_None);
+			}
 			PyDict_SetItem(dict, key.get(), value.get());
 		}
 		return dict;

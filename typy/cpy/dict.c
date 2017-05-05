@@ -322,7 +322,7 @@ PyObject* TypyDict_ToJson(TypyMetaDict* type, TypyDict** value, bool slim) {
 			PyDict_SetItem(dict, key, value);
 			Py_XDECREF(k);
 			Py_XDECREF(key);
-			Py_XDECREF(value);
+			Py_DECREF(value);
 		}
 		return dict;
 	} else {

@@ -87,6 +87,7 @@ public:
 		input->GetDirectBufferPointerInline(&data, &size);
 		input->Skip(size);
 		input->ExpectAtEnd();
+		if (size <= 0) { return true; }
 		ScopedPyObjectPtr str(PyBytes_FromStringAndSize(static_cast<const char*>(data), size));
 		if (object == NULL) {
 			object = PyObject_CallObject((PyObject*)_Type, NULL);
@@ -200,7 +201,7 @@ PyMethodDef Python<T>::_InitDef = { "InitPython", (PyCFunction)_Init, METH_O,
 
 template <typename T>
 inline PyObject* GetPyObject(Python<T>* value) {
-	if (value == NULL) { Py_RETURN_NONE; }
+	if (value == NULL || value->object == NULL) { Py_RETURN_NONE; }
 	Py_INCREF(value->object);
 	return value->object;
 }
