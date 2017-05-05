@@ -3,6 +3,7 @@
 # Use of this source code is governed by The MIT License
 # that can be found in the LICENSE file.
 
+SETUP_TYPYC = True
 SETUP_TYPYD = True
 
 def setup():
@@ -12,16 +13,13 @@ def setup():
 	from distutils.util import get_platform
 	os.chdir('..')
 	suffix = 'pyd' if os.name == 'nt' else 'so'
+	global SETUP_TYPYD, SETUP_TYPYC
 	map(os.remove, [f for f in (
-		'typy/_typy.py',
-		'typy/_typy.pyc',
-		'test/_typy.py',
 		'test/_typy.pyc',
-		'test/_typyd.%s' % suffix,
-		'typy/_typyd.%s' % suffix,
+		'test/_typy.py' if SETUP_TYPYC else '',
+		'typy/_typy.py',
 		'typy/_typy.%s' % suffix,
 	) if os.path.isfile(f)])
-	global SETUP_TYPYD
 	SETUP_TYPYD and os.system('python -B setup.py build')
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
@@ -774,13 +772,11 @@ def _build(_typy):
 cpptime = 0
 cpytime = 0
 
-GEN_CPP = True
-
 def test_cpp():
 	import os
 	from typy import GenerateExtention
-	global GEN_CPP
-	GEN_CPP and GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
+	global SETUP_TYPYC
+	SETUP_TYPYC and GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
 	from typy import _typy
 	global cpptime, cpytime
 	cpptime = _build(_typy)
