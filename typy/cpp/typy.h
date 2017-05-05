@@ -271,7 +271,7 @@ public:
 	static PyMethodDef Methods[];
 	static PyTypeObject _Type;
 
-	Dict() : Map() {
+	Dict() : Map(false) {
 		PyObject_INIT(this, &_Type);
 	}
 	~Dict() { Clear(); }
