@@ -339,13 +339,13 @@ except ImportError:
 		if repeated:
 			if m.oneofs:
 				return [_VariantFromJson(m, d) for d in data]
-			elif hasattr(m, '_concrete_class'):
+			elif hasattr(m, '_concrete_class') and hasattr(m._concrete_class, 'FromJson'):
 				return [m._concrete_class.FromJson(d) for d in data]
 			else:
 				return data
 		elif m.oneofs:
 			return _VariantFromJson(m, data)
-		elif hasattr(m, '_concrete_class'):
+		elif hasattr(m, '_concrete_class') and hasattr(m._concrete_class, 'FromJson'):
 			return m._concrete_class.FromJson(data)
 		else:
 			return data
