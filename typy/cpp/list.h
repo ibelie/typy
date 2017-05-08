@@ -241,7 +241,7 @@ static PyObject* tp_Concat(PyObject* self, PyObject* other) {
 	} else {
 		PyObject* list = tp_PyList<T>(self);
 		if (list == NULL) { return NULL; }
-		Py_XDECREF(PySequence_InPlaceConcat(list, other));
+		ScopedPyObjectPtr(PySequence_InPlaceConcat(list, other));
 		return list;
 	}
 }

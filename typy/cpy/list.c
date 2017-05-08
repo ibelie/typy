@@ -407,7 +407,7 @@ static PyObject* list_PyList(TypyList* self) {
 static PyObject* list_Concat(TypyList* self, PyObject* other) {
 	if (PyObject_TypeCheck(other, &TypyListType) && TypyList_TYPE(other) == TypyList_TYPE(self)) {
 		register TypyList* rvalue = (TypyList*)other;
-		TypyList* list = TypyList_New(TypyList_TYPE(self));
+		register TypyList* list = TypyList_New(TypyList_TYPE(self));
 		if (!list) { return NULL; }
 		if (self->list_length + rvalue->list_length == 0) { return (PyObject*)list; }
 		register TypyField* offset = TypyList_EnsureSize(list, self->list_length + rvalue->list_length);
@@ -421,9 +421,10 @@ static PyObject* list_Concat(TypyList* self, PyObject* other) {
 		}
 		return (PyObject*)list;
 	} else {
-		PyObject* list = list_PyList(self);
+		register PyObject* list = list_PyList(self);
 		if (!list) { return NULL; }
-		Py_XDECREF(PySequence_InPlaceConcat(list, other));
+		register PyObject* result = PySequence_InPlaceConcat(list, other);
+		Py_XDECREF(result);
 		return list;
 	}
 }

@@ -65,7 +65,8 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 		return type->python_read(*value, (*input) - size, size);
 	}
 	register PyObject* data = PyBytes_FromStringAndSize((const char*)(*input) - size, size);
-	Py_XDECREF(PyObject_CallMethod(*value, "Deserialize", "O", data));
+	register PyObject* result = PyObject_CallMethod(*value, "Deserialize", "O", data);
+	Py_XDECREF(result);
 	Py_XDECREF(data);
 	return true;
 }
