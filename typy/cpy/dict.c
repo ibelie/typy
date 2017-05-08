@@ -204,13 +204,11 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	TypyField key = 0, value = 0;
 	if (!Typy_ReadVarint32(input, length, &limit)) {
 		return false;
-	} else if (!limit) {
-		return true;
 	} else if (limit > *length) {
 		return false;
 	}
 	remain = limit;
-	for (;;) {
+	for (; remain;) {
 		if (!Typy_ReadTag(input, &remain, &tag, 0x7F)) {
 			goto handle_unusual;
 		}
@@ -227,12 +225,7 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 				return false;
 			}
 		}
-
-		if (!remain) {
-			break;
-		} else {
-			continue;
-		}
+		continue;
 
 	handle_unusual:
 		if (tag == 0) { break; }
@@ -309,7 +302,7 @@ PyObject* TypyDict_ToJson(TypyMetaDict* type, TypyDict** value, bool slim) {
 		register IblMap_Item iter;
 		for (iter = IblMap_Begin((*value)->dict_map); iter; iter = IblMap_Next((*value)->dict_map, iter)) {
 			register TypyDictMap item = (TypyDictMap)iter;
-			register PyObject* k = MetaKey_TOJSON(type, &item->key, slim);
+			register PyObject* k = MetaKey_TOJSON(type, &item->key, false);
 			register PyObject* key = PyObject_Str(k);
 			register PyObject* value = NULL;
 			if (item->value) {
