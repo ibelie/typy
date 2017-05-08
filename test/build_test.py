@@ -42,9 +42,6 @@ def setup():
 			for k, v in kwargs.iteritems():
 				setattr(self, k, v)
 
-		def __str__(self):
-			return str(self.__dict__)
-
 		@classmethod
 		def FromJson(cls, data):
 			return cls(**data)
@@ -766,6 +763,9 @@ def _build(_typy):
 
 	assert Fighter().pos is None
 	assert _Fighter().pos is None
+
+	print list(fighterPy.pyl)
+	print list(fighter.pyl)
 
 	return time.time() - startTime
 

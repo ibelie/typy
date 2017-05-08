@@ -108,15 +108,19 @@ class PythonMessage(object):
 		else:
 			return self.obj is not None and self.obj.ByteSize() or 0
 
-	def _InternalSerialize(self, write):
-		if type(self.obj) in PythonDelegate:
-			write(PythonDelegate[type(self.obj)].Serialize(self.obj))
-		elif hasattr(self.obj, 'iteritems') and dict in PythonDelegate:
-			write(PythonDelegate[dict].Serialize(self.obj))
-		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
-			write(PythonDelegate[list].Serialize(self.obj))
+	@staticmethod
+	def Static_InternalSerialize(obj, write):
+		if type(obj) in PythonDelegate:
+			write(PythonDelegate[type(obj)].Serialize(obj))
+		elif hasattr(obj, 'iteritems') and dict in PythonDelegate:
+			write(PythonDelegate[dict].Serialize(obj))
+		elif hasattr(obj, '__iter__') and list in PythonDelegate:
+			write(PythonDelegate[list].Serialize(obj))
 		else:
-			self.obj is not None and write(self.obj.Serialize())
+			obj is not None and write(obj.Serialize())
+
+	def _InternalSerialize(self, write):
+		PythonMessage.Static_InternalSerialize(self.obj, write)
 
 	def _InternalParse(self, buffer, pos, new_pos):
 		if type(self.obj) in PythonDelegate:
@@ -565,6 +569,8 @@ class _RepeatedCompositeFieldContainer(containers.RepeatedCompositeFieldContaine
 	def __iter__(self):
 		if self._message_descriptor.oneofs:
 			return iter([getattr(v, v.WhichOneof('Variant'), None) for v in self._values])
+		elif isinstance(self._message_descriptor, PythonDescriptor):
+			return iter([v.obj for v in self._values])
 		return iter(self._values)
 
 	def add(self, **kwargs):
@@ -655,6 +661,7 @@ def _MessageEncoder(field_number, is_repeated, is_packed):
 	if is_repeated:
 		tag = encoder.TagBytes(field_number, wire_format.WIRETYPE_LENGTH_DELIMITED)
 		def EncodeRepeatedField(write, value):
+			isPythonMessage = isinstance(value._message_descriptor, PythonDescriptor)
 			if value._message_descriptor.oneofs:
 				value = value._values
 			for element in value:
@@ -663,7 +670,10 @@ def _MessageEncoder(field_number, is_repeated, is_packed):
 					encoder._EncodeVarint(write, 0)
 				else:
 					encoder._EncodeVarint(write, element.ByteSize())
-					element._InternalSerialize(write)
+					if isPythonMessage:
+						PythonMessage.Static_InternalSerialize(element, write)
+					else:
+						element._InternalSerialize(write)
 		return EncodeRepeatedField
 	else:
 		return Origin_MessageEncoder(field_number, is_repeated, is_packed)
