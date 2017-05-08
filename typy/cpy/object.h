@@ -42,7 +42,7 @@ void TypyMeta_Dealloc(TypyMetaObject*);
 #define     Meta_TYPYTYPE(m, i)     (Meta_DESC(m, i).desc_type)
 #define     Meta_WIRETYPE(m, i)     (Meta_DESC(m, i).desc_WireType)
 #define     Meta_FromInitializer    (field_type == FIELD_TYPE_OBJECT ? ((PyCFunctionObject*)typy_type)->m_self : typy_type)
-#define     Meta_PropertyName(m, i) (((i) < 0 || (size_t)(i) > (m)->meta_size) ? NULL : (m)->meta_index2field[i])
+#define     Meta_PropertyName(m, i) (((i) < 0 || (size_t)(i) >= (m)->meta_size) ? NULL : (m)->meta_index2field[i])
 
 int         Meta_PropertyIndex      (TypyMetaObject*, char*);
 PyObject*   Meta_ToJson             (TypyMetaObject*, TypyObject*, bool);

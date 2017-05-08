@@ -334,7 +334,7 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	handle_unusual:
 		if (tag == 0 || !Typy_SkipField(&input, &remain, tag)) { break; }
 	}
-	return index;
+	return (size_t)index >= Typy_SIZE(self) ? -1 : index;
 }
 
 PyObject* Typy_GetAttr(TypyObject* self, PyObject* arg) {
