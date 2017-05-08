@@ -154,7 +154,7 @@ def GenerateDescriptor(_typyDir = None):
 	from Object import MetaObject
 	codes = []
 	types = set()
-	for name, cls in MetaObject.Objects.iteritems():
+	for name, cls in sorted(MetaObject.Objects.iteritems(), key = lambda (k, v): k):
 		if name not in types:
 			_GenerateObject(name, cls, codes, types)
 

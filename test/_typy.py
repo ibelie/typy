@@ -4,12 +4,12 @@
 import _typyd
 setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
 
+Empty = _typyd.Object('Empty', (
+))
 Dbys = _typyd.Dict('Dbys', (2, 10, ), (2, 9, ))
 Lby = _typyd.List('Lby', (2, 9, ))
 Corpus = _typyd.Enum('Corpus')
 FixedPoint_1_s10 = _typyd.FixedPoint(1, -10)
-Empty = _typyd.Object('Empty', (
-))
 PyType = _typyd.Python('PyType')
 PyObject = _typyd.Python('PyObject')
 Vector2 = _typyd.Object('Vector2', (
@@ -125,12 +125,25 @@ Fighter = _typyd.Object('Fighter', (
 	('pyv2', 202, 2, 2, 12, ViPyType),
 	('sd', 210, 2, 2, 14, Dis),
 	('sl', 218, 2, 2, 13, Ls),
-	('v1', 226, 2, 2, 12, VbyfiVector2),
-	('v2', 234, 2, 2, 12, VfisVector2),
-	('v3', 242, 2, 2, 12, VfisVector2),
-	('v4', 250, 2, 2, 12, VfisVector2),
-	('vd', 258, 2, 2, 14, DiVdesVector2),
-	('vl', 266, 2, 2, 13, LVfpisVector2),
+	('v0', 226, 2, 2, 12, VbyfiVector2),
+	('v1', 234, 2, 2, 12, VbyfiVector2),
+	('v2', 242, 2, 2, 12, VfisVector2),
+	('v3', 250, 2, 2, 12, VfisVector2),
+	('v4', 258, 2, 2, 12, VfisVector2),
+	('vd', 266, 2, 2, 14, DiVdesVector2),
+	('vl', 274, 2, 2, 13, LVfpisVector2),
+))
+Fighter_Part1 = _typyd.Object('Fighter_Part1', (
+	('hp', 13, 1, 5, 7, ),
+	('isAwake', 16, 1, 0, 8, ),
+	('pos', 26, 1, 2, 11, Vector2),
+	('posi', 34, 1, 2, 14, Dfi),
+	('posl', 42, 1, 2, 13, LVector2),
+	('poss', 50, 1, 2, 14, DiVector2),
+	('pyd', 58, 1, 2, 14, DiPyType),
+	('pyl', 66, 1, 2, 13, LPyType),
+	('pyv1', 74, 1, 2, 12, ViPyType),
+	('pyv2', 82, 1, 2, 12, ViPyType),
 ))
 Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('bd', 10, 1, 2, 14, Dbys),
@@ -152,22 +165,9 @@ Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('sd', 138, 2, 2, 14, Dis),
 	('sl', 146, 2, 2, 13, Ls),
 ))
-Fighter_Part1 = _typyd.Object('Fighter_Part1', (
-	('hp', 13, 1, 5, 7, ),
-	('isAwake', 16, 1, 0, 8, ),
-	('pos', 26, 1, 2, 11, Vector2),
-	('posi', 34, 1, 2, 14, Dfi),
-	('posl', 42, 1, 2, 13, LVector2),
-	('poss', 50, 1, 2, 14, DiVector2),
-	('pyd', 58, 1, 2, 14, DiPyType),
-	('pyl', 66, 1, 2, 13, LPyType),
-	('pyv1', 74, 1, 2, 12, ViPyType),
-	('pyv2', 82, 1, 2, 12, ViPyType),
+RPG = _typyd.Object('RPG', (
+	('fighter', 10, 1, 2, 11, Fighter),
 ))
-playSoundVO_2 = _typyd.Object('playSoundVO_2', (
-	('path', 10, 1, 2, 10, ),
-))
-Li = _typyd.List('Li', (0, 1, ))
 Vector3 = _typyd.Python('Vector3')
 Vbbyfi = _typyd.Variant('Vbbyfi', (
 	('Boolean', 8, 1, 0, 8, ),
@@ -186,6 +186,7 @@ SkillParam = _typyd.Object('SkillParam', (
 	('targetID', 58, 1, 2, 9, ),
 	('targetIDs', 66, 1, 2, 13, Lby),
 ))
+Li = _typyd.List('Li', (0, 1, ))
 LSkillParam = _typyd.List('LSkillParam', (2, 11, SkillParam))
 DbyLi = _typyd.Dict('DbyLi', (2, 9, ), (2, 13, Li))
 onInitRuntime = _typyd.Object('onInitRuntime', (
@@ -202,10 +203,10 @@ onInitRuntime = _typyd.Object('onInitRuntime', (
 	('uiid', 88, 1, 0, 1, ),
 	('unitIndex', 96, 1, 0, 1, ),
 ))
-RPG = _typyd.Object('RPG', (
-	('fighter', 10, 1, 2, 11, Fighter),
-))
 playSoundVO_1 = _typyd.Object('playSoundVO_1', (
 	('interval', 13, 1, 5, 7, ),
 	('path', 18, 1, 2, 10, ),
+))
+playSoundVO_2 = _typyd.Object('playSoundVO_2', (
+	('path', 10, 1, 2, 10, ),
 ))

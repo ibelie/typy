@@ -14,7 +14,9 @@ from Type import toType, FixedPoint, List, Dict, Instance, PythonDelegate
 from Enum import MetaEnum
 
 def setVariant(obj, value):
-	if isinstance(value, bool):
+	if value is None:
+		obj.Clear()
+	elif isinstance(value, bool):
 		if hasattr(obj, 'Boolean'):
 			obj.Boolean = value
 		elif hasattr(obj, 'Integer'):
@@ -572,7 +574,7 @@ class _RepeatedCompositeFieldContainer(containers.RepeatedCompositeFieldContaine
 
 	def __iter__(self):
 		if self._message_descriptor.oneofs:
-			return iter([getattr(v, v.WhichOneof('Variant'), None) for v in self._values])
+			return iter([None if v.WhichOneof('Variant') is None else getattr(v, v.WhichOneof('Variant'), None) for v in self._values])
 		elif isinstance(self._message_descriptor, PythonDescriptor):
 			return iter([v.obj for v in self._values])
 		return iter(self._values)

@@ -48,6 +48,7 @@ TypyHeaderBegin(Fighter);
 	ViPyType* p_pyv2;
 	SINGLE_ARG(Dict<int32, string >)* p_sd;
 	List< string >* p_sl;
+	VbyfiVector2* p_v0;
 	VbyfiVector2* p_v1;
 	VfisVector2* p_v2;
 	VfisVector2* p_v3;

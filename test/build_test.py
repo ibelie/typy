@@ -137,6 +137,7 @@ def setup():
 	globals()['Fighter_Part2'] = Fighter_Part2
 
 	class Fighter(Fighter_Part2):
+		v0 = pb.Instance(Integer, Float, Bytes, Vector2, label = 'v0')
 		v1 = pb.Instance(Integer, Float, Bytes, Vector2, label = 'v1')
 		v2 = pb.Instance(Integer, Float, String, Vector2, label = 'v2')
 		v3 = pb.Instance(Integer, Float, String, Vector2, label = 'v3')
@@ -279,6 +280,7 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "ll[1][0]\t", '%.3f' % fighter1.ll[1][0], "\t\t", '%.3f' % fighter2.ll[1][0], "\t\t", '%.3f' % fighter3.ll[1][0], "\t\t", '%.3f' % fighter4.ll[1][0], "\t\t", '%.3f' % fighter5.ll[1][0]
 	print "ll[1][1]\t", '%.3f' % fighter1.ll[1][1], "\t\t", '%.3f' % fighter2.ll[1][1], "\t\t", '%.3f' % fighter3.ll[1][1], "\t\t", '%.3f' % fighter4.ll[1][1], "\t\t", '%.3f' % fighter5.ll[1][1]
 	print "ll[1][2]\t", '%.3f' % fighter1.ll[1][2], "\t", '%.3f' % fighter2.ll[1][2], "\t", '%.3f' % fighter3.ll[1][2], "\t", '%.3f' % fighter4.ll[1][2], "\t", '%.3f' % fighter5.ll[1][2]
+	print "v0\t", "\t", fighter1.v0, "\t\t", fighter2.v0, "\t\t", fighter3.v0, "\t\t", fighter4.v0, "\t\t", fighter5.v0
 	print "v1\t", "\t", fighter1.v1, "\t\t", fighter2.v1, "\t\t", fighter3.v1, "\t\t", fighter4.v1, "\t\t", fighter5.v1
 	print "v2\t", "\t", fighter1.v2, "\t\t", fighter2.v2, "\t\t", fighter3.v2, "\t\t", fighter4.v2, "\t\t", fighter5.v2
 	print "v3.x\t", "\t", fighter1.v3.x, "\t\t", fighter2.v3.x, "\t\t", fighter3.v3.x, "\t\t", fighter4.v3.x, "\t\t", fighter5.v3.x
@@ -289,12 +291,15 @@ def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "v4\t", "\t", '%.3f' % fighter1.v4, "\t", '%.3f' % fighter2.v4, "\t", '%.3f' % fighter3.v4, "\t", '%.3f' % fighter4.v4, "\t", '%.3f' % fighter5.v4
 	print "vl[0]\t", "\t", fighter1.vl[0], "\t\t", fighter2.vl[0], "\t\t", fighter3.vl[0], "\t\t", fighter4.vl[0], "\t\t", fighter5.vl[0]
 	print "vl[1]\t", "\t", fighter1.vl[1], "\t\t", fighter2.vl[1], "\t\t", fighter3.vl[1], "\t\t", fighter4.vl[1], "\t\t", fighter5.vl[1]
-	print "vl[2].x\t", "\t", fighter1.vl[2].x, "\t\t", fighter2.vl[2].x, "\t\t", fighter3.vl[2].x, "\t\t", fighter4.vl[2].x, "\t\t", fighter5.vl[2].x
-	print "vl[2].y\t", "\t", fighter1.vl[2].y, "\t\t", fighter2.vl[2].y, "\t\t", fighter3.vl[2].y, "\t\t", fighter4.vl[2].y, "\t\t", fighter5.vl[2].y
-	print "vl[2].s\t", "\t", fighter1.vl[2].s, "\t", fighter2.vl[2].s, "\t", fighter3.vl[2].s, "\t", fighter4.vl[2].s, "\t", fighter5.vl[2].s
-	print "vl[2].b\t", "\t", fighter1.vl[2].b, "\t", fighter2.vl[2].b, "\t", fighter3.vl[2].b, "\t", fighter4.vl[2].b, "\t", fighter5.vl[2].b
-	print "vl[2].e\t", "\t", fighter1.vl[2].e, "\t\t", fighter2.vl[2].e, "\t\t", fighter3.vl[2].e, "\t\t", fighter4.vl[2].e, "\t\t", fighter5.vl[2].e
-	print "vl[3]\t", "\t", fighter1.vl[3], "\t", fighter2.vl[3], "\t", fighter3.vl[3], "\t", fighter4.vl[3], "\t", fighter5.vl[3]
+	print "vl[2]\t", "\t", fighter1.vl[2], "\t\t", fighter2.vl[2], "\t\t", fighter3.vl[2], "\t\t", fighter4.vl[2], "\t\t", fighter5.vl[2]
+	print "vl[3].x\t", "\t", fighter1.vl[3].x, "\t\t", fighter2.vl[3].x, "\t\t", fighter3.vl[3].x, "\t\t", fighter4.vl[3].x, "\t\t", fighter5.vl[3].x
+	print "vl[3].y\t", "\t", fighter1.vl[3].y, "\t\t", fighter2.vl[3].y, "\t\t", fighter3.vl[3].y, "\t\t", fighter4.vl[3].y, "\t\t", fighter5.vl[3].y
+	print "vl[3].s\t", "\t", fighter1.vl[3].s, "\t", fighter2.vl[3].s, "\t", fighter3.vl[3].s, "\t", fighter4.vl[3].s, "\t", fighter5.vl[3].s
+	print "vl[3].b\t", "\t", fighter1.vl[3].b, "\t", fighter2.vl[3].b, "\t", fighter3.vl[3].b, "\t", fighter4.vl[3].b, "\t", fighter5.vl[3].b
+	print "vl[3].e\t", "\t", fighter1.vl[3].e, "\t\t", fighter2.vl[3].e, "\t\t", fighter3.vl[3].e, "\t\t", fighter4.vl[3].e, "\t\t", fighter5.vl[3].e
+	print "vl[4]\t", "\t", fighter1.vl[4], "\t", fighter2.vl[4], "\t", fighter3.vl[4], "\t", fighter4.vl[4], "\t", fighter5.vl[4]
+	print "vl[5]\t", "\t", fighter1.vl[5], "\t\t", fighter2.vl[5], "\t\t", fighter3.vl[5], "\t\t", fighter4.vl[5], "\t\t", fighter5.vl[5]
+	print "vd[0]\t", "\t", fighter1.vd[0], "\t\t", fighter2.vd[0], "\t\t", fighter3.vd[0], "\t\t", fighter4.vd[0], "\t\t", fighter5.vd[0]
 	print "vd[12]\t", "\t", fighter1.vd[12], "\t\t", fighter2.vd[12], "\t\t", fighter3.vd[12], "\t\t", fighter4.vd[12], "\t\t", fighter5.vd[12]
 	print "vd[23]\t", "\t", fighter1.vd[23], "\t\t", fighter2.vd[23], "\t\t", fighter3.vd[23], "\t\t", fighter4.vd[23], "\t\t", fighter5.vd[23]
 	print "vd[34].x\t", fighter1.vd[34].x, "\t\t", fighter2.vd[34].x, "\t\t", fighter3.vd[34].x, "\t\t", fighter4.vd[34].x, "\t\t", fighter5.vd[34].x
@@ -400,6 +405,7 @@ def _build(_typy):
 		v4 = 345.123,
 		poss = {321: vPy, 320: None},
 	)
+	fighterPy.v0 = None
 	fighterPy.hp += 12
 	fighterPy.poss[231] = vPy2
 	fighterPy.poss[230] = None
@@ -416,9 +422,11 @@ def _build(_typy):
 	fighterPy.el.append(Corpus.VIDEO)
 	fighterPy.ed = {789: Corpus.WEB, 567: Corpus.IMAGES}
 	fighterPy.ll = [[12.3, 1.23], [1.234, 12.34, 123.4]]
-	fighterPy.vl = [123, "adsf"]
+	fighterPy.vl = [123, "adsf", None]
 	fighterPy.vl.append(vPy)
 	fighterPy.vl.append(345.123)
+	fighterPy.vl.append(None)
+	fighterPy.vd[0] = None
 	fighterPy.vd[12] = Corpus.IMAGES
 	fighterPy.vd[23] = "adsf"
 	fighterPy.vd[34] = vPy2
@@ -563,6 +571,7 @@ def _build(_typy):
 		v4 = 345.123,
 		poss = {321: v, 320: None},
 	)
+	fighter.v0 = None
 	fighter.hp += 12
 	fighter.poss[231] = v2
 	fighter.poss[230] = None
@@ -579,9 +588,11 @@ def _build(_typy):
 	fighter.el.append(Corpus.VIDEO)
 	fighter.ed = {789: Corpus.WEB, 567: Corpus.IMAGES}
 	fighter.ll = [[12.3, 1.23], [1.234, 12.34, 123.4]]
-	fighter.vl = [123, "adsf"]
+	fighter.vl = [123, "adsf", None]
 	fighter.vl.append(v)
 	fighter.vl.append(345.123)
+	fighter.vl.append(None)
+	fighter.vd[0] = None
 	fighter.vd[12] = Corpus.IMAGES
 	fighter.vd[23] = "adsf"
 	fighter.vd[34] = v2
