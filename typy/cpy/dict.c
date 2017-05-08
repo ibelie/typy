@@ -454,7 +454,7 @@ static PyObject* dict_Values(TypyDict* self) {
 	register IblMap_Item iter;
 	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
 		register TypyDictMap item = (TypyDictMap)iter;
-		register PyObject* value = TypyKey_GET(self, &item->value);
+		register PyObject* value = TypyValue_GET(self, &item->value);
 		PyList_Append(values, value);
 		Py_XDECREF(value);
 	}
