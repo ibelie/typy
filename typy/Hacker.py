@@ -98,15 +98,19 @@ class PythonMessage(object):
 		else:
 			self.obj = msg
 
-	def ByteSize(self):
-		if type(self.obj) in PythonDelegate:
-			return PythonDelegate[type(self.obj)].ByteSize(self.obj)
-		elif hasattr(self.obj, 'iteritems') and dict in PythonDelegate:
-			return PythonDelegate[dict].ByteSize(self.obj)
-		elif hasattr(self.obj, '__iter__') and list in PythonDelegate:
-			return PythonDelegate[list].ByteSize(self.obj)
+	@staticmethod
+	def Static_ByteSize(obj):
+		if type(obj) in PythonDelegate:
+			return PythonDelegate[type(obj)].ByteSize(obj)
+		elif hasattr(obj, 'iteritems') and dict in PythonDelegate:
+			return PythonDelegate[dict].ByteSize(obj)
+		elif hasattr(obj, '__iter__') and list in PythonDelegate:
+			return PythonDelegate[list].ByteSize(obj)
 		else:
-			return self.obj is not None and self.obj.ByteSize() or 0
+			return obj is not None and obj.ByteSize() or 0
+
+	def ByteSize(self):
+		return PythonMessage.Static_ByteSize(self.obj)
 
 	@staticmethod
 	def Static_InternalSerialize(obj, write):
@@ -643,11 +647,15 @@ def _MessageSizer(field_number, is_repeated, is_packed):
 	if is_repeated:
 		tag_size = encoder._TagSize(field_number)
 		def RepeatedFieldSize(value):
+			isPythonMessage = isinstance(value._message_descriptor, PythonDescriptor)
 			result = tag_size * len(value)
 			if value._message_descriptor.oneofs:
 				value = value._values
 			for element in value:
-				l = element and element.ByteSize() or 0
+				if isPythonMessage:
+					l = element and PythonMessage.Static_ByteSize(element) or 0
+				else:
+					l = element and element.ByteSize() or 0
 				result += encoder._VarintSize(l) + l
 			return result
 		return RepeatedFieldSize
@@ -669,10 +677,11 @@ def _MessageEncoder(field_number, is_repeated, is_packed):
 				if element is None:
 					encoder._EncodeVarint(write, 0)
 				else:
-					encoder._EncodeVarint(write, element.ByteSize())
 					if isPythonMessage:
+						encoder._EncodeVarint(write, PythonMessage.Static_ByteSize(element))
 						PythonMessage.Static_InternalSerialize(element, write)
 					else:
+						encoder._EncodeVarint(write, element.ByteSize())
 						element._InternalSerialize(write)
 		return EncodeRepeatedField
 	else:
