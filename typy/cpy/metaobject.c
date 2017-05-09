@@ -304,6 +304,7 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
 	register int index = -1;
+	bool* clearFlags = (bool*)calloc(Typy_SIZE(self), sizeof(bool));
 	for (;;) {
 		if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
 			goto handle_unusual;
@@ -312,7 +313,10 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 		}
 		index = TAG_INDEX(tag);
 		if (index < 0 || (size_t)index >= Typy_SIZE(self)) { goto handle_unusual; }
-		Typy_CLEAR(self, index);
+		if (clearFlags && !clearFlags[index]) {
+			Typy_CLEAR(self, index);
+			clearFlags[index] = true;
+		}
 		if (!remain) { break; }
 		if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
 			if (!Typy_READ(self, index, &input, &remain)) {
@@ -334,6 +338,7 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	handle_unusual:
 		if (tag == 0 || !Typy_SkipField(&input, &remain, tag)) { break; }
 	}
+	if (clearFlags) { free(clearFlags); }
 	return (size_t)index >= Typy_SIZE(self) ? -1 : index;
 }
 
