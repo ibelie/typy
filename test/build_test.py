@@ -672,28 +672,49 @@ def _build(_typy):
 	print {k: v for k, v in vd.iteritems()}
 
 
+	import copy
+	pFighterPy0 = copy.deepcopy(fighterPy)
 	pFighterPy1 = Fighter()
 	pFighterPy2 = Fighter()
+	pFighter0 = copy.deepcopy(fighter)
 	pFighter1 = _Fighter()
 	pFighter2 = _Fighter()
 
-	pDataPy = fighterPy.SerializeProperty('v1')
-	pData = fighter.SerializeProperty('v1')
+	pDataPy = pFighterPy0.SerializeProperty('v1')
+	pData = pFighter0.SerializeProperty('v1')
 	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
 	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
 	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
 	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
-	print 'v1', fighterPy.v1, fighter.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
+	print 'v1', pFighterPy0.v1, pFighter0.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
 
-	fighterPy.v1 = None
-	fighter.v1 = None
-	pDataPy = fighterPy.SerializeProperty('v1')
-	pData = fighter.SerializeProperty('v1')
+	pFighterPy0.v1 = None
+	pFighter0.v1 = None
+	pDataPy = pFighterPy0.SerializeProperty('v1')
+	pData = pFighter0.SerializeProperty('v1')
 	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
 	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
 	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
 	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
-	print 'v1', fighterPy.v1, fighter.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
+	print 'v1', pFighterPy0.v1, pFighter0.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
+
+	pDataPy = pFighterPy0.SerializeProperty('vl')
+	pData = pFighter0.SerializeProperty('vl')
+	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
+	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
+	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
+	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
+	print 'vl', pFighterPy0.vl, pFighter0.vl, pFighterPy1.vl, pFighterPy2.vl, pFighter1.vl, pFighter2.vl
+
+	pFighterPy0.vl = None
+	pFighter0.vl = None
+	pDataPy = pFighterPy0.SerializeProperty('vl')
+	pData = pFighter0.SerializeProperty('vl')
+	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
+	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
+	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
+	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
+	print 'vl', pFighterPy0.vl, pFighter0.vl, pFighterPy1.vl, pFighterPy2.vl, pFighter1.vl, pFighter2.vl
 
 	def TestSkillParam():
 		_typy.Vector3(Vector3)
@@ -719,7 +740,6 @@ def _build(_typy):
 
 	TestSkillParam()
 
-	import copy
 	print copy.deepcopy(fighterPy).vd.pop(12), copy.deepcopy(fighter).vd.pop(12)
 	print len(fighterPy.SerializeToString()), len(copy.deepcopy(fighterPy).SerializeToString())
 	print len(fighter.SerializeToString()), len(copy.deepcopy(fighter).SerializeToString())
