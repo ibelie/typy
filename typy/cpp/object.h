@@ -453,7 +453,7 @@ public:
 				PyObject *k, *v;
 				Py_ssize_t pos = 0;
 				while (PyDict_Next(attrs, &pos, &k, &v)) {
-					if (PyFunction_Check(v)) {
+					if (PyFunction_Check(v) || PyUnbound_Check(v)) {
 						v = PyMethod_New(v, NULL, type);
 					}
 					PyDict_SetItem(_Type.tp_dict, k, v);

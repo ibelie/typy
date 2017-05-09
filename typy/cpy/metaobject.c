@@ -662,7 +662,7 @@ static TypyMetaObject* MetaObject_Initialize(TypyMetaObject* type, PyObject* arg
 						return NULL;
 					}
 				}
-				if (PyFunction_Check(v)) {
+				if (PyFunction_Check(v) || PyUnbound_Check(v)) {
 					v = PyMethod_New(v, NULL, (PyObject*)type->py_type);
 				}
 				PyDict_SetItem(type->py_type->tp_dict, k, v);

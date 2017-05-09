@@ -24,6 +24,11 @@
 #ifndef Py_TYPE
 #	define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 #endif
+#ifndef PyUnbound_Check
+#	define PyUnbound_Check(ob) (Py_TYPE(ob)->tp_descr_get && !Py_TYPE(ob)->tp_descr_set && \
+		!PyMethod_Check(ob) && !PyFunction_Check(ob) && !PyType_Check(ob) && !PyClass_Check(ob) && \
+		!PyObject_TypeCheck(ob, &PyClassMethod_Type) && !PyObject_TypeCheck(ob, &PyStaticMethod_Type))
+#endif
 
 #if PY_MAJOR_VERSION >= 3
 #	define PyInt_Check PyLong_Check
