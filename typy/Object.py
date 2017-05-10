@@ -41,7 +41,7 @@ def Json(value, slim = False):
 	elif hasattr(value, 'Json'):
 		return value.Json(slim)
 	elif hasattr(value, 'iteritems'):
-		return {str(int(k) if isinstance(k, int) else k): Json(v, slim) for k, v in value.iteritems()}
+		return {str(int(k)) if isinstance(k, int) else (k if isinstance(k, unicode) else str(k)): Json(v, slim) for k, v in value.iteritems()}
 	elif hasattr(value, '__iter__'):
 		return [Json(value[i], slim) for i in xrange(len(value))]
 	elif type(value) in PythonDelegate:
@@ -298,6 +298,7 @@ except ImportError:
 				if field.label == descriptor.FieldDescriptor.LABEL_REPEATED and wire_format.IsTypePackable(field.type):
 					tag = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
 					cls.fields_by_tag[tag] = field
+			cls.__repr__ = cls.__str__ = lambda s: repr(s.Json())
 
 		def __call__(cls, *args, **kwargs):
 			o = super(MetaObject, cls).__call__()
