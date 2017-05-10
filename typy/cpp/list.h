@@ -186,17 +186,17 @@ static int tp_AssignItem(PyObject* self, Py_ssize_t index, PyObject* arg) {
 	if (index < 0) {
 		index = o->size() + index;
 	}
+	if (index < 0 || index >= o->size()) {
+		PyErr_Format(PyExc_IndexError, "List index (%zd) out of range (%d).\n", index, o->size());
+		return -1;
+	}
 	if (arg == NULL) {
-		typename List<T>::iterator it = o->begin();
-		for (Py_ssize_t i = 0; it != o->end(); ++it, ++i) {
-			if (i == index) { break; }
-		}
-		if (it == o->end()) {
-			PyErr_SetString(PyExc_ValueError, "del(i): i not in container");
-			return -1;
-		}
 		::typy::Clear(*o->Mutable(index));
-		o->erase(it);
+		for (; index < o->size() - 1; index++) {
+			*o->Mutable(index) = o->Get(index + 1);
+		}
+		*o->Mutable(index) = static_cast<typename Type<T>::ValueType>(NULL);
+		o->RemoveLast();
 		return 0;
 	}
 	return ::typy::CheckAndSet(arg, *o->Mutable(index), "List item type error: ") ? 0 : -1;
@@ -434,46 +434,43 @@ static PyObject* tp_Insert(PyObject* self, PyObject* args) {
 template <typename T>
 static PyObject* tp_Remove(PyObject* self, PyObject* value) {
 	List<T>* o = static_cast<List<T>*>(self);
-	int i = 0;
-	typename List<T>::iterator it = o->begin();
-	while (it != o->end()) {
+	int i;
+	for (i = 0; i < o->size(); i++) {
 		ScopedPyObjectPtr elem(::typy::GetPyObject(o->Get(i)));
 		if (PyObject_RichCompareBool(elem.get(), value, Py_EQ)) {
 			break;
 		}
-		it++;
-		i++;
 	}
-	if (it == o->end()) {
+	if (i == o->size()) {
 		PyErr_SetString(PyExc_ValueError, "remove(x): x not in container");
 		return NULL;
 	}
 	::typy::Clear(*o->Mutable(i));
-	o->erase(it);
+	for (; i < o->size() - 1; i++) {
+		*o->Mutable(i) = o->Get(i + 1);
+	}
+	*o->Mutable(i) = static_cast<typename Type<T>::ValueType>(NULL);
+	o->RemoveLast();
 	Py_RETURN_NONE;
 }
 
 template <typename T>
 static PyObject* tp_Pop(PyObject* self, PyObject* args) {
 	Py_ssize_t index = -1;
+	List<T>* o = static_cast<List<T>*>(self);
 	if (!PyArg_ParseTuple(args, "|n", &index)) {
 		return NULL;
-	}
-	List<T>* o = static_cast<List<T>*>(self);
-	Py_ssize_t i = 0;
-	typename List<T>::iterator it = o->begin();
-	while (it != o->end()) {
-		if (i == index) { break; }
-		it++;
-		i++;
-	}
-	if (it == o->end()) {
-		PyErr_SetString(PyExc_ValueError, "pop(i): i not in container");
+	} else if (index < 0 || index >= o->size()) {
+		PyErr_SetString(PyExc_ValueError, "pop(i) - i not in container");
 		return NULL;
 	}
-	PyObject* item = ::typy::GetPyObject(o->Get(i));
-	::typy::Clear(*o->Mutable(i));
-	o->erase(it);
+	PyObject* item = ::typy::GetPyObject(o->Get(index));
+	::typy::Clear(*o->Mutable(index));
+	for (; index < o->size() - 1; index++) {
+		*o->Mutable(index) = o->Get(index + 1);
+	}
+	*o->Mutable(index) = static_cast<typename Type<T>::ValueType>(NULL);
+	o->RemoveLast();
 	return item;
 }
 
