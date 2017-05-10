@@ -498,8 +498,7 @@ PyObject* Py_DeepCopy(TypyObject* self, PyObject* args) {
 	return (PyObject*)object;
 }
 
-PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
-	register TypyObject* from = (TypyObject*)arg;
+PyObject* Py_CopyFrom(TypyObject* self, TypyObject* from) {
 	if (self == from) {
 		Py_RETURN_NONE;
 	}
@@ -507,15 +506,14 @@ PyObject* Py_CopyFrom(TypyObject* self, PyObject* arg) {
 		PyErr_Format(PyExc_TypeError,
 			"Parameter to CopyFrom() must be instance of same class: "
 			"expected %.100s got %.100s(%.100s).",
-			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(from));
+			Typy_NAME(self), Py_TYPE(from)->tp_name, Typy_NAME(from));
 		return NULL;
 	}
 	Typy_CopyFrom(self, from);
 	Py_RETURN_NONE;
 }
 
-PyObject* Py_MergeFrom(TypyObject* self, PyObject* arg) {
-	register TypyObject* from = (TypyObject*)arg;
+PyObject* Py_MergeFrom(TypyObject* self, TypyObject* from) {
 	if (self == from) {
 		Py_RETURN_NONE;
 	}
@@ -523,7 +521,7 @@ PyObject* Py_MergeFrom(TypyObject* self, PyObject* arg) {
 		PyErr_Format(PyExc_TypeError,
 			"Parameter to CopyFrom() must be instance of same class: "
 			"expected %.100s got %.100s(%.100s).",
-			Typy_NAME(self), Py_TYPE(arg)->tp_name, Typy_NAME(from));
+			Typy_NAME(self), Py_TYPE(from)->tp_name, Typy_NAME(from));
 		return NULL;
 	}
 	Typy_MergeFrom(self, from);

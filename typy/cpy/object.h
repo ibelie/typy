@@ -121,16 +121,16 @@ bool        TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, co
 void        TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
 
 PyObject*   Py_FromJson            (TypyMetaObject*, PyObject*);
+PyObject*   Py_CopyFrom            (TypyObject*, TypyObject*);
+PyObject*   Py_MergeFrom           (TypyObject*, TypyObject*);
 PyObject*   Py_ToJson              (TypyObject*, PyObject*);
 PyObject*   Py_DeepCopy            (TypyObject*, PyObject*);
-PyObject*   Py_CopyFrom            (TypyObject*, PyObject*);
-PyObject*   Py_MergeFrom           (TypyObject*, PyObject*);
-PyObject*   Py_SerializeString     (TypyObject*);
 PyObject*   Py_MergeFromString     (TypyObject*, PyObject*);
+PyObject*   Py_ParseFromPyString   (TypyObject*, PyObject*);
 PyObject*   Py_DeserializeProperty (TypyObject*, PyObject*);
 PyObject*   Py_SerializeProperty   (TypyObject*, PyObject*);
+PyObject*   Py_SerializeString     (TypyObject*);
 PyObject*   Py_Clear               (TypyObject*);
-PyObject*   Py_ParseFromPyString   (TypyObject*, PyObject*);
 
 #ifdef __cplusplus
 }
