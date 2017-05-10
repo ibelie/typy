@@ -571,6 +571,25 @@ static PyObject* dict_DeepCopy(TypyDict* self, PyObject* args) {
 	return (PyObject*)dict;
 }
 
+static PyObject* dict_Copy(PyTypeObject* cls, TypyDict* self) {
+	if (!PyObject_TypeCheck(self, &TypyDictType)) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to __copy__() must be instance of Typy Dict, bug got %.100s.",
+			Py_TYPE(self)->tp_name);
+		return NULL;
+	}
+	register TypyDict* dict = TypyDict_New(TypyDict_TYPE(self));
+	if (!dict) { return NULL; }
+	register IblMap_Item iter;
+	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
+		register TypyDictMap item = (TypyDictMap)iter;
+		register TypyDictMap entry = (TypyDictMap)IblMap_Set(dict->dict_map, &item->key);
+		if (!entry) { Py_DECREF(dict); return NULL; }
+		MetaDict_COPYFROM(TypyDict_TYPE(self), &entry->value, item->value);
+	}
+	return (PyObject*)dict;
+}
+
 //=============================================================================
 
 static TypyDictIterator* dict_IterKey(TypyDict* self) {
@@ -723,6 +742,8 @@ PyMappingMethods TypyDict_MpMethods = {
 };
 
 PyMethodDef TypyDict_Methods[] = {
+	{ "__copy__", (PyCFunction)dict_Copy, METH_O | METH_CLASS,
+		"Shallow copy the dict." },
 	{ "__deepcopy__", (PyCFunction)dict_DeepCopy, METH_VARARGS,
 		"Deep copy the dict." },
 	{ "clear", (PyCFunction)dict_Clear, METH_NOARGS,

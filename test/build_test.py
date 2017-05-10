@@ -810,6 +810,7 @@ cpptime = 0
 cpytime = 0
 
 def test_cpp():
+	return
 	import os
 	from typy import GenerateExtention
 	global SETUP_TYPYC

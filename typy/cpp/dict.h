@@ -308,12 +308,7 @@ static PyObject* tp_Copy(PyTypeObject* cls, PyObject* arg) {
 	if (dict == NULL) { return NULL; }
 	Dict<K, V>* self = static_cast<Dict<K, V>*>(arg);
 	for (typename Dict<K, V>::const_iterator it = self->begin(); it != self->end(); ++it) {
-		ScopedPyObjectPtr key(::typy::GetPyObject(it->first));
-		ScopedPyObjectPtr value(::typy::GetPyObject(it->second));
-		if (!::typy::dict::SetItem<K, V>(dict, key.get(), value.get())) {
-			delete dict;
-			return NULL;
-		}
+		::typy::CopyFrom((*dict)[it->first], it->second);
 	}
 	return dict;
 }

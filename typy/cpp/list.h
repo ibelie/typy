@@ -491,9 +491,10 @@ static PyObject* tp_Copy(PyTypeObject* cls, PyObject* arg) {
 	}
 	List<T>* list = new List<T>;
 	if (list == NULL) { return NULL; }
-	if (!::typy::ExtendList(arg, *list)) {
-		delete list;
-		return NULL;
+	List<T>* self = static_cast<List<T>*>(arg);
+	typename List<T>::iterator it = self->begin();
+	for (; it != self->end(); ++it) {
+		::typy::CopyFrom(*self->Add(), *it);
 	}
 	return list;
 }

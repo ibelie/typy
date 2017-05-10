@@ -40,6 +40,8 @@ typedef struct {
 	(abstract_Write       [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t), (o)))
 #define MetaList_BYTESIZE(m, f, t) \
 	(abstract_ByteSize    [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t)))
+#define MetaList_COPYFROM(m, l, r) \
+	(abstract_CopyFrom   [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
 #define MetaList_MERGEFROM(m, l, r) \
 	(abstract_MergeFrom   [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (l), (r)))
 #define MetaList_GET(m, f) \

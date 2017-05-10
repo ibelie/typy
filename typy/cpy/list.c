@@ -675,6 +675,24 @@ static PyObject* list_DeepCopy(TypyList* self, PyObject* args) {
 	return (PyObject*)list;
 }
 
+static PyObject* list_Copy(PyTypeObject* cls, TypyList* self) {
+	if (!PyObject_TypeCheck(self, &TypyListType)) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to __copy__() must be instance of Typy List, bug got %.100s.",
+			Py_TYPE(self)->tp_name);
+		return NULL;
+	}
+	register TypyList* list = TypyList_New(TypyList_TYPE(self));
+	if (!list) { return NULL; }
+	register TypyField* offset = TypyList_EnsureSize(list, self->list_length);
+	if (!offset) { Py_DECREF(list); return NULL; }
+	register size_t i;
+	for (i = 0; i < self->list_length; i++) {
+		MetaList_COPYFROM(TypyList_TYPE(self), offset++, self->list_items[i]);
+	}
+	return (PyObject*)list;
+}
+
 //=============================================================================
 
 static TypyListIterator* list_Iter(TypyList* self) {
@@ -741,6 +759,8 @@ static PyMappingMethods TypyList_MpMethods = {
 };
 
 static PyMethodDef TypyList_Methods[] = {
+	{ "__copy__", (PyCFunction)list_Copy, METH_O | METH_CLASS,
+		"Shallow copy the list." },
 	{ "__deepcopy__", (PyCFunction)list_DeepCopy, METH_VARARGS,
 		"Deep copy the list." },
 	{ "append", (PyCFunction)list_Append, METH_O,

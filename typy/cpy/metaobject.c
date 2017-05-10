@@ -486,6 +486,22 @@ bool TypyObject_FromJson(TypyMetaObject* type, TypyObject** value, PyObject* jso
 
 //=============================================================================
 
+PyObject* Py_Copy(PyTypeObject* cls, TypyObject* self) {
+	if (!PyObject_TypeCheck(self, TypyObjectType)) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to __copy__() must be instance of Typy Object, bug got %.100s.",
+			Py_TYPE(self)->tp_name);
+		return NULL;
+	}
+	register TypyObject* object = Typy_New(Typy_TYPE(self), NULL, NULL);
+	if (!object) { return NULL; }
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		Typy_COPYFROM(object, i, Typy_FIELD(self, i));
+	}
+	return (PyObject*)object;
+}
+
 PyObject* Py_DeepCopy(TypyObject* self, PyObject* args) {
 	register TypyObject* object = Typy_New(Typy_TYPE(self), NULL, NULL);
 	if (!object) { return NULL; }

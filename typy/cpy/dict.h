@@ -77,6 +77,8 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaDict_WIRETYPE(m, i)  (MetaDict_DESC(m, i).desc_WireType)
 #define MetaDict_READ(m, i, f, s, l) \
 	(abstract_Read      [MetaDict_FIELDTYPE(m, i)](MetaDict_TYPYTYPE(m, i), (f), (s), (l)))
+#define MetaDict_COPYFROM(m, l, r) \
+	(abstract_CopyFrom [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 #define MetaDict_MERGEFROM(m, l, r) \
 	(abstract_MergeFrom [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 

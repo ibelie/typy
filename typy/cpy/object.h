@@ -80,6 +80,8 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 	(abstract_CopyFrom    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_CHECKSET(ob, i, v, e) \
 	(abstract_CheckAndSet [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (v), (e)))
+#define Typy_COPYFROM(ob, i, f) \
+	(abstract_CopyFrom    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_MERGEFROM(ob, i, f) \
 	(abstract_MergeFrom   [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
 #define Typy_BYTESIZE(ob, i, t) \
@@ -121,6 +123,7 @@ bool        TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, co
 void        TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
 
 PyObject*   Py_FromJson            (TypyMetaObject*, PyObject*);
+PyObject*   Py_Copy                (PyTypeObject*, TypyObject*);
 PyObject*   Py_CopyFrom            (TypyObject*, TypyObject*);
 PyObject*   Py_MergeFrom           (TypyObject*, TypyObject*);
 PyObject*   Py_ToJson              (TypyObject*, PyObject*);
