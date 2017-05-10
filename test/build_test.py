@@ -811,6 +811,13 @@ def _build(_typy):
 	assert vFp.DeserializeProperty(Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFp.y == 123.4
 	assert vFp.DeserializeProperty(_Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFp.y == 123.4
 
+	fR = _Fighter(posl = [_Vector2(x = 123), _Vector2(x = 456), _Vector2(x = 789)])
+	print [p.x for p in fR.posl]
+	fR.posl.remove(_Vector2(x = 456))
+	print [p.x for p in fR.posl]
+	fR.posl.append(_Vector2(x = 456))
+	print [p.x for p in fR.posl]
+
 	return time.time() - startTime
 
 cpptime = 0

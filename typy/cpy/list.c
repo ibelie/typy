@@ -379,6 +379,7 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 		for (; (size_t)index < self->list_length - 1; index++) {
 			self->list_items[index] = self->list_items[index + 1];
 		}
+		self->list_items[index] = (TypyField)NULL;
 		self->list_length--;
 		return 0;
 	}
@@ -634,6 +635,7 @@ static PyObject* list_Remove(TypyList* self, PyObject* value) {
 	for (; i < self->list_length - 1; i++) {
 		self->list_items[i] = self->list_items[i + 1];
 	}
+	self->list_items[i] = (TypyField)NULL;
 	self->list_length--;
 	Py_RETURN_NONE;
 }
@@ -651,6 +653,7 @@ static PyObject* list_Pop(TypyList* self, PyObject* args) {
 	for (; (size_t)i < self->list_length - 1; i++) {
 		self->list_items[i] = self->list_items[i + 1];
 	}
+	self->list_items[i] = (TypyField)NULL;
 	self->list_length--;
 	return item;
 }
