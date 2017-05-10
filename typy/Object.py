@@ -287,7 +287,6 @@ except ImportError:
 
 		def __init__(cls, clsname, bases, attrs):
 			super(MetaObject, cls).__init__(clsname, bases, attrs)
-			Hacker.initObjectClass(cls, clsname, bases, attrs)
 			from typy.google.protobuf.internal import encoder
 			from typy.google.protobuf.internal import type_checkers
 			from typy.google.protobuf.internal import wire_format
@@ -298,6 +297,7 @@ except ImportError:
 				if field.label == descriptor.FieldDescriptor.LABEL_REPEATED and wire_format.IsTypePackable(field.type):
 					tag = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
 					cls.fields_by_tag[tag] = field
+			Hacker.initObjectClass(cls, clsname, bases, attrs)
 			cls.__repr__ = cls.__str__ = lambda s: repr(s.Json())
 
 		def __call__(cls, *args, **kwargs):

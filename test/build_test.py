@@ -682,38 +682,38 @@ def _build(_typy):
 
 	pDataPy = pFighterPy0.SerializeProperty('v1')
 	pData = pFighter0.SerializeProperty('v1')
-	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
-	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
+	assert pFighterPy1.DeserializeProperty(pDataPy) == 'v1'
+	assert pFighterPy2.DeserializeProperty(pData) == 'v1'
+	assert pFighter1.DeserializeProperty(pDataPy) == 'v1'
+	assert pFighter2.DeserializeProperty(pData) == 'v1'
 	print 'v1', pFighterPy0.v1, pFighter0.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
 
 	pFighterPy0.v1 = None
 	pFighter0.v1 = None
 	pDataPy = pFighterPy0.SerializeProperty('v1')
 	pData = pFighter0.SerializeProperty('v1')
-	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
-	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
+	assert pFighterPy1.DeserializeProperty(pDataPy) == 'v1'
+	assert pFighterPy2.DeserializeProperty(pData) == 'v1'
+	assert pFighter1.DeserializeProperty(pDataPy) == 'v1'
+	assert pFighter2.DeserializeProperty(pData) == 'v1'
 	print 'v1', pFighterPy0.v1, pFighter0.v1, pFighterPy1.v1, pFighterPy2.v1, pFighter1.v1, pFighter2.v1
 
 	pDataPy = pFighterPy0.SerializeProperty('vl')
 	pData = pFighter0.SerializeProperty('vl')
-	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
-	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
+	assert pFighterPy1.DeserializeProperty(pDataPy) == 'vl'
+	assert pFighterPy2.DeserializeProperty(pData) == 'vl'
+	assert pFighter1.DeserializeProperty(pDataPy) == 'vl'
+	assert pFighter2.DeserializeProperty(pData) == 'vl'
 	print 'vl', pFighterPy0.vl, pFighter0.vl, pFighterPy1.vl, pFighterPy2.vl, pFighter1.vl, pFighter2.vl
 
 	pFighterPy0.vl = None
 	pFighter0.vl = None
 	pDataPy = pFighterPy0.SerializeProperty('vl')
 	pData = pFighter0.SerializeProperty('vl')
-	print 'DeserializeProperty', pFighterPy1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighterPy2.DeserializeProperty(pData)
-	print 'DeserializeProperty', pFighter1.DeserializeProperty(pDataPy)
-	print 'DeserializeProperty', pFighter2.DeserializeProperty(pData)
+	assert pFighterPy1.DeserializeProperty(pDataPy) == 'vl'
+	assert pFighterPy2.DeserializeProperty(pData) == 'vl'
+	assert pFighter1.DeserializeProperty(pDataPy) == 'vl'
+	assert pFighter2.DeserializeProperty(pData) == 'vl'
 	print 'vl', pFighterPy0.vl, pFighter0.vl, pFighterPy1.vl, pFighterPy2.vl, pFighter1.vl, pFighter2.vl
 
 	def TestSkillParam():
@@ -803,6 +803,13 @@ def _build(_typy):
 
 	print list(fighterPy.pyl)
 	print list(fighter.pyl)
+
+	vFpPy = Vector2()
+	vFp = _Vector2()
+	assert vFpPy.DeserializeProperty(Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFpPy.y == 123.4
+	assert vFpPy.DeserializeProperty(_Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFpPy.y == 123.4
+	assert vFp.DeserializeProperty(Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFp.y == 123.4
+	assert vFp.DeserializeProperty(_Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFp.y == 123.4
 
 	return time.time() - startTime
 

@@ -727,9 +727,14 @@ def _AttachFixedPointHelpers(cls, field, precision, floor):
 	tag_bytes = encoder.TagBytes(field.number, type_checkers.FIELD_TYPE_TO_WIRE_TYPE[FieldDescriptor.TYPE_INT64])
 	field_decoder = decoder._SimpleDecoder(wire_format.WIRETYPE_VARINT, DecodeFixedPoint(decoder._DecodeSignedVarint, precision, floor))(field.number, is_repeated, is_packed, field, field._default_constructor)
 	cls._decoders_by_tag[tag_bytes] = (field_decoder, oneof_descriptor)
+	if hasattr(cls, 'fields_by_tag'):
+		cls.fields_by_tag[tag_bytes] = field
+		cls.fields_by_tag.pop(encoder.TagBytes(field.number, type_checkers.FIELD_TYPE_TO_WIRE_TYPE[field.type]))
 	if is_packed:
 		tag_bytes = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
 		cls._decoders_by_tag[tag_bytes] = (field_decoder, oneof_descriptor)
+		if hasattr(cls, 'fields_by_tag'):
+			cls.fields_by_tag[tag_bytes] = field
 
 
 def initObjectClass(cls, clsname, bases, attrs):
