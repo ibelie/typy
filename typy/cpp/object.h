@@ -234,6 +234,18 @@ public:
 		}
 	}
 
+	static PyObject* tp_Copy(PyTypeObject* cls, PyObject* arg) {
+		if (!PyObject_TypeCheck(arg, cls)) {
+			PyErr_Format(PyExc_TypeError,
+				"Parameter to __copy__() must be instance of same class: "
+				"expected %.100s got %.100s.",
+				cls->tp_name, Py_TYPE(arg)->tp_name);
+			return NULL;
+		}
+		ScopedPyObjectPtr args(static_cast<T*>(arg)->GetPropertySequence());
+		return tp_New(cls, args.get(), NULL);
+	}
+
 	static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
 		T* object = new T;
 		ScopedPyObjectPtr data(tp_Serialize(self));
@@ -479,6 +491,8 @@ public:
 
 template <typename T>
 PyMethodDef Object<T>::Methods[] = {
+	{ "__copy__", (PyCFunction)tp_Copy, METH_O | METH_CLASS,
+		"Shallow copy the object." },
 	{ "__deepcopy__", (PyCFunction)tp_DeepCopy, METH_VARARGS,
 		"Deep copy the object." },
 	{ "Clear", (PyCFunction)tp_Clear, METH_NOARGS,

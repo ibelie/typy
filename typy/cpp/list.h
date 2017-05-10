@@ -481,6 +481,24 @@ static PyObject* tp_Repr(PyObject* self) {
 }
 
 template <typename T>
+static PyObject* tp_Copy(PyTypeObject* cls, PyObject* arg) {
+	if (!PyObject_TypeCheck(arg, cls)) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to __copy__() must be instance of same class: "
+			"expected %.100s got %.100s.",
+			cls->tp_name, Py_TYPE(arg)->tp_name);
+		return NULL;
+	}
+	List<T>* list = new List<T>;
+	if (list == NULL) { return NULL; }
+	if (!::typy::ExtendList(arg, *list)) {
+		delete list;
+		return NULL;
+	}
+	return list;
+}
+
+template <typename T>
 static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
 	List<T>* list = NULL;
 	ScopedPyObjectPtr json(::typy::Json(static_cast<List<T>*>(self), false));
@@ -569,6 +587,8 @@ PyMappingMethods List<T>::MpMethods = {
 
 template <typename T>
 PyMethodDef List<T>::Methods[] = {
+	{ "__copy__", (PyCFunction)::typy::list::tp_Copy<T>, METH_O | METH_CLASS,
+		"Shallow copy the list." },
 	{ "__deepcopy__", (PyCFunction)::typy::list::tp_DeepCopy<T>, METH_VARARGS,
 		"Deep copy the list." },
 	{ "append", (PyCFunction)::typy::list::tp_Append<T>, METH_O,

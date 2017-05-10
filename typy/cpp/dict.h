@@ -296,6 +296,29 @@ static PyObject* tp_Repr(PyObject* self) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_Copy(PyTypeObject* cls, PyObject* arg) {
+	if (!PyObject_TypeCheck(arg, cls)) {
+		PyErr_Format(PyExc_TypeError,
+			"Parameter to __copy__() must be instance of same class: "
+			"expected %.100s got %.100s.",
+			cls->tp_name, Py_TYPE(arg)->tp_name);
+		return NULL;
+	}
+	Dict<K, V>* dict = new Dict<K, V>;
+	if (dict == NULL) { return NULL; }
+	Dict<K, V>* self = static_cast<Dict<K, V>*>(arg);
+	for (typename Dict<K, V>::const_iterator it = self->begin(); it != self->end(); ++it) {
+		ScopedPyObjectPtr key(::typy::GetPyObject(it->first));
+		ScopedPyObjectPtr value(::typy::GetPyObject(it->second));
+		if (!::typy::dict::SetItem<K, V>(dict, key.get(), value.get())) {
+			delete dict;
+			return NULL;
+		}
+	}
+	return dict;
+}
+
+template <typename K, typename V>
 static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
 	Dict<K, V>* dict = NULL;
 	ScopedPyObjectPtr json(::typy::Json(static_cast<Dict<K, V>*>(self), false));
@@ -500,6 +523,8 @@ PyMappingMethods Dict<K, V>::MpMethods = {
 
 template <typename K, typename V>
 PyMethodDef Dict<K, V>::Methods[] = {
+	{ "__copy__", (PyCFunction)::typy::dict::tp_Copy<K, V>, METH_O | METH_CLASS,
+		"Shallow copy the dict." },
 	{ "__deepcopy__", (PyCFunction)::typy::dict::tp_DeepCopy<K, V>, METH_VARARGS,
 		"Deep copy the dict." },
 	{ "clear", (PyCFunction)::typy::dict::tp_Clear<K, V>, METH_NOARGS,
