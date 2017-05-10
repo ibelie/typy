@@ -195,7 +195,7 @@ static int tp_AssignItem(PyObject* self, Py_ssize_t index, PyObject* arg) {
 			PyErr_SetString(PyExc_ValueError, "del(i): i not in container");
 			return -1;
 		}
-		::typy::Clear(*it);
+		::typy::Clear(*o->Mutable(index));
 		o->erase(it);
 		return 0;
 	}
@@ -217,9 +217,8 @@ static PyObject* tp_PyList(PyObject* self) {
 	List<T>* o = static_cast<List<T>*>(self);
 	PyObject* list = PyList_New(o->size());
 	if (list == NULL) { return NULL; }
-	typename List<T>::iterator it = o->begin();
-	for (Py_ssize_t i = 0; it != o->end(); ++it, ++i) {
-		PyList_SET_ITEM(list, i, ::typy::GetPyObject(*it));
+	for (int i = 0; i < o->size(); i++) {
+		PyList_SET_ITEM(list, i, ::typy::GetPyObject(o->Get(i)));
 	}
 	return list;
 }
@@ -231,11 +230,11 @@ static PyObject* tp_Concat(PyObject* self, PyObject* other) {
 		if (list == NULL) { return NULL; }
 		List<T>* o1 = static_cast<List<T>*>(self);
 		List<T>* o2 = static_cast<List<T>*>(self);
-		for (typename List<T>::iterator it = o1->begin(); it != o1->end(); ++it) {
-			::typy::CopyFrom(*list->Add(), *it);
+		for (int i = 0; i < o1->size(); i++) {
+			::typy::CopyFrom(*list->Add(), o1->Get(i));
 		}
-		for (typename List<T>::iterator it = o2->begin(); it != o2->end(); ++it) {
-			::typy::CopyFrom(*list->Add(), *it);
+		for (int i = 0; i < o2->size(); i++) {
+			::typy::CopyFrom(*list->Add(), o2->Get(i));
 		}
 		return list;
 	} else {
@@ -268,8 +267,8 @@ static PyObject* tp_Repeat(PyObject* self, Py_ssize_t n) {
 	List<T>* list = new List<T>;
 	if (list == NULL) { return NULL; }
 	for (Py_ssize_t i = 0; i < n; i++) {
-		for (typename List<T>::iterator it = o->begin(); it != o->end(); ++it) {
-			::typy::CopyFrom(*list->Add(), *it);
+		for (int i = 0; i < o->size(); i++) {
+			::typy::CopyFrom(*list->Add(), o->Get(i));
 		}
 	}
 	return list;
@@ -435,19 +434,21 @@ static PyObject* tp_Insert(PyObject* self, PyObject* args) {
 template <typename T>
 static PyObject* tp_Remove(PyObject* self, PyObject* value) {
 	List<T>* o = static_cast<List<T>*>(self);
+	int i = 0;
 	typename List<T>::iterator it = o->begin();
 	while (it != o->end()) {
-		ScopedPyObjectPtr elem(::typy::GetPyObject(*it));
+		ScopedPyObjectPtr elem(::typy::GetPyObject(o->Get(i)));
 		if (PyObject_RichCompareBool(elem.get(), value, Py_EQ)) {
 			break;
 		}
 		it++;
+		i++;
 	}
 	if (it == o->end()) {
 		PyErr_SetString(PyExc_ValueError, "remove(x): x not in container");
 		return NULL;
 	}
-	::typy::Clear(*it);
+	::typy::Clear(*o->Mutable(i));
 	o->erase(it);
 	Py_RETURN_NONE;
 }
@@ -459,16 +460,19 @@ static PyObject* tp_Pop(PyObject* self, PyObject* args) {
 		return NULL;
 	}
 	List<T>* o = static_cast<List<T>*>(self);
+	Py_ssize_t i = 0;
 	typename List<T>::iterator it = o->begin();
-	for (Py_ssize_t i = 0; it != o->end(); ++it, ++i) {
+	while (it != o->end()) {
 		if (i == index) { break; }
+		it++;
+		i++;
 	}
 	if (it == o->end()) {
 		PyErr_SetString(PyExc_ValueError, "pop(i): i not in container");
 		return NULL;
 	}
-	PyObject* item = ::typy::GetPyObject(*it);
-	::typy::Clear(*it);
+	PyObject* item = ::typy::GetPyObject(o->Get(i));
+	::typy::Clear(*o->Mutable(i));
 	o->erase(it);
 	return item;
 }
@@ -492,9 +496,8 @@ static PyObject* tp_Copy(PyTypeObject* cls, PyObject* arg) {
 	List<T>* list = new List<T>;
 	if (list == NULL) { return NULL; }
 	List<T>* self = static_cast<List<T>*>(arg);
-	typename List<T>::iterator it = self->begin();
-	for (; it != self->end(); ++it) {
-		::typy::CopyFrom(*self->Add(), *it);
+	for (int i = 0; i < self->size(); i++) {
+		::typy::CopyFrom(*list->Add(), self->Get(i));
 	}
 	return list;
 }
