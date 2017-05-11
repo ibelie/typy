@@ -15,12 +15,11 @@ else:
 	try:
 		import _typyd
 	except ImportError:
-		IMPLEMENTATION_TYPE = 'cpp'
+		IMPLEMENTATION_TYPE = os.getenv('TYPY_IMPLEMENTATION', 'cpp')
 	else:
-		IMPLEMENTATION_TYPE = 'cpy'
-IMPLEMENTATION_TYPE = os.getenv('TYPY_IMPLEMENTATION', IMPLEMENTATION_TYPE)
+		IMPLEMENTATION_TYPE = os.getenv('TYPY_IMPLEMENTATION', 'cpy')
 if IMPLEMENTATION_TYPE not in ('cpp', 'cpy', 'python'):
-	print '[Typy] TYPY_IMPLEMENTATION must set as ("cpp", "cpy", "python"), but got %s' % IMPLEMENTATION_TYPE
+	print '[Typy] Warning: TYPY_IMPLEMENTATION must set as ("cpp", "cpy", "python"), but got %s' % IMPLEMENTATION_TYPE
 	IMPLEMENTATION_TYPE = 'python'
 
 from Object import Object, MetaObject, Json, FromJson
