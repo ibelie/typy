@@ -9,13 +9,15 @@ __version__ = '0.0.1'
 import os
 try:
 	import _typy
-	IMPLEMENTATION_TYPE = 'cpp'
-	try:
-		import _typyd
-		IMPLEMENTATION_TYPE = 'cpy'
-	except ImportError: pass
 except ImportError:
 	IMPLEMENTATION_TYPE = 'python'
+else:
+	try:
+		import _typyd
+	except ImportError:
+		IMPLEMENTATION_TYPE = 'cpp'
+	else:
+		IMPLEMENTATION_TYPE = 'cpy'
 IMPLEMENTATION_TYPE = os.getenv('TYPY_IMPLEMENTATION', IMPLEMENTATION_TYPE)
 if IMPLEMENTATION_TYPE not in ('cpp', 'cpy', 'python'):
 	print '[Typy] TYPY_IMPLEMENTATION must set as ("cpp", "cpy", "python"), but got %s' % IMPLEMENTATION_TYPE
