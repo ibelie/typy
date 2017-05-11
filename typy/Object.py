@@ -52,50 +52,9 @@ def Json(value, slim = False):
 		return value
 
 
-try:
-	# [joungtao] Use c extension module if _typy.pyd exists. And MetaObject will
-	#	use the c implemented class, or generated a useless python class.
-	#	All the property information is stored for typy.GenerateExtention()
-	import _typy
+from typy import IMPLEMENTATION_TYPE
 
-	# [joungtao] sys.setdefaultencoding('utf-8') to get better performance for string.
-	_typy.setDefaultEncodingUTF8()
-
-	class MetaObject(type):
-		Objects = {}
-
-		def __new__(mcs, clsname, bases, attrs):
-			all_attrs = {}
-			for base in bases:
-				if base.__name__ in mcs.Objects:
-					all_attrs.update(mcs.Objects[base.__name__].____attrs__)
-			all_attrs.update(attrs)
-			all_attrs['____attrs__'] = all_attrs
-			if '__metaclass__' not in all_attrs:
-				all_attrs['__metaclass__'] = mcs
-			all_attrs['____properties__'] = _getProperties(mcs, bases, attrs)
-
-			if hasattr(_typy, clsname):
-				cls = getattr(_typy, clsname)(all_attrs)
-				all_attrs.pop('____attrs__')
-			else:
-				if clsname != 'Object':
-					print '[Typy] Class %s not found in C extension module.' % clsname
-				cls = super(MetaObject, mcs).__new__(mcs, clsname, bases, attrs)
-				cls.____properties__ = all_attrs['____properties__']
-
-			if clsname != 'Object':
-				if clsname in mcs.Objects:
-					raise TypeError, 'Object name "%s" already exists.' % clsname
-				mcs.Objects[clsname] = cls
-
-			return cls
-
-	class Object(object):
-		__metaclass__ = MetaObject
-
-
-except ImportError:
+if IMPLEMENTATION_TYPE == 'python':
 
 	import Hacker
 	from typy.google.protobuf import message, reflection, descriptor, descriptor_pb2
@@ -429,6 +388,46 @@ except ImportError:
 			if pos < len(data):
 				self.MergeFromString(data)
 			return field and field.name
+
+else:
+	import _typy
+
+	# [joungtao] sys.setdefaultencoding('utf-8') to get better performance for string.
+	_typy.setDefaultEncodingUTF8()
+
+	class MetaObject(type):
+		Objects = {}
+
+		def __new__(mcs, clsname, bases, attrs):
+			all_attrs = {}
+			for base in bases:
+				if base.__name__ in mcs.Objects:
+					all_attrs.update(mcs.Objects[base.__name__].____attrs__)
+			all_attrs.update(attrs)
+			all_attrs['____attrs__'] = all_attrs
+			if '__metaclass__' not in all_attrs:
+				all_attrs['__metaclass__'] = mcs
+			all_attrs['____properties__'] = _getProperties(mcs, bases, attrs)
+
+			if hasattr(_typy, clsname):
+				cls = getattr(_typy, clsname)(all_attrs)
+				all_attrs.pop('____attrs__')
+			else:
+				if clsname != 'Object':
+					print '[Typy] Class %s not found in C extension module.' % clsname
+				cls = super(MetaObject, mcs).__new__(mcs, clsname, bases, attrs)
+				cls.____properties__ = all_attrs['____properties__']
+
+			if clsname != 'Object':
+				if clsname in mcs.Objects:
+					raise TypeError, 'Object name "%s" already exists.' % clsname
+				mcs.Objects[clsname] = cls
+
+			return cls
+
+	class Object(object):
+		__metaclass__ = MetaObject
+
 
 def FromJson(data, keyType = None):
 	if isinstance(data, dict):
