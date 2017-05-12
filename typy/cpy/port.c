@@ -157,6 +157,14 @@ file_truncate_error:
 	return false;
 }
 
+bool IblBitmap_Get(IblBitmap bitmap, size_t bit) {
+	return false;
+}
+
+bool IblBitmap_Set(IblBitmap bitmap, size_t bit, bool flag) {
+	return false;
+}
+
 #ifdef __cplusplus
 }
 #endif

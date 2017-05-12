@@ -149,6 +149,16 @@ IblAPI(FILE*)  IblFileOpen          (const string);
 IblAPI(bool)   IblFileWriteUint64At (FILE*, uint64, size_t);
 IblAPI(bool)   IblFileTruncate      (FILE*, size_t);
 
+typedef size_t* IblBitmap;
+
+#define IblBitmap_DATAMASK ((size_t)-1)
+#define IblBitmap_HEADMASK (~((size_t)-1))
+#define IblBitmap_ALLOC(s) ((IblBitmap)calloc( \
+	(s) / (sizeof(size_t) * 8 - 1) + (((s) % (sizeof(size_t) * 8 - 1)) ? 1 : 0), sizeof(size_t)))
+
+IblAPI(bool) IblBitmap_Get(IblBitmap, size_t);
+IblAPI(bool) IblBitmap_Set(IblBitmap, size_t, bool);
+
 #ifdef __cplusplus
 }
 #endif
