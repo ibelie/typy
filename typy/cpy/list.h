@@ -20,7 +20,7 @@ typedef struct {
 } TypyMetaList;
 
 typedef struct {
-	PyObject_HEAD
+	TypyComposite_HEAD
 	TypyMetaList* list_type;
 	size_t        cached_size;
 	size_t        list_capacity;

@@ -105,6 +105,26 @@ typedef PyUnicodeObject* PyString;
 void    FormatTypeError(PyObject*, const char*);
 PyBytes Typy_CheckBytes(PyObject*, const char*);
 
+#ifdef TYPY_PROPERTY_HANDLER
+
+#define TypyComposite_HEAD           \
+	PyObject_HEAD                    \
+	size_t            owners_length; \
+	TypyPropertyOwner owners_list;
+
+typedef struct {
+	TypyComposite_HEAD
+} TypyComposite;
+
+typedef struct {
+	TypyComposite* prop_owner;
+	size_t         prop_flag;
+} *TypyPropertyOwner;
+
+#else
+#	define TypyComposite_HEAD PyObject_HEAD
+#endif
+
 #include "abstract.h"
 #include "list.h"
 #include "object.h"

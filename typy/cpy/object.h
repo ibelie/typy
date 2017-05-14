@@ -11,8 +11,25 @@
 extern "C" {
 #endif
 
+#ifdef TYPY_PROPERTY_HANDLER
+
+typedef void*  TypyHandlerData;
+typedef void (*TypyHandlerFunc)(TypyObject*, size_t, TypyHandlerData, TypyField, TypyField);
+
+typedef struct {
+	TypyHandlerData handler_data;
+	TypyHandlerFunc handler_func;
+} *TypyPropertyHandler;
+
+#endif
+
 typedef struct {
 	PyObject_HEAD
+#ifdef TYPY_PROPERTY_HANDLER
+	size_t              prop_flagmax;
+	size_t              handlers_length;
+	TypyPropertyHandler handlers_list;
+#endif
 	PyTypeObject*  py_type;
 	IblMap         meta_field2index;
 	char**         meta_index2field;
@@ -22,7 +39,7 @@ typedef struct {
 } TypyMetaObject;
 
 #define TypyObject_HEAD \
-    PyObject_HEAD       \
+    TypyComposite_HEAD  \
     TypyMetaObject* meta_type;
 
 typedef struct {

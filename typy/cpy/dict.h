@@ -21,7 +21,7 @@ typedef struct {
 } TypyMetaDict;
 
 typedef struct {
-	PyObject_HEAD
+	TypyComposite_HEAD
 	TypyMetaDict* dict_type;
 	IblMap        dict_map;
 } TypyDict;

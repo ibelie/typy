@@ -17,8 +17,8 @@ extern "C" {
 #define FIELD_TYPE_OBJECT  11
 #define FIELD_TYPE_LIST    13
 
-typedef void*  TypyType;
-typedef uint8  FieldType;
+typedef void* TypyType;
+typedef uint8 FieldType;
 
 #ifdef TYPY_FIELD_SIZE_64
 	typedef uint64 TypyField;
