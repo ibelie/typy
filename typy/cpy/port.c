@@ -158,11 +158,23 @@ file_truncate_error:
 }
 
 bool IblBitmap_Get(IblBitmap bitmap, size_t bit) {
-	return false;
+	IblBitmap ptr = bitmap;
+	for (; bit > IblBitmap_BITCOUNT && IblBitmap_HASNEXT(ptr); bit -= IblBitmap_BITCOUNT, ptr++);
+	return bit > IblBitmap_BITCOUNT ? false : IblBitmap_GET(ptr, bit);
 }
 
 bool IblBitmap_Set(IblBitmap bitmap, size_t bit, bool flag) {
-	return false;
+	IblBitmap ptr = bitmap;
+	for (; bit > IblBitmap_BITCOUNT && IblBitmap_HASNEXT(ptr); bit -= IblBitmap_BITCOUNT, ptr++);
+	if (bit > IblBitmap_BITCOUNT) {
+		return false;
+	} else if (flag) {
+		IblBitmap_SET1(ptr, bit);
+		return true;
+	} else {
+		IblBitmap_SET0(ptr, bit);
+		return true;
+	}
 }
 
 #ifdef __cplusplus
