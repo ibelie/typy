@@ -14,7 +14,7 @@ extern "C" {
 #ifdef TYPY_PROPERTY_HANDLER
 
 typedef void*  TypyHandlerData;
-typedef void (*TypyHandlerFunc)(TypyObject*, size_t, TypyHandlerData, TypyField, TypyField);
+typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, TypyField, TypyField);
 
 typedef struct {
 	TypyHandlerData handler_data;
@@ -42,7 +42,7 @@ typedef struct {
     TypyComposite_HEAD  \
     TypyMetaObject* meta_type;
 
-typedef struct {
+typedef struct _TypyObject {
 	TypyObject_HEAD
 	size_t    cached_size;
 	TypyField object_fields[1];
