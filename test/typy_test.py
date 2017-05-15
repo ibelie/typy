@@ -812,6 +812,10 @@ def _build(_typy):
 	assert vFpPy.DeserializeProperty(_Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFpPy.y == 123.4
 	assert vFp.DeserializeProperty(Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFp.y == 123.4
 	assert vFp.DeserializeProperty(_Vector2(y = 123.4).SerializeProperty('y')) == 'y' and vFp.y == 123.4
+	assert vFpPy.DeserializeProperty(Vector2().SerializeProperty('y')) == 'y' and vFpPy.y == -10
+	assert vFpPy.DeserializeProperty(_Vector2().SerializeProperty('y')) == 'y' and vFpPy.y == -10
+	assert vFp.DeserializeProperty(Vector2().SerializeProperty('y')) == 'y' and vFp.y == -10
+	assert vFp.DeserializeProperty(_Vector2().SerializeProperty('y')) == 'y' and vFp.y == -10
 
 	fR = _Fighter(posl = [_Vector2(x = 123), _Vector2(x = 456), _Vector2(x = 789)])
 	print [p.x for p in fR.posl]

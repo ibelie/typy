@@ -250,12 +250,15 @@ if IMPLEMENTATION_TYPE == 'python':
 			from typy.google.protobuf.internal import type_checkers
 			from typy.google.protobuf.internal import wire_format
 			cls.fields_by_tag = {}
+			cls.field_tag = {}
 			for field in attrs[reflection.GeneratedProtocolMessageType._DESCRIPTOR_KEY].fields:
 				tag = encoder.TagBytes(field.number, type_checkers.FIELD_TYPE_TO_WIRE_TYPE[field.type])
 				cls.fields_by_tag[tag] = field
+				cls.field_tag[field] = tag
 				if field.label == descriptor.FieldDescriptor.LABEL_REPEATED and wire_format.IsTypePackable(field.type):
 					tag = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
 					cls.fields_by_tag[tag] = field
+					cls.field_tag[field] = tag
 			Hacker.initObjectClass(cls, clsname, bases, attrs)
 			cls.__repr__ = cls.__str__ = lambda s: repr(s.Json())
 
@@ -373,10 +376,7 @@ if IMPLEMENTATION_TYPE == 'python':
 				field._encoder(out.write, self._fields[field])
 				data = out.getvalue()
 				if data: return data
-			from typy.google.protobuf.internal import encoder
-			from typy.google.protobuf.internal import type_checkers
-			tag = encoder.TagBytes(field.number, type_checkers.FIELD_TYPE_TO_WIRE_TYPE[field.type])
-			out.write(tag)
+			out.write(self.field_tag[field])
 			return out.getvalue()
 
 		def DeserializeProperty(self, data):
