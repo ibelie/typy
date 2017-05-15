@@ -11,7 +11,7 @@ def setup():
 	import sys
 	import shutil
 	from distutils.util import get_platform
-	os.chdir('..')
+	os.chdir(os.path.dirname(os.path.dirname(__file__)))
 	suffix = 'pyd' if os.name == 'nt' else 'so'
 	global SETUP_TYPYD, SETUP_TYPYC
 	map(os.remove, [f for f in (
@@ -24,7 +24,9 @@ def setup():
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
-	from typy import pb, Instance, Python, List, Dict, Object, Integer, Boolean, Float, Double, FixedPoint, Bytes, String, Enum
+	from typy import pb, MetaObject, Instance, Python, List, Dict, Object, Integer, Boolean, Float, Double, FixedPoint, Bytes, String, Enum
+
+	MetaObject.Objects = {}
 
 	class Corpus(Enum):
 		UNIVERSAL = 0, "UNIVERSAL"
