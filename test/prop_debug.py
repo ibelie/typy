@@ -263,16 +263,16 @@ def setup():
 	fighterPy.fdv = {333: 222.111, 444: 345.123}
 	globals()['fighterPy'] = fighterPy
 
-	v = Vector2(
+	v = _Vector2(
 		123,  # x
 		45.6, # y
 		s = u"哈哈哈哈",
 		b = u"asdf 1234",
 		e = Corpus.LOCAL,
 		p = PyType(pp = 123, ap = 'asdf'),
-		i = Empty(),
+		i = _Empty(),
 	)
-	v2 = Vector2()
+	v2 = _Vector2()
 	v2.ParseFromString(v.SerializeToString())
 	v2.x += 1000
 	v2.y += 1000
@@ -282,7 +282,7 @@ def setup():
 	globals()['v'] = v
 	globals()['v2'] = v2
 
-	fighter = Fighter(
+	fighter = _Fighter(
 		pos = v,
 		isAwake = True,
 		fl = (0.123, 456, 7.89),

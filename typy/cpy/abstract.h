@@ -11,11 +11,14 @@
 extern "C" {
 #endif
 
-#define MAX_VARINT_TYPE    6
-#define MAX_PRIMITIVE_TYPE 9
-#define MAX_FIELD_TYPE     16
-#define FIELD_TYPE_OBJECT  11
-#define FIELD_TYPE_LIST    13
+#define MAX_VARINT_TYPE          6
+#define MAX_PRIMITIVE_TYPE       9
+#define MAX_FIELD_TYPE          16
+#define FIELD_TYPE_OBJECT       11
+#define FIELD_TYPE_VARIANT      12
+#define FIELD_TYPE_LIST         13
+#define FIELD_TYPE_DICT         14
+#define FIELD_TYPE_COMPOSITE(f) ((f) >= FIELD_TYPE_OBJECT && (f) <= FIELD_TYPE_DICT)
 
 typedef void* TypyType;
 typedef uint8 FieldType;
@@ -24,6 +27,48 @@ typedef uint8 FieldType;
 	typedef uint64 TypyField;
 #else
 	typedef size_t TypyField;
+#endif
+
+#ifdef TYPY_PROPERTY_HANDLER
+
+#define MIN_OWNER_CAPACITY 1
+
+#define TypyComposite_HEAD             \
+	PyObject_HEAD                      \
+	size_t            owners_capacity; \
+	size_t            owners_length;   \
+	TypyPropertyOwner owners_list;
+
+#define TypyComposite_FREE(ob) \
+	((TypyComposite*)(ob))->owners_capacity = 0;   \
+	((TypyComposite*)(ob))->owners_length = 0;     \
+	if (((TypyComposite*)(ob))->owners_list) {     \
+		free(((TypyComposite*)(ob))->owners_list); \
+	}
+
+typedef struct _TypyPropertyOwner {
+	FieldType               owner_type;
+	struct _TypyComposite * prop_owner;
+	size_t                  prop_flag;
+} *TypyPropertyOwner;
+
+typedef struct _TypyComposite {
+	TypyComposite_HEAD
+} TypyComposite;
+
+bool TypyComposite_AddOwner(TypyComposite*, TypyComposite*, FieldType, size_t);
+void TypyComposite_DelOwner(TypyComposite*, TypyComposite*);
+
+#define TypyComposite_ADD_OWNER(child, parent, type, flag) \
+	(FIELD_TYPE_COMPOSITE(type) ? TypyComposite_AddOwner((TypyComposite*)(child), (TypyComposite*)(parent), (FieldType)(type), (size_t)(flag)) : true)
+#define TypyComposite_DEL_OWNER(child, parent) \
+	(FIELD_TYPE_COMPOSITE(type) ? TypyComposite_DelOwner((TypyComposite*)(child), (TypyComposite*)(parent)) : true)
+
+#else
+#	define TypyComposite_HEAD PyObject_HEAD
+#	define TypyComposite_FREE(ob)
+#	define TypyComposite_ADD_OWNER(child, parent, type, flag)
+#	define TypyComposite_DEL_OWNER(child, parent)
 #endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);

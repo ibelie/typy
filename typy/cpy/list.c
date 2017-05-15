@@ -84,6 +84,7 @@ static bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) 
 				Py_DECREF(list);
 				return false;
 			}
+			TypyComposite_ADD_OWNER(offset - 1, self, FIELD_TYPE_LIST, 0);
 		}
 		Py_DECREF(list);
 		return true;
@@ -103,6 +104,7 @@ static bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) 
 			Py_DECREF(it);
 			return false;
 		}
+		TypyComposite_ADD_OWNER(offset - 1, self, FIELD_TYPE_LIST, 0);
 	}
 	Py_DECREF(it);
 	return true;
@@ -148,6 +150,7 @@ bool TypyList_ReadRepeated(TypyMetaList* type, TypyList** value, byte** input, s
 	if (!MetaList_READ(type, offset, input, length)) {
 		return false;
 	}
+	TypyComposite_ADD_OWNER(offset, self, FIELD_TYPE_LIST, 0);
 	return true;
 }
 
@@ -170,6 +173,7 @@ bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* l
 			} else if (!MetaList_READ(type, offset, input, length)) {
 				return false;
 			}
+			TypyComposite_ADD_OWNER(offset, self, FIELD_TYPE_LIST, 0);
 		}
 	} else {
 		return TypyList_ReadRepeated(type, value, input, length);
@@ -250,6 +254,7 @@ void TypyList_MergeFrom(TypyMetaList* type, TypyList** lvalue, TypyList* rvalue)
 	register size_t i;
 	for (i = 0; i < rvalue->list_length; i++) {
 		MetaList_MERGEFROM(type, offset++, rvalue->list_items[i]);
+		TypyComposite_ADD_OWNER(offset - 1, self, FIELD_TYPE_LIST, 0);
 	}
 }
 
@@ -293,6 +298,7 @@ bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
 				Py_DECREF(list);
 				return false;
 			}
+			TypyComposite_ADD_OWNER(offset - 1, self, FIELD_TYPE_LIST, 0);
 		}
 		Py_DECREF(list);
 		return true;
@@ -312,6 +318,7 @@ bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
 			Py_DECREF(it);
 			return false;
 		}
+		TypyComposite_ADD_OWNER(offset - 1, self, FIELD_TYPE_LIST, 0);
 	}
 	Py_DECREF(it);
 	return true;
@@ -349,6 +356,7 @@ static PyObject* list_Append(TypyList* self, PyObject* item) {
 	if (!TypyList_CHECKSET(self, offset, item, "List item type error: ")) {
 		return NULL;
 	}
+	TypyComposite_ADD_OWNER(offset, self, FIELD_TYPE_LIST, 0);
 	Py_RETURN_NONE;
 }
 
@@ -417,9 +425,11 @@ static PyObject* list_Concat(TypyList* self, PyObject* other) {
 		register size_t i;
 		for (i = 0; i < self->list_length; i++) {
 			TypyList_SET(list, offset++, self->list_items[i]);
+			TypyComposite_ADD_OWNER(offset - 1, list, FIELD_TYPE_LIST, 0);
 		}
 		for (i = 0; i < rvalue->list_length; i++) {
 			TypyList_SET(list, offset++, rvalue->list_items[i]);
+			TypyComposite_ADD_OWNER(offset - 1, list, FIELD_TYPE_LIST, 0);
 		}
 		return (PyObject*)list;
 	} else {
@@ -457,6 +467,7 @@ static PyObject* list_Repeat(TypyList* self, Py_ssize_t n) {
 		register size_t j;
 		for (j = 0; j < size; j++) {
 			TypyList_SET(list, offset++, self->list_items[j]);
+			TypyComposite_ADD_OWNER(offset - 1, list, FIELD_TYPE_LIST, 0);
 		}
 	}
 	return (PyObject*)list;
@@ -478,6 +489,7 @@ static PyObject* list_InplaceRepeat(TypyList* self, Py_ssize_t n) {
 		register size_t j;
 		for (j = 0; j < size; j++) {
 			TypyList_SET(self, offset++, self->list_items[j]);
+			TypyComposite_ADD_OWNER(offset - 1, self, FIELD_TYPE_LIST, 0);
 		}
 	}
 	Py_INCREF(self);
@@ -514,6 +526,7 @@ static PyObject* list_Slice(TypyList* self, Py_ssize_t ilow, Py_ssize_t ihigh) {
 	register Py_ssize_t i;
 	for (i = ilow; i < ihigh; i++) {
 		TypyList_SET(slice, offset++, self->list_items[i]);
+		TypyComposite_ADD_OWNER(offset - 1, slice, FIELD_TYPE_LIST, 0);
 	}
 	return (PyObject*)slice;
 }
@@ -560,6 +573,7 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 				register TypyField* offset = TypyList_EnsureSize(slice, 1);
 				if (!offset) { Py_DECREF(slice); return NULL; }
 				TypyList_SET(slice, offset, self->list_items[i]);
+				TypyComposite_ADD_OWNER(offset, slice, FIELD_TYPE_LIST, 0);
 			}
 		} else {
 			if (step > 0) { return (PyObject*)slice; }
@@ -568,6 +582,7 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 				register TypyField* offset = TypyList_EnsureSize(slice, 1);
 				if (!offset) { Py_DECREF(slice); return NULL; }
 				TypyList_SET(slice, offset, self->list_items[i]);
+				TypyComposite_ADD_OWNER(offset, slice, FIELD_TYPE_LIST, 0);
 			}
 		}
 		return (PyObject*)slice;
@@ -617,6 +632,7 @@ static PyObject* list_Insert(TypyList* self, PyObject* args) {
 	if (!TypyList_CHECKSET(self, &self->list_items[index], value, "List item type error: ")) {
 		return NULL;
 	}
+	TypyComposite_ADD_OWNER(&self->list_items[index], self, FIELD_TYPE_LIST, 0);
 	Py_RETURN_NONE;
 }
 
@@ -693,6 +709,7 @@ static PyObject* list_Copy(PyTypeObject* cls, TypyList* self) {
 	register size_t i;
 	for (i = 0; i < self->list_length; i++) {
 		MetaList_COPYFROM(TypyList_TYPE(self), offset++, self->list_items[i]);
+		TypyComposite_ADD_OWNER(offset - 1, list, FIELD_TYPE_LIST, 0);
 	}
 	return (PyObject*)list;
 }
