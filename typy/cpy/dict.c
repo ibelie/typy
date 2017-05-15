@@ -146,6 +146,7 @@ static TypyDict* TypyDict_New(TypyMetaDict* type) {
 }
 
 static void TypyDict_Dealloc(TypyDict* self) {
+	TypyComposite_FREE(self);
 	TypyDict_Clear(self);
 	IblMap_Free(self->dict_map);
 	free(self);

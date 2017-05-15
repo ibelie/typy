@@ -113,6 +113,7 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 }
 
 static void TypyList_Dealloc(TypyList* self) {
+	TypyComposite_FREE(self);
 	TypyList_Clear(self);
 	if (self->list_items) {
 		free(self->list_items);

@@ -107,12 +107,22 @@ PyBytes Typy_CheckBytes(PyObject*, const char*);
 
 #ifdef TYPY_PROPERTY_HANDLER
 
-#define TypyComposite_HEAD           \
-	PyObject_HEAD                    \
-	size_t            owners_length; \
+#define MIN_OWNER_CAPACITY 1
+
+#define TypyComposite_HEAD             \
+	PyObject_HEAD                      \
+	size_t            owners_capacity; \
+	size_t            owners_length;   \
 	TypyPropertyOwner owners_list;
 
-typedef struct {
+#define TypyComposite_FREE(ob) \
+	((TypyComposite*)(ob))->owners_capacity = 0;   \
+	((TypyComposite*)(ob))->owners_length = 0;     \
+	if (((TypyComposite*)(ob))->owners_list) {     \
+		free(((TypyComposite*)(ob))->owners_list); \
+	}
+
+typedef struct _TypyPropertyOwner {
 	struct _TypyComposite * prop_owner;
 	size_t                  prop_flag;
 } *TypyPropertyOwner;
@@ -121,8 +131,12 @@ typedef struct _TypyComposite {
 	TypyComposite_HEAD
 } TypyComposite;
 
+bool TypyComposite_AddOwner(TypyComposite*, TypyComposite*, size_t);
+void TypyComposite_DelOwner(TypyComposite*, TypyComposite*);
+
 #else
 #	define TypyComposite_HEAD PyObject_HEAD
+#	define TypyComposite_FREE(ob)
 #endif
 
 #include "abstract.h"

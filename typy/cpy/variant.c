@@ -27,6 +27,7 @@ static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 }
 
 static void TypyVariant_Dealloc(TypyVariant* self) {
+	TypyComposite_FREE(self);
 	TypyVariant_Clear(self);
 	free(self);
 }

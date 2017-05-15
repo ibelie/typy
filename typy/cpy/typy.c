@@ -68,6 +68,48 @@ PyBytes Typy_CheckBytes(PyObject* arg, const char* err) {
 	}
 }
 
+#ifdef TYPY_PROPERTY_HANDLER
+
+bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, size_t flag) {
+	if (child->owners_length) {
+		register size_t i;
+		for (i = 0; i < child->owners_length && child->owners_list[i].prop_owner != parent; i++);
+		if (i < child->owners_length) { return true; }
+	}
+	if (child->owners_length + 1 > child->owners_capacity) {
+		register size_t capacity = Ibl_Max(2 * child->owners_capacity + 1, MIN_OWNER_CAPACITY);
+		register TypyPropertyOwner buffer = (TypyPropertyOwner)calloc(capacity, sizeof(struct _TypyPropertyOwner));
+		if (!buffer) { return false; }
+		child->owners_capacity = capacity;
+		if (child->owners_list) {
+			memcpy(buffer, child->owners_list, child->owners_length * sizeof(struct _TypyPropertyOwner));
+			free(child->owners_list);
+		}
+		child->owners_list = buffer;
+	}
+	register TypyPropertyOwner item = &child->owners_list[child->owners_length];
+	item->prop_owner = parent;
+	item->prop_flag  = flag;
+	child->owners_length++;
+	return true;
+}
+
+void TypyComposite_DelOwner(TypyComposite* child, TypyComposite* parent) {
+	if (child->owners_length) {
+		register size_t i;
+		for (i = 0; i < child->owners_length && child->owners_list[i].prop_owner != parent; i++);
+		for (; i < child->owners_length - 1; i++) {
+			memcpy(&child->owners_list[i], &child->owners_list[i + 1], sizeof(struct _TypyPropertyOwner));
+		}
+		if (i < child->owners_length) {
+			memset(&child->owners_list[i], 0, sizeof(struct _TypyPropertyOwner));
+			child->owners_length--;
+		}
+	}
+}
+
+#endif
+
 bool isDefaultEncodingUTF8 = false;
 
 static const char module_docstring[] =

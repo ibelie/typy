@@ -213,6 +213,7 @@ void Typy_Clear(TypyObject* self) {
 }
 
 void Typy_Dealloc(TypyObject* self) {
+	TypyComposite_FREE(self);
 	Typy_Clear(self);
 	free(self);
 }
