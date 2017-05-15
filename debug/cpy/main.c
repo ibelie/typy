@@ -21,10 +21,10 @@ int main()
 "sys.path.append('C:/Users/joung/Documents/project/typy/test')\n"
 "sys.path.append('/home/joungtao/program/typy')\n"
 "sys.path.append('/home/joungtao/program/typy/test')\n"
-"import build_test\n"
-"build_test.SETUP_TYPYD = False\n"
-"build_test.setup()\n"
-"build_test.test_cpy()\n"
+"import typy_test\n"
+"typy_test.SETUP_TYPYD = False\n"
+"typy_test.setup()\n"
+"typy_test.test_cpy()\n"
 );
 	Py_Finalize();
 	getchar();

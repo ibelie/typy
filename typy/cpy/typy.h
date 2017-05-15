@@ -112,7 +112,7 @@ PyBytes Typy_CheckBytes(PyObject*, const char*);
 	size_t            owners_length; \
 	TypyPropertyOwner owners_list;
 
-typedef struct _TPO {
+typedef struct {
 	struct _TypyComposite * prop_owner;
 	size_t                  prop_flag;
 } *TypyPropertyOwner;
