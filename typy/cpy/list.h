@@ -28,36 +28,9 @@ typedef struct {
 	TypyField*    list_items;
 } TypyList;
 
-#define MetaList_DESC(m)        (((TypyMetaList*)(m))->list_desc)
-#define MetaList_TYPYTYPE(m)    (MetaList_DESC(m).desc_type)
-#define MetaList_FIELDTYPE(m)   (MetaList_DESC(m).desc_FieldType)
-#define MetaList_WIRETYPE(m)    (MetaList_DESC(m).desc_WireType)
-#define MetaList_IsPrimitive(m) (MetaList_FIELDTYPE(m) < MAX_PRIMITIVE_TYPE)
-
+#define MetaList_WIRETYPE(m)    (((TypyMetaList*)(m))->list_desc.desc_WireType)
+#define MetaList_IsPrimitive(m) (((TypyMetaList*)(m))->list_desc.desc_FieldType < MAX_PRIMITIVE_TYPE)
 #define TypyList_TYPE(ob)       (((TypyList*)(ob))->list_type)
-#define TypyList_TYPYTYPE(ob)   MetaList_TYPYTYPE(TypyList_TYPE(ob))
-#define TypyList_FIELDTYPE(ob)  MetaList_FIELDTYPE(TypyList_TYPE(ob))
-
-#define TypyList_CLEAR(ob, f) do { \
-	register TypyField* _f = (TypyField*)(f);                                          \
-	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(ob), *_f, (ob));                        \
-	abstract_Clear[TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), _f);                 \
-} while (0)
-
-#define TypyList_SET(ob, l, r) do { \
-	register TypyField* _l = (TypyField*)(l);                                          \
-	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob));                        \
-	abstract_CopyFrom[TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), _l, (r));         \
-	TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob), FIELD_TYPE_LIST, 0);    \
-} while (0)
-
-#define TypyList_Clear(ob) { \
-	register size_t i;                              \
-	for (i = 0; i < (ob)->list_length; i++) {       \
-		TypyList_CLEAR((ob), &(ob)->list_items[i]); \
-	}                                               \
-	(ob)->list_length = 0;                          \
-}
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;
