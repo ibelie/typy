@@ -33,36 +33,64 @@ extern "C" {
 #define MetaValue_FIELDTYPE(m) (MetaValue_DESC(m).desc_FieldType)
 #define MetaValue_WIRETYPE(m)  (MetaValue_DESC(m).desc_WireType)
 #define MetaValue_TAG(m)       (MAKE_TAG(2, MetaValue_WIRETYPE(m)))
-#define MetaValue_CLEAR(m, v) \
-	(abstract_Clear       [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
-#define MetaValue_BYTESIZE(m, v) \
-	(abstract_ByteSize    [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
-#define MetaValue_WRITE(m, v, o) \
-	(abstract_Write       [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), MetaValue_TAG(m), (o)))
 #define MetaValue_GET(m, v) \
 	(abstract_GetPyObject [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
-#define MetaValue_CHECKSET(m, l, r, e) \
-	(abstract_CheckAndSet [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r), (e)))
 #define MetaValue_TOJSON(m, v, s) \
 	(abstract_ToJson      [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), (s)))
-#define MetaValue_FROMJSON(m, v, j) \
-	(abstract_FromJson    [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), (j)))
+#define MetaValue_WRITE(m, v, o) \
+	(abstract_Write       [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), MetaValue_TAG(m), (o)))
+#define MetaValue_BYTESIZE(m, v) \
+	(abstract_ByteSize    [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
+
+#define MetaValue_CLEAR(m, ob, v) do { \
+	register TypyField* _v = (TypyField*)(v);                                       \
+	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_v, (ob));                     \
+	abstract_Clear[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _v);              \
+} while (0)
+
+#define MetaValue_SET(m, ob, l, r) do { \
+	register TypyField* _l = (TypyField*)(l);                                       \
+	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
+	abstract_CopyFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));      \
+	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
+} while (0)
+
+#define MetaValue_MERGEFROM(m, ob, l, r) do { \
+	register TypyField* _l = (TypyField*)(l);                                       \
+	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
+	abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));     \
+	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
+} while (0)
+
+static inline bool MetaValue_CHECKSET(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* arg, const char* err) {
+	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(type), *value, self);
+	register bool result = abstract_CheckAndSet[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, arg, err);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(type), *value, self, FIELD_TYPE_DICT, 0);
+	}
+	return result;
+}
+
+static inline bool MetaValue_FROMJSON(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* json) {
+	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(type), *value, self);
+	register bool result = abstract_FromJson[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, json);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(type), *value, self, FIELD_TYPE_DICT, 0);
+	}
+	return result;
+}
 
 #define MetaDict_DESC(m, i)      (i ? MetaValue_DESC(m) : MetaKey_DESC(m))
 #define MetaDict_FIELDTYPE(m, i) (MetaDict_DESC(m, i).desc_FieldType)
 #define MetaDict_TYPYTYPE(m, i)  (MetaDict_DESC(m, i).desc_type)
 #define MetaDict_WIRETYPE(m, i)  (MetaDict_DESC(m, i).desc_WireType)
-#define MetaDict_READ(m, i, f, s, l) \
-	(abstract_Read      [MetaDict_FIELDTYPE(m, i)](MetaDict_TYPYTYPE(m, i), (f), (s), (l)))
-#define MetaDict_COPYFROM(m, l, r) \
-	(abstract_CopyFrom [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
-#define MetaDict_MERGEFROM(m, l, r) \
-	(abstract_MergeFrom [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
+#define MetaDict_READ(m, i, k, s, l) \
+	(abstract_Read[MetaDict_FIELDTYPE(m, i)](MetaDict_TYPYTYPE(m, i), (k), (s), (l)))
 
 #define MetaDict_Clear(m, ob) { \
 	register IblMap_Item iter;                                                                  \
 	for (iter = IblMap_Begin((ob)->dict_map); iter; iter = IblMap_Next((ob)->dict_map, iter)) { \
-		MetaValue_CLEAR((m), &((TypyDictMap)iter)->value);                                      \
+		MetaValue_CLEAR((m), (ob), &((TypyDictMap)iter)->value);                                \
 	}                                                                                           \
 	IblMap_Clear((ob)->dict_map);                                                               \
 }
@@ -70,8 +98,8 @@ extern "C" {
 #define TypyKey_GET(ob, k)              MetaKey_GET        (TypyDict_TYPE(ob), (k))
 #define TypyKey_CHECKSET(ob, l, r, e)   MetaKey_CHECKSET   (TypyDict_TYPE(ob), (l), (r), (e))
 #define TypyValue_GET(ob, v)            MetaValue_GET      (TypyDict_TYPE(ob), (v))
-#define TypyValue_CLEAR(ob, v)          MetaValue_CLEAR    (TypyDict_TYPE(ob), (v))
-#define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET (TypyDict_TYPE(ob), (l), (r), (e))
+#define TypyValue_CLEAR(ob, v)          MetaValue_CLEAR    (TypyDict_TYPE(ob), (ob), (v))
+#define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET (TypyDict_TYPE(ob), (ob), (l), (r), (e))
 #define TypyDict_Clear(ob)              MetaDict_Clear     (TypyDict_TYPE(ob), (ob))
 
 //=============================================================================
@@ -166,7 +194,7 @@ static inline bool TypyDict_SetItem(TypyDict* self, PyObject* key, PyObject* val
 	}
 	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
 	if (!entry) { return false; }
-	return MetaValue_CHECKSET(TypyDict_TYPE(self), &entry->value, value, "Dict value type error: ");
+	return TypyValue_CHECKSET(self, &entry->value, value, "Dict value type error: ");
 }
 
 static inline bool TypyDict_MergeDict(TypyDict* self, PyObject* dict) {
@@ -306,11 +334,12 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	TypyDict_FromValueOrNew(self, dict, type, false);
 	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 	if (item) {
-		MetaValue_CLEAR(type, &item->value);
+		MetaValue_CLEAR(type, self, &item->value);
+		TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(type), value, self, FIELD_TYPE_DICT, 0);
 		item->value = value;
 	} else {
 		MetaKey_CLEAR(type, &key);
-		MetaValue_CLEAR(type, &value);
+		MetaValue_CLEAR(type, self, &value);
 	}
 	*input += remain;
 	*length -= limit;
@@ -324,7 +353,7 @@ void TypyDict_MergeFrom(TypyMetaDict* type, TypyDict** lvalue, TypyDict* rvalue)
 	for (iter = IblMap_Begin(rvalue->dict_map); iter; iter = IblMap_Next(rvalue->dict_map, iter)) {
 		register TypyDictMap ritem = (TypyDictMap)iter;
 		register TypyDictMap litem = (TypyDictMap)IblMap_Set(self->dict_map, &ritem->key);
-		MetaDict_MERGEFROM(type, &litem->value, ritem->value);
+		MetaValue_MERGEFROM(type, self, &litem->value, ritem->value);
 	}
 }
 
@@ -410,12 +439,12 @@ bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
 		if (!item) { goto fromjson_fail; }
 		if (!MetaKey_FROMJSON(type, &key, PyTuple_GET_ITEM(item, 0))) {
 			goto fromjson_fail;
-		} else if (!MetaValue_FROMJSON(type, &value, PyTuple_GET_ITEM(item, 1))) {
+		} else if (!MetaValue_FROMJSON(type, self, &value, PyTuple_GET_ITEM(item, 1))) {
 			goto fromjson_fail;
 		}
 		register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 		if (!entry) { goto fromjson_fail; }
-		MetaValue_CLEAR(type, &entry->value);
+		MetaValue_CLEAR(type, self, &entry->value);
 		entry->value = value;
 		key = 0;
 		value = 0;
@@ -426,7 +455,7 @@ fromjson_fail:
 	Py_XDECREF(iter);
 	Py_XDECREF(item);
 	MetaKey_CLEAR(type, &key);
-	MetaValue_CLEAR(type, &value);
+	MetaValue_CLEAR(type, self, &value);
 	return false;
 }
 
@@ -656,7 +685,7 @@ static PyObject* dict_Copy(PyTypeObject* cls, TypyDict* self) {
 		register TypyDictMap item = (TypyDictMap)iter;
 		register TypyDictMap entry = (TypyDictMap)IblMap_Set(dict->dict_map, &item->key);
 		if (!entry) { Py_DECREF(dict); return NULL; }
-		MetaDict_COPYFROM(TypyDict_TYPE(self), &entry->value, item->value);
+		MetaValue_SET(TypyDict_TYPE(self), self, &entry->value, item->value);
 	}
 	return (PyObject*)dict;
 }
