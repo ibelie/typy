@@ -93,6 +93,9 @@ typedef struct {
 	TypyType      desc_type;
 	FieldType     desc_FieldType;
 	WireType      desc_WireType;
+#ifdef TYPY_PROPERTY_HANDLER
+	size_t        desc_PropFlag;
+#endif
 } TypyDescriptor;
 
 typedef struct {

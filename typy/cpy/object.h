@@ -89,28 +89,54 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #define Typy_FIELDTYPE(ob, i) (Typy_DESC(ob, i).desc_FieldType)
 #define Typy_TYPYTYPE(ob, i)  (Typy_DESC(ob, i).desc_type)
 #define Typy_WIRETYPE(ob, i)  (Typy_DESC(ob, i).desc_WireType)
-#define Typy_CLEAR(ob, i) \
-	(abstract_Clear       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define Typy_GET(ob, i) \
 	(abstract_GetPyObject [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
-#define Typy_SET(ob, i, f) \
-	(abstract_CopyFrom    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
-#define Typy_CHECKSET(ob, i, v, e) \
-	(abstract_CheckAndSet [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (v), (e)))
-#define Typy_COPYFROM(ob, i, f) \
-	(abstract_CopyFrom    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
-#define Typy_MERGEFROM(ob, i, f) \
-	(abstract_MergeFrom   [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)))
-#define Typy_BYTESIZE(ob, i, t) \
-	(abstract_ByteSize    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t)))
-#define Typy_WRITE(ob, i, t, o) \
-	(abstract_Write       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
-#define Typy_READ(ob, i, s, l) \
-	(abstract_Read        [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
 #define Typy_TOJSON(ob, i, s) \
 	(abstract_ToJson      [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s)))
-#define Typy_FROMJSON(ob, i, j) \
+#define Typy_WRITE(ob, i, t, o) \
+	(abstract_Write       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
+#define Typy_BYTESIZE(ob, i, t) \
+	(abstract_ByteSize    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t)))
+#define _Typy_READ(ob, i, s, l) \
+	(abstract_Read        [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
+#define _Typy_CHECKSET(ob, i, v, e) \
+	(abstract_CheckAndSet [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (v), (e)))
+#define _Typy_FROMJSON(ob, i, j) \
 	(abstract_FromJson    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (j)))
+
+#ifdef TYPY_PROPERTY_HANDLER
+#	define Typy_PROPFLAG(ob, i) (Typy_DESC(ob, i).desc_PropFlag)
+	bool   Typy_READ            (TypyObject*, size_t, byte**, size_t*);
+	bool   Typy_CHECKSET        (TypyObject*, size_t, PyObject*, const char*);
+	bool   Typy_FROMJSON        (TypyObject*, size_t, PyObject*);
+#else
+#	define Typy_PROPFLAG(ob, i) 0
+#	define Typy_READ(ob, i, s, l)     _Typy_READ((ob), (i), (s), (l))
+#	define Typy_CHECKSET(ob, i, v, e) _Typy_CHECKSET((ob), (i), (v), (e))
+#	define Typy_FROMJSON(ob, i, j)    _Typy_FROMJSON((ob), (i), (j))
+#endif
+
+#define Typy_DEL_OWNER(ob, i) \
+	TypyComposite_DEL_OWNER(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i), (ob))
+#define Typy_ADD_OWNER(ob, i) \
+	TypyComposite_ADD_OWNER(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i), (ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i))
+
+#define Typy_MERGEFROM(ob, i, f) do { \
+	Typy_DEL_OWNER((ob), (i));                                                                \
+	abstract_MergeFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)); \
+	Typy_ADD_OWNER((ob), (i));                                                                \
+} while (0)
+
+#define Typy_CLEAR(ob, i) do { \
+	Typy_DEL_OWNER((ob), (i));                                                                \
+	abstract_Clear[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i));          \
+} while (0)
+
+#define Typy_SET(ob, i, f) do { \
+	Typy_DEL_OWNER((ob), (i));                                                                \
+	abstract_CopyFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f));  \
+	Typy_ADD_OWNER((ob), (i));                                                                \
+} while (0)
 
 void      Typy_Clear               (TypyObject*);
 void      Typy_Dealloc             (TypyObject*);

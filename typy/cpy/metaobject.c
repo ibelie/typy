@@ -8,6 +8,37 @@
 extern "C" {
 #endif
 
+#ifdef TYPY_PROPERTY_HANDLER
+
+bool Typy_READ(TypyObject* self, size_t index, byte** input, size_t* length) {
+	Typy_DEL_OWNER(self, index);
+	register bool result = _Typy_READ(self, index, input, length);
+	if (result) {
+		result = Typy_ADD_OWNER(self, index);
+	}
+	return result;
+}
+
+bool Typy_CHECKSET(TypyObject* self, size_t index, PyObject* arg, const char* err) {
+	Typy_DEL_OWNER(self, index);
+	register bool result = _Typy_CHECKSET(self, index, arg, err);
+	if (result) {
+		result = Typy_ADD_OWNER(self, index);
+	}
+	return result;
+}
+
+bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
+	Typy_DEL_OWNER(self, index);
+	register bool result = _Typy_FROMJSON(self, index, json);
+	if (result) {
+		result = Typy_ADD_OWNER(self, index);
+	}
+	return result;
+}
+
+#endif
+
 IblMap_KEY_STRING(TypyFieldMap,
 	int index;
 );
@@ -500,7 +531,7 @@ PyObject* Py_Copy(PyTypeObject* cls, TypyObject* self) {
 	if (!object) { return NULL; }
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
-		Typy_COPYFROM(object, i, Typy_FIELD(self, i));
+		Typy_SET(object, i, Typy_FIELD(self, i));
 	}
 	return (PyObject*)object;
 }
