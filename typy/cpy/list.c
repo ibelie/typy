@@ -75,11 +75,11 @@ static inline bool MetaList_FROMJSON(TypyMetaList* type, TypyList* self, TypyFie
 	return result;
 }
 
-#define TypyList_GET(ob, f)            MetaList_GET(TypyList_TYPE(ob), (f))
-#define TypyList_SET(ob, l, r)         MetaList_SET(TypyList_TYPE(ob), (ob), (l), (r))
-#define TypyList_CLEAR(ob, f)          MetaList_CLEAR(TypyList_TYPE(ob), (ob), (f))
-#define TypyList_CHECKSET(ob, l, r, e) MetaList_CHECKSET(TypyList_TYPE(ob), (ob), (l), (r), (e))
-#define TypyList_Clear(ob)             MetaList_Clear(TypyList_TYPE(ob), (ob))
+#define TypyList_GET(ob, f)            MetaList_GET      (TypyList_TYPE(ob), (f))
+#define TypyList_SET(ob, l, r)         MetaList_SET      (TypyList_TYPE(ob), (ob), (l), (r))
+#define TypyList_CLEAR(ob, f)          MetaList_CLEAR    (TypyList_TYPE(ob), (ob), (f))
+#define TypyList_CHECKSET(ob, l, r, e) MetaList_CHECKSET (TypyList_TYPE(ob), (ob), (l), (r), (e))
+#define TypyList_Clear(ob)             MetaList_Clear    (TypyList_TYPE(ob), (ob))
 
 //=============================================================================
 
