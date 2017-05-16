@@ -8,6 +8,38 @@
 extern "C" {
 #endif
 
+#define MetaVariant_GET(m, s, i) \
+	(abstract_GetPyObject [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
+#define MetaVariant_TOJSON(m, s, i, l) \
+	(abstract_ToJson      [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (l)))
+#define MetaVariant_WRITE(m, s, i, t, o) \
+	(abstract_Write       [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (o)))
+#define MetaVariant_BYTESIZE(m, s, i, t) \
+	(abstract_ByteSize    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t)))
+
+#define MetaVariant_MERGEFROM(m, s, i, f) \
+	(abstract_MergeFrom   [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+#define MetaVariant_CLEAR(m, s, i) \
+	(abstract_Clear       [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
+#define MetaVariant_SET(m, s, i, f) \
+	(abstract_CopyFrom    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+
+#define MetaVariant_CHECKSET(m, s, i, v, e) \
+	(abstract_CheckAndSet [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (v), (e)))
+#define MetaVariant_READ(m, s, i, t, l) \
+	(abstract_Read        [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
+#define MetaVariant_FROMJSON(m, s, i, j) \
+	(abstract_FromJson    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (j)))
+
+#define MetaVariant_Clear(m, ob) { \
+	if ((ob)->variant_index >= 0 && (size_t)(ob)->variant_index < Meta_SIZE(m)) { \
+		MetaVariant_CLEAR((m), (ob), (ob)->variant_index);                        \
+		(ob)->variant_index = -1;                                                 \
+	}                                                                             \
+}
+
+//=============================================================================
+
 TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 	register TypyMetaObject* type = _Typy_RegisterMeta(args);
 	type->py_type = NULL;
@@ -29,7 +61,7 @@ static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 
 static void TypyVariant_Dealloc(TypyVariant* self) {
 	TypyComposite_FREE(self);
-	TypyVariant_Clear(self);
+	MetaVariant_Clear(Typy_TYPE(self), self);
 	Py_DECREF(Typy_TYPE(self));
 	free(self);
 }
@@ -188,7 +220,7 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		if (index < 0 || (size_t)index >= Meta_SIZE(type)) { goto handle_unusual; }
 		if (TAG_WIRETYPE(tag) == Meta_WIRETYPE(type, index)) {
 			if (self->variant_index != index) {
-				TypyVariant_Clear(self);
+				MetaVariant_Clear(type, self);
 			}
 			if (!MetaVariant_READ(type, self, index, input, &remain)) {
 				goto handle_unusual;
@@ -196,7 +228,7 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		} else if (Meta_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
 			if (self->variant_index != index) {
-				TypyVariant_Clear(self);
+				MetaVariant_Clear(type, self);
 			}
 			if (!TypyList_ReadRepeated(Meta_TYPYTYPE(type, index), (TypyList**)&self->variant_value, input, &remain)) {
 				goto handle_unusual;
@@ -225,7 +257,7 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 	}
 	TypyVariant_FromValueOrNew(self, lvalue, type, );
 	if (self->variant_index != rvalue->variant_index) {
-		TypyVariant_Clear(self);
+		MetaVariant_Clear(type, self);
 	}
 	MetaVariant_MERGEFROM(type, self, self->variant_index, rvalue->variant_value);
 }

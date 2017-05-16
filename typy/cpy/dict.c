@@ -42,6 +42,13 @@ extern "C" {
 #define MetaValue_BYTESIZE(m, v) \
 	(abstract_ByteSize    [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
 
+#define MetaValue_MERGEFROM(m, ob, l, r) do { \
+	register TypyField* _l = (TypyField*)(l);                                       \
+	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
+	abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));     \
+	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
+} while (0)
+
 #define MetaValue_CLEAR(m, ob, v) do { \
 	register TypyField* _v = (TypyField*)(v);                                       \
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_v, (ob));                     \
@@ -52,13 +59,6 @@ extern "C" {
 	register TypyField* _l = (TypyField*)(l);                                       \
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
 	abstract_CopyFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));      \
-	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
-} while (0)
-
-#define MetaValue_MERGEFROM(m, ob, l, r) do { \
-	register TypyField* _l = (TypyField*)(l);                                       \
-	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
-	abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));     \
 	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
 } while (0)
 
