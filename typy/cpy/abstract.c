@@ -34,7 +34,7 @@ bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldTy
 }
 
 void TypyComposite_DelOwner(TypyComposite* child, TypyComposite* parent) {
-	if (child->owners_length) {
+	if (child && child->owners_length) {
 		register size_t i;
 		for (i = 0; i < child->owners_length && child->owners_list[i].prop_owner != parent; i++);
 		for (; i < child->owners_length - 1; i++) {

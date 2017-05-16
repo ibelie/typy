@@ -71,7 +71,7 @@ static TypyField* TypyList_EnsureSize(TypyList* self, size_t size) {
 	return offset;
 }
 
-static bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) {
+static bool TypyList_Extend(TypyList* self, PyObject* list) {
 	if (PyList_CheckExact(list) || PyTuple_CheckExact(list) || (PyObject*)self == list) {
 		list = PySequence_Fast(list, "argument must be iterable");
 		if (!list) { return false; }
@@ -81,11 +81,10 @@ static bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) 
 		register TypyField* offset = TypyList_EnsureSize(self, size);
 		if (!offset) { Py_DECREF(list); return false; }
 		for (i = 0; i < size; i++) {
-			if (!MetaList_CHECKSET(type, offset++, src[i], "List item type error: ")) {
+			if (!TypyList_CHECKSET(self, offset++, src[i], "List item type error: ")) {
 				Py_DECREF(list);
 				return false;
 			}
-			TypyList_ADD_OWNER(offset - 1, self);
 		}
 		Py_DECREF(list);
 		return true;
@@ -99,13 +98,12 @@ static bool MetaList_Extend(TypyMetaList* type, TypyList* self, PyObject* list) 
 	if (!offset) { Py_DECREF(it); return false; }
 	for (i = 0; i < size; i++) {
 		register PyObject* item = iternext(it);
-		register bool success = MetaList_CHECKSET(type, offset++, item, "List item type error: ");
+		register bool success = TypyList_CHECKSET(self, offset++, item, "List item type error: ");
 		Py_XDECREF(item);
 		if (!success) {
 			Py_DECREF(it);
 			return false;
 		}
-		TypyList_ADD_OWNER(offset - 1, self);
 	}
 	Py_DECREF(it);
 	return true;
@@ -149,10 +147,9 @@ bool TypyList_ReadRepeated(TypyMetaList* type, TypyList** value, byte** input, s
 	TypyList_FromValueOrNew(self, value, type, false);
 	register TypyField* offset = TypyList_EnsureSize(self, 1);
 	if (!offset) { return false; }
-	if (!MetaList_READ(type, offset, input, length)) {
+	if (!TypyList_READ(self, offset, input, length)) {
 		return false;
 	}
-	TypyList_ADD_OWNER(offset, self);
 	return true;
 }
 
@@ -172,10 +169,9 @@ bool TypyList_Read(TypyMetaList* type, TypyList** value, byte** input, size_t* l
 		while (*input < limit) {
 			if (!(offset = TypyList_EnsureSize(self, 1))) {
 				return false;
-			} else if (!MetaList_READ(type, offset, input, length)) {
+			} else if (!TypyList_READ(self, offset, input, length)) {
 				return false;
 			}
-			TypyList_ADD_OWNER(offset, self);
 		}
 	} else {
 		return TypyList_ReadRepeated(type, value, input, length);
@@ -191,12 +187,12 @@ size_t TypyList_Write(TypyMetaList* type, TypyList** value, int tag, byte* outpu
 		size += Typy_WriteTag(output, tag);
 		size += IblPutUvarint(output + size, self->cached_size);
 		for (i = 0; i < self->list_length; i++) {
-			size += MetaList_WRITE(type, &self->list_items[i], 0, output + size);
+			size += TypyList_WRITE(self, &self->list_items[i], 0, output + size);
 		}
 	} else {
 		for (i = 0; i < self->list_length; i++) {
 			if (self->list_items[i]) {
-				size += MetaList_WRITE(type, &self->list_items[i], tag, output + size);
+				size += TypyList_WRITE(self, &self->list_items[i], tag, output + size);
 			} else {
 				size += Typy_WriteTag(output + size, tag);
 				size += IblPutUvarint(output + size, 0);
@@ -212,14 +208,14 @@ size_t TypyList_ByteSize(TypyMetaList* type, TypyList** value, int tagsize) {
 	register size_t i, size = 0;
 	if (MetaList_IsPrimitive(type)) {
 		for (i = 0; i < self->list_length; i++) {
-			size += MetaList_BYTESIZE(type, &self->list_items[i], 0);
+			size += TypyList_BYTESIZE(self, &self->list_items[i], 0);
 		}
 		self->cached_size = size;
 		size += tagsize + IblSizeVarint(size);
 	} else {
 		for (i = 0; i < self->list_length; i++) {
 			if (self->list_items[i]) {
-				size += MetaList_BYTESIZE(type, &self->list_items[i], tagsize);
+				size += TypyList_BYTESIZE(self, &self->list_items[i], tagsize);
 			} else {
 				size += tagsize + IblSizeVarint(0);
 			}
@@ -240,8 +236,8 @@ bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, c
 		return true;
 	} else if (PySequence_Check(arg)) {
 		TypyList_FromValueOrNew(self, value, type, false);
-		MetaList_Clear(type, self);
-		return MetaList_Extend(type, self, arg);
+		TypyList_Clear(self);
+		return TypyList_Extend(self, arg);
 	} else {
 		FormatTypeError(arg, err);
 		return false;
@@ -255,8 +251,7 @@ void TypyList_MergeFrom(TypyMetaList* type, TypyList** lvalue, TypyList* rvalue)
 	if (!offset) { return; }
 	register size_t i;
 	for (i = 0; i < rvalue->list_length; i++) {
-		MetaList_MERGEFROM(type, offset++, rvalue->list_items[i]);
-		TypyList_ADD_OWNER(offset - 1, self);
+		TypyList_MERGEFROM(self, offset++, rvalue->list_items[i]);
 	}
 }
 
@@ -270,7 +265,7 @@ PyObject* TypyList_ToJson(TypyMetaList* type, TypyList** value, bool slim) {
 		for (i = 0; i < (*value)->list_length; i++) {
 			register PyObject* item = NULL;
 			if ((*value)->list_items[i]) {
-				item = MetaList_TOJSON(type, &(*value)->list_items[i], slim);
+				item = TypyList_TOJSON(*value, &(*value)->list_items[i], slim);
 			}
 			if (!item) {
 				Py_INCREF(Py_None);
@@ -296,11 +291,10 @@ bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
 		if (!offset) { Py_DECREF(list); return false; }
 		register PyObject** src = PySequence_Fast_ITEMS(list);
 		for (i = 0; i < size; i++) {
-			if (!MetaList_FROMJSON(type, offset++, src[i])) {
+			if (!TypyList_FROMJSON(self, offset++, src[i])) {
 				Py_DECREF(list);
 				return false;
 			}
-			TypyList_ADD_OWNER(offset - 1, self);
 		}
 		Py_DECREF(list);
 		return true;
@@ -314,17 +308,44 @@ bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
 	if (!offset) { Py_DECREF(it); return false; }
 	for (i = 0; i < size; i++) {
 		register PyObject* item = iternext(it);
-		register bool success = MetaList_FROMJSON(type, offset++, item);
+		register bool success = TypyList_FROMJSON(self, offset++, item);
 		Py_XDECREF(item);
 		if (!success) {
 			Py_DECREF(it);
 			return false;
 		}
-		TypyList_ADD_OWNER(offset - 1, self);
 	}
 	Py_DECREF(it);
 	return true;
 }
+
+bool TypyList_READ(TypyList* self, TypyField* item, byte** input, size_t* length) {
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
+	register bool result = abstract_Read[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, input, length);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
+	}
+	return result;
+}
+
+bool TypyList_CHECKSET(TypyList* self, TypyField* item, PyObject* arg, const char* err) {
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
+	register bool result = abstract_CheckAndSet[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, arg, err);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
+	}
+	return result;
+}
+
+bool TypyList_FROMJSON(TypyList* self, TypyField* item, PyObject* json) {
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
+	register bool result = abstract_FromJson[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, json);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
+	}
+	return result;
+}
+
 
 PyTypeObject TypyMetaListType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
@@ -358,7 +379,6 @@ static PyObject* list_Append(TypyList* self, PyObject* item) {
 	if (!TypyList_CHECKSET(self, offset, item, "List item type error: ")) {
 		return NULL;
 	}
-	TypyList_ADD_OWNER(offset, self);
 	Py_RETURN_NONE;
 }
 
@@ -399,7 +419,7 @@ static int list_AssignItem(TypyList* self, Py_ssize_t index, PyObject* arg) {
 
 static PyObject* list_Extend(TypyList* self, PyObject* other) {
 	if (!PyObject_Not(other) && Py_TYPE(other)->tp_as_sequence) {
-		if (!MetaList_Extend(TypyList_TYPE(self), self, other)) {
+		if (!TypyList_Extend(self, other)) {
 			return NULL;
 		}
 	}
@@ -427,11 +447,9 @@ static PyObject* list_Concat(TypyList* self, PyObject* other) {
 		register size_t i;
 		for (i = 0; i < self->list_length; i++) {
 			TypyList_SET(list, offset++, self->list_items[i]);
-			TypyList_ADD_OWNER(offset - 1, list);
 		}
 		for (i = 0; i < rvalue->list_length; i++) {
 			TypyList_SET(list, offset++, rvalue->list_items[i]);
-			TypyList_ADD_OWNER(offset - 1, list);
 		}
 		return (PyObject*)list;
 	} else {
@@ -445,7 +463,7 @@ static PyObject* list_Concat(TypyList* self, PyObject* other) {
 
 static PyObject* list_InplaceConcat(TypyList* self, PyObject* other) {
 	if (!PyObject_Not(other) && Py_TYPE(other)->tp_as_sequence) {
-		if (!MetaList_Extend(TypyList_TYPE(self), self, other)) {
+		if (!TypyList_Extend(self, other)) {
 			return NULL;
 		}
 	}
@@ -469,7 +487,6 @@ static PyObject* list_Repeat(TypyList* self, Py_ssize_t n) {
 		register size_t j;
 		for (j = 0; j < size; j++) {
 			TypyList_SET(list, offset++, self->list_items[j]);
-			TypyList_ADD_OWNER(offset - 1, list);
 		}
 	}
 	return (PyObject*)list;
@@ -491,7 +508,6 @@ static PyObject* list_InplaceRepeat(TypyList* self, Py_ssize_t n) {
 		register size_t j;
 		for (j = 0; j < size; j++) {
 			TypyList_SET(self, offset++, self->list_items[j]);
-			TypyList_ADD_OWNER(offset - 1, self);
 		}
 	}
 	Py_INCREF(self);
@@ -528,7 +544,6 @@ static PyObject* list_Slice(TypyList* self, Py_ssize_t ilow, Py_ssize_t ihigh) {
 	register Py_ssize_t i;
 	for (i = ilow; i < ihigh; i++) {
 		TypyList_SET(slice, offset++, self->list_items[i]);
-		TypyList_ADD_OWNER(offset - 1, slice);
 	}
 	return (PyObject*)slice;
 }
@@ -542,7 +557,7 @@ static int list_AssignSlice(TypyList* self, Py_ssize_t ilow, Py_ssize_t ihigh, P
 	}
 
 	TypyList_Clear(self);
-	return MetaList_Extend(TypyList_TYPE(self), self, list) ? 0 : -1;
+	return TypyList_Extend(self, list) ? 0 : -1;
 }
 
 static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
@@ -575,7 +590,6 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 				register TypyField* offset = TypyList_EnsureSize(slice, 1);
 				if (!offset) { Py_DECREF(slice); return NULL; }
 				TypyList_SET(slice, offset, self->list_items[i]);
-				TypyList_ADD_OWNER(offset, slice);
 			}
 		} else {
 			if (step > 0) { return (PyObject*)slice; }
@@ -584,7 +598,6 @@ static PyObject* list_Subscript(TypyList* self, PyObject* slice) {
 				register TypyField* offset = TypyList_EnsureSize(slice, 1);
 				if (!offset) { Py_DECREF(slice); return NULL; }
 				TypyList_SET(slice, offset, self->list_items[i]);
-				TypyList_ADD_OWNER(offset, slice);
 			}
 		}
 		return (PyObject*)slice;
@@ -634,7 +647,6 @@ static PyObject* list_Insert(TypyList* self, PyObject* args) {
 	if (!TypyList_CHECKSET(self, &self->list_items[index], value, "List item type error: ")) {
 		return NULL;
 	}
-	TypyList_ADD_OWNER(&self->list_items[index], self);
 	Py_RETURN_NONE;
 }
 
@@ -710,8 +722,7 @@ static PyObject* list_Copy(PyTypeObject* cls, TypyList* self) {
 	if (!offset) { Py_DECREF(list); return NULL; }
 	register size_t i;
 	for (i = 0; i < self->list_length; i++) {
-		MetaList_COPYFROM(TypyList_TYPE(self), offset++, self->list_items[i]);
-		TypyList_ADD_OWNER(offset - 1, list);
+		TypyList_SET(self, offset++, self->list_items[i]);
 	}
 	return (PyObject*)list;
 }

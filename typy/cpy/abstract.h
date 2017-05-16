@@ -60,14 +60,18 @@ bool TypyComposite_AddOwner(TypyComposite*, TypyComposite*, FieldType, size_t);
 void TypyComposite_DelOwner(TypyComposite*, TypyComposite*);
 
 #define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) \
-	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_AddOwner((TypyComposite*)(c), (TypyComposite*)(p), (FieldType)(p_t), (size_t)(f)) : true)
-#define TypyComposite_DEL_OWNER(c_t, c, p) \
-	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)) : true)
+	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_AddOwner((TypyComposite*)(c), \
+		(TypyComposite*)(p), (FieldType)(p_t), (size_t)(f)) : true)
+
+#define TypyComposite_DEL_OWNER(c_t, c, p) do { \
+	if (FIELD_TYPE_COMPOSITE(c_t)) {                                      \
+		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)); \
+	} } while (0)
 
 #else
 #	define TypyComposite_HEAD PyObject_HEAD
 #	define TypyComposite_FREE(ob)
-#	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f)
+#	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) true
 #	define TypyComposite_DEL_OWNER(c_t, c, p)
 #endif
 
