@@ -141,6 +141,7 @@ static TypyDict* TypyDict_New(TypyMetaDict* type) {
 		return NULL;
 	}
 	(void)PyObject_INIT(dict, &TypyDictType);
+	Py_INCREF(type);
 	TypyDict_TYPE(dict) = type;
 	return dict;
 }
@@ -149,6 +150,7 @@ static void TypyDict_Dealloc(TypyDict* self) {
 	TypyComposite_FREE(self);
 	TypyDict_Clear(self);
 	IblMap_Free(self->dict_map);
+	Py_DECREF(TypyDict_TYPE(self));
 	free(self);
 }
 

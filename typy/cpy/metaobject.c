@@ -36,6 +36,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 		return NULL;
 	}
 	(void)PyObject_INIT(object, type->py_type);
+	Py_INCREF(type);
 	Typy_TYPE(object) = type;
 	if (args) {
 		register Py_ssize_t i;
@@ -215,6 +216,7 @@ void Typy_Clear(TypyObject* self) {
 void Typy_Dealloc(TypyObject* self) {
 	TypyComposite_FREE(self);
 	Typy_Clear(self);
+	Py_DECREF(Typy_TYPE(self));
 	free(self);
 }
 
@@ -641,16 +643,13 @@ PyObject* Py_FromJson(TypyMetaObject* type, PyObject* json) {
 
 // ===================================================================
 
-PyTypeObject* TypyObjectType = NULL;
-static bool TypyObjectTypeNotFree = true;
+static PyTypeObject _TypyObjectType;
+PyTypeObject* TypyObjectType = &_TypyObjectType;
 
 void TypyMeta_Dealloc(TypyMetaObject* type) {
 	if (type->py_type) {
 		if (type->py_type != TypyObjectType) {
 			free(type->py_type);
-		} else if (TypyObjectTypeNotFree) {
-			free(TypyObjectType);
-			TypyObjectTypeNotFree = false;
 		}
 		type->py_type = NULL;
 	}

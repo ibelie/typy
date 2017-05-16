@@ -153,8 +153,10 @@ PyMODINIT_FUNC INITFUNC(void) {
 	}
 
 	BaseTypyObjectType.ob_type = &PyType_Type;
-	TypyObjectType = _InheritTypyObjectType();
-	if (!TypyObjectType) { return INITFUNC_ERRORVAL; }
+	memcpy(TypyObjectType, &BaseTypyObjectType, sizeof(PyTypeObject));
+	if (PyType_Ready(TypyObjectType) < 0) {
+		return INITFUNC_ERRORVAL;
+	}
 
 #if PY_MAJOR_VERSION >= 3
 	return m;

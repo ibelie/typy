@@ -7,7 +7,9 @@
 #ifdef TYPY_PROPERTY_HANDLER
 
 bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldType type, size_t flag) {
-	if (child->owners_length) {
+	if (!child) {
+		return true;
+	} else if (child->owners_length) {
 		register size_t i;
 		for (i = 0; i < child->owners_length && child->owners_list[i].prop_owner != parent; i++);
 		if (i < child->owners_length) { return true; }

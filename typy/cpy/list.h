@@ -65,6 +65,7 @@ typedef struct {
 }
 
 #define TypyList_TYPE(ob)              (((TypyList*)(ob))->list_type)
+#define TypyList_FIELDTYPE(ob)         MetaList_FIELDTYPE(TypyList_TYPE(ob))
 #define TypyList_CLEAR(ob, f)          MetaList_CLEAR(TypyList_TYPE(ob), (f))
 #define TypyList_READ(ob, f, i, l)     MetaList_READ(TypyList_TYPE(ob), (f), (i), (l))
 #define TypyList_WRITE(ob, f, t, o)    MetaList_WRITE(TypyList_TYPE(ob), (f), (t), (o))
@@ -74,6 +75,7 @@ typedef struct {
 #define TypyList_SET(ob, l, r)         MetaList_SET(TypyList_TYPE(ob), (l), (r))
 #define TypyList_CHECKSET(ob, l, r, e) MetaList_CHECKSET(TypyList_TYPE(ob), (l), (r), (e))
 #define TypyList_Clear(ob)             MetaList_Clear(TypyList_TYPE(ob), (ob))
+#define TypyList_ADD_OWNER(c, p)       TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(p), (*((TypyField*)(c))), (p), FIELD_TYPE_LIST, 0);
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;

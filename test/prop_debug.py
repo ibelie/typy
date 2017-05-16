@@ -337,8 +337,6 @@ def setup():
 	globals()['fighter'] = fighter
 
 def test_prop():
-	import os
-
 	global Vector2, Fighter, Corpus, PyType, Empty
 	global _Vector2, _Fighter, _Empty
 	global vPy, vPy2, fighterPy, v, v2, fighter

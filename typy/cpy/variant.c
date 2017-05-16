@@ -21,6 +21,7 @@ static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 		return NULL;
 	}
 	(void)PyObject_INIT(variant, &TypyVariantType);
+	Py_INCREF(type);
 	Typy_TYPE(variant) = type;
 	variant->variant_index = -1;
 	return variant;
@@ -29,6 +30,7 @@ static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 static void TypyVariant_Dealloc(TypyVariant* self) {
 	TypyComposite_FREE(self);
 	TypyVariant_Clear(self);
+	Py_DECREF(Typy_TYPE(self));
 	free(self);
 }
 

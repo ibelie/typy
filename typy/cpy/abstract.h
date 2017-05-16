@@ -59,16 +59,16 @@ typedef struct _TypyComposite {
 bool TypyComposite_AddOwner(TypyComposite*, TypyComposite*, FieldType, size_t);
 void TypyComposite_DelOwner(TypyComposite*, TypyComposite*);
 
-#define TypyComposite_ADD_OWNER(child, parent, type, flag) \
-	(FIELD_TYPE_COMPOSITE(type) ? TypyComposite_AddOwner((TypyComposite*)(child), (TypyComposite*)(parent), (FieldType)(type), (size_t)(flag)) : true)
-#define TypyComposite_DEL_OWNER(child, parent) \
-	(FIELD_TYPE_COMPOSITE(type) ? TypyComposite_DelOwner((TypyComposite*)(child), (TypyComposite*)(parent)) : true)
+#define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) \
+	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_AddOwner((TypyComposite*)(c), (TypyComposite*)(p), (FieldType)(p_t), (size_t)(f)) : true)
+#define TypyComposite_DEL_OWNER(c_t, c, p) \
+	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)) : true)
 
 #else
 #	define TypyComposite_HEAD PyObject_HEAD
 #	define TypyComposite_FREE(ob)
-#	define TypyComposite_ADD_OWNER(child, parent, type, flag)
-#	define TypyComposite_DEL_OWNER(child, parent)
+#	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f)
+#	define TypyComposite_DEL_OWNER(c_t, c, p)
 #endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);
