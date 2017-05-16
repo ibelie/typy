@@ -11,28 +11,34 @@ extern "C" {
 #ifdef TYPY_PROPERTY_HANDLER
 
 bool Typy_READ(TypyObject* self, size_t index, byte** input, size_t* length) {
+	Typy_COPY_OLD(self, index);
 	Typy_DEL_OWNER(self, index);
 	register bool result = _Typy_READ(self, index, input, length);
 	if (result) {
 		result = Typy_ADD_OWNER(self, index);
+		Typy_NOTIFY(self, index);
 	}
 	return result;
 }
 
 bool Typy_CHECKSET(TypyObject* self, size_t index, PyObject* arg, const char* err) {
+	Typy_COPY_OLD(self, index);
 	Typy_DEL_OWNER(self, index);
 	register bool result = _Typy_CHECKSET(self, index, arg, err);
 	if (result) {
 		result = Typy_ADD_OWNER(self, index);
+		Typy_NOTIFY(self, index);
 	}
 	return result;
 }
 
 bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
+	Typy_COPY_OLD(self, index);
 	Typy_DEL_OWNER(self, index);
 	register bool result = _Typy_FROMJSON(self, index, json);
 	if (result) {
 		result = Typy_ADD_OWNER(self, index);
+		Typy_NOTIFY(self, index);
 	}
 	return result;
 }
@@ -206,8 +212,11 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		Py_DECREF(type); return NULL;
 	}
 
+#ifdef TYPY_PROPERTY_HANDLER
+	register PropertyFlag prop_flag = 0;
+#endif
+
 	register uint32 max_tag = 0;
-	register size_t prop_flag = 0;
 	for (i = 0; i < meta_size; i++) {
 		register PyObject* item = PySequence_GetItem(descriptors, i);
 		typy_type = NULL;

@@ -44,38 +44,48 @@ extern "C" {
 
 #define MetaValue_MERGEFROM(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                       \
+	register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(m), *_l);       \
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
 	abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));     \
 	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
+	TypyComposite_NOTIFY((ob), 0, MetaValue_FIELDTYPE(m), old, *_l);                \
 } while (0)
 
 #define MetaValue_CLEAR(m, ob, v) do { \
 	register TypyField* _v = (TypyField*)(v);                                       \
+	register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(m), *_v);       \
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_v, (ob));                     \
 	abstract_Clear[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _v);              \
+	TypyComposite_NOTIFY((ob), 0, MetaValue_FIELDTYPE(m), old, NULL);               \
 } while (0)
 
 #define MetaValue_SET(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                       \
+	register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(m), *_l);       \
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob));                     \
 	abstract_CopyFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));      \
 	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_DICT, 0); \
+	TypyComposite_NOTIFY((ob), 0, MetaValue_FIELDTYPE(m), old, *_l);                \
 } while (0)
 
 static inline bool MetaValue_CHECKSET(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* arg, const char* err) {
+	register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(type), *value);
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(type), *value, self);
 	register bool result = abstract_CheckAndSet[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, arg, err);
 	if (result) {
 		result = TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(type), *value, self, FIELD_TYPE_DICT, 0);
+		TypyComposite_NOTIFY(self, 0, MetaValue_FIELDTYPE(type), old, *value);
 	}
 	return result;
 }
 
 static inline bool MetaValue_FROMJSON(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* json) {
+	register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(type), *value);
 	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(type), *value, self);
 	register bool result = abstract_FromJson[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, json);
 	if (result) {
 		result = TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(type), *value, self, FIELD_TYPE_DICT, 0);
+		TypyComposite_NOTIFY(self, 0, MetaValue_FIELDTYPE(type), old, *value);
 	}
 	return result;
 }
@@ -334,8 +344,10 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	TypyDict_FromValueOrNew(self, dict, type, false);
 	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 	if (item) {
+		register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(type), item->value);
 		MetaValue_CLEAR(type, self, &item->value);
 		TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(type), value, self, FIELD_TYPE_DICT, 0);
+		TypyComposite_NOTIFY(self, 0, MetaValue_FIELDTYPE(type), old, value);
 		item->value = value;
 	} else {
 		MetaKey_CLEAR(type, &key);

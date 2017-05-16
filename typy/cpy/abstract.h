@@ -29,7 +29,12 @@ typedef uint8 FieldType;
 	typedef size_t TypyField;
 #endif
 
+#define TypyField_CopyFrom(t, f) (f); if ((t) >= MAX_PRIMITIVE_TYPE) { Py_XINCREF((PyObject*)f); }
+#define TypyField_Clear(t, f)         if ((t) >= MAX_PRIMITIVE_TYPE) { Py_XDECREF((PyObject*)f); }
+
 #ifdef TYPY_PROPERTY_HANDLER
+
+typedef size_t PropertyFlag;
 
 #define MIN_OWNER_CAPACITY 1
 
@@ -49,30 +54,38 @@ typedef uint8 FieldType;
 typedef struct _TypyPropertyOwner {
 	FieldType               owner_type;
 	struct _TypyComposite * prop_owner;
-	size_t                  prop_flag;
+	PropertyFlag            prop_flag;
 } *TypyPropertyOwner;
 
 typedef struct _TypyComposite {
 	TypyComposite_HEAD
 } TypyComposite;
 
-bool TypyComposite_AddOwner(TypyComposite*, TypyComposite*, FieldType, size_t);
-void TypyComposite_DelOwner(TypyComposite*, TypyComposite*);
+bool TypyComposite_AddOwner (TypyComposite*, TypyComposite*, FieldType, PropertyFlag);
+void TypyComposite_DelOwner (TypyComposite*, TypyComposite*);
+void TypyComposite_Notify   (TypyComposite*, PropertyFlag, FieldType, TypyField, TypyField);
 
 #define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) \
 	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_AddOwner((TypyComposite*)(c), \
-		(TypyComposite*)(p), (FieldType)(p_t), (size_t)(f)) : true)
+		(TypyComposite*)(p), (FieldType)(p_t), (PropertyFlag)(f)) : true)
 
 #define TypyComposite_DEL_OWNER(c_t, c, p) do { \
-	if (FIELD_TYPE_COMPOSITE(c_t)) {                                      \
-		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)); \
+	if (FIELD_TYPE_COMPOSITE(c_t)) {                                         \
+		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p));    \
 	} } while (0)
+
+#define TypyComposite_NOTIFY(c, f, t, o, n) do { \
+	TypyComposite_Notify((TypyComposite*)(c), (PropertyFlag)(f),             \
+		(FieldType)(t), (TypyField)(o), (TypyField)(n));                     \
+	TypyField_Clear((FieldType)(t), (TypyField)(o));                         \
+} while (0)
 
 #else
 #	define TypyComposite_HEAD PyObject_HEAD
 #	define TypyComposite_FREE(ob)
 #	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) true
 #	define TypyComposite_DEL_OWNER(c_t, c, p)
+#	define TypyComposite_NOTIFY(c, f, t, o, n)
 #endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);

@@ -6,7 +6,7 @@
 
 #ifdef TYPY_PROPERTY_HANDLER
 
-bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldType type, size_t flag) {
+bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldType type, PropertyFlag flag) {
 	if (!child) {
 		return true;
 	} else if (child->owners_length) {
@@ -45,6 +45,10 @@ void TypyComposite_DelOwner(TypyComposite* child, TypyComposite* parent) {
 			child->owners_length--;
 		}
 	}
+}
+
+void TypyComposite_Notify(TypyComposite* child, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
+
 }
 
 #endif

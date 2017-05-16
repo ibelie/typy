@@ -21,22 +21,32 @@ extern "C" {
 	TypyComposite_DEL_OWNER(Meta_FIELDTYPE(m, i), (s)->variant_value, (s))
 #define MetaVariant_ADD_OWNER(m, s, i) \
 	TypyComposite_ADD_OWNER(Meta_FIELDTYPE(m, i), (s)->variant_value, (s), FIELD_TYPE_VARIANT, Meta_PROPFLAG(m, i))
+#define MetaVariant_COPY_OLD(m, s, i) \
+	register TypyField old = TypyField_CopyFrom(Meta_FIELDTYPE(m, i), (s)->variant_value)
+#define MetaVariant_NOTIFY(m, s, i) \
+	TypyComposite_NOTIFY((s), Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), old, (s)->variant_value)
 
 #define MetaVariant_MERGEFROM(m, s, i, f) do { \
+	MetaVariant_COPY_OLD((m), (s), (i));                                                     \
 	MetaVariant_DEL_OWNER((m), (s), (i));                                                    \
 	abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)); \
 	MetaVariant_ADD_OWNER((m), (s), (i));                                                    \
+	MetaVariant_NOTIFY((m), (s), (i));                                                       \
 } while (0)
 
 #define MetaVariant_CLEAR(m, s, i) do { \
+	MetaVariant_COPY_OLD((m), (s), (i));                                                     \
 	MetaVariant_DEL_OWNER((m), (s), (i));                                                    \
 	abstract_Clear[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value);          \
+	MetaVariant_NOTIFY((m), (s), (i));                                                       \
 } while (0)
 
 #define MetaVariant_SET(m, s, i, f) do { \
+	MetaVariant_COPY_OLD((m), (s), (i));                                                     \
 	MetaVariant_DEL_OWNER((m), (s), (i));                                                    \
 	abstract_CopyFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f));  \
 	MetaVariant_ADD_OWNER((m), (s), (i));                                                    \
+	MetaVariant_NOTIFY((m), (s), (i));                                                       \
 } while (0)
 
 #define MetaVariant_Clear(m, ob) { \
@@ -47,28 +57,34 @@ extern "C" {
 }
 
 static inline bool MetaVariant_READ(TypyMetaObject* type, TypyVariant* self, size_t index, byte** input, size_t* length) {
+	MetaVariant_COPY_OLD(type, self, index);
 	MetaVariant_DEL_OWNER(type, self, index);
 	register bool result = abstract_Read[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, input, length);
 	if (result) {
 		result = MetaVariant_ADD_OWNER(type, self, index);
+		MetaVariant_NOTIFY(type, self, index);
 	}
 	return result;
 }
 
 static inline bool MetaVariant_CHECKSET(TypyMetaObject* type, TypyVariant* self, size_t index, PyObject* arg, const char* err) {
+	MetaVariant_COPY_OLD(type, self, index);
 	MetaVariant_DEL_OWNER(type, self, index);
 	register bool result = abstract_CheckAndSet[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, arg, err);
 	if (result) {
 		result = MetaVariant_ADD_OWNER(type, self, index);
+		MetaVariant_NOTIFY(type, self, index);
 	}
 	return result;
 }
 
 static inline bool MetaVariant_FROMJSON(TypyMetaObject* type, TypyVariant* self, size_t index, PyObject* json) {
+	MetaVariant_COPY_OLD(type, self, index);
 	MetaVariant_DEL_OWNER(type, self, index);
 	register bool result = abstract_FromJson[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, json);
 	if (result) {
 		result = MetaVariant_ADD_OWNER(type, self, index);
+		MetaVariant_NOTIFY(type, self, index);
 	}
 	return result;
 }
