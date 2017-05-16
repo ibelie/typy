@@ -17,25 +17,60 @@ extern "C" {
 #define MetaVariant_BYTESIZE(m, s, i, t) \
 	(abstract_ByteSize    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t)))
 
-#define MetaVariant_MERGEFROM(m, s, i, f) \
-	(abstract_MergeFrom   [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
-#define MetaVariant_CLEAR(m, s, i) \
-	(abstract_Clear       [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
-#define MetaVariant_SET(m, s, i, f) \
-	(abstract_CopyFrom    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)))
+#define MetaVariant_DEL_OWNER(m, s, i) \
+	TypyComposite_DEL_OWNER(Meta_FIELDTYPE(m, i), (s)->variant_value, (s))
+#define MetaVariant_ADD_OWNER(m, s, i) \
+	TypyComposite_ADD_OWNER(Meta_FIELDTYPE(m, i), (s)->variant_value, (s), FIELD_TYPE_VARIANT, Meta_PROPFLAG(m, i))
 
-#define MetaVariant_CHECKSET(m, s, i, v, e) \
-	(abstract_CheckAndSet [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (v), (e)))
-#define MetaVariant_READ(m, s, i, t, l) \
-	(abstract_Read        [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (l)))
-#define MetaVariant_FROMJSON(m, s, i, j) \
-	(abstract_FromJson    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (j)))
+#define MetaVariant_MERGEFROM(m, s, i, f) do { \
+	MetaVariant_DEL_OWNER((m), (s), (i));                                                    \
+	abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)); \
+	MetaVariant_ADD_OWNER((m), (s), (i));                                                    \
+} while (0)
+
+#define MetaVariant_CLEAR(m, s, i) do { \
+	MetaVariant_DEL_OWNER((m), (s), (i));                                                    \
+	abstract_Clear[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value);          \
+} while (0)
+
+#define MetaVariant_SET(m, s, i, f) do { \
+	MetaVariant_DEL_OWNER((m), (s), (i));                                                    \
+	abstract_CopyFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f));  \
+	MetaVariant_ADD_OWNER((m), (s), (i));                                                    \
+} while (0)
 
 #define MetaVariant_Clear(m, ob) { \
 	if ((ob)->variant_index >= 0 && (size_t)(ob)->variant_index < Meta_SIZE(m)) { \
 		MetaVariant_CLEAR((m), (ob), (ob)->variant_index);                        \
 		(ob)->variant_index = -1;                                                 \
 	}                                                                             \
+}
+
+static inline bool MetaVariant_READ(TypyMetaObject* type, TypyVariant* self, size_t index, byte** input, size_t* length) {
+	MetaVariant_DEL_OWNER(type, self, index);
+	register bool result = abstract_Read[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, input, length);
+	if (result) {
+		result = MetaVariant_ADD_OWNER(type, self, index);
+	}
+	return result;
+}
+
+static inline bool MetaVariant_CHECKSET(TypyMetaObject* type, TypyVariant* self, size_t index, PyObject* arg, const char* err) {
+	MetaVariant_DEL_OWNER(type, self, index);
+	register bool result = abstract_CheckAndSet[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, arg, err);
+	if (result) {
+		result = MetaVariant_ADD_OWNER(type, self, index);
+	}
+	return result;
+}
+
+static inline bool MetaVariant_FROMJSON(TypyMetaObject* type, TypyVariant* self, size_t index, PyObject* json) {
+	MetaVariant_DEL_OWNER(type, self, index);
+	register bool result = abstract_FromJson[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, json);
+	if (result) {
+		result = MetaVariant_ADD_OWNER(type, self, index);
+	}
+	return result;
 }
 
 //=============================================================================

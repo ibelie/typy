@@ -105,11 +105,13 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 	(abstract_FromJson    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (j)))
 
 #ifdef TYPY_PROPERTY_HANDLER
+#	define Meta_PROPFLAG(m, i)  (Meta_DESC(m, i).desc_PropFlag)
 #	define Typy_PROPFLAG(ob, i) (Typy_DESC(ob, i).desc_PropFlag)
 	bool   Typy_READ            (TypyObject*, size_t, byte**, size_t*);
 	bool   Typy_CHECKSET        (TypyObject*, size_t, PyObject*, const char*);
 	bool   Typy_FROMJSON        (TypyObject*, size_t, PyObject*);
 #else
+#	define Meta_PROPFLAG(m, i)  0
 #	define Typy_PROPFLAG(ob, i) 0
 #	define Typy_READ(ob, i, s, l)     _Typy_READ((ob), (i), (s), (l))
 #	define Typy_CHECKSET(ob, i, v, e) _Typy_CHECKSET((ob), (i), (v), (e))
