@@ -82,16 +82,15 @@ TypyMetaDict* Typy_RegisterDict(PyObject*, PyObject*);
 #define MetaDict_MERGEFROM(m, l, r) \
 	(abstract_MergeFrom [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (l), (r)))
 
-#define MetaDict_Clear(m, ob) { \
+#define TypyDict_Clear(ob) { \
 	register IblMap_Item iter;                                                                  \
 	for (iter = IblMap_Begin((ob)->dict_map); iter; iter = IblMap_Next((ob)->dict_map, iter)) { \
-		MetaValue_CLEAR((m), &((TypyDictMap)iter)->value);                                      \
+		MetaValue_CLEAR(TypyDict_TYPE(ob), &((TypyDictMap)iter)->value);                        \
 	}                                                                                           \
 	IblMap_Clear((ob)->dict_map);                                                               \
 }
 
 #define TypyDict_TYPE(ob)               (((TypyDict*)(ob))->dict_type)
-#define TypyDict_Clear(ob)              MetaDict_Clear(TypyDict_TYPE(ob), (ob))
 #define TypyKey_GET(ob, k)              MetaKey_GET(TypyDict_TYPE(ob), (k))
 #define TypyKey_CHECKSET(ob, l, r, e)   MetaKey_CHECKSET(TypyDict_TYPE(ob), (l), (r), (e))
 #define TypyValue_GET(ob, v)            MetaValue_GET(TypyDict_TYPE(ob), (v))

@@ -84,9 +84,9 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 	return type;
 }
 
-static inline bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject* key, PyObject* value) {
+static inline bool TypyDict_SetItem(TypyDict* self, PyObject* key, PyObject* value) {
 	TypyField k = 0;
-	if (!MetaKey_CHECKSET(type, &k, key, "Dict key type error: ")) {
+	if (!MetaKey_CHECKSET(TypyDict_TYPE(self), &k, key, "Dict key type error: ")) {
 		return false;
 	} else if (!value) {
 		register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
@@ -98,25 +98,25 @@ static inline bool MetaDict_SetItem(TypyMetaDict* type, TypyDict* self, PyObject
 	}
 	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
 	if (!entry) { return false; }
-	return MetaValue_CHECKSET(type, &entry->value, value, "Dict value type error: ");
+	return MetaValue_CHECKSET(TypyDict_TYPE(self), &entry->value, value, "Dict value type error: ");
 }
 
-static inline bool MetaDict_MergeDict(TypyMetaDict* type, TypyDict* self, PyObject* dict) {
+static inline bool TypyDict_MergeDict(TypyDict* self, PyObject* dict) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
 	while (PyDict_Next(dict, &pos, &k, &v)) {
-		if (!MetaDict_SetItem(type, self, k, v)) {
+		if (!TypyDict_SetItem(self, k, v)) {
 			return false;
 		}
 	}
 	return true;
 }
 
-static inline bool MetaDict_MergeIter(TypyMetaDict* type, TypyDict* self, PyObject* iter, Py_ssize_t size) {
+static inline bool TypyDict_MergeIter(TypyDict* self, PyObject* iter, Py_ssize_t size) {
 	register Py_ssize_t i;
 	for (i = 0; i < size; i++) {
 		register PyObject* item = PyIter_Next(iter);
-		if (!MetaDict_SetItem(type, self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
+		if (!TypyDict_SetItem(self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
 			return false;
 		}
 		Py_XDECREF(item);
@@ -187,12 +187,12 @@ bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, c
 		return true;
 	} else if (PyDict_Check(arg)) {
 		TypyDict_FromValueOrNew(self, value, type, false);
-		MetaDict_Clear(type, self);
-		return MetaDict_MergeDict(type, self, arg);
+		TypyDict_Clear(self);
+		return TypyDict_MergeDict(self, arg);
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL))) {
 		TypyDict_FromValueOrNew(self, value, type, false);
-		MetaDict_Clear(type, self);
-		register bool success = MetaDict_MergeIter(type, self, items, _PyObject_LengthHint(arg, 0));
+		TypyDict_Clear(self);
+		register bool success = TypyDict_MergeIter(self, items, _PyObject_LengthHint(arg, 0));
 		Py_DECREF(items);
 		return success;
 	} else {
@@ -389,7 +389,7 @@ PyTypeObject TypyMetaDictType = {
 //=============================================================================
 
 static int dict_AssSubscript(TypyDict* self, PyObject* key, PyObject* value) {
-	return MetaDict_SetItem(TypyDict_TYPE(self), self, key, value) ? 0 : -1;
+	return TypyDict_SetItem(self, key, value) ? 0 : -1;
 }
 
 static Py_ssize_t dict_Len(TypyDict* self) {
@@ -501,10 +501,10 @@ static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
 	if (!arg || arg == Py_None) {
 		Py_RETURN_NONE;
 	} else if (PyDict_Check(arg)) {
-		MetaDict_MergeDict(TypyDict_TYPE(self), self, arg);
+		TypyDict_MergeDict(self, arg);
 		Py_RETURN_NONE;
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL))) {
-		MetaDict_MergeIter(TypyDict_TYPE(self), self, items, _PyObject_LengthHint(arg, 0));
+		TypyDict_MergeIter(self, items, _PyObject_LengthHint(arg, 0));
 		Py_DECREF(items);
 		Py_RETURN_NONE;
 	} else {

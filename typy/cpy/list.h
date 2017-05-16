@@ -37,16 +37,6 @@ typedef struct {
 #define TypyList_TYPE(ob)       (((TypyList*)(ob))->list_type)
 #define TypyList_TYPYTYPE(ob)   MetaList_TYPYTYPE(TypyList_TYPE(ob))
 #define TypyList_FIELDTYPE(ob)  MetaList_FIELDTYPE(TypyList_TYPE(ob))
-#define TypyList_WIRETYPE(ob)   MetaList_WIRETYPE(TypyList_TYPE(ob))
-
-#define TypyList_GET(ob, f) \
-	(abstract_GetPyObject [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f)))
-#define TypyList_TOJSON(ob, f, s) \
-	(abstract_ToJson      [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f), (s)))
-#define TypyList_WRITE(ob, f, t, o) \
-	(abstract_Write       [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f), (t), (o)))
-#define TypyList_BYTESIZE(ob, f, t) \
-	(abstract_ByteSize    [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f), (t)))
 
 #define TypyList_CLEAR(ob, f) do { \
 	register TypyField* _f = (TypyField*)(f);                                          \
@@ -61,13 +51,6 @@ typedef struct {
 	TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob), FIELD_TYPE_LIST, 0);    \
 } while (0)
 
-#define TypyList_MERGEFROM(ob, l, r) do { \
-	register TypyField* _l = (TypyField*)(l);                                          \
-	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob));                        \
-	abstract_MergeFrom[TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), _l, (r));        \
-	TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob), FIELD_TYPE_LIST, 0);    \
-} while (0)
-
 #define TypyList_Clear(ob) { \
 	register size_t i;                              \
 	for (i = 0; i < (ob)->list_length; i++) {       \
@@ -75,10 +58,6 @@ typedef struct {
 	}                                               \
 	(ob)->list_length = 0;                          \
 }
-
-bool TypyList_READ     (TypyList*, TypyField*, byte**, size_t*);
-bool TypyList_CHECKSET (TypyList*, TypyField*, PyObject*, const char*);
-bool TypyList_FROMJSON (TypyList*, TypyField*, PyObject*);
 
 extern PyTypeObject TypyListType;
 extern PyTypeObject TypyMetaListType;

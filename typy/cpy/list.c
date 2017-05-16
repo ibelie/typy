@@ -8,6 +8,51 @@
 extern "C" {
 #endif
 
+#define TypyList_GET(ob, f) \
+	(abstract_GetPyObject [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f)))
+#define TypyList_TOJSON(ob, f, s) \
+	(abstract_ToJson      [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f), (s)))
+#define TypyList_WRITE(ob, f, t, o) \
+	(abstract_Write       [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f), (t), (o)))
+#define TypyList_BYTESIZE(ob, f, t) \
+	(abstract_ByteSize    [TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), (f), (t)))
+
+#define TypyList_MERGEFROM(ob, l, r) do { \
+	register TypyField* _l = (TypyField*)(l);                                          \
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob));                        \
+	abstract_MergeFrom[TypyList_FIELDTYPE(ob)](TypyList_TYPYTYPE(ob), _l, (r));        \
+	TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(ob), *_l, (ob), FIELD_TYPE_LIST, 0);    \
+} while (0)
+
+static inline bool TypyList_READ(TypyList* self, TypyField* item, byte** input, size_t* length) {
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
+	register bool result = abstract_Read[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, input, length);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
+	}
+	return result;
+}
+
+static inline bool TypyList_CHECKSET(TypyList* self, TypyField* item, PyObject* arg, const char* err) {
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
+	register bool result = abstract_CheckAndSet[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, arg, err);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
+	}
+	return result;
+}
+
+static inline bool TypyList_FROMJSON(TypyList* self, TypyField* item, PyObject* json) {
+	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
+	register bool result = abstract_FromJson[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, json);
+	if (result) {
+		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
+	}
+	return result;
+}
+
+//=============================================================================
+
 TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 	char *name;
 	Py_ssize_t nameLen;
@@ -318,34 +363,6 @@ bool TypyList_FromJson(TypyMetaList* type, TypyList** value, PyObject* json) {
 	Py_DECREF(it);
 	return true;
 }
-
-bool TypyList_READ(TypyList* self, TypyField* item, byte** input, size_t* length) {
-	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
-	register bool result = abstract_Read[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, input, length);
-	if (result) {
-		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
-	}
-	return result;
-}
-
-bool TypyList_CHECKSET(TypyList* self, TypyField* item, PyObject* arg, const char* err) {
-	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
-	register bool result = abstract_CheckAndSet[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, arg, err);
-	if (result) {
-		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
-	}
-	return result;
-}
-
-bool TypyList_FROMJSON(TypyList* self, TypyField* item, PyObject* json) {
-	TypyComposite_DEL_OWNER(TypyList_FIELDTYPE(self), *item, self);
-	register bool result = abstract_FromJson[TypyList_FIELDTYPE(self)](TypyList_TYPYTYPE(self), item, json);
-	if (result) {
-		result = TypyComposite_ADD_OWNER(TypyList_FIELDTYPE(self), *item, self, FIELD_TYPE_LIST, 0);
-	}
-	return result;
-}
-
 
 PyTypeObject TypyMetaListType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
