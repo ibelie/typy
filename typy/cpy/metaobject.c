@@ -39,6 +39,8 @@ bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
 
 #endif
 
+//=============================================================================
+
 IblMap_KEY_STRING(TypyFieldMap,
 	int index;
 );
@@ -205,6 +207,7 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	}
 
 	register uint32 max_tag = 0;
+	register size_t prop_flag = 0;
 	for (i = 0; i < meta_size; i++) {
 		register PyObject* item = PySequence_GetItem(descriptors, i);
 		typy_type = NULL;
@@ -219,6 +222,13 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		type->meta_descriptor[i].desc_WireType  = wire_type;
 		type->meta_descriptor[i].desc_FieldType = field_type;
 		type->meta_descriptor[i].desc_type      = Meta_FromInitializer;
+
+#ifdef TYPY_PROPERTY_HANDLER
+		type->meta_descriptor[i].desc_PropFlag = prop_flag;
+		if (field_type == FIELD_TYPE_OBJECT || field_type == FIELD_TYPE_VARIANT) {
+			prop_flag += ((TypyMetaObject*)(type->meta_descriptor[i].desc_type))->prop_flagmax;
+		}
+#endif
 		register TypyFieldMap field = (TypyFieldMap)IblMap_Set(type->meta_field2index, &name);
 		if (!field) {
 			PyErr_Format(PyExc_RuntimeError, "Register Meta cannot set field2index.");
@@ -231,6 +241,10 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		Py_XDECREF(item);
 	}
 	type->meta_cutoff = max_tag <= 0x7F ? 0x7F : (max_tag <= 0x3FFF ? 0x3FFF : max_tag);
+
+#ifdef TYPY_PROPERTY_HANDLER
+	type->prop_flagmax = prop_flag;
+#endif
 
 	return type;
 }
