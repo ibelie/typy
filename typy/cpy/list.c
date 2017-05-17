@@ -25,7 +25,7 @@ extern "C" {
 #define MetaList_ADD_OWNER(m, l, i) \
 	TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(m), (i), (l), FIELD_TYPE_LIST, 0)
 #define MetaList_COPY_OLD(m, i) \
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(m), (i))
+	TypyComposite_COPY_OLD(MetaList_FIELDTYPE(m), (i))
 #define MetaList_NOTIFY(m, l, i) \
 	TypyComposite_NOTIFY((l), FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(m), MetaList_TYPYTYPE(m), old, (i))
 

@@ -47,7 +47,7 @@ extern "C" {
 #define MetaValue_ADD_OWNER(m, d, i) \
 	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), (i), (d), FIELD_TYPE_DICT, 0)
 #define MetaValue_COPY_OLD(m, i) \
-	register TypyField old = TypyField_CopyFrom(MetaValue_FIELDTYPE(m), (i))
+	TypyComposite_COPY_OLD(MetaValue_FIELDTYPE(m), (i))
 #define MetaValue_NOTIFY(m, d, i) \
 	TypyComposite_NOTIFY((d), FIELD_TYPE_DICT, 0, MetaValue_FIELDTYPE(m), MetaValue_TYPYTYPE(m), old, (i))
 

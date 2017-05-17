@@ -22,7 +22,7 @@ extern "C" {
 #define MetaVariant_ADD_OWNER(m, s, i) \
 	TypyComposite_ADD_OWNER(Meta_FIELDTYPE(m, i), (s)->variant_value, (s), FIELD_TYPE_VARIANT, Meta_PROPFLAG(m, i))
 #define MetaVariant_COPY_OLD(m, s, i) \
-	register TypyField old = TypyField_CopyFrom(Meta_FIELDTYPE(m, i), (s)->variant_value)
+	TypyComposite_COPY_OLD(Meta_FIELDTYPE(m, i), (s)->variant_value)
 #define MetaVariant_NOTIFY(m, s, i) \
 	TypyComposite_NOTIFY((s), FIELD_TYPE_VARIANT, Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), Meta_TYPYTYPE(m, i), old, (s)->variant_value)
 

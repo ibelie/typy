@@ -132,7 +132,7 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #define Typy_ADD_OWNER(ob, i) \
 	TypyComposite_ADD_OWNER(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i), (ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i))
 #define Typy_COPY_OLD(ob, i) \
-	register TypyField old = TypyField_CopyFrom(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i))
+	TypyComposite_COPY_OLD(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i))
 #define Typy_NOTIFY(ob, i) \
 	TypyComposite_NOTIFY((ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), Typy_TYPYTYPE(ob, i), old, Typy_FIELD(ob, i))
 

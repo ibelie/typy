@@ -74,6 +74,8 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p));    \
 	} } while (0)
 
+#define TypyComposite_COPY_OLD(t, p) \
+	register TypyField old = TypyField_CopyFrom((t), (p))
 #define TypyComposite_NOTIFY(c, ct, f, ft, tt, o, n) do { \
 	if ((TypyField)(o) != (TypyField)(n)) {                                  \
 		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(ct),           \
@@ -88,6 +90,7 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 #	define TypyComposite_FREE(ob)
 #	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) true
 #	define TypyComposite_DEL_OWNER(c_t, c, p)
+#	define TypyComposite_COPY_OLD(t, p)
 #	define TypyComposite_NOTIFY(c, ct, f, ft, tt, o, n)
 #endif
 
