@@ -66,7 +66,7 @@ IblBitmap TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, Typy
 		type->handlers_list = buffer;
 	}
 	register TypyPropertyHandler handler = &type->handlers_list[type->handlers_length];
-	handler->handler_flag = IblBitmap_ALLOC(type->prop_flagmax);
+	handler->handler_flag = IblBitmap_New(type->prop_flagmax);
 	handler->handler_data = data;
 	handler->handler_func = func;
 	type->handlers_length++;
@@ -168,7 +168,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 			}
 		}
 	}
-	object->composite_active = true;
+	TypyComposite_INIT(object);
 	return object;
 }
 

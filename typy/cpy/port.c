@@ -157,6 +157,13 @@ file_truncate_error:
 	return false;
 }
 
+IblBitmap IblBitmap_New(size_t bit) {
+	size_t size = bit / IblBitmap_BITCOUNT + ((bit % IblBitmap_BITCOUNT) ? 1 : 0);
+	IblBitmap bitmap = (IblBitmap)calloc(size, sizeof(size_t));
+	IblBitmap_SET1(bitmap + size - 1, IblBitmap_BITCOUNT + 1);
+	return bitmap;
+}
+
 bool IblBitmap_Get(IblBitmap bitmap, size_t bit) {
 	IblBitmap ptr = bitmap;
 	for (; bit > IblBitmap_BITCOUNT && IblBitmap_HASNEXT(ptr); bit -= IblBitmap_BITCOUNT, ptr++);

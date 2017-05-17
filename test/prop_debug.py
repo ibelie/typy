@@ -352,7 +352,7 @@ def test_prop():
 
 	fighter.pos = v2
 	fighter.pos.x = 314
-	fighter.pos.y = 3.14
+	fighter.pos.y = 31.4
 	fighter.isAwake = False
 	fighter.fl = (456, 7.89, 0.123)
 	fighter.fl[1] = 654
@@ -364,24 +364,24 @@ def test_prop():
 	fighter.v2 = "fsda"
 	fighter.v3 = v2
 	fighter.v3.x = 3141
-	fighter.v3.y = 3.141
+	fighter.v3.y = 314.1
 	fighter.v4 = 123.345
 	fighter.poss = {321: v, 320: None}
 	fighter.poss[322] = v2
 	fighter.poss[322].x = 31415
-	fighter.poss[322].y = 3.1415
+	fighter.poss[322].y = 3141.5
 	fighter.v0 = 56789
 	fighter.hp += 12
 	fighter.poss[231] = None
 	fighter.poss[230] = v
 	fighter.poss[230].x = 314159
-	fighter.poss[230].y = 3.14159
+	fighter.poss[230].y = 31415.9
 	fighter.posi[123] = 0.456
 	fighter.posl.append(v)
 	fighter.posl.append(None)
 	fighter.posl.append(v2)
 	fighter.posl[-1].x = 3141592
-	fighter.posl[-3].y = 3.141592
+	fighter.posl[-3].y = 314159.2
 	fighter.bd[u"哈哈"] = "bbb 456"
 	fighter.bd["asdf"] = "aaa 0.123"
 	fighter.sd[321] = u"吼吼 2"
@@ -397,14 +397,14 @@ def test_prop():
 	fighter.vl.append(345.123)
 	fighter.vl.append(None)
 	fighter.vl[1].x = 31415926
-	fighter.vl[1].y = 3.1415926
+	fighter.vl[1].y = 3141592.6
 	fighter.vd[0] = Corpus.IMAGES
 	fighter.vd[12] = "adsf"
 	fighter.vd[23] = v2
 	fighter.vd[34] = 345.123
 	fighter.vd[45] = None
 	fighter.vd[23].x = 314159265
-	fighter.vd[23].y = 3.14159265
+	fighter.vd[23].y = 31415926.5
 	fighter.ld = {12: [Corpus.IMAGES, "adsf"], 34: [v2, 345.123]}
 	fighter.ld[34][1] = "asdf 111"
 	fighter.fld = {123: [222.111, 345.123]}
@@ -418,7 +418,7 @@ def test_prop():
 	fighter.dd = {12: {111: Corpus.IMAGES, 222: "adsf"}, 34: {333: v2, 444: 345.123}}
 	fighter.dd[12][111] = v2
 	fighter.dd[12][111].x = 3141592653
-	fighter.dd[12][111].y = 3.141592653
+	fighter.dd[12][111].y = 314159265.3
 	fighter.fdd = {123: {12: 222.111, 23: 345.123}}
 	fighter.fdd[123][23] = 123.456
 	fighter.nv = None

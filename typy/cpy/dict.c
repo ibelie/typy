@@ -258,7 +258,7 @@ static TypyDict* TypyDict_New(TypyMetaDict* type) {
 	(void)PyObject_INIT(dict, &TypyDictType);
 	Py_INCREF(type);
 	TypyDict_TYPE(dict) = type;
-	dict->composite_active = true;
+	TypyComposite_INIT(dict);
 	return dict;
 }
 

@@ -107,7 +107,7 @@ static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 	Py_INCREF(type);
 	Typy_TYPE(variant) = type;
 	variant->variant_index = -1;
-	variant->composite_active = true;
+	TypyComposite_INIT(variant);
 	return variant;
 }
 

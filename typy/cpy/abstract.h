@@ -45,6 +45,9 @@ typedef size_t PropertyFlag;
 	size_t            owners_length;    \
 	TypyPropertyOwner owners_list;
 
+#define TypyComposite_INIT(ob) \
+	((TypyComposite*)(ob))->composite_active = true;
+
 #define TypyComposite_FREE(ob) \
 	((TypyComposite*)(ob))->composite_active = false; \
 	((TypyComposite*)(ob))->owners_capacity  = 0;     \
@@ -89,6 +92,7 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 
 #else
 #	define TypyComposite_HEAD PyObject_HEAD
+#	define TypyComposite_INIT(ob)
 #	define TypyComposite_FREE(ob)
 #	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) true
 #	define TypyComposite_DEL_OWNER(c_t, c, p)
