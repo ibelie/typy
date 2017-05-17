@@ -151,8 +151,8 @@ IblAPI(bool)   IblFileTruncate      (FILE*, size_t);
 
 typedef size_t* IblBitmap;
 
-#define IblBitmap_DATAMASK   ((size_t)(-1))
-#define IblBitmap_HEADMASK   (~((size_t)(-1)))
+#define IblBitmap_DATAMASK   ((size_t)(-1) >> 1)
+#define IblBitmap_HEADMASK   (~((size_t)(-1) >> 1))
 #define IblBitmap_BITCOUNT   (sizeof(size_t) * 8 - 1)
 #define IblBitmap_HASNEXT(p) (~(IblBitmap_HEADMASK & (*((IblBitmap)(p)))))
 #define IblBitmap_GET(p, b)  (((1 << (b)) & (*((IblBitmap)(p)))) ? true : false)

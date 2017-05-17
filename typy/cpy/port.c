@@ -160,7 +160,7 @@ file_truncate_error:
 IblBitmap IblBitmap_New(size_t bit) {
 	size_t size = bit / IblBitmap_BITCOUNT + ((bit % IblBitmap_BITCOUNT) ? 1 : 0);
 	IblBitmap bitmap = (IblBitmap)calloc(size, sizeof(size_t));
-	IblBitmap_SET1(bitmap + size - 1, IblBitmap_BITCOUNT + 1);
+	bitmap[size - 1] = IblBitmap_HEADMASK;
 	return bitmap;
 }
 
