@@ -24,7 +24,7 @@ extern "C" {
 #define MetaVariant_COPY_OLD(m, s, i) \
 	register TypyField old = TypyField_CopyFrom(Meta_FIELDTYPE(m, i), (s)->variant_value)
 #define MetaVariant_NOTIFY(m, s, i) \
-	TypyComposite_NOTIFY((s), Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), old, (s)->variant_value)
+	TypyComposite_NOTIFY((s), FIELD_TYPE_VARIANT, Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), old, (s)->variant_value)
 
 #define MetaVariant_MERGEFROM(m, s, i, f) do { \
 	MetaVariant_COPY_OLD((m), (s), (i));                                                     \

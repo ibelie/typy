@@ -43,6 +43,14 @@ bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
 	return result;
 }
 
+void TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
+
+}
+
+void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
+
+}
+
 #endif
 
 //=============================================================================
@@ -213,7 +221,7 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	}
 
 #ifdef TYPY_PROPERTY_HANDLER
-	register PropertyFlag prop_flag = 0;
+	register PropertyFlag prop_flag = 1;
 #endif
 
 	register uint32 max_tag = 0;
@@ -236,6 +244,8 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 		type->meta_descriptor[i].desc_PropFlag = prop_flag;
 		if (field_type == FIELD_TYPE_OBJECT || field_type == FIELD_TYPE_VARIANT) {
 			prop_flag += ((TypyMetaObject*)(type->meta_descriptor[i].desc_type))->prop_flagmax;
+		} else {
+			prop_flag += 1;
 		}
 #endif
 		register TypyFieldMap field = (TypyFieldMap)IblMap_Set(type->meta_field2index, &name);

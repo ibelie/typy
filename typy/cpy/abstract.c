@@ -47,8 +47,8 @@ void TypyComposite_DelOwner(TypyComposite* child, TypyComposite* parent) {
 	}
 }
 
-void TypyComposite_Notify(TypyComposite* child, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
-
+void TypyComposite_Notify(TypyComposite* child, FieldType child_type, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
+	printf("TypyComposite_Notify %p, %u, %zu, %u, %llu, %llu\n", child, child_type, flag, type, old, new);
 }
 
 #endif

@@ -21,9 +21,12 @@ typedef struct {
 	TypyHandlerFunc handler_func;
 } *TypyPropertyHandler;
 
+void TypyProperty_Register(struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
+void TypyProperty_Changed(struct _TypyObject *, PropertyFlag, FieldType, TypyField, TypyField);
+
 #endif
 
-typedef struct {
+typedef struct _TypyMetaObject {
 	PyObject_HEAD
 #ifdef TYPY_PROPERTY_HANDLER
 	PropertyFlag        prop_flagmax;
@@ -125,7 +128,7 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #define Typy_COPY_OLD(ob, i) \
 	register TypyField old = TypyField_CopyFrom(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i))
 #define Typy_NOTIFY(ob, i) \
-	TypyComposite_NOTIFY((ob), Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), old, Typy_FIELD(ob, i))
+	TypyComposite_NOTIFY((ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), old, Typy_FIELD(ob, i))
 
 #define Typy_MERGEFROM(ob, i, f) do { \
 	Typy_COPY_OLD((ob), (i));                                                                 \
