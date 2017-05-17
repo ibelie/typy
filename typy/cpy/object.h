@@ -13,16 +13,19 @@ extern "C" {
 
 #ifdef TYPY_PROPERTY_HANDLER
 
+#define MIN_HANDLER_CAPACITY 10
+
 typedef void*  TypyHandlerData;
 typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyField, TypyField);
 
-typedef struct {
+typedef struct _TypyPropertyHandler {
 	TypyHandlerData handler_data;
 	TypyHandlerFunc handler_func;
 } *TypyPropertyHandler;
 
-void TypyProperty_Register(struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
-void TypyProperty_Changed(struct _TypyObject *, PropertyFlag, FieldType, TypyField, TypyField);
+bool TypyProperty_Register   (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
+void TypyProperty_Unregister (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
+void TypyProperty_Changed    (struct _TypyObject *, PropertyFlag, FieldType, TypyField, TypyField);
 
 #endif
 
@@ -30,6 +33,7 @@ typedef struct _TypyMetaObject {
 	PyObject_HEAD
 #ifdef TYPY_PROPERTY_HANDLER
 	PropertyFlag        prop_flagmax;
+	size_t              handlers_capacity;
 	size_t              handlers_length;
 	TypyPropertyHandler handlers_list;
 #endif

@@ -43,8 +43,44 @@ bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
 	return result;
 }
 
-void TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
+bool TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
+	if (type->handlers_length) {
+		register size_t i;
+		for (i = 0; i < type->handlers_length && (type->handlers_list[i].handler_data != data ||
+			type->handlers_list[i].handler_func != func); i++);
+		if (i < type->handlers_length) { return true; }
+	}
+	if (type->handlers_length + 1 > type->handlers_capacity) {
+		register size_t capacity = Ibl_Max(2 * type->handlers_capacity + 1, MIN_HANDLER_CAPACITY);
+		register TypyPropertyHandler buffer = (TypyPropertyHandler)calloc(capacity, sizeof(struct _TypyPropertyHandler));
+		if (!buffer) { return false; }
+		type->handlers_capacity = capacity;
+		if (type->handlers_list) {
+			memcpy(buffer, type->handlers_list, type->handlers_length * sizeof(struct _TypyPropertyHandler));
+			free(type->handlers_list);
+		}
+		type->handlers_list = buffer;
+	}
+	register TypyPropertyHandler handler = &type->handlers_list[type->handlers_length];
+	handler->handler_data = data;
+	handler->handler_func = func;
+	type->handlers_length++;
+	return true;
+}
 
+void TypyProperty_Unregister(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
+	if (type->handlers_length) {
+		register size_t i;
+		for (i = 0; i < type->handlers_length && (type->handlers_list[i].handler_data != data ||
+			type->handlers_list[i].handler_func != func); i++);
+		for (; i < type->handlers_length - 1; i++) {
+			memcpy(&type->handlers_list[i], &type->handlers_list[i + 1], sizeof(struct _TypyPropertyHandler));
+		}
+		if (i < type->handlers_length) {
+			memset(&type->handlers_list[i], 0, sizeof(struct _TypyPropertyHandler));
+			type->handlers_length--;
+		}
+	}
 }
 
 void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
@@ -266,9 +302,10 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	type->meta_cutoff = max_tag <= 0x7F ? 0x7F : (max_tag <= 0x3FFF ? 0x3FFF : max_tag);
 
 #ifdef TYPY_PROPERTY_HANDLER
-	type->prop_flagmax    = prop_flag;
-	type->handlers_list   = NULL;
-	type->handlers_length = 0;
+	type->prop_flagmax      = prop_flag;
+	type->handlers_list     = NULL;
+	type->handlers_length   = 0;
+	type->handlers_capacity = 0;
 #endif
 
 	return type;
