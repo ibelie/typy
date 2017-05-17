@@ -168,6 +168,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 			}
 		}
 	}
+	object->composite_active = true;
 	return object;
 }
 

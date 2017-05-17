@@ -38,17 +38,19 @@ typedef size_t PropertyFlag;
 
 #define MIN_OWNER_CAPACITY 1
 
-#define TypyComposite_HEAD             \
-	PyObject_HEAD                      \
-	size_t            owners_capacity; \
-	size_t            owners_length;   \
+#define TypyComposite_HEAD              \
+	PyObject_HEAD                       \
+	bool              composite_active; \
+	size_t            owners_capacity;  \
+	size_t            owners_length;    \
 	TypyPropertyOwner owners_list;
 
 #define TypyComposite_FREE(ob) \
-	((TypyComposite*)(ob))->owners_capacity = 0;   \
-	((TypyComposite*)(ob))->owners_length = 0;     \
-	if (((TypyComposite*)(ob))->owners_list) {     \
-		free(((TypyComposite*)(ob))->owners_list); \
+	((TypyComposite*)(ob))->composite_active = false; \
+	((TypyComposite*)(ob))->owners_capacity  = 0;     \
+	((TypyComposite*)(ob))->owners_length    = 0;     \
+	if (((TypyComposite*)(ob))->owners_list) {        \
+		free(((TypyComposite*)(ob))->owners_list);    \
 	}
 
 typedef struct _TypyPropertyOwner {
@@ -77,12 +79,12 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 #define TypyComposite_COPY_OLD(t, p) \
 	register TypyField old = TypyField_CopyFrom((t), (p))
 #define TypyComposite_NOTIFY(c, ct, f, ft, tt, o, n) do { \
-	if ((TypyField)(o) != (TypyField)(n)) {                                  \
-		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(ct),           \
-		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),                  \
-		(TypyField)(o), (TypyField)(n));                                     \
-	}                                                                        \
-	TypyField_Clear((FieldType)(ft), (TypyField)(o));                        \
+	if (((TypyComposite*)(c))->composite_active && (TypyField)(o) != (TypyField)(n)) { \
+		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(ct),                     \
+		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),                            \
+		(TypyField)(o), (TypyField)(n));                                               \
+	}                                                                                  \
+	TypyField_Clear((FieldType)(ft), (TypyField)(o));                                  \
 } while (0)
 
 #else

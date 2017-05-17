@@ -144,6 +144,7 @@ static TypyList* TypyList_New(TypyMetaList* type) {
 	(void)PyObject_INIT(list, &TypyListType);
 	Py_INCREF(type);
 	TypyList_TYPE(list) = type;
+	list->composite_active = true;
 	return list;
 }
 

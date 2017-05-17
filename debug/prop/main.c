@@ -27,7 +27,10 @@ static PyObject* RegisterCallback(PyObject* m, PyObject* arg) {
 static PyObject* RegisterHandler(PyObject* m, TypyMetaObject* type) {
 	register size_t i;
 	for (i = 0; i < type->meta_size; i++) {
-		Meta_HandleProperty(type, i, (TypyHandlerData)i, (TypyHandlerFunc)onPropertyChanged);
+		if (!Meta_HandleProperty(type, i, (TypyHandlerData)i, (TypyHandlerFunc)onPropertyChanged)) {
+			PyErr_Format(PyExc_RuntimeError, "Register %s handler for %s failed.", Meta_PropertyName(type, i), Meta_NAME(type));
+			return NULL;
+		}
 	}
 	Py_RETURN_NONE;
 }
