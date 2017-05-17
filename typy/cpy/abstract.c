@@ -62,7 +62,7 @@ void TypyComposite_Notify(TypyComposite* composite, FieldType type, PropertyFlag
 	case FIELD_TYPE_DICT:
 		for (i = 0; i < composite->owners_length; i++) {
 			register TypyPropertyOwner owner = &composite->owners_list[i];
-			TypyComposite_Notify(owner->prop_owner, owner->owner_type, 0, ft, tt, o, n);
+			TypyComposite_Notify(owner->prop_owner, owner->owner_type, owner->prop_flag, ft, tt, o, n);
 		}
 		break;
 	}
