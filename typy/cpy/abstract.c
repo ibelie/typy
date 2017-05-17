@@ -25,10 +25,10 @@ bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldTy
 		}
 		child->owners_list = buffer;
 	}
-	register TypyPropertyOwner item = &child->owners_list[child->owners_length];
-	item->owner_type = type;
-	item->prop_owner = parent;
-	item->prop_flag  = flag;
+	register TypyPropertyOwner owner = &child->owners_list[child->owners_length];
+	owner->owner_type = type;
+	owner->prop_owner = parent;
+	owner->prop_flag  = flag;
 	child->owners_length++;
 	return true;
 }
@@ -47,8 +47,25 @@ void TypyComposite_DelOwner(TypyComposite* child, TypyComposite* parent) {
 	}
 }
 
-void TypyComposite_Notify(TypyComposite* child, FieldType child_type, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
-	printf("TypyComposite_Notify %p, %u, %zu, %u, %llu, %llu\n", child, child_type, flag, type, old, new);
+void TypyComposite_Notify(TypyComposite* composite, FieldType type, PropertyFlag f, FieldType t, TypyField o, TypyField n) {
+	register size_t i;
+	switch (type) {
+	case FIELD_TYPE_OBJECT:
+		TypyProperty_Changed((TypyObject*)composite, f, t, o, n);
+	case FIELD_TYPE_VARIANT:
+		for (i = 0; i < composite->owners_length; i++) {
+			register TypyPropertyOwner owner = &composite->owners_list[i];
+			TypyComposite_Notify(owner->prop_owner, owner->owner_type, owner->prop_flag + f, t, o, n);
+		}
+		break;
+	case FIELD_TYPE_LIST:
+	case FIELD_TYPE_DICT:
+		for (i = 0; i < composite->owners_length; i++) {
+			register TypyPropertyOwner owner = &composite->owners_list[i];
+			TypyComposite_Notify(owner->prop_owner, owner->owner_type, 0, t, o, n);
+		}
+		break;
+	}
 }
 
 #endif

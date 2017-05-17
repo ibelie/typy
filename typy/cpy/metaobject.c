@@ -48,7 +48,11 @@ void TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandl
 }
 
 void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
-
+	register size_t i;
+	for (i = 0; i < Typy_TYPE(self)->handlers_length; i++) {
+		register TypyPropertyHandler handler = &Typy_TYPE(self)->handlers_list[i];
+		handler->handler_func(self, flag, handler->handler_data, type, old, new);
+	}
 }
 
 #endif
@@ -262,7 +266,9 @@ TypyMetaObject* _Typy_RegisterMeta(PyObject* args) {
 	type->meta_cutoff = max_tag <= 0x7F ? 0x7F : (max_tag <= 0x3FFF ? 0x3FFF : max_tag);
 
 #ifdef TYPY_PROPERTY_HANDLER
-	type->prop_flagmax = prop_flag;
+	type->prop_flagmax    = prop_flag;
+	type->handlers_list   = NULL;
+	type->handlers_length = 0;
 #endif
 
 	return type;
