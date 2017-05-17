@@ -341,4 +341,99 @@ def test_prop():
 	global _Vector2, _Fighter, _Empty
 	global vPy, vPy2, fighterPy, v, v2, fighter
 
-	print 'xxxxxxxxx'
+	def onPropertyChanged(cls, name, old, new):
+		print cls.__name__, name, old, new
+
+	print 'test_prop begin'
+	import _typyd
+	_typyd.RegisterCallback(onPropertyChanged)
+	_typyd.RegisterHandler(_Vector2)
+	_typyd.RegisterHandler(_Fighter)
+
+	fighter.pos = v2
+	fighter.pos.x = 314
+	fighter.pos.y = 3.14
+	fighter.isAwake = False
+	fighter.fl = (456, 7.89, 0.123)
+	fighter.fl[1] = 654
+	fighter.sl = [u"吼吼", u"嘿嘿", u"哈哈"]
+	fighter.sl[1] = u"哼哼"
+	fighter.bl = ["bbb 456", "ccc 7.89", "aaa 0.123"]
+	fighter.bl[1] = "ddd 7.89"
+	fighter.v1 = None
+	fighter.v2 = "fsda"
+	fighter.v3 = v2
+	fighter.v3.x = 3141
+	fighter.v3.y = 3.141
+	fighter.v4 = 123.345
+	fighter.poss = {321: v, 320: None}
+	fighter.poss[322] = v2
+	fighter.poss[322].x = 31415
+	fighter.poss[322].y = 3.1415
+	fighter.v0 = 56789
+	fighter.hp += 12
+	fighter.poss[231] = None
+	fighter.poss[230] = v
+	fighter.poss[230].x = 314159
+	fighter.poss[230].y = 3.14159
+	fighter.posi[123] = 0.456
+	fighter.posl.append(v)
+	fighter.posl.append(None)
+	fighter.posl.append(v2)
+	fighter.posl[-1].x = 3141592
+	fighter.posl[-3].y = 3.141592
+	fighter.bd[u"哈哈"] = "bbb 456"
+	fighter.bd["asdf"] = "aaa 0.123"
+	fighter.sd[321] = u"吼吼 2"
+	fighter.sd[231] = u"哈哈 3"
+	fighter.el.append(Corpus.LOCAL)
+	fighter.el.append(Corpus.NEWS)
+	fighter.el.append(Corpus.VIDEO)
+	fighter.ed = {789: Corpus.WEB, 567: Corpus.IMAGES}
+	fighter.ll = [[12.3, 1.23], [1.234, 12.34, 123.4]]
+	fighter.ll[1][1] = 0.1234
+	fighter.vl = [123, "adsf", None]
+	fighter.vl[1] = v
+	fighter.vl.append(345.123)
+	fighter.vl.append(None)
+	fighter.vl[1].x = 31415926
+	fighter.vl[1].y = 3.1415926
+	fighter.vd[0] = Corpus.IMAGES
+	fighter.vd[12] = "adsf"
+	fighter.vd[23] = v2
+	fighter.vd[34] = 345.123
+	fighter.vd[45] = None
+	fighter.vd[23].x = 314159265
+	fighter.vd[23].y = 3.14159265
+	fighter.ld = {12: [Corpus.IMAGES, "adsf"], 34: [v2, 345.123]}
+	fighter.ld[34][1] = "asdf 111"
+	fighter.fld = {123: [222.111, 345.123]}
+	fighter.fld[123].append(111.222)
+	fighter.pyl = [PyType(pp = 123, ap = 'asdf'), None, PyType(pp = 456, ap = 'xxxx')]
+	fighter.pyl[1] = PyType(pp = 789, ap = 'yyy')
+	fighter.pyd = {321: PyType(pp = 123, ap = 'asdf'), 654: PyType(pp = 456, ap = 'xxxx'), 320: None}
+	fighter.pyd[654] = None
+	fighter.pyv1 = 123
+	fighter.pyv2 = PyType(pp = 123, ap = 'asdf')
+	fighter.dd = {12: {111: Corpus.IMAGES, 222: "adsf"}, 34: {333: v2, 444: 345.123}}
+	fighter.dd[12][111] = v2
+	fighter.dd[12][111].x = 3141592653
+	fighter.dd[12][111].y = 3.141592653
+	fighter.fdd = {123: {12: 222.111, 23: 345.123}}
+	fighter.fdd[123][23] = 123.456
+	fighter.nv = None
+	fighter.nv = 123456
+	fighter.lv = [123, "adsf"]
+	fighter.lv.append(123.456)
+	fighter.lv[0] = "xxxx"
+	fighter.flv = [222.111, 345.123]
+	fighter.flv[1] = 123.456
+	fighter.dv = {333: 123, 444: "adsf"}
+	fighter.dv[555] = 123.456
+	del fighter.dv[333]
+	fighter.fdv = {333: 222.111, 444: 345.123}
+	fighter.fdv[333] = 111.222
+
+	_typyd.UnregisterHandler(_Vector2)
+	_typyd.UnregisterHandler(_Fighter)
+	print 'test_prop end'

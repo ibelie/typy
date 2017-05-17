@@ -20,30 +20,39 @@ extern "C" {
 #define MetaList_BYTESIZE(m, f, t) \
 	(abstract_ByteSize    [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (t)))
 
+#define MetaList_DEL_OWNER(m, l, i) \
+	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(m), (i), (l))
+#define MetaList_ADD_OWNER(m, l, i) \
+	TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(m), (i), (l), FIELD_TYPE_LIST, 0)
+#define MetaList_COPY_OLD(m, i) \
+	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(m), (i))
+#define MetaList_NOTIFY(m, l, i) \
+	TypyComposite_NOTIFY((l), FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(m), MetaList_TYPYTYPE(m), old, (i))
+
 #define MetaList_MERGEFROM(m, ob, l, r) do { \
-	register TypyField* _l = (TypyField*)(l);                                         \
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(m), *_l);          \
-	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(m), *_l, (ob));                        \
-	abstract_MergeFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _l, (r));         \
-	TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_LIST, 0);    \
-	TypyComposite_NOTIFY((ob), FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(m), old, *_l);  \
+	register TypyField* _l = (TypyField*)(l);                                 \
+	MetaList_COPY_OLD((m), *_l);                                              \
+	MetaList_DEL_OWNER((m), (ob), *_l);                                       \
+	abstract_MergeFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _l, (r)); \
+	MetaList_ADD_OWNER((m), (ob), *_l);                                       \
+	MetaList_NOTIFY((m), (ob), *_l);                                          \
 } while (0)
 
 #define MetaList_CLEAR(m, ob, f) do { \
-	register TypyField* _f = (TypyField*)(f);                                         \
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(m), *_f);          \
-	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(m), *_f, (ob));                        \
-	abstract_Clear[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _f);                  \
-	TypyComposite_NOTIFY((ob), FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(m), old, NULL); \
+	register TypyField* _f = (TypyField*)(f);                                 \
+	MetaList_COPY_OLD((m), *_f);                                              \
+	MetaList_DEL_OWNER((m), (ob), *_f);                                       \
+	abstract_Clear[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _f);          \
+	MetaList_NOTIFY((m), (ob), NULL);                                         \
 } while (0)
 
 #define MetaList_SET(m, ob, l, r) do { \
-	register TypyField* _l = (TypyField*)(l);                                         \
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(m), *_l);          \
-	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(m), *_l, (ob));                        \
-	abstract_CopyFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _l, (r));          \
-	TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(m), *_l, (ob), FIELD_TYPE_LIST, 0);    \
-	TypyComposite_NOTIFY((ob), FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(m), old, *_l);  \
+	register TypyField* _l = (TypyField*)(l);                                 \
+	MetaList_COPY_OLD((m), *_l);                                              \
+	MetaList_DEL_OWNER((m), (ob), *_l);                                       \
+	abstract_CopyFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _l, (r));  \
+	MetaList_ADD_OWNER((m), (ob), *_l);                                       \
+	MetaList_NOTIFY((m), (ob), *_l);                                          \
 } while (0)
 
 #define MetaList_Clear(m, ob) { \
@@ -55,34 +64,34 @@ extern "C" {
 }
 
 static inline bool MetaList_READ(TypyMetaList* type, TypyList* self, TypyField* item, byte** input, size_t* length) {
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(type), *item);
-	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(type), *item, self);
+	MetaList_COPY_OLD(type, *item);
+	MetaList_DEL_OWNER(type, self, *item);
 	register bool result = abstract_Read[MetaList_FIELDTYPE(type)](MetaList_TYPYTYPE(type), item, input, length);
 	if (result) {
-		result = TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(type), *item, self, FIELD_TYPE_LIST, 0);
-		TypyComposite_NOTIFY(self, FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(type), old, *item);
+		result = MetaList_ADD_OWNER(type, self, *item);
+		MetaList_NOTIFY(type, self, *item);
 	}
 	return result;
 }
 
 static inline bool MetaList_CHECKSET(TypyMetaList* type, TypyList* self, TypyField* item, PyObject* arg, const char* err) {
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(type), *item);
-	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(type), *item, self);
+	MetaList_COPY_OLD(type, *item);
+	MetaList_DEL_OWNER(type, self, *item);
 	register bool result = abstract_CheckAndSet[MetaList_FIELDTYPE(type)](MetaList_TYPYTYPE(type), item, arg, err);
 	if (result) {
-		result = TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(type), *item, self, FIELD_TYPE_LIST, 0);
-		TypyComposite_NOTIFY(self, FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(type), old, *item);
+		result = MetaList_ADD_OWNER(type, self, *item);
+		MetaList_NOTIFY(type, self, *item);
 	}
 	return result;
 }
 
 static inline bool MetaList_FROMJSON(TypyMetaList* type, TypyList* self, TypyField* item, PyObject* json) {
-	register TypyField old = TypyField_CopyFrom(MetaList_FIELDTYPE(type), *item);
-	TypyComposite_DEL_OWNER(MetaList_FIELDTYPE(type), *item, self);
+	MetaList_COPY_OLD(type, *item);
+	MetaList_DEL_OWNER(type, self, *item);
 	register bool result = abstract_FromJson[MetaList_FIELDTYPE(type)](MetaList_TYPYTYPE(type), item, json);
 	if (result) {
-		result = TypyComposite_ADD_OWNER(MetaList_FIELDTYPE(type), *item, self, FIELD_TYPE_LIST, 0);
-		TypyComposite_NOTIFY(self, FIELD_TYPE_LIST, 0, MetaList_FIELDTYPE(type), old, *item);
+		result = MetaList_ADD_OWNER(type, self, *item);
+		MetaList_NOTIFY(type, self, *item);
 	}
 	return result;
 }

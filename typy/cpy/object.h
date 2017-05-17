@@ -16,16 +16,18 @@ extern "C" {
 #define MIN_HANDLER_CAPACITY 10
 
 typedef void*  TypyHandlerData;
-typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyField, TypyField);
+typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyType, TypyField, TypyField);
 
 typedef struct _TypyPropertyHandler {
+	IblBitmap       handler_flag;
 	TypyHandlerData handler_data;
 	TypyHandlerFunc handler_func;
 } *TypyPropertyHandler;
 
-bool TypyProperty_Register   (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
-void TypyProperty_Unregister (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
-void TypyProperty_Changed    (struct _TypyObject *, PropertyFlag, FieldType, TypyField, TypyField);
+IblBitmap TypyProperty_Register   (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
+void      TypyProperty_Unregister (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
+void      TypyProperty_Changed    (struct _TypyObject *, PropertyFlag, FieldType, TypyType, TypyField, TypyField);
+bool      Meta_HandleProperty     (struct _TypyMetaObject *, size_t, TypyHandlerData, TypyHandlerFunc);
 
 #endif
 
@@ -132,7 +134,7 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #define Typy_COPY_OLD(ob, i) \
 	register TypyField old = TypyField_CopyFrom(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i))
 #define Typy_NOTIFY(ob, i) \
-	TypyComposite_NOTIFY((ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), old, Typy_FIELD(ob, i))
+	TypyComposite_NOTIFY((ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), Typy_TYPYTYPE(ob, i), old, Typy_FIELD(ob, i))
 
 #define Typy_MERGEFROM(ob, i, f) do { \
 	Typy_COPY_OLD((ob), (i));                                                                 \

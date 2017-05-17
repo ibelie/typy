@@ -43,17 +43,21 @@ bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
 	return result;
 }
 
-bool TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
+IblBitmap TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
 	if (type->handlers_length) {
 		register size_t i;
 		for (i = 0; i < type->handlers_length && (type->handlers_list[i].handler_data != data ||
 			type->handlers_list[i].handler_func != func); i++);
-		if (i < type->handlers_length) { return true; }
+		if (i < type->handlers_length) {
+			return type->handlers_list[i].handler_flag;
+		}
 	}
 	if (type->handlers_length + 1 > type->handlers_capacity) {
 		register size_t capacity = Ibl_Max(2 * type->handlers_capacity + 1, MIN_HANDLER_CAPACITY);
 		register TypyPropertyHandler buffer = (TypyPropertyHandler)calloc(capacity, sizeof(struct _TypyPropertyHandler));
-		if (!buffer) { return false; }
+		if (!buffer) {
+			return NULL;
+		}
 		type->handlers_capacity = capacity;
 		if (type->handlers_list) {
 			memcpy(buffer, type->handlers_list, type->handlers_length * sizeof(struct _TypyPropertyHandler));
@@ -62,10 +66,11 @@ bool TypyProperty_Register(TypyMetaObject* type, TypyHandlerData data, TypyHandl
 		type->handlers_list = buffer;
 	}
 	register TypyPropertyHandler handler = &type->handlers_list[type->handlers_length];
+	handler->handler_flag = IblBitmap_ALLOC(type->prop_flagmax);
 	handler->handler_data = data;
 	handler->handler_func = func;
 	type->handlers_length++;
-	return true;
+	return handler->handler_flag;
 }
 
 void TypyProperty_Unregister(TypyMetaObject* type, TypyHandlerData data, TypyHandlerFunc func) {
@@ -73,6 +78,9 @@ void TypyProperty_Unregister(TypyMetaObject* type, TypyHandlerData data, TypyHan
 		register size_t i;
 		for (i = 0; i < type->handlers_length && (type->handlers_list[i].handler_data != data ||
 			type->handlers_list[i].handler_func != func); i++);
+		if (i < type->handlers_length) {
+			free(type->handlers_list[i].handler_flag);
+		}
 		for (; i < type->handlers_length - 1; i++) {
 			memcpy(&type->handlers_list[i], &type->handlers_list[i + 1], sizeof(struct _TypyPropertyHandler));
 		}
@@ -83,12 +91,30 @@ void TypyProperty_Unregister(TypyMetaObject* type, TypyHandlerData data, TypyHan
 	}
 }
 
-void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType type, TypyField old, TypyField new) {
+void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType field_type, TypyType typy_type, TypyField old, TypyField new) {
 	register size_t i;
 	for (i = 0; i < Typy_TYPE(self)->handlers_length; i++) {
 		register TypyPropertyHandler handler = &Typy_TYPE(self)->handlers_list[i];
-		handler->handler_func(self, flag, handler->handler_data, type, old, new);
+		if (!IblBitmap_Get(handler->handler_flag, flag)) { continue; }
+		handler->handler_func(self, flag, handler->handler_data, field_type, typy_type, old, new);
 	}
+}
+
+bool Meta_HandleProperty(TypyMetaObject* type, size_t index, TypyHandlerData data, TypyHandlerFunc func) {
+	register IblBitmap flag = TypyProperty_Register(type, data, func);
+	if (!flag) { return false; }
+	register size_t i = Meta_PROPFLAG(type, index);
+	register size_t end = type->prop_flagmax - 1;
+	if (index + 1 < type->meta_size) {
+		end = Meta_PROPFLAG(type, index + 1);
+	}
+	for (; i < end; i++) {
+		if (!IblBitmap_Set(flag, i, true)) {
+			TypyProperty_Unregister(type, data, func);
+			return false;
+		}
+	}
+	return true;
 }
 
 #endif
@@ -758,7 +784,6 @@ void TypyMeta_Dealloc(TypyMetaObject* type) {
 		if (type->py_type != TypyObjectType) {
 			free(type->py_type);
 		}
-		type->py_type = NULL;
 	}
 	if (type->meta_index2field) {
 		free(type->meta_index2field);
@@ -766,6 +791,19 @@ void TypyMeta_Dealloc(TypyMetaObject* type) {
 	if (type->meta_field2index) {
 		IblMap_Free(type->meta_field2index);
 	}
+
+#ifdef TYPY_PROPERTY_HANDLER
+	if (type->handlers_length) {
+		register size_t i;
+		for (i = 0; i < type->handlers_length; i++) {
+			free(type->handlers_list[i].handler_flag);
+		}
+	}
+	if (type->handlers_list) {
+		free(type->handlers_list);
+	}
+#endif
+
 	free(type);
 }
 
