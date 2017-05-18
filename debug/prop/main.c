@@ -9,10 +9,10 @@ extern void init_typyd(void);
 
 static PyObject* callback;
 
-static void onPropertyChanged(TypyObject* object, size_t flag, size_t i, FieldType ft_o, TypyType tt_o, TypyField old, FieldType ft_n, TypyType tt_n, TypyField new) {
+static void onPropertyChanged(TypyObject* object, size_t flag, size_t i, FieldType field_type, TypyType typy_type, TypyField old, TypyField new) {
 	if (callback) {
-		register PyObject* old_object = abstract_GetPyObject[ft_o](tt_o, &old);
-		register PyObject* new_object = abstract_GetPyObject[ft_n](tt_n, &new);
+		register PyObject* old_object = abstract_GetPyObject[field_type](typy_type, &old);
+		register PyObject* new_object = abstract_GetPyObject[field_type](typy_type, &new);
 		PyObject_CallFunction(callback, "OsOO", Typy_TYPE(object), Typy_PropertyName(object, i), old_object, new_object);
 		Py_XDECREF(old_object);
 		Py_XDECREF(new_object);

@@ -79,12 +79,12 @@ void TypyProperty_Unregister(TypyMetaObject* type, TypyHandlerData data, TypyHan
 	}
 }
 
-void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType ft_o, TypyType tt_o, TypyField old, FieldType ft_n, TypyType tt_n, TypyField new) {
+void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType field_type, TypyType typy_type, TypyField old, TypyField new) {
 	register size_t i;
 	for (i = 0; i < Typy_TYPE(self)->handlers_length; i++) {
 		register TypyPropertyHandler handler = &Typy_TYPE(self)->handlers_list[i];
 		if (!IblBitmap_Get(handler->handler_flag, flag)) { continue; }
-		handler->handler_func(self, flag, handler->handler_data, ft_o, tt_o, old, ft_n, tt_n, new);
+		handler->handler_func(self, flag, handler->handler_data, field_type, typy_type, old, new);
 	}
 }
 

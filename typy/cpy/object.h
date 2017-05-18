@@ -19,7 +19,7 @@ struct _TypyObject;
 struct _TypyMetaObject;
 
 typedef void*  TypyHandlerData;
-typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyType, TypyField, FieldType, TypyType, TypyField);
+typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyType, TypyField, TypyField);
 
 typedef struct _TypyPropertyHandler {
 	IblBitmap       handler_flag;
@@ -29,7 +29,7 @@ typedef struct _TypyPropertyHandler {
 
 IblBitmap TypyProperty_Register   (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
 void      TypyProperty_Unregister (struct _TypyMetaObject *, TypyHandlerData, TypyHandlerFunc);
-void      TypyProperty_Changed    (struct _TypyObject *, PropertyFlag, FieldType, TypyType, TypyField, FieldType, TypyType, TypyField);
+void      TypyProperty_Changed    (struct _TypyObject *, PropertyFlag, FieldType, TypyType, TypyField, TypyField);
 bool      Meta_HandleProperty     (struct _TypyMetaObject *, size_t, TypyHandlerData, TypyHandlerFunc);
 
 #endif
