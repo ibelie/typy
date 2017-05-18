@@ -71,21 +71,22 @@ void TypyComposite_DelOwner (TypyComposite*, TypyComposite*);
 void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType, TypyType, TypyField, TypyField);
 
 #define TypyComposite_RECORD(t, c, p) \
-	register TypyField old = TypyField_CopyFrom((t), (c))                              \
-	if (FIELD_TYPE_COMPOSITE(t) && (c)) {                                              \
-		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p));              \
+	register TypyField old = TypyField_CopyFrom((t), (c))                 \
+	if (FIELD_TYPE_COMPOSITE(t) && (c)) {                                 \
+		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)); \
 	}
 #define TypyComposite_NOTIFY(t, c, f, ft, tt, o, n) do { \
-	if (FIELD_TYPE_COMPOSITE(ft) && (n)) {                                             \
-		TypyComposite_AddOwner((TypyComposite*)(n), (TypyComposite*)(c),               \
-			(FieldType)(t), (PropertyFlag)(f));                                        \
-	}                                                                                  \
-	if (((TypyComposite*)(c))->composite_active && (TypyField)(o) != (TypyField)(n)) { \
-		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(t),                      \
-		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),                            \
-		(TypyField)(o), (TypyField)(n));                                               \
-	}                                                                                  \
-	TypyField_Clear((FieldType)(ft), (TypyField)(o));                                  \
+	if (FIELD_TYPE_COMPOSITE(ft) && (n)) {                                \
+		TypyComposite_AddOwner((TypyComposite*)(n), (TypyComposite*)(c),  \
+			(FieldType)(t), (PropertyFlag)(f));                           \
+	}                                                                     \
+	if (((TypyComposite*)(c))->composite_active &&                        \
+		(FIELD_TYPE_COMPOSITE(ft) || (TypyField)(o) != (TypyField)(n))) { \
+		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(t),         \
+		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),               \
+		(TypyField)(o), (TypyField)(n));                                  \
+	}                                                                     \
+	TypyField_Clear((FieldType)(ft), (TypyField)(o));                     \
 } while (0)
 
 #else
