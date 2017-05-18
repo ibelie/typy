@@ -20,24 +20,25 @@ extern "C" {
 #define MetaVariant_RECORD(m, s, i) \
 	TypyComposite_RECORD(Meta_FIELDTYPE(m, i), (s)->variant_value, (s))
 #define MetaVariant_NOTIFY(m, s, i) \
-	TypyComposite_NOTIFY(FIELD_TYPE_VARIANT, (s), Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), Meta_TYPYTYPE(m, i), old, (s)->variant_value)
+	TypyComposite_NOTIFY(FIELD_TYPE_VARIANT, (s), Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), Meta_TYPYTYPE(m, i), (s)->variant_value)
 
 #define MetaVariant_MERGEFROM(m, s, i, f) do { \
-	MetaVariant_RECORD((m), (s), (i));                                                       \
-	abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f)); \
-	MetaVariant_NOTIFY((m), (s), (i));                                                       \
+	MetaVariant_RECORD((m), (s), (i));                             \
+	abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i),  \
+		&(s)->variant_value, (f));                                 \
+	MetaVariant_NOTIFY((m), (s), (i));                             \
 } while (0)
 
 #define MetaVariant_CLEAR(m, s, i) do { \
-	MetaVariant_RECORD((m), (s), (i));                                                       \
-	abstract_Clear[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value);          \
-	MetaVariant_NOTIFY((m), (s), (i));                                                       \
+	MetaVariant_RECORD((m), (s), (i));                             \
+	TypyField_Clr(Meta_FIELDTYPE(m, i), (s)->variant_value);       \
+	MetaVariant_NOTIFY((m), (s), (i));                             \
 } while (0)
 
 #define MetaVariant_SET(m, s, i, f) do { \
-	MetaVariant_RECORD((m), (s), (i));                                                       \
-	abstract_CopyFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (f));  \
-	MetaVariant_NOTIFY((m), (s), (i));                                                       \
+	MetaVariant_RECORD((m), (s), (i));                             \
+	(s)->variant_value = TypyField_Set(Meta_FIELDTYPE(m, i), (f)); \
+	MetaVariant_NOTIFY((m), (s), (i));                             \
 } while (0)
 
 #define MetaVariant_Clear(m, ob) { \

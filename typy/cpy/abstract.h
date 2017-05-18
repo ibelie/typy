@@ -29,8 +29,8 @@ typedef uint8 FieldType;
 	typedef size_t TypyField;
 #endif
 
-#define TypyField_CopyFrom(t, f) (f); if ((t) >= MAX_PRIMITIVE_TYPE) { Py_XINCREF((PyObject*)f); }
-#define TypyField_Clear(t, f)         if ((t) >= MAX_PRIMITIVE_TYPE) { Py_XDECREF((PyObject*)f); }
+#define TypyField_Set(t, f) (TypyField)(f); if ((FieldType)(t) >= MAX_PRIMITIVE_TYPE) { Py_XINCREF((PyObject*)f); }
+#define TypyField_Clr(t, f) if ((FieldType)(t) >= MAX_PRIMITIVE_TYPE) { Py_XDECREF((PyObject*)f); } f = (TypyField)0
 
 #ifdef TYPY_PROPERTY_HANDLER
 
@@ -71,22 +71,22 @@ void TypyComposite_DelOwner (TypyComposite*, TypyComposite*);
 void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType, TypyType, TypyField, TypyField);
 
 #define TypyComposite_RECORD(t, c, p) \
-	register TypyField old = TypyField_CopyFrom((t), (c))                 \
+	register TypyField old = TypyField_Set((t), (c))                      \
 	if (FIELD_TYPE_COMPOSITE(t) && (c)) {                                 \
 		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)); \
 	}
-#define TypyComposite_NOTIFY(t, c, f, ft, tt, o, n) do { \
+#define TypyComposite_NOTIFY(t, c, f, ft, tt, n) do { \
 	if (FIELD_TYPE_COMPOSITE(ft) && (n)) {                                \
 		TypyComposite_AddOwner((TypyComposite*)(n), (TypyComposite*)(c),  \
 			(FieldType)(t), (PropertyFlag)(f));                           \
 	}                                                                     \
 	if (((TypyComposite*)(c))->composite_active &&                        \
-		(FIELD_TYPE_COMPOSITE(ft) || (TypyField)(o) != (TypyField)(n))) { \
+		(FIELD_TYPE_COMPOSITE(ft) || old != (TypyField)(n))) {            \
 		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(t),         \
 		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),               \
-		(TypyField)(o), (TypyField)(n));                                  \
+		old, (TypyField)(n));                                             \
 	}                                                                     \
-	TypyField_Clear((FieldType)(ft), (TypyField)(o));                     \
+	TypyField_Clr((ft), old);                                             \
 } while (0)
 
 #else
@@ -94,7 +94,7 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 #	define TypyComposite_INIT(ob)
 #	define TypyComposite_FREE(ob)
 #	define TypyComposite_RECORD(t, c, p)
-#	define TypyComposite_NOTIFY(t, c, f, ft, tt, o, n)
+#	define TypyComposite_NOTIFY(t, c, f, ft, tt, n)
 #endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);
@@ -102,9 +102,7 @@ typedef PyObject* (*ToJson)      (TypyType, TypyField*, bool);
 typedef bool      (*FromJson)    (TypyType, TypyField*, PyObject*);
 typedef bool      (*FromJsonKey) (TypyType, TypyField*, PyObject*);
 typedef bool      (*CheckAndSet) (TypyType, TypyField*, PyObject*, const char*);
-typedef void      (*CopyFrom)    (TypyType, TypyField*, TypyField);
 typedef void      (*MergeFrom)   (TypyType, TypyField*, TypyField);
-typedef void      (*Clear)       (TypyType, TypyField*);
 typedef bool      (*Read)        (TypyType, TypyField*, byte**, size_t*);
 typedef size_t    (*Write)       (TypyType, TypyField*, int, byte*);
 typedef size_t    (*ByteSize)    (TypyType, TypyField*, int);
@@ -128,9 +126,7 @@ typedef struct {
 
 extern GetPyObject    abstract_GetPyObject [MAX_FIELD_TYPE];
 extern CheckAndSet    abstract_CheckAndSet [MAX_FIELD_TYPE];
-extern CopyFrom       abstract_CopyFrom    [MAX_FIELD_TYPE];
 extern MergeFrom      abstract_MergeFrom   [MAX_FIELD_TYPE];
-extern Clear          abstract_Clear       [MAX_FIELD_TYPE];
 extern Read           abstract_Read        [MAX_FIELD_TYPE];
 extern Write          abstract_Write       [MAX_FIELD_TYPE];
 extern ByteSize       abstract_ByteSize    [MAX_FIELD_TYPE];

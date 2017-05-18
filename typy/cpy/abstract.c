@@ -305,38 +305,6 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 
 //=============================================================================
 
-static void TypyNumeric_CopyFrom(TypyType type, TypyField* lvalue, TypyField rvalue) {
-	*lvalue = rvalue;
-}
-
-static void TypyPyObject_CopyFrom(TypyType type, PyObject** lvalue, PyObject* rvalue) {
-	if (*lvalue == rvalue) { return; }
-	Py_XDECREF(*lvalue);
-	Py_XINCREF(rvalue);
-	*lvalue = rvalue;
-}
-
-CopyFrom abstract_CopyFrom[MAX_FIELD_TYPE] = {
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_ENUM       */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_INT32      */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_INT64      */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_UINT32     */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_UINT64     */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FIXEDPOINT */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_DOUBLE     */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_FLOAT      */
-	(CopyFrom)TypyNumeric_CopyFrom,  /* TYPE_BOOL       */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_BYTES      */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_STRING     */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_OBJECT     */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_VARIANT    */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_LIST       */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_DICT       */
-	(CopyFrom)TypyPyObject_CopyFrom, /* TYPE_PYTHON     */
-};
-
-//=============================================================================
-
 static void TypyNumeric_MergeFrom(TypyType type, TypyField* lvalue, TypyField rvalue) {
 	if (rvalue != 0) { *lvalue = rvalue; }
 }
@@ -365,36 +333,6 @@ MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
 	(MergeFrom)TypyList_MergeFrom,     /* TYPE_LIST       */
 	(MergeFrom)TypyDict_MergeFrom,     /* TYPE_DICT       */
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_PYTHON     */
-};
-
-//=============================================================================
-
-static void TypyNumeric_Clear(TypyType type, TypyField* value) {
-	*value = 0;
-}
-
-static void TypyPyObject_Clear(TypyType type, PyObject** value) {
-	Py_XDECREF(*value);
-	*value = NULL;
-}
-
-Clear abstract_Clear[MAX_FIELD_TYPE] = {
-	(Clear)TypyNumeric_Clear,  /* TYPE_ENUM       */
-	(Clear)TypyNumeric_Clear,  /* TYPE_INT32      */
-	(Clear)TypyNumeric_Clear,  /* TYPE_INT64      */
-	(Clear)TypyNumeric_Clear,  /* TYPE_UINT32     */
-	(Clear)TypyNumeric_Clear,  /* TYPE_UINT64     */
-	(Clear)TypyNumeric_Clear,  /* TYPE_FIXEDPOINT */
-	(Clear)TypyNumeric_Clear,  /* TYPE_DOUBLE     */
-	(Clear)TypyNumeric_Clear,  /* TYPE_FLOAT      */
-	(Clear)TypyNumeric_Clear,  /* TYPE_BOOL       */
-	(Clear)TypyPyObject_Clear, /* TYPE_BYTES      */
-	(Clear)TypyPyObject_Clear, /* TYPE_STRING     */
-	(Clear)TypyPyObject_Clear, /* TYPE_OBJECT     */
-	(Clear)TypyPyObject_Clear, /* TYPE_VARIANT    */
-	(Clear)TypyPyObject_Clear, /* TYPE_LIST       */
-	(Clear)TypyPyObject_Clear, /* TYPE_DICT       */
-	(Clear)TypyPyObject_Clear, /* TYPE_PYTHON     */
 };
 
 //=============================================================================

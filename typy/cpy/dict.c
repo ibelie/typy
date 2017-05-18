@@ -13,8 +13,7 @@ extern "C" {
 #define MetaKey_FIELDTYPE(m) (MetaKey_DESC(m).desc_FieldType)
 #define MetaKey_WIRETYPE(m)  (MetaKey_DESC(m).desc_WireType)
 #define MetaKey_TAG(m)       (MAKE_TAG(1, MetaKey_WIRETYPE(m)))
-#define MetaKey_CLEAR(m, k) \
-	(abstract_Clear       [MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k)))
+#define MetaKey_CLEAR(m, k)  TypyField_Clr(MetaKey_FIELDTYPE(m), (*k))
 #define MetaKey_BYTESIZE(m, k) \
 	(abstract_ByteSize    [MetaKey_FIELDTYPE(m)](MetaKey_TYPYTYPE(m), (k), 1))
 #define MetaKey_WRITE(m, k, o) \
@@ -45,7 +44,7 @@ extern "C" {
 #define MetaValue_RECORD(m, d, i) \
 	TypyComposite_RECORD(MetaValue_FIELDTYPE(m), (i), (d))
 #define MetaValue_NOTIFY(m, d, i) \
-	TypyComposite_NOTIFY(FIELD_TYPE_DICT, (d), 0, MetaValue_FIELDTYPE(m), MetaValue_TYPYTYPE(m), old, (i))
+	TypyComposite_NOTIFY(FIELD_TYPE_DICT, (d), 0, MetaValue_FIELDTYPE(m), MetaValue_TYPYTYPE(m), (i))
 
 #define MetaValue_MERGEFROM(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                   \
@@ -57,14 +56,14 @@ extern "C" {
 #define MetaValue_CLEAR(m, ob, v) do { \
 	register TypyField* _v = (TypyField*)(v);                                   \
 	MetaValue_RECORD((m), (ob), *_v);                                           \
-	abstract_Clear[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _v);          \
+	TypyField_Clr(MetaValue_FIELDTYPE(m), *_v);                                 \
 	MetaValue_NOTIFY((m), (ob), *_v);                                           \
 } while (0)
 
 #define MetaValue_SET(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                   \
 	MetaValue_RECORD((m), (ob), *_l);                                           \
-	abstract_CopyFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));  \
+	*_l = TypyField_Set(MetaValue_FIELDTYPE(m), (r));                           \
 	MetaValue_NOTIFY((m), (ob), *_l);                                           \
 } while (0)
 
@@ -340,7 +339,7 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 	if (item) {
 		MetaValue_SET(TypyDict_TYPE(self), self, &item->value, value);
-		TypyField_Clear(MetaValue_FIELDTYPE(type), value);
+		TypyField_Clr(MetaValue_FIELDTYPE(type), value);
 	} else {
 		MetaKey_CLEAR(type, &key);
 		MetaValue_CLEAR(type, self, &value);

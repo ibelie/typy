@@ -23,7 +23,7 @@ extern "C" {
 #define MetaList_RECORD(m, l, i) \
 	TypyComposite_RECORD(MetaList_FIELDTYPE(m), (i), (l))
 #define MetaList_NOTIFY(m, l, i) \
-	TypyComposite_NOTIFY(FIELD_TYPE_LIST, (l), 0, MetaList_FIELDTYPE(m), MetaList_TYPYTYPE(m), old, (i))
+	TypyComposite_NOTIFY(FIELD_TYPE_LIST, (l), 0, MetaList_FIELDTYPE(m), MetaList_TYPYTYPE(m), (i))
 
 #define MetaList_MERGEFROM(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                 \
@@ -35,14 +35,14 @@ extern "C" {
 #define MetaList_CLEAR(m, ob, f) do { \
 	register TypyField* _f = (TypyField*)(f);                                 \
 	MetaList_RECORD((m), (ob), *_f);                                          \
-	abstract_Clear[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _f);          \
+	TypyField_Clr(MetaList_FIELDTYPE(m), *_f);                                \
 	MetaList_NOTIFY((m), (ob), NULL);                                         \
 } while (0)
 
 #define MetaList_SET(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                 \
 	MetaList_RECORD((m), (ob), *_l);                                          \
-	abstract_CopyFrom[MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), _l, (r));  \
+	*_l = TypyField_Set(MetaList_FIELDTYPE(m), (r));                          \
 	MetaList_NOTIFY((m), (ob), *_l);                                          \
 } while (0)
 
