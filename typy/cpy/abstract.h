@@ -68,13 +68,14 @@ typedef struct _TypyComposite {
 
 void TypyComposite_AddOwner (TypyComposite*, TypyComposite*, FieldType, PropertyFlag);
 void TypyComposite_DelOwner (TypyComposite*, TypyComposite*);
-void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType, TypyType, TypyField, TypyField);
+void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType, TypyType, TypyField, FieldType, TypyType, TypyField);
 
 #define TypyComposite_RECORD(t, c, p) \
-	register TypyField old = TypyField_Set((t), (c))                      \
+	register TypyField old = TypyField_Set((t), (c));                     \
 	if (FIELD_TYPE_COMPOSITE(t) && (c)) {                                 \
 		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p)); \
 	}
+
 #define TypyComposite_NOTIFY(t, c, f, ft, tt, n) do { \
 	if (FIELD_TYPE_COMPOSITE(ft) && (n)) {                                \
 		TypyComposite_AddOwner((TypyComposite*)(n), (TypyComposite*)(c),  \
@@ -84,7 +85,7 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 		(FIELD_TYPE_COMPOSITE(ft) || old != (TypyField)(n))) {            \
 		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(t),         \
 		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),               \
-		old, (TypyField)(n));                                             \
+		old, (FieldType)(ft), (TypyType)(tt), (TypyField)(n));            \
 	}                                                                     \
 	TypyField_Clr((ft), old);                                             \
 } while (0)

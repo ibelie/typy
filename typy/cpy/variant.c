@@ -17,55 +17,96 @@ extern "C" {
 #define MetaVariant_BYTESIZE(m, s) \
 	(abstract_ByteSize    [Meta_FIELDTYPE(m, (s)->variant_index)](Meta_TYPYTYPE(m, (s)->variant_index), &(s)->variant_value, Meta_TAGSIZE(m, (s)->variant_index)))
 
-#define MetaVariant_RECORD(m, s, i) \
-	TypyComposite_RECORD(Meta_FIELDTYPE(m, i), (s)->variant_value, (s))
-#define MetaVariant_NOTIFY(m, s, i) \
-	TypyComposite_NOTIFY(FIELD_TYPE_VARIANT, (s), Meta_PROPFLAG(m, i), Meta_FIELDTYPE(m, i), Meta_TYPYTYPE(m, i), (s)->variant_value)
+#define MetaVariant_RECORD(m, s) \
+	register TypyField _old = 0;                                                                \
+	register FieldType ft_o = FIELD_TYPE_VARIANT;                                               \
+	register TypyType  tt_o = m;                                                                \
+	if ((s)->variant_index >= 0 && (size_t)(s)->variant_index < Meta_SIZE(m)) {                 \
+		ft_o = Meta_FIELDTYPE(m, (s)->variant_index);                                           \
+		tt_o = Meta_TYPYTYPE(m, (s)->variant_index);                                            \
+		_old = TypyField_Set(ft_o, (s)->variant_value);                                         \
+		if (FIELD_TYPE_COMPOSITE(ft_o) && (s)->variant_value) {                                 \
+			TypyComposite_DelOwner((TypyComposite*)((s)->variant_value), (TypyComposite*)(s));  \
+		}                                                                                       \
+	}                                                                                           \
+	TypyField_Clr(ft_o, (s)->variant_value)
 
-#define MetaVariant_MERGEFROM(m, s, i, f) do { \
-	MetaVariant_RECORD((m), (s), (i));                             \
-	abstract_MergeFrom[Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i),  \
-		&(s)->variant_value, (f));                                 \
-	MetaVariant_NOTIFY((m), (s), (i));                             \
+#define MetaVariant_NOTIFY(m, s) do { \
+	register TypyField _new = 0;                                                                \
+	register FieldType ft_n = FIELD_TYPE_VARIANT;                                               \
+	register TypyType  tt_n = m;                                                                \
+	if ((s)->variant_index >= 0 && (size_t)(s)->variant_index < Meta_SIZE(m)) {                 \
+		ft_n = Meta_FIELDTYPE(m, (s)->variant_index);                                           \
+		tt_n = Meta_TYPYTYPE(m, (s)->variant_index);                                            \
+		_new = (s)->variant_value;                                                              \
+		if (FIELD_TYPE_COMPOSITE(ft_n) && (s)->variant_value) {                                 \
+			TypyComposite_AddOwner((TypyComposite*)((s)->variant_value),                        \
+				(TypyComposite*)(s), FIELD_TYPE_VARIANT, Meta_PROPFLAG(m, (s)->variant_index)); \
+		}                                                                                       \
+	}                                                                                           \
+	if ((s)->composite_active && (_old != _new || ft_o != ft_n || tt_o != tt_n)) {              \
+		TypyComposite_Notify((TypyComposite*)(s), FIELD_TYPE_VARIANT,                           \
+			0, ft_o, tt_o, _old, ft_n, tt_n, _new);                                             \
+	}                                                                                           \
 } while (0)
 
-#define MetaVariant_CLEAR(m, s, i) do { \
-	MetaVariant_RECORD((m), (s), (i));                             \
-	TypyField_Clr(Meta_FIELDTYPE(m, i), (s)->variant_value);       \
-	MetaVariant_NOTIFY((m), (s), (i));                             \
+#define MetaVariant_MERGEFROM(m, s, r) do { \
+	MetaVariant_RECORD((m), (s));                                                               \
+	abstract_MergeFrom[Meta_FIELDTYPE(m, (r)->variant_index)]                                   \
+		(Meta_TYPYTYPE(m, (r)->variant_index), &(s)->variant_value, (r)->variant_value);        \
+	(s)->variant_index = (r)->variant_index;                                                    \
+	MetaVariant_NOTIFY((m), (s));                                                               \
 } while (0)
 
-#define MetaVariant_SET(m, s, i, f) do { \
-	MetaVariant_RECORD((m), (s), (i));                             \
-	(s)->variant_value = TypyField_Set(Meta_FIELDTYPE(m, i), (f)); \
-	MetaVariant_NOTIFY((m), (s), (i));                             \
+#define MetaVariant_CLEAR(m, s) do { \
+	MetaVariant_RECORD((m), (s));                                                               \
+	(s)->variant_index = -1;                                                                    \
+	MetaVariant_NOTIFY((m), (s));                                                               \
 } while (0)
 
-#define MetaVariant_Clear(m, ob) { \
-	if ((ob)->variant_index >= 0 && (size_t)(ob)->variant_index < Meta_SIZE(m)) { \
-		MetaVariant_CLEAR((m), (ob), (ob)->variant_index);                        \
-		(ob)->variant_index = -1;                                                 \
-	}                                                                             \
-}
+#define MetaVariant_SET(m, s, r) do { \
+	MetaVariant_RECORD((m), (s));                                                               \
+	if ((s)->variant_index >= 0 && (size_t)(s)->variant_index < Meta_SIZE(m)) {                 \
+		(s)->variant_value = TypyField_Set(Meta_FIELDTYPE(m, (s)->variant_index),               \
+			(r)->variant_value);                                                                \
+	}                                                                                           \
+	(s)->variant_index = (r)->variant_index;                                                    \
+	MetaVariant_NOTIFY((m), (s));                                                               \
+} while (0)
 
 static inline bool MetaVariant_READ(TypyMetaObject* type, TypyVariant* self, size_t index, byte** input, size_t* length) {
-	MetaVariant_RECORD(type, self, index);
+	MetaVariant_RECORD(type, self);
 	register bool result = abstract_Read[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, input, length);
-	if (result) { MetaVariant_NOTIFY(type, self, index); }
+	if (result) {
+		self->variant_index = index;
+		MetaVariant_NOTIFY(type, self);
+	} else {
+		self->variant_index = -1;
+	}
 	return result;
 }
 
 static inline bool MetaVariant_CHECKSET(TypyMetaObject* type, TypyVariant* self, size_t index, PyObject* arg, const char* err) {
-	MetaVariant_RECORD(type, self, index);
+	MetaVariant_RECORD(type, self);
 	register bool result = abstract_CheckAndSet[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, arg, err);
-	if (result) { MetaVariant_NOTIFY(type, self, index); }
+	if (result) {
+		self->variant_index = index;
+		MetaVariant_NOTIFY(type, self);
+	} else {
+		self->variant_index = -1;
+	}
 	return result;
 }
 
 static inline bool MetaVariant_FROMJSON(TypyMetaObject* type, TypyVariant* self, size_t index, PyObject* json) {
-	MetaVariant_RECORD(type, self, index);
+	MetaVariant_RECORD(type, self);
 	register bool result = abstract_FromJson[Meta_FIELDTYPE(type, index)](Meta_TYPYTYPE(type, index), &self->variant_value, json);
-	if (result) { MetaVariant_NOTIFY(type, self, index); }
+	if (result) {
+		self->variant_index = index;
+		MetaVariant_NOTIFY(type, self);
+	} else {
+		self->variant_index = -1;
+	}
 	return result;
 }
 
@@ -93,7 +134,7 @@ static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
 
 static void TypyVariant_Dealloc(TypyVariant* self) {
 	TypyComposite_FREE(self);
-	MetaVariant_Clear(Typy_TYPE(self), self);
+	MetaVariant_CLEAR(Typy_TYPE(self), self);
 	Py_DECREF(Typy_TYPE(self));
 	free(self);
 }
@@ -188,16 +229,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 		FormatTypeError(arg, "SetVariant no suitable type for Python Object, ");
 		return false;
 	}
-	if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
-		MetaVariant_CLEAR(type, self, self->variant_index);
-	}
-	register bool success = MetaVariant_CHECKSET(type, self, index, arg, "SetVariant ");
-	if (success) {
-		self->variant_index = index;
-	} else {
-		self->variant_index = -1;
-	}
-	return success;
+	return MetaVariant_CHECKSET(type, self, index, arg, "SetVariant ");
 }
 
 size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsize) {
@@ -248,16 +280,13 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		register int index = TAG_INDEX(tag);
 		if (index < 0 || (size_t)index >= Meta_SIZE(type)) { goto handle_unusual; }
 		if (TAG_WIRETYPE(tag) == Meta_WIRETYPE(type, index)) {
-			if (self->variant_index != index) {
-				MetaVariant_Clear(type, self);
-			}
 			if (!MetaVariant_READ(type, self, index, input, &remain)) {
 				goto handle_unusual;
 			}
 		} else if (Meta_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
 			if (self->variant_index != index) {
-				MetaVariant_Clear(type, self);
+				MetaVariant_CLEAR(type, self);
 			}
 			if (!TypyList_ReadRepeated(Meta_TYPYTYPE(type, index), (TypyList**)&self->variant_value, input, &remain)) {
 				goto handle_unusual;
@@ -285,10 +314,7 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 		return;
 	}
 	TypyVariant_FromValueOrNew(self, lvalue, type, );
-	if (self->variant_index != rvalue->variant_index) {
-		MetaVariant_Clear(type, self);
-	}
-	MetaVariant_MERGEFROM(type, self, self->variant_index, rvalue->variant_value);
+	MetaVariant_MERGEFROM(type, self, rvalue);
 }
 
 PyObject* TypyVariant_ToJson(TypyMetaObject* type, TypyVariant** value, bool slim) {
@@ -333,16 +359,7 @@ bool TypyVariant_FromJson(TypyMetaObject* type, TypyVariant** value, PyObject* j
 	} else {
 		return TypyVariant_CheckAndSet(type, value, json, "FromJson CheckAndSet, ");
 	}
-	if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
-		MetaVariant_CLEAR(type, self, self->variant_index);
-	}
-	register bool success = MetaVariant_FROMJSON(type, self, index, json);
-	if (success) {
-		self->variant_index = index;
-	} else {
-		self->variant_index = -1;
-	}
-	return success;
+	return MetaVariant_FROMJSON(type, self, index, json);
 }
 
 PyTypeObject TypyMetaVariantType = {
