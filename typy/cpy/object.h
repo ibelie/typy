@@ -101,14 +101,14 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #define Typy_FIELDTYPE(ob, i) (Typy_DESC(ob, i).desc_FieldType)
 #define Typy_TYPYTYPE(ob, i)  (Typy_DESC(ob, i).desc_type)
 #define Typy_WIRETYPE(ob, i)  (Typy_DESC(ob, i).desc_WireType)
-#define Typy_GET(ob, i) \
-	(abstract_GetPyObject [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define Typy_TOJSON(ob, i, s) \
 	(abstract_ToJson      [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s)))
 #define Typy_WRITE(ob, i, o) \
 	(abstract_Write       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), Typy_TAG(ob, i), (o)))
 #define Typy_BYTESIZE(ob, i) \
 	(abstract_ByteSize    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), Typy_TAGSIZE(ob, i)))
+#define _Typy_GET(ob, i) \
+	(abstract_GetPyObject [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define _Typy_READ(ob, i, s, l) \
 	(abstract_Read        [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
 #define _Typy_CHECKSET(ob, i, v, e) \
@@ -117,14 +117,16 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 	(abstract_FromJson    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (j)))
 
 #ifdef TYPY_PROPERTY_HANDLER
-#	define Meta_PROPFLAG(m, i)  (Meta_DESC(m, i).desc_PropFlag)
-#	define Typy_PROPFLAG(ob, i) (Typy_DESC(ob, i).desc_PropFlag)
-	bool   Typy_READ            (TypyObject*, size_t, byte**, size_t*);
-	bool   Typy_CHECKSET        (TypyObject*, size_t, PyObject*, const char*);
-	bool   Typy_FROMJSON        (TypyObject*, size_t, PyObject*);
+#	define    Meta_PROPFLAG(m, i)  (Meta_DESC(m, i).desc_PropFlag)
+#	define    Typy_PROPFLAG(ob, i) (Typy_DESC(ob, i).desc_PropFlag)
+	PyObject* Typy_GET             (TypyObject*, size_t);
+	bool      Typy_READ            (TypyObject*, size_t, byte**, size_t*);
+	bool      Typy_CHECKSET        (TypyObject*, size_t, PyObject*, const char*);
+	bool      Typy_FROMJSON        (TypyObject*, size_t, PyObject*);
 #else
 #	define Meta_PROPFLAG(m, i)  0
 #	define Typy_PROPFLAG(ob, i) 0
+#	define Typy_GET(ob, i)            _Typy_GET((ob), (i))
 #	define Typy_READ(ob, i, s, l)     _Typy_READ((ob), (i), (s), (l))
 #	define Typy_CHECKSET(ob, i, v, e) _Typy_CHECKSET((ob), (i), (v), (e))
 #	define Typy_FROMJSON(ob, i, j)    _Typy_FROMJSON((ob), (i), (j))

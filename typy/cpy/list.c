@@ -11,8 +11,6 @@ extern "C" {
 #define MetaList_TYPYTYPE(m)  (((TypyMetaList*)(m))->list_desc.desc_type)
 #define MetaList_FIELDTYPE(m) (((TypyMetaList*)(m))->list_desc.desc_FieldType)
 
-#define MetaList_GET(m, f) \
-	(abstract_GetPyObject [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f)))
 #define MetaList_TOJSON(m, f, s) \
 	(abstract_ToJson      [MetaList_FIELDTYPE(m)](MetaList_TYPYTYPE(m), (f), (s)))
 #define MetaList_WRITE(m, f, t, o) \
@@ -54,6 +52,19 @@ extern "C" {
 	(ob)->list_length = 0;                               \
 }
 
+static inline PyObject* MetaList_GET(TypyMetaList* type, TypyList* self, TypyField* item) {
+	register PyObject* result = abstract_GetPyObject[MetaList_FIELDTYPE(type)](MetaList_TYPYTYPE(type), item);
+
+#ifdef TYPY_PROPERTY_HANDLER
+	if ((MetaList_FIELDTYPE(type) == FIELD_TYPE_LIST ||
+		MetaList_FIELDTYPE(type) == FIELD_TYPE_DICT) && *item) {
+		TypyComposite_AddOwner((TypyComposite*)(*item), (TypyComposite*)self, FIELD_TYPE_LIST, 0);
+	}
+#endif
+
+	return result;
+}
+
 static inline bool MetaList_READ(TypyMetaList* type, TypyList* self, TypyField* item, byte** input, size_t* length) {
 	MetaList_RECORD(type, self, *item);
 	register bool result = abstract_Read[MetaList_FIELDTYPE(type)](MetaList_TYPYTYPE(type), item, input, length);
@@ -75,7 +86,7 @@ static inline bool MetaList_FROMJSON(TypyMetaList* type, TypyList* self, TypyFie
 	return result;
 }
 
-#define TypyList_GET(ob, f)            MetaList_GET      (TypyList_TYPE(ob), (f))
+#define TypyList_GET(ob, f)            MetaList_GET      (TypyList_TYPE(ob), (ob), (f))
 #define TypyList_SET(ob, l, r)         MetaList_SET      (TypyList_TYPE(ob), (ob), (l), (r))
 #define TypyList_CLEAR(ob, f)          MetaList_CLEAR    (TypyList_TYPE(ob), (ob), (f))
 #define TypyList_CHECKSET(ob, l, r, e) MetaList_CHECKSET (TypyList_TYPE(ob), (ob), (l), (r), (e))

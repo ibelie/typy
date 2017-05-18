@@ -102,7 +102,17 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	register TypyVariant* self = *value;
 	if (!self) { Py_RETURN_NONE; }
 	if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
-		return MetaVariant_GET(type, self);
+		register PyObject* result = MetaVariant_GET(type, self);
+
+#ifdef TYPY_PROPERTY_HANDLER
+		if ((Meta_FIELDTYPE(type, self->variant_index) == FIELD_TYPE_LIST ||
+			Meta_FIELDTYPE(type, self->variant_index) == FIELD_TYPE_DICT) && self->variant_value) {
+			TypyComposite_AddOwner((TypyComposite*)(self->variant_value),
+				(TypyComposite*)self, FIELD_TYPE_VARIANT, Meta_PROPFLAG(type, self->variant_index));
+		}
+#endif
+
+		return result;
 	}
 	Py_RETURN_NONE;
 }

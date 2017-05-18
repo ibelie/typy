@@ -32,8 +32,6 @@ extern "C" {
 #define MetaValue_FIELDTYPE(m) (MetaValue_DESC(m).desc_FieldType)
 #define MetaValue_WIRETYPE(m)  (MetaValue_DESC(m).desc_WireType)
 #define MetaValue_TAG(m)       (MAKE_TAG(2, MetaValue_WIRETYPE(m)))
-#define MetaValue_GET(m, v) \
-	(abstract_GetPyObject [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v)))
 #define MetaValue_TOJSON(m, v, s) \
 	(abstract_ToJson      [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), (s)))
 #define MetaValue_WRITE(m, v, o) \
@@ -67,6 +65,19 @@ extern "C" {
 	MetaValue_NOTIFY((m), (ob), *_l);                                           \
 } while (0)
 
+static inline PyObject* MetaValue_GET(TypyMetaDict* type, TypyDict* self, TypyField* value) {
+	register PyObject* result = abstract_GetPyObject [MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value);
+
+#ifdef TYPY_PROPERTY_HANDLER
+	if ((MetaValue_FIELDTYPE(type) == FIELD_TYPE_LIST ||
+		MetaValue_FIELDTYPE(type) == FIELD_TYPE_DICT) && *value) {
+		TypyComposite_AddOwner((TypyComposite*)(*value), (TypyComposite*)self, FIELD_TYPE_DICT, 0);
+	}
+#endif
+
+	return result;
+}
+
 static inline bool MetaValue_CHECKSET(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* arg, const char* err) {
 	MetaValue_RECORD(type, self, *value);
 	register bool result = abstract_CheckAndSet[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, arg, err);
@@ -98,7 +109,7 @@ static inline bool MetaValue_FROMJSON(TypyMetaDict* type, TypyDict* self, TypyFi
 
 #define TypyKey_GET(ob, k)              MetaKey_GET        (TypyDict_TYPE(ob), (k))
 #define TypyKey_CHECKSET(ob, l, r, e)   MetaKey_CHECKSET   (TypyDict_TYPE(ob), (l), (r), (e))
-#define TypyValue_GET(ob, v)            MetaValue_GET      (TypyDict_TYPE(ob), (v))
+#define TypyValue_GET(ob, v)            MetaValue_GET      (TypyDict_TYPE(ob), (ob), (v))
 #define TypyValue_CLEAR(ob, v)          MetaValue_CLEAR    (TypyDict_TYPE(ob), (ob), (v))
 #define TypyValue_CHECKSET(ob, l, r, e) MetaValue_CHECKSET (TypyDict_TYPE(ob), (ob), (l), (r), (e))
 #define TypyDict_Clear(ob)              MetaDict_Clear     (TypyDict_TYPE(ob), (ob))

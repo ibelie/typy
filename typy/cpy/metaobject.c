@@ -10,6 +10,16 @@ extern "C" {
 
 #ifdef TYPY_PROPERTY_HANDLER
 
+PyObject* Typy_GET(TypyObject* self, size_t index) {
+	register PyObject* result = _Typy_GET(self, index);
+	if ((Typy_FIELDTYPE(self, index) == FIELD_TYPE_LIST ||
+		Typy_FIELDTYPE(self, index) == FIELD_TYPE_DICT) && Typy_FIELD(self, index)) {
+		TypyComposite_AddOwner((TypyComposite*)Typy_FIELD(self, index),
+			(TypyComposite*)self, FIELD_TYPE_OBJECT, Typy_PROPFLAG(self, index));
+	}
+	return result;
+}
+
 bool Typy_READ(TypyObject* self, size_t index, byte** input, size_t* length) {
 	Typy_RECORD(self, index);
 	register bool result = _Typy_READ(self, index, input, length);
