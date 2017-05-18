@@ -174,8 +174,8 @@ bool CheckAndSet(PyObject* arg, List<T>*& value, const char* err) {
 		CopyFrom(value, static_cast<List<T>*>(arg));
 		return true;
 	} else if (PySequence_Check(arg)) {
-		if (value == NULL) { value = new List<T>; }
-		else { value->Clear(); }
+		Clear(value);
+		value = new List<T>;
 		return ExtendList(arg, *value);
 	} else {
 		FormatTypeError(arg, err);
@@ -193,12 +193,12 @@ bool CheckAndSet(PyObject* arg, Dict<K, V>*& value, const char* err) {
 		CopyFrom(value, static_cast<Dict<K, V>*>(arg));
 		return true;
 	} else if (PyDict_Check(arg)) {
-		if (value == NULL) { value = new Dict<K, V>; }
-		else { value->Clear(); }
+		Clear(value);
+		value = new Dict<K, V>;
 		return MergeDict(arg, *value);
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL)) != NULL) {
-		if (value == NULL) { value = new Dict<K, V>; }
-		else { value->Clear(); }
+		Clear(value);
+		value = new Dict<K, V>;
 		register bool success = MergeIter(items, _PyObject_LengthHint(arg, 0), *value);
 		Py_DECREF(items);
 		return success;

@@ -311,9 +311,10 @@ bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, c
 		*value = (TypyList*)arg;
 		return true;
 	} else if (PySequence_Check(arg)) {
-		TypyList_FromValueOrNew(self, value, type, false);
-		MetaList_Clear(type, self);
-		return TypyList_Extend(self, arg);
+		Py_XDECREF(*value);
+		*value = TypyList_New(type);
+		if (!(*value)) { return false; }
+		return TypyList_Extend(*value, arg);
 	} else {
 		FormatTypeError(arg, err);
 		return false;

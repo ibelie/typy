@@ -285,13 +285,15 @@ bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, c
 		*value = (TypyDict*)arg;
 		return true;
 	} else if (PyDict_Check(arg)) {
-		TypyDict_FromValueOrNew(self, value, type, false);
-		MetaDict_Clear(type, self);
-		return TypyDict_MergeDict(self, arg);
+		Py_XDECREF(*value);
+		*value = TypyDict_New(type);
+		if (!(*value)) { return false; }
+		return TypyDict_MergeDict(*value, arg);
 	} else if ((items = PyObject_CallMethod(arg, "iteritems", NULL))) {
-		TypyDict_FromValueOrNew(self, value, type, false);
-		MetaDict_Clear(type, self);
-		register bool success = TypyDict_MergeIter(self, items, _PyObject_LengthHint(arg, 0));
+		Py_XDECREF(*value);
+		*value = TypyDict_New(type);
+		if (!(*value)) { Py_DECREF(items); return false; }
+		register bool success = TypyDict_MergeIter(*value, items, _PyObject_LengthHint(arg, 0));
 		Py_DECREF(items);
 		return success;
 	} else {
