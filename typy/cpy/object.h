@@ -15,6 +15,9 @@ extern "C" {
 
 #define MIN_HANDLER_CAPACITY 10
 
+struct _TypyObject;
+struct _TypyMetaObject;
+
 typedef void*  TypyHandlerData;
 typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyType, TypyField, TypyField);
 
