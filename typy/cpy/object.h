@@ -105,10 +105,10 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 	(abstract_GetPyObject [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i)))
 #define Typy_TOJSON(ob, i, s) \
 	(abstract_ToJson      [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s)))
-#define Typy_WRITE(ob, i, t, o) \
-	(abstract_Write       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t), (o)))
-#define Typy_BYTESIZE(ob, i, t) \
-	(abstract_ByteSize    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (t)))
+#define Typy_WRITE(ob, i, o) \
+	(abstract_Write       [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), Typy_TAG(ob, i), (o)))
+#define Typy_BYTESIZE(ob, i) \
+	(abstract_ByteSize    [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), Typy_TAGSIZE(ob, i)))
 #define _Typy_READ(ob, i, s, l) \
 	(abstract_Read        [Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (s), (l)))
 #define _Typy_CHECKSET(ob, i, v, e) \

@@ -8,14 +8,14 @@
 extern "C" {
 #endif
 
-#define MetaVariant_GET(m, s, i) \
-	(abstract_GetPyObject [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value))
-#define MetaVariant_TOJSON(m, s, i, l) \
-	(abstract_ToJson      [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (l)))
-#define MetaVariant_WRITE(m, s, i, t, o) \
-	(abstract_Write       [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t), (o)))
-#define MetaVariant_BYTESIZE(m, s, i, t) \
-	(abstract_ByteSize    [Meta_FIELDTYPE(m, i)](Meta_TYPYTYPE(m, i), &(s)->variant_value, (t)))
+#define MetaVariant_GET(m, s) \
+	(abstract_GetPyObject [Meta_FIELDTYPE(m, (s)->variant_index)](Meta_TYPYTYPE(m, (s)->variant_index), &(s)->variant_value))
+#define MetaVariant_TOJSON(m, s, l) \
+	(abstract_ToJson      [Meta_FIELDTYPE(m, (s)->variant_index)](Meta_TYPYTYPE(m, (s)->variant_index), &(s)->variant_value, (l)))
+#define MetaVariant_WRITE(m, s, o) \
+	(abstract_Write       [Meta_FIELDTYPE(m, (s)->variant_index)](Meta_TYPYTYPE(m, (s)->variant_index), &(s)->variant_value, Meta_TAG(m, (s)->variant_index), (o)))
+#define MetaVariant_BYTESIZE(m, s) \
+	(abstract_ByteSize    [Meta_FIELDTYPE(m, (s)->variant_index)](Meta_TYPYTYPE(m, (s)->variant_index), &(s)->variant_value, Meta_TAGSIZE(m, (s)->variant_index)))
 
 #define MetaVariant_RECORD(m, s, i) \
 	TypyComposite_RECORD(Meta_FIELDTYPE(m, i), (s)->variant_value, (s))
@@ -115,9 +115,8 @@ static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
 PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	register TypyVariant* self = *value;
 	if (!self) { Py_RETURN_NONE; }
-	register int i = self->variant_index;
-	if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
-		return MetaVariant_GET(type, self, i);
+	if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
+		return MetaVariant_GET(type, self);
 	}
 	Py_RETURN_NONE;
 }
@@ -205,9 +204,8 @@ size_t TypyVariant_ByteSize(TypyMetaObject* type, TypyVariant** value, int tagsi
 	register TypyVariant* self = *value;
 	register size_t size = 0;
 	if (self) {
-		register int i = self->variant_index;
-		if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
-			size = MetaVariant_BYTESIZE(type, self, i, Meta_TAGSIZE(type, i));
+		if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
+			size = MetaVariant_BYTESIZE(type, self);
 		}
 		self->cached_size = size;
 	}
@@ -222,9 +220,8 @@ size_t TypyVariant_Write(TypyMetaObject* type, TypyVariant** value, int tag, byt
 	}
 	if (self) {
 		size += IblPutUvarint(output + size, self->cached_size);
-		register int i = self->variant_index;
-		if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
-			return size + MetaVariant_WRITE(type, self, i, Meta_TAG(type, i), output + size);
+		if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
+			return size + MetaVariant_WRITE(type, self, output + size);
 		}
 	}
 	output[size] = 0;
@@ -299,9 +296,8 @@ PyObject* TypyVariant_ToJson(TypyMetaObject* type, TypyVariant** value, bool sli
 	if (!slim && !self) {
 		Py_RETURN_NONE;
 	} else if (self) {
-		register int i = self->variant_index;
-		if (i >= 0 && (size_t)i < Meta_SIZE(type)) {
-			return MetaVariant_TOJSON(type, self, i, slim);
+		if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(type)) {
+			return MetaVariant_TOJSON(type, self, slim);
 		}
 		Py_RETURN_NONE;
 	} else {

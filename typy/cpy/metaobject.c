@@ -360,7 +360,7 @@ size_t Typy_ByteSize(TypyObject* self) {
 	register size_t size = 0, i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		if (!Typy_TAG(self, i) || !Typy_FIELD(self, i)) { continue; }
-		size += Typy_BYTESIZE(self, i, Typy_TAGSIZE(self, i));
+		size += Typy_BYTESIZE(self, i);
 	}
 	return size;
 }
@@ -369,7 +369,7 @@ void Typy_SerializeString(TypyObject* self, byte* output) {
 	register size_t i;
 	for (i = 0; i < Typy_SIZE(self); i++) {
 		if (!Typy_TAG(self, i) || !Typy_FIELD(self, i)) { continue; }
-		output += Typy_WRITE(self, i, Typy_TAG(self, i), output);
+		output += Typy_WRITE(self, i, output);
 	}
 }
 
@@ -409,7 +409,7 @@ size_t Typy_PropertyByteSize(TypyObject* self, int index) {
 	if (!Typy_TAG(self, index)) { return 0; }
 	register size_t size = 0;
 	if (Typy_FIELD(self, index)) {
-		size = Typy_BYTESIZE(self, index, Typy_TAGSIZE(self, index));
+		size = Typy_BYTESIZE(self, index);
 	}
 	return size ? size : Typy_TAGSIZE(self, index);
 }
@@ -418,7 +418,7 @@ void Typy_SerializeProperty(TypyObject* self, byte* output, int index) {
 	if (!Typy_TAG(self, index)) { return; }
 	register size_t size = 0;
 	if (Typy_FIELD(self, index)) {
-		size = Typy_WRITE(self, index, Typy_TAG(self, index), output);
+		size = Typy_WRITE(self, index, output);
 	}
 	if (!size) {
 		Typy_WriteTag(output, Typy_TAG(self, index));
