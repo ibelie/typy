@@ -6,18 +6,16 @@
 
 #ifdef TYPY_PROPERTY_HANDLER
 
-bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldType type, PropertyFlag flag) {
-	if (!child) {
-		return true;
-	} else if (child->owners_length) {
+void TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldType type, PropertyFlag flag) {
+	if (child->owners_length) {
 		register size_t i;
 		for (i = 0; i < child->owners_length && child->owners_list[i].prop_owner != parent; i++);
-		if (i < child->owners_length) { return true; }
+		if (i < child->owners_length) { return; }
 	}
 	if (child->owners_length + 1 > child->owners_capacity) {
 		register size_t capacity = Ibl_Max(2 * child->owners_capacity + 1, MIN_OWNER_CAPACITY);
 		register TypyPropertyOwner buffer = (TypyPropertyOwner)calloc(capacity, sizeof(struct _TypyPropertyOwner));
-		if (!buffer) { return false; }
+		if (!buffer) { return; }
 		child->owners_capacity = capacity;
 		if (child->owners_list) {
 			memcpy(buffer, child->owners_list, child->owners_length * sizeof(struct _TypyPropertyOwner));
@@ -30,11 +28,10 @@ bool TypyComposite_AddOwner(TypyComposite* child, TypyComposite* parent, FieldTy
 	owner->prop_owner = parent;
 	owner->prop_flag  = flag;
 	child->owners_length++;
-	return true;
 }
 
 void TypyComposite_DelOwner(TypyComposite* child, TypyComposite* parent) {
-	if (child && child->owners_length) {
+	if (child->owners_length) {
 		register size_t i;
 		for (i = 0; i < child->owners_length && child->owners_list[i].prop_owner != parent; i++);
 		for (; i < child->owners_length - 1; i++) {

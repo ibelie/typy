@@ -127,35 +127,26 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 #	define Typy_FROMJSON(ob, i, j)    _Typy_FROMJSON((ob), (i), (j))
 #endif
 
-#define Typy_DEL_OWNER(ob, i) \
-	TypyComposite_DEL_OWNER(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i), (ob))
-#define Typy_ADD_OWNER(ob, i) \
-	TypyComposite_ADD_OWNER(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i), (ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i))
-#define Typy_COPY_OLD(ob, i) \
-	TypyComposite_COPY_OLD(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i))
+#define Typy_RECORD(ob, i) \
+	TypyComposite_RECORD(Typy_FIELDTYPE(ob, i), Typy_FIELD(ob, i), (ob))
 #define Typy_NOTIFY(ob, i) \
-	TypyComposite_NOTIFY((ob), FIELD_TYPE_OBJECT, Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), Typy_TYPYTYPE(ob, i), old, Typy_FIELD(ob, i))
+	TypyComposite_NOTIFY(FIELD_TYPE_OBJECT, (ob), Typy_PROPFLAG(ob, i), Typy_FIELDTYPE(ob, i), Typy_TYPYTYPE(ob, i), old, Typy_FIELD(ob, i))
 
 #define Typy_MERGEFROM(ob, i, f) do { \
-	Typy_COPY_OLD((ob), (i));                                                                 \
-	Typy_DEL_OWNER((ob), (i));                                                                \
+	Typy_RECORD((ob), (i));                                                                   \
 	abstract_MergeFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f)); \
-	Typy_ADD_OWNER((ob), (i));                                                                \
 	Typy_NOTIFY((ob), (i));                                                                   \
 } while (0)
 
 #define Typy_CLEAR(ob, i) do { \
-	Typy_COPY_OLD((ob), (i));                                                                 \
-	Typy_DEL_OWNER((ob), (i));                                                                \
+	Typy_RECORD((ob), (i));                                                                   \
 	abstract_Clear[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i));          \
 	Typy_NOTIFY((ob), (i));                                                                   \
 } while (0)
 
 #define Typy_SET(ob, i, f) do { \
-	Typy_COPY_OLD((ob), (i));                                                                 \
-	Typy_DEL_OWNER((ob), (i));                                                                \
+	Typy_RECORD((ob), (i));                                                                   \
 	abstract_CopyFrom[Typy_FIELDTYPE(ob, i)](Typy_TYPYTYPE(ob, i), &Typy_FIELD(ob, i), (f));  \
-	Typy_ADD_OWNER((ob), (i));                                                                \
 	Typy_NOTIFY((ob), (i));                                                                   \
 } while (0)
 

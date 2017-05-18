@@ -66,24 +66,22 @@ typedef struct _TypyComposite {
 	TypyComposite_HEAD
 } TypyComposite;
 
-bool TypyComposite_AddOwner (TypyComposite*, TypyComposite*, FieldType, PropertyFlag);
+void TypyComposite_AddOwner (TypyComposite*, TypyComposite*, FieldType, PropertyFlag);
 void TypyComposite_DelOwner (TypyComposite*, TypyComposite*);
 void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType, TypyType, TypyField, TypyField);
 
-#define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) \
-	(FIELD_TYPE_COMPOSITE(c_t) ? TypyComposite_AddOwner((TypyComposite*)(c), \
-		(TypyComposite*)(p), (FieldType)(p_t), (PropertyFlag)(f)) : true)
-
-#define TypyComposite_DEL_OWNER(c_t, c, p) do { \
-	if (FIELD_TYPE_COMPOSITE(c_t)) {                                         \
-		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p));    \
-	} } while (0)
-
-#define TypyComposite_COPY_OLD(t, p) \
-	register TypyField old = TypyField_CopyFrom((t), (p))
-#define TypyComposite_NOTIFY(c, ct, f, ft, tt, o, n) do { \
+#define TypyComposite_RECORD(t, c, p) \
+	register TypyField old = TypyField_CopyFrom((t), (c))                              \
+	if (FIELD_TYPE_COMPOSITE(t) && (c)) {                                              \
+		TypyComposite_DelOwner((TypyComposite*)(c), (TypyComposite*)(p));              \
+	}
+#define TypyComposite_NOTIFY(t, c, f, ft, tt, o, n) do { \
+	if (FIELD_TYPE_COMPOSITE(ft) && (n)) {                                             \
+		TypyComposite_AddOwner((TypyComposite*)(n), (TypyComposite*)(c),               \
+			(FieldType)(t), (PropertyFlag)(f));                                        \
+	}                                                                                  \
 	if (((TypyComposite*)(c))->composite_active && (TypyField)(o) != (TypyField)(n)) { \
-		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(ct),                     \
+		TypyComposite_Notify((TypyComposite*)(c), (FieldType)(t),                      \
 		(PropertyFlag)(f), (FieldType)(ft), (TypyType)(tt),                            \
 		(TypyField)(o), (TypyField)(n));                                               \
 	}                                                                                  \
@@ -94,10 +92,8 @@ void TypyComposite_Notify   (TypyComposite*, FieldType, PropertyFlag, FieldType,
 #	define TypyComposite_HEAD PyObject_HEAD
 #	define TypyComposite_INIT(ob)
 #	define TypyComposite_FREE(ob)
-#	define TypyComposite_ADD_OWNER(c_t, c, p, p_t, f) true
-#	define TypyComposite_DEL_OWNER(c_t, c, p)
-#	define TypyComposite_COPY_OLD(t, p)
-#	define TypyComposite_NOTIFY(c, ct, f, ft, tt, o, n)
+#	define TypyComposite_RECORD(t, c, p)
+#	define TypyComposite_NOTIFY(t, c, f, ft, tt, o, n)
 #endif
 
 typedef PyObject* (*GetPyObject) (TypyType, TypyField*);

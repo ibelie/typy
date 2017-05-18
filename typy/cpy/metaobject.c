@@ -11,35 +11,23 @@ extern "C" {
 #ifdef TYPY_PROPERTY_HANDLER
 
 bool Typy_READ(TypyObject* self, size_t index, byte** input, size_t* length) {
-	Typy_COPY_OLD(self, index);
-	Typy_DEL_OWNER(self, index);
+	Typy_RECORD(self, index);
 	register bool result = _Typy_READ(self, index, input, length);
-	if (result) {
-		result = Typy_ADD_OWNER(self, index);
-		Typy_NOTIFY(self, index);
-	}
+	if (result) { Typy_NOTIFY(self, index); }
 	return result;
 }
 
 bool Typy_CHECKSET(TypyObject* self, size_t index, PyObject* arg, const char* err) {
-	Typy_COPY_OLD(self, index);
-	Typy_DEL_OWNER(self, index);
+	Typy_RECORD(self, index);
 	register bool result = _Typy_CHECKSET(self, index, arg, err);
-	if (result) {
-		result = Typy_ADD_OWNER(self, index);
-		Typy_NOTIFY(self, index);
-	}
+	if (result) { Typy_NOTIFY(self, index); }
 	return result;
 }
 
 bool Typy_FROMJSON(TypyObject* self, size_t index, PyObject* json) {
-	Typy_COPY_OLD(self, index);
-	Typy_DEL_OWNER(self, index);
+	Typy_RECORD(self, index);
 	register bool result = _Typy_FROMJSON(self, index, json);
-	if (result) {
-		result = Typy_ADD_OWNER(self, index);
-		Typy_NOTIFY(self, index);
-	}
+	if (result) { Typy_NOTIFY(self, index); }
 	return result;
 }
 

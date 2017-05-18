@@ -42,60 +42,43 @@ extern "C" {
 #define MetaValue_BYTESIZE(m, v) \
 	(abstract_ByteSize    [MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), (v), 1))
 
-#define MetaValue_DEL_OWNER(m, d, i) \
-	TypyComposite_DEL_OWNER(MetaValue_FIELDTYPE(m), (i), (d))
-#define MetaValue_ADD_OWNER(m, d, i) \
-	TypyComposite_ADD_OWNER(MetaValue_FIELDTYPE(m), (i), (d), FIELD_TYPE_DICT, 0)
-#define MetaValue_COPY_OLD(m, i) \
-	TypyComposite_COPY_OLD(MetaValue_FIELDTYPE(m), (i))
+#define MetaValue_RECORD(m, d, i) \
+	TypyComposite_RECORD(MetaValue_FIELDTYPE(m), (i), (d))
 #define MetaValue_NOTIFY(m, d, i) \
-	TypyComposite_NOTIFY((d), FIELD_TYPE_DICT, 0, MetaValue_FIELDTYPE(m), MetaValue_TYPYTYPE(m), old, (i))
+	TypyComposite_NOTIFY(FIELD_TYPE_DICT, (d), 0, MetaValue_FIELDTYPE(m), MetaValue_TYPYTYPE(m), old, (i))
 
 #define MetaValue_MERGEFROM(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                   \
-	MetaValue_COPY_OLD((m), *_l);                                               \
-	MetaValue_DEL_OWNER((m), (ob), *_l);                                        \
+	MetaValue_RECORD((m), (ob), *_l);                                           \
 	abstract_MergeFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r)); \
-	MetaValue_ADD_OWNER((m), (ob), *_l);                                        \
 	MetaValue_NOTIFY((m), (ob), *_l);                                           \
 } while (0)
 
 #define MetaValue_CLEAR(m, ob, v) do { \
 	register TypyField* _v = (TypyField*)(v);                                   \
-	MetaValue_COPY_OLD((m), *_v);                                               \
-	MetaValue_DEL_OWNER((m), (ob), *_v);                                        \
+	MetaValue_RECORD((m), (ob), *_v);                                           \
 	abstract_Clear[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _v);          \
 	MetaValue_NOTIFY((m), (ob), *_v);                                           \
 } while (0)
 
 #define MetaValue_SET(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                   \
-	MetaValue_COPY_OLD((m), *_l);                                               \
-	MetaValue_DEL_OWNER((m), (ob), *_l);                                        \
+	MetaValue_RECORD((m), (ob), *_l);                                           \
 	abstract_CopyFrom[MetaValue_FIELDTYPE(m)](MetaValue_TYPYTYPE(m), _l, (r));  \
-	MetaValue_ADD_OWNER((m), (ob), *_l);                                        \
 	MetaValue_NOTIFY((m), (ob), *_l);                                           \
 } while (0)
 
 static inline bool MetaValue_CHECKSET(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* arg, const char* err) {
-	MetaValue_COPY_OLD(type, *value);
-	MetaValue_DEL_OWNER(type, self, *value);
+	MetaValue_RECORD(type, self, *value);
 	register bool result = abstract_CheckAndSet[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, arg, err);
-	if (result) {
-		result = MetaValue_ADD_OWNER(type, self, *value);
-		MetaValue_NOTIFY(type, self, *value);
-	}
+	if (result) { MetaValue_NOTIFY(type, self, *value); }
 	return result;
 }
 
 static inline bool MetaValue_FROMJSON(TypyMetaDict* type, TypyDict* self, TypyField* value, PyObject* json) {
-	MetaValue_COPY_OLD(type, *value);
-	MetaValue_DEL_OWNER(type, self, *value);
+	MetaValue_RECORD(type, self, *value);
 	register bool result = abstract_FromJson[MetaValue_FIELDTYPE(type)](MetaValue_TYPYTYPE(type), value, json);
-	if (result) {
-		result = MetaValue_ADD_OWNER(type, self, *value);
-		MetaValue_NOTIFY(type, self, *value);
-	}
+	if (result) { MetaValue_NOTIFY(type, self, *value); }
 	return result;
 }
 
@@ -354,11 +337,8 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 	TypyDict_FromValueOrNew(self, dict, type, false);
 	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 	if (item) {
-		MetaValue_COPY_OLD(type, item->value);
-		MetaValue_CLEAR(type, self, &item->value);
-		item->value = value;
-		MetaValue_ADD_OWNER(type, self, value);
-		MetaValue_NOTIFY(type, self, value);
+		MetaValue_SET(TypyDict_TYPE(self), self, &item->value, value);
+		TypyField_Clear(MetaValue_FIELDTYPE(type), value);
 	} else {
 		MetaKey_CLEAR(type, &key);
 		MetaValue_CLEAR(type, self, &value);
