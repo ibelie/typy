@@ -92,9 +92,11 @@ static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
 
 //=============================================================================
 
-#define TypyVariant_NEW(s, v, t, r) \
+#define TypyVariant_FromValueOrNew(s, v, t, r) \
+	Py_XDECREF(*(v));                             \
 	register TypyVariant* s = TypyVariant_New(t); \
-	if (!s) { *(v) = NULL; return r; } *(v) = s
+	if (!s) { *(v) = NULL; return r; }            \
+	*(v) = s
 
 PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 	register TypyVariant* self = *value;
@@ -106,12 +108,12 @@ PyObject* TypyVariant_GetPyObject(TypyMetaObject* type, TypyVariant** value) {
 }
 
 bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject* arg, const char* err) {
-	Py_XDECREF(*value);
 	if (!arg || arg == Py_None) {
+		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
 	}
-	TypyVariant_NEW(self, value, type, false);
+	TypyVariant_FromValueOrNew(self, value, type, false);
 
 	register int index;
 	if (PyBool_Check(arg)) {
@@ -222,8 +224,7 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		return false;
 	}
 	remain = limit;
-	Py_XDECREF(*value);
-	TypyVariant_NEW(self, value, type, false);
+	TypyVariant_FromValueOrNew(self, value, type, false);
 
 	for (;;) {
 		if (!Typy_ReadTag(input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
@@ -269,8 +270,7 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 	if (!rvalue || rvalue->variant_index < 0 || (size_t)rvalue->variant_index >= Meta_SIZE(type)) {
 		return;
 	}
-	Py_XDECREF(*lvalue);
-	TypyVariant_NEW(self, lvalue, type, );
+	TypyVariant_FromValueOrNew(self, lvalue, type, );
 	MetaVariant_DEL_OWNER(type, self);
 	MetaVariant_MERGEFROM(type, self, rvalue);
 	self->variant_index = rvalue->variant_index;
@@ -294,8 +294,7 @@ PyObject* TypyVariant_ToJson(TypyMetaObject* type, TypyVariant** value, bool sli
 bool TypyVariant_FromJson(TypyMetaObject* type, TypyVariant** value, PyObject* json) {
 	register int index = -1;
 	if (!json || json == Py_None) { return true; }
-	Py_XDECREF(*value);
-	TypyVariant_NEW(self, value, type, false);
+	TypyVariant_FromValueOrNew(self, value, type, false);
 	if (PyObject_HasAttrString(json, "iteritems")) {
 		register PyObject* _t = PyObject_GetItem(json, k_t);
 		PyErr_Clear();
