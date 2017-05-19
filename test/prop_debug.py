@@ -495,8 +495,8 @@ def test_prop():
 	assert not propDict, 'fighter.poss[230].y = 31415.9 %s' % repr(propDict)
 
 	propDict = {'Fighter': ['posi']}
-	fighter.posi[123] = 0.456
-	assert not propDict, 'fighter.posi[123] = 0.456 %s' % repr(propDict)
+	fighter.posi[123] = 0.4567
+	assert not propDict, 'fighter.posi[123] = 0.4567 %s' % repr(propDict)
 
 	propDict = {'Fighter': ['posl']}
 	fighter.posl.append(v)
