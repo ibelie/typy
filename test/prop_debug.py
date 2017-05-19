@@ -678,14 +678,14 @@ def test_prop():
 
 	propDict = {
 		'Vector2': ['x'],
-		'Fighter': ['pos', 'posl', 'poss', 'vd', 'ld', 'dd', 'v3'],
+		'Fighter': ['pos', 'posl', 'poss', 'vd', 'ld', 'dd', 'dd', 'v3'],
 	}
 	fighter.dd[12][111].x = 3141592653
 	assert not propDict, 'fighter.dd[12][111].x = 3141592653 %s' % repr(propDict)
 
 	propDict = {
 		'Vector2': ['y'],
-		'Fighter': ['pos', 'posl', 'poss', 'vd', 'ld', 'dd', 'v3'],
+		'Fighter': ['pos', 'posl', 'poss', 'vd', 'ld', 'dd', 'dd', 'v3'],
 	}
 	fighter.dd[12][111].y = 314159265.3
 	assert not propDict, 'fighter.dd[12][111].y = 314159265.3 %s' % repr(propDict)

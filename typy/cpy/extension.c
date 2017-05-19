@@ -35,6 +35,7 @@ TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 bool TypyPython_CheckAndSet(TypyPython* type, PyObject** value, PyObject* arg, const char* err) {
 	if (arg == Py_None) {
 		Py_XDECREF(*value);
+		*value = NULL;
 		return true;
 	} else if (PyObject_TypeCheck(arg, type->python_type) ||
 		(type->python_type == &PyList_Type && PySequence_Check(arg)) ||
