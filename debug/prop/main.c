@@ -56,12 +56,13 @@ static PyMethodDef ModuleMethods[] = {
 static inline void init(void) {
 	init_typyd();
 
-	PyObject* modules = PyImport_GetModuleDict();
+	register PyObject* modules = PyImport_GetModuleDict();
 	if (!modules) { return; }
-	PyObject* m = PyDict_GetItemString(modules, "_typyd");
+	register PyObject* m = PyDict_GetItemString(modules, "_typyd");
 	if (m) {
-		for (PyMethodDef* meth = ModuleMethods; meth->ml_name; meth++) {
-			PyObject* method = PyCFunction_NewEx(meth, m, NULL);
+		register PyMethodDef* meth;
+		for (meth = ModuleMethods; meth->ml_name; meth++) {
+			register PyObject* method = PyCFunction_NewEx(meth, m, NULL);
 			if (method) {
 				PyDict_SetItemString(PyModule_GetDict(m), meth->ml_name, method);
 			}
@@ -84,6 +85,8 @@ int main()
 "sys.path.append('C:/Users/joung/Documents/project/typy/test')\n"
 "sys.path.append('/home/joungtao/program/typy')\n"
 "sys.path.append('/home/joungtao/program/typy/test')\n"
+"sys.path.append('/home/joungtao/typy')\n"
+"sys.path.append('/home/joungtao/typy/test')\n"
 "import prop_debug\n"
 "prop_debug.setup()\n"
 "prop_debug.test_prop()\n"

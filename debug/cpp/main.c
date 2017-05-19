@@ -20,6 +20,8 @@ int main()
 "sys.path.append('C:/Users/joung/Documents/project/typy/test')\n"
 "sys.path.append('/home/joungtao/program/typy')\n"
 "sys.path.append('/home/joungtao/program/typy/test')\n"
+"sys.path.append('/home/joungtao/typy')\n"
+"sys.path.append('/home/joungtao/typy/test')\n"
 "import typy_test\n"
 "typy_test.SETUP_TYPYD = False\n"
 "typy_test.SETUP_TYPYC = False\n"
