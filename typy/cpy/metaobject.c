@@ -102,7 +102,7 @@ bool Meta_HandleProperty(TypyMetaObject* type, size_t index, TypyHandlerData dat
 	register IblBitmap flag = TypyProperty_Register(type, data, func);
 	if (!flag) { return false; }
 	register size_t i = Meta_PROPFLAG(type, index);
-	register size_t end = type->prop_flagmax - 1;
+	register size_t end = type->prop_flagmax;
 	if (index + 1 < type->meta_size) {
 		end = Meta_PROPFLAG(type, index + 1);
 	}
