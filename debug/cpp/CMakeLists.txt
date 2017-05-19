@@ -66,6 +66,8 @@ if(WIN32)
 	include_directories("C:/Python27/include")
 	target_link_libraries(${PROJECT_NAME} "C:/Python27/libs/python27.lib")
 else(WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -DNDEBUG -g -fwrapv -O2 -Wall -fno-strict-aliasing -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security -fPIC -Wno-write-strings -Wno-unused-value")
+
 	find_package(Threads REQUIRED)
 	if (CMAKE_USE_PTHREADS_INIT)
 		add_definitions(-DHAVE_PTHREAD)
