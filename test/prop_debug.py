@@ -344,10 +344,14 @@ def test_prop():
 	propDict = {}
 
 	def onPropertyChanged(cls, name, old, new):
+		if cls.__name__ not in propDict or name not in propDict[cls.__name__]:
+			import traceback
+			traceback.print_stack()
+			print propDict, cls.__name__, name, old, new
+			return
 		propDict[cls.__name__].remove(name)
 		if not propDict[cls.__name__]:
 			del propDict[cls.__name__]
-		# print cls.__name__, name, old, new
 
 	print 'test_prop begin'
 	import _typyd
@@ -355,16 +359,16 @@ def test_prop():
 	_typyd.RegisterHandler(_Vector2)
 	_typyd.RegisterHandler(_Fighter)
 
-	propDict = {'Fighter': ['pos']}
-	fighter.pos = v2
-	assert not propDict, 'fighter.pos = v2 %s' % repr(propDict)
-
 	propDict = {
 		'Vector2': ['x'],
-		'Fighter': ['pos', 'posl', 'poss', 'vl'],
+		'Fighter': ['v3', 'pos', 'posl', 'poss', 'vl'],
 	}
 	fighter.pos.x = 3.14
 	assert not propDict, 'fighter.pos.x = 3.14 %s' % repr(propDict)
+
+	propDict = {'Fighter': ['pos']}
+	fighter.pos = v2
+	assert not propDict, 'fighter.pos = v2 %s' % repr(propDict)
 
 	propDict = {
 		'Vector2': ['x'],
