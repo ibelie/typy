@@ -155,9 +155,9 @@ typedef size_t* IblBitmap;
 #define IblBitmap_HEADMASK   (~((size_t)(-1) >> 1))
 #define IblBitmap_BITCOUNT   (sizeof(size_t) * 8 - 1)
 #define IblBitmap_HASNEXT(p) (~(IblBitmap_HEADMASK & (*((IblBitmap)(p)))))
-#define IblBitmap_GET(p, b)  (((1 << (b)) & (*((IblBitmap)(p)))) ? true : false)
-#define IblBitmap_SET0(p, b) (*((IblBitmap)(p)) &= ~(1 << (b)))
-#define IblBitmap_SET1(p, b) (*((IblBitmap)(p)) |= (1 << (b)))
+#define IblBitmap_GET(p, b)  ((((size_t)(1) << (b)) & (*((IblBitmap)(p)))) ? true : false)
+#define IblBitmap_SET0(p, b) (*((IblBitmap)(p)) &= ~((size_t)(1) << (b)))
+#define IblBitmap_SET1(p, b) (*((IblBitmap)(p)) |= ((size_t)(1) << (b)))
 
 IblAPI(IblBitmap) IblBitmap_New(size_t);
 IblAPI(bool)      IblBitmap_Get(IblBitmap, size_t);
