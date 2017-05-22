@@ -68,6 +68,10 @@ Vi = _typyd.Variant('Vi', (
 	('Integer', 8, 1, 0, 1, ),
 ))
 LVector2 = _typyd.List('LVector2', (2, 11, Vector2))
+VLVector2 = _typyd.Variant('VLVector2', (
+	('List', 10, 1, 2, 13, LVector2),
+))
+LVLVector2 = _typyd.List('LVLVector2', (2, 12, VLVector2))
 DiVector2 = _typyd.Dict('DiVector2', (0, 1, ), (2, 11, Vector2))
 DiPyType = _typyd.Dict('DiPyType', (0, 1, ), (2, 15, PyType))
 LPyType = _typyd.List('LPyType', (2, 15, PyType))
@@ -118,20 +122,21 @@ Fighter = _typyd.Object('Fighter', (
 	('pos', 146, 2, 2, 11, Vector2),
 	('posi', 154, 2, 2, 14, Dfi),
 	('posl', 162, 2, 2, 13, LVector2),
-	('poss', 170, 2, 2, 14, DiVector2),
-	('pyd', 178, 2, 2, 14, DiPyType),
-	('pyl', 186, 2, 2, 13, LPyType),
-	('pyv1', 194, 2, 2, 12, ViPyType),
-	('pyv2', 202, 2, 2, 12, ViPyType),
-	('sd', 210, 2, 2, 14, Dis),
-	('sl', 218, 2, 2, 13, Ls),
-	('v0', 226, 2, 2, 12, VbyfiVector2),
-	('v1', 234, 2, 2, 12, VbyfiVector2),
-	('v2', 242, 2, 2, 12, VfisVector2),
-	('v3', 250, 2, 2, 12, VfisVector2),
-	('v4', 258, 2, 2, 12, VfisVector2),
-	('vd', 266, 2, 2, 14, DiVdesVector2),
-	('vl', 274, 2, 2, 13, LVfpisVector2),
+	('posll', 170, 2, 2, 13, LVLVector2),
+	('poss', 178, 2, 2, 14, DiVector2),
+	('pyd', 186, 2, 2, 14, DiPyType),
+	('pyl', 194, 2, 2, 13, LPyType),
+	('pyv1', 202, 2, 2, 12, ViPyType),
+	('pyv2', 210, 2, 2, 12, ViPyType),
+	('sd', 218, 2, 2, 14, Dis),
+	('sl', 226, 2, 2, 13, Ls),
+	('v0', 234, 2, 2, 12, VbyfiVector2),
+	('v1', 242, 2, 2, 12, VbyfiVector2),
+	('v2', 250, 2, 2, 12, VfisVector2),
+	('v3', 258, 2, 2, 12, VfisVector2),
+	('v4', 266, 2, 2, 12, VfisVector2),
+	('vd', 274, 2, 2, 14, DiVdesVector2),
+	('vl', 282, 2, 2, 13, LVfpisVector2),
 ))
 Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('hp', 13, 1, 5, 7, ),
@@ -139,11 +144,12 @@ Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('pos', 26, 1, 2, 11, Vector2),
 	('posi', 34, 1, 2, 14, Dfi),
 	('posl', 42, 1, 2, 13, LVector2),
-	('poss', 50, 1, 2, 14, DiVector2),
-	('pyd', 58, 1, 2, 14, DiPyType),
-	('pyl', 66, 1, 2, 13, LPyType),
-	('pyv1', 74, 1, 2, 12, ViPyType),
-	('pyv2', 82, 1, 2, 12, ViPyType),
+	('posll', 50, 1, 2, 13, LVLVector2),
+	('poss', 58, 1, 2, 14, DiVector2),
+	('pyd', 66, 1, 2, 14, DiPyType),
+	('pyl', 74, 1, 2, 13, LPyType),
+	('pyv1', 82, 1, 2, 12, ViPyType),
+	('pyv2', 90, 1, 2, 12, ViPyType),
 ))
 Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('bd', 10, 1, 2, 14, Dbys),
@@ -157,13 +163,14 @@ Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('pos', 74, 1, 2, 11, Vector2),
 	('posi', 82, 1, 2, 14, Dfi),
 	('posl', 90, 1, 2, 13, LVector2),
-	('poss', 98, 1, 2, 14, DiVector2),
-	('pyd', 106, 1, 2, 14, DiPyType),
-	('pyl', 114, 1, 2, 13, LPyType),
-	('pyv1', 122, 1, 2, 12, ViPyType),
-	('pyv2', 130, 2, 2, 12, ViPyType),
-	('sd', 138, 2, 2, 14, Dis),
-	('sl', 146, 2, 2, 13, Ls),
+	('posll', 98, 1, 2, 13, LVLVector2),
+	('poss', 106, 1, 2, 14, DiVector2),
+	('pyd', 114, 1, 2, 14, DiPyType),
+	('pyl', 122, 1, 2, 13, LPyType),
+	('pyv1', 130, 2, 2, 12, ViPyType),
+	('pyv2', 138, 2, 2, 12, ViPyType),
+	('sd', 146, 2, 2, 14, Dis),
+	('sl', 154, 2, 2, 13, Ls),
 ))
 RPG = _typyd.Object('RPG', (
 	('fighter', 10, 1, 2, 11, Fighter),

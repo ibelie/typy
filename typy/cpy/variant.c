@@ -243,8 +243,10 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 		register int index = TAG_INDEX(tag);
 		if (index < 0 || (size_t)index >= Meta_SIZE(type)) { goto handle_unusual; }
 		if (TAG_WIRETYPE(tag) == Meta_WIRETYPE(type, index)) {
-			MetaVariant_DEL_OWNER(type, self);
-			self->variant_index = index;
+			if (self->variant_index != index) {
+				MetaVariant_DEL_OWNER(type, self);
+				self->variant_index = index;
+			}
 			if (!MetaVariant_READ(type, self, input, &remain)) {
 				self->variant_index = -1;
 				goto handle_unusual;
@@ -281,7 +283,9 @@ void TypyVariant_MergeFrom(TypyMetaObject* type, TypyVariant** lvalue, TypyVaria
 		return;
 	}
 	TypyVariant_FromValueOrNew(self, lvalue, type, );
-	MetaVariant_DEL_OWNER(type, self);
+	if (self->variant_index != rvalue->variant_index) {
+		MetaVariant_DEL_OWNER(type, self);
+	}
 	MetaVariant_MERGEFROM(type, self, rvalue);
 	self->variant_index = rvalue->variant_index;
 	MetaVariant_ADD_OWNER(type, self);

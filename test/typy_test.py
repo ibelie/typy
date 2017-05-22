@@ -121,6 +121,7 @@ def setup():
 		poss = pb.Dict(Integer, Vector2, label = 'poss')
 		posi = pb.Dict(Integer, Float, label = 'posi')
 		posl = pb.List(Vector2, label = 'posl')
+		posll = pb.List(List(Vector2), label = 'posll')
 		pyl = pb.List(Python(PyType), label = 'pyl')
 		pyd = pb.Dict(Integer, Python(PyType), label = 'pyd')
 		pyv1 = pb.Instance(Integer, Python(PyType), label = 'pyv1')
@@ -499,6 +500,12 @@ def _build(_typy):
 	print "isinstance(_Vector2, type)", isinstance(_Vector2, type)
 	print "issubclass(_Vector2, type)", issubclass(_Vector2, type)
 
+	fPoslPy = Fighter()
+	fPoslPy.MergeFromString(Fighter(posll = [[Vector2(), Vector2(), Vector2()], [Vector2(), Vector2()]]).SerializeToString())
+	assert len(fPoslPy.posll) == 2 and len(fPoslPy.posll[0]) == 3 and len(fPoslPy.posll[1]) == 2, repr(fPoslPy.posll)
+	fPosl = _Fighter()
+	fPosl.MergeFromString(_Fighter(posll = [[_Vector2(), _Vector2(), _Vector2()], [_Vector2(), _Vector2()]]).SerializeToString())
+	assert len(fPosl.posll) == 2 and len(fPosl.posll[0]) == 3 and len(fPosl.posll[1]) == 2, repr(fPosl.posll)
 
 	v = _Vector2(
 		123,  # x

@@ -38,6 +38,7 @@ bool InitModule(PyObject* m) {
 		&& PyType_Ready(&List< Corpus >::_Type) >= 0 && PyType_Ready(&List< Corpus >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Python<Shadow_PyType> >::_Type) >= 0 && PyType_Ready(&List< Python<Shadow_PyType> >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< SkillParam >::_Type) >= 0 && PyType_Ready(&List< SkillParam >::Iterator_Type) >= 0
+		&& PyType_Ready(&List< VLVector2 >::_Type) >= 0 && PyType_Ready(&List< VLVector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VLf >::_Type) >= 0 && PyType_Ready(&List< VLf >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VdesVector2 >::_Type) >= 0 && PyType_Ready(&List< VdesVector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Vector2 >::_Type) >= 0 && PyType_Ready(&List< Vector2 >::Iterator_Type) >= 0

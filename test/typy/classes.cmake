@@ -17,6 +17,7 @@ set(CLASSES
 	"${_TYPY_DIR}/Vi.cc"
 	"${_TYPY_DIR}/ViLVfs.cc"
 	"${_TYPY_DIR}/VLf.cc"
+	"${_TYPY_DIR}/VLVector2.cc"
 	"${_TYPY_DIR}/VfpisVector2.cc"
 	"${_TYPY_DIR}/ViDfi.cc"
 	"${_TYPY_DIR}/VfisVector2.cc"
