@@ -76,6 +76,7 @@ def setup():
 		poss = pb.Dict(Integer, Vector2, label = 'poss')
 		posi = pb.Dict(Integer, Float, label = 'posi')
 		posl = pb.List(Vector2, label = 'posl')
+		posll = pb.List(List(Vector2), label = 'posll')
 		pyl = pb.List(Python(PyType), label = 'pyl')
 		pyd = pb.Dict(Integer, Python(PyType), label = 'pyd')
 		pyv1 = pb.Instance(Integer, Python(PyType), label = 'pyv1')
