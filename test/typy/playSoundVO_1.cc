@@ -7,7 +7,6 @@
 TypyObjectBegin(playSoundVO_1);
 
 playSoundVO_1::playSoundVO_1() : Message() {
-	PyObject_INIT(this, &Object<playSoundVO_1>::_Type);
 	ZERO(playSoundVO_1, p_interval, _cached_size);
 }
 

@@ -7,7 +7,6 @@
 TypyObjectBegin(Fighter_Part1);
 
 Fighter_Part1::Fighter_Part1() : Message() {
-	PyObject_INIT(this, &Object<Fighter_Part1>::_Type);
 	ZERO(Fighter_Part1, p_hp, _cached_size);
 }
 

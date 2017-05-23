@@ -7,7 +7,6 @@
 TypyObjectBegin(SkillParam);
 
 SkillParam::SkillParam() : Message() {
-	PyObject_INIT(this, &Object<SkillParam>::_Type);
 	ZERO(SkillParam, p_buckID, _cached_size);
 }
 

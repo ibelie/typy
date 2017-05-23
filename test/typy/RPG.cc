@@ -7,7 +7,6 @@
 TypyObjectBegin(RPG);
 
 RPG::RPG() : Message() {
-	PyObject_INIT(this, &Object<RPG>::_Type);
 	ZERO(RPG, p_fighter, _cached_size);
 }
 

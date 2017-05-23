@@ -8,48 +8,60 @@
 #include "typy.h"
 
 #define TypyHeaderBegin(OBJECT) \
-namespace typy {                                                         \
-                                                                         \
-class OBJECT : public PyObject, public Message {                         \
-public:                                                                  \
-	typedef OBJECT* ValueType;                                           \
-	enum {                                                               \
-		FieldType = WireFormatLite::TYPE_MESSAGE,                        \
-		WireType = WireFormatLite::WIRETYPE_LENGTH_DELIMITED,            \
-	};                                                                   \
-                                                                         \
-	static const char* FullName;                                         \
-	static const char* Name;                                             \
-                                                                         \
-	static const int PropertyCount;                                      \
-	static char* Properties[];                                           \
-                                                                         \
-	OBJECT();                                                            \
-	~OBJECT() { Clear(); }                                               \
-                                                                         \
-	OBJECT* New() const;                                                 \
-	void Clear();                                                        \
-	void CheckTypeAndMergeFrom(const Message&);                          \
-	bool IsInitialized() const { return true; }                          \
-	void CopyFrom(const OBJECT&);                                        \
-	void MergeFrom(const OBJECT&);                                       \
-	int GetCachedSize() const { return _cached_size; }                   \
-                                                                         \
-	::std::string GetTypeName() const;                                   \
-                                                                         \
-	int ByteSize() const;                                                \
-	bool MergePartialFromCodedStream(CodedInputStream*);                 \
-	void SerializeWithCachedSizes(CodedOutputStream*) const;             \
-	bool SetPropertySequence(PyObject*);                                 \
-	PyObject* GetPropertySequence();                                     \
-	PyObject* Json(bool);                                                \
-	static OBJECT* FromJson(PyObject*);                                  \
-	int Visit(visitproc, void*);                                         \
-                                                                         \
-	char* PropertyName(int);                                             \
-	int PropertyTag(char*);                                              \
-	int PropertyByteSize(int) const;                                     \
-	int DeserializeProperty(CodedInputStream*);                          \
+namespace typy {                                                               \
+                                                                               \
+class OBJECT : public PyObject, public Message {                               \
+public:                                                                        \
+	typedef OBJECT* ValueType;                                                 \
+	enum {                                                                     \
+		FieldType = WireFormatLite::TYPE_MESSAGE,                              \
+		WireType = WireFormatLite::WIRETYPE_LENGTH_DELIMITED,                  \
+	};                                                                         \
+                                                                               \
+	static const char* FullName;                                               \
+	static const char* Name;                                                   \
+                                                                               \
+	static const int PropertyCount;                                            \
+	static char* Properties[];                                                 \
+                                                                               \
+	void* operator new(size_t size) {                                          \
+		OBJECT* object = reinterpret_cast<OBJECT*>(malloc(size));              \
+		if (object != NULL) {                                                  \
+			(void)PyObject_INIT(object, &Object<OBJECT>::_Type);               \
+		}                                                                      \
+		return object;                                                         \
+	}                                                                          \
+                                                                               \
+	void operator delete(void* ptr) {                                          \
+		free(ptr);                                                             \
+	}                                                                          \
+                                                                               \
+	OBJECT();                                                                  \
+	~OBJECT() { Clear(); }                                                     \
+                                                                               \
+	OBJECT* New() const;                                                       \
+	void Clear();                                                              \
+	void CheckTypeAndMergeFrom(const Message&);                                \
+	bool IsInitialized() const { return true; }                                \
+	void CopyFrom(const OBJECT&);                                              \
+	void MergeFrom(const OBJECT&);                                             \
+	int GetCachedSize() const { return _cached_size; }                         \
+                                                                               \
+	::std::string GetTypeName() const;                                         \
+                                                                               \
+	int ByteSize() const;                                                      \
+	bool MergePartialFromCodedStream(CodedInputStream*);                       \
+	void SerializeWithCachedSizes(CodedOutputStream*) const;                   \
+	bool SetPropertySequence(PyObject*);                                       \
+	PyObject* GetPropertySequence();                                           \
+	PyObject* Json(bool);                                                      \
+	static OBJECT* FromJson(PyObject*);                                        \
+	int Visit(visitproc, void*);                                               \
+                                                                               \
+	char* PropertyName(int);                                                   \
+	int PropertyTag(char*);                                                    \
+	int PropertyByteSize(int) const;                                           \
+	int DeserializeProperty(CodedInputStream*);                                \
 	void SerializeProperty(CodedOutputStream*, int) const;
 
 #define TypyHeaderEnd(OBJECT) \
@@ -674,8 +686,7 @@ PyTypeObject Object<T>::_Type = {
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
-		Py_TPFLAGS_BASETYPE,                  /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags          */
 	"A Typy Object",                          /* tp_doc            */
 	(traverseproc)tp_Traverse,                /* tp_traverse       */
 	(inquiry)tp_GcClear,                      /* tp_clear          */

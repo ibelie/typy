@@ -7,7 +7,6 @@
 TypyObjectBegin(Empty);
 
 Empty::Empty() : Message() {
-	PyObject_INIT(this, &Object<Empty>::_Type);
 	ZERO(Empty, _cached_size, _cached_size);
 }
 

@@ -7,7 +7,6 @@
 TypyObjectBegin(Vector2);
 
 Vector2::Vector2() : Message() {
-	PyObject_INIT(this, &Object<Vector2>::_Type);
 	ZERO(Vector2, p_x, _cached_size);
 }
 

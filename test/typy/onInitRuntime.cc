@@ -7,7 +7,6 @@
 TypyObjectBegin(onInitRuntime);
 
 onInitRuntime::onInitRuntime() : Message() {
-	PyObject_INIT(this, &Object<onInitRuntime>::_Type);
 	ZERO(onInitRuntime, p_buckID, _cached_size);
 }
 
