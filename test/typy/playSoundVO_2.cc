@@ -15,6 +15,12 @@ void playSoundVO_2::Clear() {
 	::typy::Clear(p_path);
 }
 
+int playSoundVO_2::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	if(result = ::typy::Visit(p_path, visit, arg)) { return result; }
+	return result;
+}
+
 void playSoundVO_2::MergeFrom(const playSoundVO_2& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	::typy::MergeFrom(p_path, from.p_path);

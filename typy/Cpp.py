@@ -271,6 +271,7 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 	ref_types = set()
 	header_fields = []
 	clear_fields = []
+	visit_fields = []
 	copy_fields = []
 	merge_fields = []
 	write_fields = []
@@ -290,6 +291,7 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 		readPrefix = 'FIRST' if tag == 1 else 'NEXT'
 		header_fields.append('%s%s _value%d;' % (typ, star, tag))
 		clear_fields.append('case %d: ::typy::Clear(_value%d); break;' % (tag, tag))
+		visit_fields.append('case %d: result = ::typy::Visit(_value%d, visit, arg); break;' % (tag, tag))
 		copy_fields.append('case %d: ::typy::CopyFrom(_value%d, from._value%d); break;' % (tag, tag, tag))
 		merge_fields.append('case %d: ::typy::MergeFrom(_value%d, from._value%d); break;' % (tag, tag, tag))
 		write_fields.append('case %d: ::typy::Write(_tag, _value%d, output); break;' % (tag, tag))
@@ -306,7 +308,8 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 
 		from_json_objects, from_json_dict, from_json_list = _VariantFromJson(cppTypes)
 		_compareWrite(path + '%s.cc' % name, TYPY_VARIANT_CLS_CC__ % (name, name, name,
-			'\n\t'.join(clear_fields), name, name,
+			'\n\t'.join(clear_fields), name,
+			'\n\t'.join(visit_fields), name, name,
 			'\n\t'.join(copy_fields), name, name,
 			'\n\t'.join(merge_fields), name,
 			'\n\t'.join(write_fields), name,
@@ -363,6 +366,7 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 	ref_types = set()
 	header_fields = []
 	clear_fields = []
+	visit_fields = []
 	merge_fields = []
 	write_fields = []
 	bytesize_fields = []
@@ -387,6 +391,7 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 			first_fields = 'p_%s' % a
 		header_fields.append('%s%s p_%s;' % (typ, star, a))
 		clear_fields.append('::typy::Clear(p_%s);' % a)
+		visit_fields.append('if(result = ::typy::Visit(p_%s, visit, arg)) { return result; }' % a)
 		merge_fields.append('::typy::MergeFrom(p_%s, from.p_%s);' % (a, a))
 		set_property_sequence.append('case %d: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, %d), p_%s, "Property \'%s\' expect %s, but ")) { return false; } break;' % (i, i, a, a, info))
 		get_property_sequence.append('PyTuple_SET_ITEM(result, %d, ::typy::GetPyObject(p_%s));' % (i, a))
@@ -458,7 +463,8 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 
 		_compareWrite(path + '%s.cc' % _shortName('O', name), TYPY_OBJECT_CLS_CC__ % (
 			_shortName('O', name), name, name, name, name, name, first_fields, name,
-			'\n\t'.join(clear_fields), name, name,
+			'\n\t'.join(clear_fields), name,
+			'\n\t'.join(visit_fields), name, name,
 			'\n\t'.join(merge_fields), name,
 			'\n\t'.join(write_fields), name,
 			'\n\t'.join(bytesize_fields), name,
@@ -614,6 +620,14 @@ void %s::Clear() {
 	_tag = 0;
 }
 
+int %s::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	switch (_tag) {
+	%s
+	}
+	return result;
+}
+
 void %s::CopyFrom(const %s& from) {
 	if (&from == this) { return; }
 	if (_tag != 0 && _tag != from._tag) { Clear(); }
@@ -754,6 +768,7 @@ template <> struct Type<ENUM> {
 
 PyObject* GetPyObject(const ENUM& value);
 bool CheckAndSet(PyObject* arg, ENUM& value, const char* err);
+inline int  Visit(const ENUM& value, visitproc visit, void* arg) { return 0; }
 inline void CopyFrom(ENUM& lvalue, const ENUM& rvalue) { lvalue = rvalue; }
 inline void Clear(ENUM& value) { value = static_cast<ENUM>(0); }
 inline void MergeFrom(ENUM& lvalue, const ENUM& rvalue) {
@@ -949,6 +964,12 @@ TypyObjectBegin(%s);
 
 void %s::Clear() {
 	%s
+}
+
+int %s::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	%s
+	return result;
 }
 
 void %s::MergeFrom(const %s& from) {

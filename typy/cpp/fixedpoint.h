@@ -50,6 +50,9 @@ inline void CopyFrom(FIXEDPOINT& lvalue, const double& rvalue) {
 }
 
 template <int precision, int floor>
+inline int Visit(const FIXEDPOINT& value, visitproc visit, void* arg) { return 0; }
+
+template <int precision, int floor>
 inline void Clear(FIXEDPOINT& value) { value.value = 0; }
 
 template <int precision, int floor>

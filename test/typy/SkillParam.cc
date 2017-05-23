@@ -22,6 +22,19 @@ void SkillParam::Clear() {
 	::typy::Clear(p_targetIDs);
 }
 
+int SkillParam::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	if(result = ::typy::Visit(p_buckID, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_destPos, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_destRot, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_extraParam, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_origPos, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_origRot, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_targetID, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_targetIDs, visit, arg)) { return result; }
+	return result;
+}
+
 void SkillParam::MergeFrom(const SkillParam& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	::typy::MergeFrom(p_buckID, from.p_buckID);

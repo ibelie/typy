@@ -787,6 +787,19 @@ static PyObject* list_Copy(PyTypeObject* cls, TypyList* self) {
 	return (PyObject*)list;
 }
 
+static int list_Traverse(TypyList* self, visitproc visit, void* arg) {
+	register size_t i;
+	for (i = 0; i < self->list_length; i++) {
+		TypyField_Vst(MetaList_FIELDTYPE(TypyList_TYPE(self)), self->list_items[i]);
+	}
+	return 0;
+}
+
+static int list_Clear(TypyList* self) {
+	TypyList_Clear(self);
+	return 0;
+}
+
 //=============================================================================
 
 static TypyListIterator* list_Iter(TypyList* self) {
@@ -890,10 +903,10 @@ PyTypeObject TypyListType = {
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,  /* tp_flags          */
 	"A Typy List",                            /* tp_doc            */
-	0,                                        /* tp_traverse       */
-	0,                                        /* tp_clear          */
+	(traverseproc)list_Traverse,              /* tp_traverse       */
+	(inquiry)list_Clear,                      /* tp_clear          */
 	0,                                        /* tp_richcompare    */
 	0,                                        /* tp_weaklistoffset */
 	(getiterfunc)list_Iter,                   /* tp_iter           */
@@ -935,7 +948,7 @@ PyTypeObject TypyListIteratorType = {
 	PyObject_GenericGetAttr,                      /* tp_getattro       */
 	0,                                            /* tp_setattro       */
 	0,                                            /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                           /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,      /* tp_flags          */
 	"A Typy List Iterator",                       /* tp_doc            */
 	(traverseproc)iter_Traverse,                  /* tp_traverse       */
 	0,                                            /* tp_clear          */

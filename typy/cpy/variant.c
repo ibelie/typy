@@ -90,6 +90,18 @@ static PyObject* TypyVariant_Repr(TypyMetaObject* type) {
 	return PyString_FromFormat("<Variant '" FULL_MODULE_NAME ".%.100s'>", Meta_NAME(type));
 }
 
+static int TypyVariant_Traverse(TypyVariant* self, visitproc visit, void* arg) {
+	if (self->variant_index >= 0 && (size_t)self->variant_index < Meta_SIZE(Typy_TYPE(self))) {
+		TypyField_Vst(Meta_FIELDTYPE(Typy_TYPE(self), self->variant_index), self->variant_value);
+	}
+	return 0;
+}
+
+static int TypyVariant_Clear(TypyVariant* self) {
+	MetaVariant_CLEAR(Typy_TYPE(self), self);
+	return 0;
+}
+
 //=============================================================================
 
 #define TypyVariant_FromValueOrNew(s, v, t, r) \
@@ -388,8 +400,10 @@ PyTypeObject TypyVariantType = {
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,  /* tp_flags          */
 	"A Typy Variant",                         /* tp_doc            */
+	(traverseproc)TypyVariant_Traverse,       /* tp_traverse       */
+	(inquiry)TypyVariant_Clear,               /* tp_clear          */
 };
 
 #ifdef __cplusplus

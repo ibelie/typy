@@ -773,6 +773,19 @@ PyObject* Py_FromJson(TypyMetaObject* type, PyObject* json) {
 	}
 }
 
+int Py_Traverse(TypyObject* self, visitproc visit, void* arg) {
+	register size_t i;
+	for (i = 0; i < Typy_SIZE(self); i++) {
+		TypyField_Vst(Typy_FIELDTYPE(self, i), Typy_FIELD(self, i));
+	}
+	return 0;
+}
+
+int Py_GcClear(TypyObject* self) {
+	Typy_Clear(self);
+	return 0;
+}
+
 // ===================================================================
 
 static PyTypeObject _TypyObjectType;

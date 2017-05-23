@@ -16,6 +16,17 @@ void VfpisVector2::Clear() {
 	_tag = 0;
 }
 
+int VfpisVector2::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	switch (_tag) {
+	case 1: result = ::typy::Visit(_value1, visit, arg); break;
+	case 2: result = ::typy::Visit(_value2, visit, arg); break;
+	case 3: result = ::typy::Visit(_value3, visit, arg); break;
+	case 4: result = ::typy::Visit(_value4, visit, arg); break;
+	}
+	return result;
+}
+
 void VfpisVector2::CopyFrom(const VfpisVector2& from) {
 	if (&from == this) { return; }
 	if (_tag != 0 && _tag != from._tag) { Clear(); }

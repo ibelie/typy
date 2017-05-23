@@ -704,6 +704,21 @@ static PyObject* dict_Copy(PyTypeObject* cls, TypyDict* self) {
 	return (PyObject*)dict;
 }
 
+static int dict_Traverse(TypyDict* self, visitproc visit, void* arg) {
+	register IblMap_Item iter;
+	for (iter = IblMap_Begin(self->dict_map); iter; iter = IblMap_Next(self->dict_map, iter)) {
+		register TypyDictMap item = (TypyDictMap)iter;
+		TypyField_Vst(MetaKey_FIELDTYPE(TypyDict_TYPE(self)), item->key);
+		TypyField_Vst(MetaValue_FIELDTYPE(TypyDict_TYPE(self)), item->value);
+	}
+	return 0;
+}
+
+static int dict_GcClear(TypyDict* self) {
+	TypyDict_Clear(self);
+	return 0;
+}
+
 //=============================================================================
 
 static TypyDictIterator* dict_IterKey(TypyDict* self) {
@@ -903,10 +918,10 @@ PyTypeObject TypyDictType = {
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                       /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,  /* tp_flags          */
 	"A Typy Dict",                            /* tp_doc            */
-	0,                                        /* tp_traverse       */
-	0,                                        /* tp_clear          */
+	(traverseproc)dict_Traverse,              /* tp_traverse       */
+	(inquiry)dict_GcClear,                    /* tp_clear          */
 	0,                                        /* tp_richcompare    */
 	0,                                        /* tp_weaklistoffset */
 	(getiterfunc)dict_IterKey,                /* tp_iter           */
@@ -948,7 +963,7 @@ PyTypeObject TypyDictIterKeyType = {
 	PyObject_GenericGetAttr,                         /* tp_getattro       */
 	0,                                               /* tp_setattro       */
 	0,                                               /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,         /* tp_flags          */
 	"A Typy Dict Key Iterator",                      /* tp_doc            */
 	(traverseproc)iter_Traverse,                     /* tp_traverse       */
 	0,                                               /* tp_clear          */
@@ -980,7 +995,7 @@ PyTypeObject TypyDictIterValueType = {
 	PyObject_GenericGetAttr,                         /* tp_getattro       */
 	0,                                               /* tp_setattro       */
 	0,                                               /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,         /* tp_flags          */
 	"A Typy Dict Value Iterator",                    /* tp_doc            */
 	(traverseproc)iter_Traverse,                     /* tp_traverse       */
 	0,                                               /* tp_clear          */
@@ -1012,7 +1027,7 @@ PyTypeObject TypyDictIterItemType = {
 	PyObject_GenericGetAttr,                         /* tp_getattro       */
 	0,                                               /* tp_setattro       */
 	0,                                               /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,         /* tp_flags          */
 	"A Typy Dict Item Iterator",                     /* tp_doc            */
 	(traverseproc)iter_Traverse,                     /* tp_traverse       */
 	0,                                               /* tp_clear          */

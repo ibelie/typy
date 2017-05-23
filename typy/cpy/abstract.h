@@ -29,6 +29,7 @@ typedef uint8 FieldType;
 	typedef size_t TypyField;
 #endif
 
+#define TypyField_Vst(t, f) if ((FieldType)(t) >= MAX_PRIMITIVE_TYPE) { Py_VISIT((PyObject*)f); }
 #define TypyField_Set(t, f) (TypyField)(f); if ((FieldType)(t) >= MAX_PRIMITIVE_TYPE) { Py_XINCREF((PyObject*)f); }
 #define TypyField_Clr(t, f) if ((FieldType)(t) >= MAX_PRIMITIVE_TYPE) { Py_XDECREF((PyObject*)f); } f = (TypyField)0
 

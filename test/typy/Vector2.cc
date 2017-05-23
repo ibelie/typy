@@ -22,6 +22,19 @@ void Vector2::Clear() {
 	::typy::Clear(p_t);
 }
 
+int Vector2::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	if(result = ::typy::Visit(p_x, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_y, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_b, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_e, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_i, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_p, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_s, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_t, visit, arg)) { return result; }
+	return result;
+}
+
 void Vector2::MergeFrom(const Vector2& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	::typy::MergeFrom(p_x, from.p_x);

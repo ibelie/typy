@@ -39,6 +39,7 @@ public:                                                                  \
 	static VARIANT* FromJson(PyObject*);                                 \
 	PyObject* toPyObject();                                              \
 	bool fromPyObject(PyObject* value);                                  \
+	int Visit(visitproc, void*);                                         \
                                                                          \
 private:                                                                 \
 	union {                                                              \
@@ -57,6 +58,11 @@ inline void CopyFrom(VARIANT*& lvalue, VARIANT* rvalue) {                \
 	if (rvalue == NULL) { delete lvalue; lvalue = NULL; return; }        \
 	if (lvalue == NULL) { lvalue = new VARIANT; }                        \
 	lvalue->VARIANT::CopyFrom(*rvalue);                                  \
+}                                                                        \
+                                                                         \
+inline int Visit(VARIANT*& value, visitproc visit, void* arg) {          \
+	if (value != NULL) { return value->VARIANT::Visit(visit, arg); }     \
+	return 0;                                                            \
 }                                                                        \
                                                                          \
 inline void Clear(VARIANT*& value) {                                     \

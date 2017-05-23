@@ -64,6 +64,7 @@ template <> struct Type<TYPE> {                                                 
 	};                                                                                    \
 };                                                                                        \
 bool CheckAndSet(PyObject* arg, TYPE& value, const char* err);                            \
+inline int  Visit(const TYPE& value, visitproc visit, void* arg) { return 0; }            \
 inline void CopyFrom(TYPE& lvalue, const TYPE& rvalue) { lvalue = rvalue; }               \
 inline void Clear(TYPE& value) { value = 0; }                                             \
 inline void MergeFrom(TYPE& lvalue, const TYPE& rvalue) {                                 \
@@ -149,6 +150,24 @@ inline void CopyFrom(T*& lvalue, T* rvalue) {
 	if (rvalue == NULL) { lvalue = NULL; return; }
 	Py_INCREF(rvalue);
 	lvalue = rvalue;
+}
+
+inline int Visit(const ::std::string& value, visitproc visit, void* arg) { return 0; }
+
+inline int Visit(bytes& value, visitproc visit, void* arg) {
+	Py_VISIT(value);
+	return 0;
+}
+
+inline int Visit(string& value, visitproc visit, void* arg) {
+	Py_VISIT(value);
+	return 0;
+}
+
+template <typename T>
+inline int Visit(T*& value, visitproc visit, void* arg) {
+	Py_VISIT(value);
+	return 0;
 }
 
 inline void Clear(::std::string& value) { value.clear(); }

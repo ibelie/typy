@@ -26,6 +26,23 @@ void onInitRuntime::Clear() {
 	::typy::Clear(p_unitIndex);
 }
 
+int onInitRuntime::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	if(result = ::typy::Visit(p_buckID, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_events, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_flowID, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_ownerID, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_params, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_passBuckEvents, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_prev, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_skillID, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_skillIdx, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_specificEvents, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_uiid, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_unitIndex, visit, arg)) { return result; }
+	return result;
+}
+
 void onInitRuntime::MergeFrom(const onInitRuntime& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	::typy::MergeFrom(p_buckID, from.p_buckID);

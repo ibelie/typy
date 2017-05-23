@@ -15,6 +15,12 @@ void Empty::Clear() {
 	
 }
 
+int Empty::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	
+	return result;
+}
+
 void Empty::MergeFrom(const Empty& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	

@@ -14,6 +14,15 @@ void ViDfi::Clear() {
 	_tag = 0;
 }
 
+int ViDfi::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	switch (_tag) {
+	case 1: result = ::typy::Visit(_value1, visit, arg); break;
+	case 2: result = ::typy::Visit(_value2, visit, arg); break;
+	}
+	return result;
+}
+
 void ViDfi::CopyFrom(const ViDfi& from) {
 	if (&from == this) { return; }
 	if (_tag != 0 && _tag != from._tag) { Clear(); }

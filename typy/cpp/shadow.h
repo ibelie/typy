@@ -214,6 +214,14 @@ inline void CopyFrom(Python<T>*& lvalue, Python<T>* rvalue) {
 }
 
 template <typename T>
+inline int Visit(Python<T>*& value, visitproc visit, void* arg) {
+	if (value != NULL) {
+		Py_VISIT(value->object);
+	}
+	return 0;
+}
+
+template <typename T>
 inline void Clear(Python<T>*& value) {
 	delete value; value = NULL;
 }

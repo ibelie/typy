@@ -15,6 +15,12 @@ void RPG::Clear() {
 	::typy::Clear(p_fighter);
 }
 
+int RPG::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	if(result = ::typy::Visit(p_fighter, visit, arg)) { return result; }
+	return result;
+}
+
 void RPG::MergeFrom(const RPG& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	::typy::MergeFrom(p_fighter, from.p_fighter);

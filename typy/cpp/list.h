@@ -514,6 +514,23 @@ static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
 }
 
 template <typename T>
+static int tp_Traverse(PyObject* self, visitproc visit, void* arg) {
+	register int result;
+	List<T>* list = static_cast<List<T>*>(self);
+	for (int i = 0; i < list->size(); i++) {
+		result = ::typy::Visit(*list->Mutable(i), visit, arg);
+		if (result) { return result; }
+	}
+	return 0;
+}
+
+template <typename T>
+static int tp_Clear(PyObject* self) {
+	static_cast<List<T>*>(self)->Clear();
+	return 0;
+}
+
+template <typename T>
 static PyObject* tp_Iter(PyObject* self) {
 	typename List<T>::Iterator* it = reinterpret_cast<typename List<T>::Iterator*>(
 		PyType_GenericAlloc(&List<T>::Iterator_Type, 0));
@@ -608,41 +625,41 @@ PyMethodDef List<T>::Methods[] = {
 template <typename T>
 PyTypeObject List<T>::_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	FULL_MODULE_NAME ".List",                /* tp_name           */
-	sizeof(List<T>),                         /* tp_basicsize      */
-	0,                                       /* tp_itemsize       */
-	(destructor)::typy::list::tp_Dealloc<T>, /* tp_dealloc        */
-	0,                                       /* tp_print          */
-	0,                                       /* tp_getattr        */
-	0,                                       /* tp_setattr        */
-	0,                                       /* tp_compare        */
-	(reprfunc)::typy::list::tp_Repr<T>,      /* tp_repr           */
-	0,                                       /* tp_as_number      */
-	&SqMethods,                              /* tp_as_sequence    */
-	&MpMethods,                              /* tp_as_mapping     */
-	PyObject_HashNotImplemented,             /* tp_hash           */
-	0,                                       /* tp_call           */
-	(reprfunc)::typy::list::tp_Repr<T>,      /* tp_str            */
-	0,                                       /* tp_getattro       */
-	0,                                       /* tp_setattro       */
-	0,                                       /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                      /* tp_flags          */
-	"A Typy List",                           /* tp_doc            */
-	0,                                       /* tp_traverse       */
-	0,                                       /* tp_clear          */
-	0,                                       /* tp_richcompare    */
-	0,                                       /* tp_weaklistoffset */
-	(getiterfunc)::typy::list::tp_Iter<T>,   /* tp_iter           */
-	0,                                       /* tp_iternext       */
-	Methods,                                 /* tp_methods        */
-	0,                                       /* tp_members        */
-	0,                                       /* tp_getset         */
-	0,                                       /* tp_base           */
-	0,                                       /* tp_dict           */
-	0,                                       /* tp_descr_get      */
-	0,                                       /* tp_descr_set      */
-	0,                                       /* tp_dictoffset     */
-	0,                                       /* tp_init           */
+	FULL_MODULE_NAME ".List",                   /* tp_name           */
+	sizeof(List<T>),                            /* tp_basicsize      */
+	0,                                          /* tp_itemsize       */
+	(destructor)::typy::list::tp_Dealloc<T>,    /* tp_dealloc        */
+	0,                                          /* tp_print          */
+	0,                                          /* tp_getattr        */
+	0,                                          /* tp_setattr        */
+	0,                                          /* tp_compare        */
+	(reprfunc)::typy::list::tp_Repr<T>,         /* tp_repr           */
+	0,                                          /* tp_as_number      */
+	&SqMethods,                                 /* tp_as_sequence    */
+	&MpMethods,                                 /* tp_as_mapping     */
+	PyObject_HashNotImplemented,                /* tp_hash           */
+	0,                                          /* tp_call           */
+	(reprfunc)::typy::list::tp_Repr<T>,         /* tp_str            */
+	0,                                          /* tp_getattro       */
+	0,                                          /* tp_setattro       */
+	0,                                          /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,    /* tp_flags          */
+	"A Typy List",                              /* tp_doc            */
+	(traverseproc)::typy::list::tp_Traverse<T>, /* tp_traverse       */
+	(inquiry)::typy::list::tp_Clear<T>,         /* tp_clear          */
+	0,                                          /* tp_richcompare    */
+	0,                                          /* tp_weaklistoffset */
+	(getiterfunc)::typy::list::tp_Iter<T>,      /* tp_iter           */
+	0,                                          /* tp_iternext       */
+	Methods,                                    /* tp_methods        */
+	0,                                          /* tp_members        */
+	0,                                          /* tp_getset         */
+	0,                                          /* tp_base           */
+	0,                                          /* tp_dict           */
+	0,                                          /* tp_descr_get      */
+	0,                                          /* tp_descr_set      */
+	0,                                          /* tp_dictoffset     */
+	0,                                          /* tp_init           */
 };
 
 template <typename T>
@@ -673,7 +690,7 @@ PyTypeObject List<T>::Iterator_Type = {
 	PyObject_GenericGetAttr,                      /* tp_getattro       */
 	0,                                            /* tp_setattro       */
 	0,                                            /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                           /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,      /* tp_flags          */
 	"A Typy List Iterator",                       /* tp_doc            */
 	(traverseproc)::typy::list::iter_Traverse<T>, /* tp_traverse       */
 	0,                                            /* tp_clear          */

@@ -25,6 +25,22 @@ void Fighter_Part1::Clear() {
 	::typy::Clear(p_pyv2);
 }
 
+int Fighter_Part1::Visit(visitproc visit, void* arg) {
+	register int result = 0;
+	if(result = ::typy::Visit(p_hp, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_isAwake, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_pos, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_posi, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_posl, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_posll, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_poss, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_pyd, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_pyl, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_pyv1, visit, arg)) { return result; }
+	if(result = ::typy::Visit(p_pyv2, visit, arg)) { return result; }
+	return result;
+}
+
 void Fighter_Part1::MergeFrom(const Fighter_Part1& from) {
 	if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
 	::typy::MergeFrom(p_hp, from.p_hp);

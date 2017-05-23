@@ -33,6 +33,7 @@ template <> struct Type<ENUM> {
 
 PyObject* GetPyObject(const ENUM& value);
 bool CheckAndSet(PyObject* arg, ENUM& value, const char* err);
+inline int  Visit(const ENUM& value, visitproc visit, void* arg) { return 0; }
 inline void CopyFrom(ENUM& lvalue, const ENUM& rvalue) { lvalue = rvalue; }
 inline void Clear(ENUM& value) { value = static_cast<ENUM>(0); }
 inline void MergeFrom(ENUM& lvalue, const ENUM& rvalue) {

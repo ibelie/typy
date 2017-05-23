@@ -44,6 +44,7 @@ public:                                                                  \
 	PyObject* GetPropertySequence();                                     \
 	PyObject* Json(bool);                                                \
 	static OBJECT* FromJson(PyObject*);                                  \
+	int Visit(visitproc, void*);                                         \
                                                                          \
 	char* PropertyName(int);                                             \
 	int PropertyTag(char*);                                              \
@@ -457,6 +458,16 @@ public:
 		return result;
 	}
 
+	static int tp_Traverse(PyObject* self, visitproc visit, void* arg) {
+		static_cast<T*>(self)->T::Visit(visit, arg);
+		return 0;
+	}
+
+	static int tp_GcClear(PyObject* self) {
+		static_cast<T*>(self)->Clear();
+		return 0;
+	}
+
 	static PyObject* _Init(PyObject* m, PyObject* args) {
 		PyObject* attrs = Py_None;
 		PyObject* type = reinterpret_cast<PyObject*>(&_Type);
@@ -663,10 +674,11 @@ PyTypeObject Object<T>::_Type = {
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
+		Py_TPFLAGS_BASETYPE,                  /* tp_flags          */
 	"A Typy Object",                          /* tp_doc            */
-	0,                                        /* tp_traverse       */
-	0,                                        /* tp_clear          */
+	(traverseproc)tp_Traverse,                /* tp_traverse       */
+	(inquiry)tp_GcClear,                      /* tp_clear          */
 	tp_Richcompare,                           /* tp_richcompare    */
 	0,                                        /* tp_weaklistoffset */
 	::typy::object::tp_Getiter,               /* tp_iter           */

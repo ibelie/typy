@@ -328,6 +328,49 @@ static PyObject* tp_DeepCopy(PyObject* self, PyObject* args) {
 }
 
 template <typename K, typename V>
+static PyObject* tp_SetDefault(PyObject* self, PyObject* args) {
+	PyObject* key;
+	PyObject* failobj = Py_None;
+	typename Type<K>::KeyType k;
+	if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &failobj)) {
+		return NULL;
+	} else if (!::typy::CheckAndSet(key, k, "")) {
+		return NULL;
+	}
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	typename Dict<K, V>::iterator it = dict->find(k);
+	if (it == dict->end()) {
+		if (!::typy::CheckAndSet(failobj, (*dict)[k], "Dict value type error: ")) {
+			dict->erase(k);
+			return NULL;
+		}
+		Py_INCREF(failobj);
+		return failobj;
+	} else {
+		return ::typy::GetPyObject(it->second);
+	}
+}
+
+template <typename K, typename V>
+static int tp_Traverse(PyObject* self, visitproc visit, void* arg) {
+	register int result;
+	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
+	for (typename Dict<K, V>::iterator it = dict->begin(); it != dict->end(); ++it) {
+		result = ::typy::Visit(it->first, visit, arg);
+		if (result) { return result; }
+		result = ::typy::Visit(it->second, visit, arg);
+		if (result) { return result; }
+	}
+	return 0;
+}
+
+template <typename K, typename V>
+static int tp_GcClear(PyObject* self) {
+	static_cast<Dict<K, V>*>(self)->Clear();
+	return 0;
+}
+
+template <typename K, typename V>
 static PyObject* tp_IterKey(PyObject* self) {
 	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
 	typename Dict<K, V>::Iterator* it = reinterpret_cast<typename Dict<K, V>::Iterator*>(
@@ -371,30 +414,6 @@ static PyObject* tp_IterItem(PyObject* self) {
 	Py_INCREF(self);
 	it->it_dict = dict;
 	return reinterpret_cast<PyObject*>(it);
-}
-
-template <typename K, typename V>
-static PyObject* tp_SetDefault(PyObject* self, PyObject* args) {
-	PyObject* key;
-	PyObject* failobj = Py_None;
-	typename Type<K>::KeyType k;
-	if (!PyArg_UnpackTuple(args, "get", 1, 2, &key, &failobj)) {
-		return NULL;
-	} else if (!::typy::CheckAndSet(key, k, "")) {
-		return NULL;
-	}
-	Dict<K, V>* dict = static_cast<Dict<K, V>*>(self);
-	typename Dict<K, V>::iterator it = dict->find(k);
-	if (it == dict->end()) {
-		if (!::typy::CheckAndSet(failobj, (*dict)[k], "Dict value type error: ")) {
-			dict->erase(k);
-			return NULL;
-		}
-		Py_INCREF(failobj);
-		return failobj;
-	} else {
-		return ::typy::GetPyObject(it->second);
-	}
 }
 
 template <typename K, typename V>
@@ -548,41 +567,41 @@ PyMethodDef Dict<K, V>::Methods[] = {
 template <typename K, typename V>
 PyTypeObject Dict<K, V>::_Type = {
 	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	FULL_MODULE_NAME ".Dict",                    /* tp_name           */
-	sizeof(Dict<K, V>),                          /* tp_basicsize      */
-	0,                                           /* tp_itemsize       */
-	(destructor)::typy::dict::tp_Dealloc<K, V>,  /* tp_dealloc        */
-	0,                                           /* tp_print          */
-	0,                                           /* tp_getattr        */
-	0,                                           /* tp_setattr        */
-	0,                                           /* tp_compare        */
-	(reprfunc)::typy::dict::tp_Repr<K, V>,       /* tp_repr           */
-	0,                                           /* tp_as_number      */
-	&SqMethods,                                  /* tp_as_sequence    */
-	&MpMethods,                                  /* tp_as_mapping     */
-	PyObject_HashNotImplemented,                 /* tp_hash           */
-	0,                                           /* tp_call           */
-	(reprfunc)::typy::dict::tp_Repr<K, V>,       /* tp_str            */
-	0,                                           /* tp_getattro       */
-	0,                                           /* tp_setattro       */
-	0,                                           /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                          /* tp_flags          */
-	"A Typy Dict",                               /* tp_doc            */
-	0,                                           /* tp_traverse       */
-	0,                                           /* tp_clear          */
-	0,                                           /* tp_richcompare    */
-	0,                                           /* tp_weaklistoffset */
-	(getiterfunc)::typy::dict::tp_IterKey<K, V>, /* tp_iter           */
-	0,                                           /* tp_iternext       */
-	Methods,                                     /* tp_methods        */
-	0,                                           /* tp_members        */
-	0,                                           /* tp_getset         */
-	0,                                           /* tp_base           */
-	0,                                           /* tp_dict           */
-	0,                                           /* tp_descr_get      */
-	0,                                           /* tp_descr_set      */
-	0,                                           /* tp_dictoffset     */
-	0,                                           /* tp_init           */
+	FULL_MODULE_NAME ".Dict",                      /* tp_name           */
+	sizeof(Dict<K, V>),                            /* tp_basicsize      */
+	0,                                             /* tp_itemsize       */
+	(destructor)::typy::dict::tp_Dealloc<K, V>,    /* tp_dealloc        */
+	0,                                             /* tp_print          */
+	0,                                             /* tp_getattr        */
+	0,                                             /* tp_setattr        */
+	0,                                             /* tp_compare        */
+	(reprfunc)::typy::dict::tp_Repr<K, V>,         /* tp_repr           */
+	0,                                             /* tp_as_number      */
+	&SqMethods,                                    /* tp_as_sequence    */
+	&MpMethods,                                    /* tp_as_mapping     */
+	PyObject_HashNotImplemented,                   /* tp_hash           */
+	0,                                             /* tp_call           */
+	(reprfunc)::typy::dict::tp_Repr<K, V>,         /* tp_str            */
+	0,                                             /* tp_getattro       */
+	0,                                             /* tp_setattro       */
+	0,                                             /* tp_as_buffer      */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,       /* tp_flags          */
+	"A Typy Dict",                                 /* tp_doc            */
+	(traverseproc)::typy::dict::tp_Traverse<K, V>, /* tp_traverse       */
+	(inquiry)::typy::dict::tp_GcClear<K, V>,       /* tp_clear          */
+	0,                                             /* tp_richcompare    */
+	0,                                             /* tp_weaklistoffset */
+	(getiterfunc)::typy::dict::tp_IterKey<K, V>,   /* tp_iter           */
+	0,                                             /* tp_iternext       */
+	Methods,                                       /* tp_methods        */
+	0,                                             /* tp_members        */
+	0,                                             /* tp_getset         */
+	0,                                             /* tp_base           */
+	0,                                             /* tp_dict           */
+	0,                                             /* tp_descr_get      */
+	0,                                             /* tp_descr_set      */
+	0,                                             /* tp_dictoffset     */
+	0,                                             /* tp_init           */
 };
 
 template <typename K, typename V>
@@ -613,7 +632,7 @@ PyTypeObject Dict<K, V>::IterKey_Type = {
 	PyObject_GenericGetAttr,                         /* tp_getattro       */
 	0,                                               /* tp_setattro       */
 	0,                                               /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,         /* tp_flags          */
 	"A Typy Dict Key Iterator",                      /* tp_doc            */
 	(traverseproc)::typy::dict::iter_Traverse<K, V>, /* tp_traverse       */
 	0,                                               /* tp_clear          */
@@ -646,7 +665,7 @@ PyTypeObject Dict<K, V>::IterValue_Type = {
 	PyObject_GenericGetAttr,                         /* tp_getattro       */
 	0,                                               /* tp_setattro       */
 	0,                                               /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,         /* tp_flags          */
 	"A Typy Dict Value Iterator",                    /* tp_doc            */
 	(traverseproc)::typy::dict::iter_Traverse<K, V>, /* tp_traverse       */
 	0,                                               /* tp_clear          */
@@ -679,7 +698,7 @@ PyTypeObject Dict<K, V>::IterItem_Type = {
 	PyObject_GenericGetAttr,                         /* tp_getattro       */
 	0,                                               /* tp_setattro       */
 	0,                                               /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT,                              /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,         /* tp_flags          */
 	"A Typy Dict Item Iterator",                     /* tp_doc            */
 	(traverseproc)::typy::dict::iter_Traverse<K, V>, /* tp_traverse       */
 	0,                                               /* tp_clear          */

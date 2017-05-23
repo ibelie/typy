@@ -183,6 +183,8 @@ bool        TypyObject_Read        (TypyMetaObject*, TypyObject**, byte**, size_
 bool        TypyObject_CheckAndSet (TypyMetaObject*, TypyObject**, PyObject*, const char*);
 void        TypyObject_MergeFrom   (TypyMetaObject*, TypyObject**, TypyObject*);
 
+int         Py_Traverse            (TypyObject*, visitproc, void*);
+int         Py_GcClear             (TypyObject*);
 PyObject*   Py_FromJson            (TypyMetaObject*, PyObject*);
 PyObject*   Py_Copy                (PyTypeObject*, TypyObject*);
 PyObject*   Py_CopyFrom            (TypyObject*, TypyObject*);
