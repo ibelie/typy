@@ -25,15 +25,17 @@ public:                                                                        \
 	static char* Properties[];                                                 \
                                                                                \
 	void* operator new(size_t size) {                                          \
-		OBJECT* object = reinterpret_cast<OBJECT*>(malloc(size));              \
+		OBJECT* object = reinterpret_cast<OBJECT*>(_PyObject_GC_Malloc(size)); \
 		if (object != NULL) {                                                  \
-			(void)PyObject_INIT(object, &Object<OBJECT>::_Type);               \
+			PyObject_INIT(object, &Object<OBJECT>::_Type);                     \
+			/* PyObject_GC_Track(object); */                                   \
 		}                                                                      \
 		return object;                                                         \
 	}                                                                          \
                                                                                \
 	void operator delete(void* ptr) {                                          \
-		free(ptr);                                                             \
+		/* PyObject_GC_UnTrack(ptr); */                                        \
+		PyObject_GC_Del(ptr);                                                  \
 	}                                                                          \
                                                                                \
 	OBJECT();                                                                  \
@@ -686,7 +688,8 @@ PyTypeObject Object<T>::_Type = {
 	0,                                        /* tp_getattro       */
 	0,                                        /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags          */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
+		Py_TPFLAGS_BASETYPE,                  /* tp_flags          */
 	"A Typy Object",                          /* tp_doc            */
 	(traverseproc)tp_Traverse,                /* tp_traverse       */
 	(inquiry)tp_GcClear,                      /* tp_clear          */
