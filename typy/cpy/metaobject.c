@@ -148,6 +148,8 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject_GC_Track(object);
 	Py_INCREF(type);
 	Typy_TYPE(object) = type;
+	TypyComposite_INIT(object);
+
 	if (args) {
 		register Py_ssize_t i;
 		for (i = 0; i < PyTuple_GET_SIZE(args); i++) {
@@ -165,7 +167,7 @@ TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 			}
 		}
 	}
-	TypyComposite_INIT(object);
+
 	return object;
 }
 

@@ -46,8 +46,12 @@ typedef size_t PropertyFlag;
 	size_t            owners_length;    \
 	TypyPropertyOwner owners_list;
 
-#define TypyComposite_INIT(ob) \
-	((TypyComposite*)(ob))->composite_active = true;
+#define TypyComposite_INIT(ob) do { \
+	((TypyComposite*)(ob))->composite_active = true;  \
+	((TypyComposite*)(ob))->owners_capacity  = 0;     \
+	((TypyComposite*)(ob))->owners_length    = 0;     \
+	((TypyComposite*)(ob))->owners_list      = NULL;  \
+} while (0)
 
 #define TypyComposite_FREE(ob) \
 	((TypyComposite*)(ob))->composite_active = false; \
