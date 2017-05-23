@@ -66,24 +66,23 @@ TypyMetaObject* Typy_RegisterVariant(PyObject* m, PyObject* args) {
 }
 
 static TypyVariant* TypyVariant_New(TypyMetaObject* type) {
-	TypyVariant* variant = (TypyVariant*)calloc(1, sizeof(TypyVariant));
-	if (!variant) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Variant out of memory %zu.", sizeof(TypyVariant));
-		return NULL;
-	}
-	(void)PyObject_INIT(variant, &TypyVariantType);
+	TypyVariant* variant = PyObject_GC_New(TypyVariant, &TypyVariantType);
+	if (!variant) { return NULL; }
+	PyObject_GC_Track(variant);
 	Py_INCREF(type);
 	Typy_TYPE(variant) = type;
 	variant->variant_index = -1;
+	variant->variant_value = 0;
 	TypyComposite_INIT(variant);
 	return variant;
 }
 
 static void TypyVariant_Dealloc(TypyVariant* self) {
+	PyObject_GC_UnTrack(self);
 	TypyComposite_FREE(self);
 	MetaVariant_CLEAR(Typy_TYPE(self), self);
 	Py_DECREF(Typy_TYPE(self));
-	free(self);
+	PyObject_GC_Del(self);
 }
 
 static PyObject* TypyVariant_Repr(TypyMetaObject* type) {

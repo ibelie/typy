@@ -126,14 +126,14 @@ TypyMetaList* Typy_RegisterList(PyObject* m, PyObject* args) {
 }
 
 static TypyList* TypyList_New(TypyMetaList* type) {
-	TypyList* list = (TypyList*)calloc(1, sizeof(TypyList));
-	if (!list) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc List object out of memory %zu.", sizeof(TypyList));
-		return NULL;
-	}
-	(void)PyObject_INIT(list, &TypyListType);
+	TypyList* list = PyObject_GC_New(TypyList, &TypyListType);
+	if (!list) { return NULL; }
+	PyObject_GC_Track(list);
 	Py_INCREF(type);
 	TypyList_TYPE(list) = type;
+	list->list_capacity = 0;
+	list->list_length   = 0;
+	list->list_items    = NULL;
 	TypyComposite_INIT(list);
 	return list;
 }
@@ -201,13 +201,14 @@ static void MetaList_Dealloc(TypyMetaList* type) {
 }
 
 static void TypyList_Dealloc(TypyList* self) {
+	PyObject_GC_UnTrack(self);
 	TypyComposite_FREE(self);
 	TypyList_Clear(self);
 	if (self->list_items) {
 		free(self->list_items);
 	}
 	Py_DECREF(TypyList_TYPE(self));
-	free(self);
+	PyObject_GC_Del(self);
 }
 
 static PyObject* TypyList_Repr(TypyMetaList* type) {

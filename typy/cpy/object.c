@@ -557,7 +557,7 @@ PyTypeObject BaseTypyObjectType = {
 	(getattrofunc)Typy_GetAttr,               /* tp_getattro       */
 	(setattrofunc)Typy_SetAttr,               /* tp_setattro       */
 	0,                                        /* tp_as_buffer      */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC |
+	Py_TPFLAGS_DEFAULT |
 		Py_TPFLAGS_BASETYPE,                  /* tp_flags          */
 	"A Typy Object",                          /* tp_doc            */
 	(traverseproc)Py_Traverse,                /* tp_traverse       */

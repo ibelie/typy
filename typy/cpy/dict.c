@@ -237,18 +237,15 @@ static void MetaDict_Dealloc(TypyMetaDict* type) {
 }
 
 static TypyDict* TypyDict_New(TypyMetaDict* type) {
-	TypyDict* dict = (TypyDict*)calloc(1, sizeof(TypyDict));
-	if (!dict) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Dict object out of memory %zu.", sizeof(TypyDict));
-		return NULL;
-	}
+	TypyDict* dict = PyObject_GC_New(TypyDict, &TypyDictType);
+	if (!dict) { return NULL; }
 	dict->dict_map = TypyDictMap_New(MetaKey_FIELDTYPE(type));
 	if (!dict->dict_map) {
-		free(dict);
+		PyObject_GC_Del(dict);
 		PyErr_Format(PyExc_RuntimeError, "Alloc Dict map out of memory.");
 		return NULL;
 	}
-	(void)PyObject_INIT(dict, &TypyDictType);
+	PyObject_GC_Track(dict);
 	Py_INCREF(type);
 	TypyDict_TYPE(dict) = type;
 	TypyComposite_INIT(dict);
@@ -256,11 +253,12 @@ static TypyDict* TypyDict_New(TypyMetaDict* type) {
 }
 
 static void TypyDict_Dealloc(TypyDict* self) {
+	PyObject_GC_UnTrack(self);
 	TypyComposite_FREE(self);
 	TypyDict_Clear(self);
 	IblMap_Free(self->dict_map);
 	Py_DECREF(TypyDict_TYPE(self));
-	free(self);
+	PyObject_GC_Del(self);
 }
 
 static PyObject* TypyDict_Repr(TypyMetaDict* type) {

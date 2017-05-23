@@ -141,12 +141,11 @@ PyTypeObject* _InheritTypyObjectType(void) {
 TypyObject* Typy_New(TypyMetaObject* type, PyObject* args, PyObject* kwargs) {
 	PyObject *k, *v;
 	Py_ssize_t pos = 0;
-	TypyObject* object = (TypyObject*)calloc(1, IBL_ALIGNED_SIZE(sizeof(TypyObject) + sizeof(TypyField) * type->meta_size));
-	if (!object) {
-		PyErr_Format(PyExc_RuntimeError, "Alloc Object out of memory %zu.", sizeof(TypyObject) + sizeof(TypyField) * type->meta_size);
-		return NULL;
-	}
+	TypyObject* object = (TypyObject*)_PyObject_GC_Malloc(IBL_ALIGNED_SIZE(sizeof(TypyObject) + sizeof(TypyField) * type->meta_size));
+	if (!object) { return NULL; }
 	(void)PyObject_INIT(object, type->py_type);
+	memset(object->object_fields, 0, sizeof(TypyField) * type->meta_size);
+	PyObject_GC_Track(object);
 	Py_INCREF(type);
 	Typy_TYPE(object) = type;
 	if (args) {
@@ -346,10 +345,11 @@ void Typy_Clear(TypyObject* self) {
 }
 
 void Typy_Dealloc(TypyObject* self) {
+	PyObject_GC_UnTrack(self);
 	TypyComposite_FREE(self);
 	Typy_Clear(self);
 	Py_DECREF(Typy_TYPE(self));
-	free(self);
+	PyObject_GC_Del(self);
 }
 
 void Typy_MergeFrom(TypyObject* self, TypyObject* from) {
