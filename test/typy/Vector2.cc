@@ -24,14 +24,14 @@ void Vector2::Clear() {
 
 int Vector2::Visit(visitproc visit, void* arg) {
 	register int result = 0;
-	if(result = ::typy::Visit(p_x, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_y, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_b, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_e, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_i, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_p, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_s, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_t, visit, arg)) { return result; }
+	if((result = ::typy::Visit(p_x, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_y, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_b, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_e, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_i, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_p, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_s, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_t, visit, arg)) != 0) { return result; }
 	return result;
 }
 

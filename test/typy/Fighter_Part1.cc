@@ -27,17 +27,17 @@ void Fighter_Part1::Clear() {
 
 int Fighter_Part1::Visit(visitproc visit, void* arg) {
 	register int result = 0;
-	if(result = ::typy::Visit(p_hp, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_isAwake, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pos, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_posi, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_posl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_posll, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_poss, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyv1, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyv2, visit, arg)) { return result; }
+	if((result = ::typy::Visit(p_hp, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_isAwake, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pos, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_posi, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_posl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_posll, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_poss, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyv1, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyv2, visit, arg)) != 0) { return result; }
 	return result;
 }
 

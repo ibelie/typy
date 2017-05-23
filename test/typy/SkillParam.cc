@@ -24,14 +24,14 @@ void SkillParam::Clear() {
 
 int SkillParam::Visit(visitproc visit, void* arg) {
 	register int result = 0;
-	if(result = ::typy::Visit(p_buckID, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_destPos, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_destRot, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_extraParam, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_origPos, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_origRot, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_targetID, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_targetIDs, visit, arg)) { return result; }
+	if((result = ::typy::Visit(p_buckID, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_destPos, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_destRot, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_extraParam, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_origPos, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_origRot, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_targetID, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_targetIDs, visit, arg)) != 0) { return result; }
 	return result;
 }
 

@@ -28,18 +28,18 @@ void onInitRuntime::Clear() {
 
 int onInitRuntime::Visit(visitproc visit, void* arg) {
 	register int result = 0;
-	if(result = ::typy::Visit(p_buckID, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_events, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_flowID, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_ownerID, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_params, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_passBuckEvents, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_prev, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_skillID, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_skillIdx, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_specificEvents, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_uiid, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_unitIndex, visit, arg)) { return result; }
+	if((result = ::typy::Visit(p_buckID, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_events, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_flowID, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_ownerID, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_params, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_passBuckEvents, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_prev, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_skillID, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_skillIdx, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_specificEvents, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_uiid, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_unitIndex, visit, arg)) != 0) { return result; }
 	return result;
 }
 

@@ -17,7 +17,7 @@ void playSoundVO_2::Clear() {
 
 int playSoundVO_2::Visit(visitproc visit, void* arg) {
 	register int result = 0;
-	if(result = ::typy::Visit(p_path, visit, arg)) { return result; }
+	if((result = ::typy::Visit(p_path, visit, arg)) != 0) { return result; }
 	return result;
 }
 

@@ -51,41 +51,41 @@ void Fighter::Clear() {
 
 int Fighter::Visit(visitproc visit, void* arg) {
 	register int result = 0;
-	if(result = ::typy::Visit(p_bd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_bl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_dd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_dv, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_ed, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_el, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_fdd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_fdv, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_fl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_fld, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_flv, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_hp, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_isAwake, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_ld, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_ll, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_lv, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_nv, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pos, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_posi, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_posl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_posll, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_poss, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyv1, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_pyv2, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_sd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_sl, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_v0, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_v1, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_v2, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_v3, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_v4, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_vd, visit, arg)) { return result; }
-	if(result = ::typy::Visit(p_vl, visit, arg)) { return result; }
+	if((result = ::typy::Visit(p_bd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_bl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_dd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_dv, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_ed, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_el, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_fdd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_fdv, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_fl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_fld, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_flv, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_hp, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_isAwake, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_ld, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_ll, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_lv, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_nv, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pos, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_posi, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_posl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_posll, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_poss, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyv1, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_pyv2, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_sd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_sl, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_v0, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_v1, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_v2, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_v3, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_v4, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_vd, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_vl, visit, arg)) != 0) { return result; }
 	return result;
 }
 

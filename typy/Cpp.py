@@ -391,7 +391,7 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 			first_fields = 'p_%s' % a
 		header_fields.append('%s%s p_%s;' % (typ, star, a))
 		clear_fields.append('::typy::Clear(p_%s);' % a)
-		visit_fields.append('if(result = ::typy::Visit(p_%s, visit, arg)) { return result; }' % a)
+		visit_fields.append('if((result = ::typy::Visit(p_%s, visit, arg)) != 0) { return result; }' % a)
 		merge_fields.append('::typy::MergeFrom(p_%s, from.p_%s);' % (a, a))
 		set_property_sequence.append('case %d: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, %d), p_%s, "Property \'%s\' expect %s, but ")) { return false; } break;' % (i, i, a, a, info))
 		get_property_sequence.append('PyTuple_SET_ITEM(result, %d, ::typy::GetPyObject(p_%s));' % (i, a))
