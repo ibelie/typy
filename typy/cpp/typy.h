@@ -245,13 +245,11 @@ public:
 		List* list = reinterpret_cast<List*>(_PyObject_GC_Malloc(size));
 		if (list != NULL) {
 			PyObject_INIT(list, &List::_Type);
-			PyObject_GC_Track(list);
 		}
 		return list;
 	}
 
 	void operator delete(void* ptr) {
-		PyObject_GC_UnTrack(ptr);
 		PyObject_GC_Del(ptr);
 	}
 
@@ -291,13 +289,11 @@ public:
 		Dict* dict = reinterpret_cast<Dict*>(_PyObject_GC_Malloc(size));
 		if (dict != NULL) {
 			PyObject_INIT(dict, &Dict::_Type);
-			PyObject_GC_Track(dict);
 		}
 		return dict;
 	}
 
 	void operator delete(void* ptr) {
-		PyObject_GC_UnTrack(ptr);
 		PyObject_GC_Del(ptr);
 	}
 

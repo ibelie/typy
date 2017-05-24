@@ -28,13 +28,11 @@ public:                                                                        \
 		OBJECT* object = reinterpret_cast<OBJECT*>(_PyObject_GC_Malloc(size)); \
 		if (object != NULL) {                                                  \
 			PyObject_INIT(object, &Object<OBJECT>::_Type);                     \
-			/* PyObject_GC_Track(object); */                                   \
 		}                                                                      \
 		return object;                                                         \
 	}                                                                          \
                                                                                \
 	void operator delete(void* ptr) {                                          \
-		/* PyObject_GC_UnTrack(ptr); */                                        \
 		PyObject_GC_Del(ptr);                                                  \
 	}                                                                          \
                                                                                \
