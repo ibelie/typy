@@ -4,6 +4,10 @@
 
 #include "typy.h"
 
+#ifdef TYPY_EXTENSION_PROTOBUF
+#	include "extension_protobuf.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,6 +68,10 @@ bool TypyPython_Read(TypyPython* type, PyObject** value, byte** input, size_t* l
 	*length -= size;
 	if (type->python_read) {
 		return type->python_read(*value, (*input) - size, size);
+#ifdef TYPY_EXTENSION_PROTOBUF
+	} else if (Protobuf_TypeCheck((PyTypeObject*)type->python_type)) {
+		return Protobuf_Read(*value, (*input) - size, size);
+#endif
 	}
 	register PyObject* data = PyBytes_FromStringAndSize((const char*)(*input) - size, size);
 	register PyObject* result = PyObject_CallMethod(*value, "Deserialize", "O", data);
@@ -82,6 +90,11 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 			register size_t length = type->python_cachedsize ? type->python_cachedsize(*value) : type->python_bytesize(*value);
 			size += IblPutUvarint(output + size, length);
 			return size + type->python_write(*value, output + size);
+#ifdef TYPY_EXTENSION_PROTOBUF
+		} else if (Protobuf_TypeCheck((PyTypeObject*)type->python_type)) {
+			size += IblPutUvarint(output + size, Protobuf_CachedSize(*value));
+			return Protobuf_Write(*value, output + size);
+#endif
 		}
 		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
 		if (data) {
@@ -101,6 +114,10 @@ size_t TypyPython_ByteSize(TypyPython* type, PyObject** value, int tagsize) {
 	if (*value) {
 		if (type->python_bytesize) {
 			size = type->python_bytesize(*value);
+#ifdef TYPY_EXTENSION_PROTOBUF
+		} else if (Protobuf_TypeCheck((PyTypeObject*)type->python_type)) {
+			size = Protobuf_ByteSize(*value);
+#endif
 		} else {
 			register PyObject* s = PyObject_CallMethod(*value, "ByteSize", NULL);
 			if (s) { size = PyInt_AsLong(s); Py_DECREF(s); }
