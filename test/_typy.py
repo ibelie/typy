@@ -4,6 +4,10 @@
 import _typyd
 setDefaultEncodingUTF8 = _typyd.setDefaultEncodingUTF8
 
+Lb = _typyd.List('Lb', (0, 8, ))
+BooleanList = _typyd.Object('BooleanList', (
+	('bl', 10, 1, 2, 13, Lb),
+))
 Empty = _typyd.Object('Empty', (
 ))
 Dbys = _typyd.Dict('Dbys', (2, 10, ), (2, 9, ))

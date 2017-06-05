@@ -4,6 +4,7 @@
 
 #include "PyType.h"
 #include "Vector3.h"
+#include "BooleanList.h"
 #include "Corpus.h"
 #include "Empty.h"
 #include "Fighter.h"
@@ -44,11 +45,13 @@ bool InitModule(PyObject* m) {
 		&& PyType_Ready(&List< Vector2 >::_Type) >= 0 && PyType_Ready(&List< Vector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< VfpisVector2 >::_Type) >= 0 && PyType_Ready(&List< VfpisVector2 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< Vfs >::_Type) >= 0 && PyType_Ready(&List< Vfs >::Iterator_Type) >= 0
+		&& PyType_Ready(&List< bool >::_Type) >= 0 && PyType_Ready(&List< bool >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< bytes >::_Type) >= 0 && PyType_Ready(&List< bytes >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< float >::_Type) >= 0 && PyType_Ready(&List< float >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< int32 >::_Type) >= 0 && PyType_Ready(&List< int32 >::Iterator_Type) >= 0
 		&& PyType_Ready(&List< string >::_Type) >= 0 && PyType_Ready(&List< string >::Iterator_Type) >= 0
 		&& InitCorpus(m)
+		&& Object<BooleanList>::Init(m)
 		&& Object<Empty>::Init(m)
 		&& Object<Fighter>::Init(m)
 		&& Object<Fighter_Part1>::Init(m)

@@ -225,6 +225,10 @@ def setup():
 		path = pb.String
 	globals()['playSoundVO_2'] = playSoundVO_2
 
+	class BooleanList(Object):
+		bl = pb.List(Boolean)
+	globals()['BooleanList'] = BooleanList
+
 
 def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "hp\t", "\t", fighter1.hp, "\t\t", fighter2.hp, "\t\t", fighter3.hp, "\t\t", fighter4.hp, "\t\t", fighter5.hp
@@ -368,7 +372,7 @@ def _toUnicodeJson(json):
 
 
 def _build(_typy):
-	global Vector2, Fighter, RPG, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime, playSoundVO_1, playSoundVO_2
+	global Vector2, Fighter, RPG, Corpus, PyType, Empty, Vector3, SkillParam, onInitRuntime, playSoundVO_1, playSoundVO_2, BooleanList
 
 	f1 = Fighter(pos = Vector2())
 	assert ord(RPG(f1).SerializeToString()[1]) + 2 == len(RPG(f1).SerializeToString())
@@ -830,6 +834,10 @@ def _build(_typy):
 	print [p.x for p in fR.posl]
 	fR.posl.append(_Vector2(x = 456))
 	print [p.x for p in fR.posl]
+
+	_BooleanList = _typy.BooleanList()
+	assert str(BooleanList(bl = [False, False, True]).bl) == '[False, False, True]'
+	assert str(_BooleanList(bl = [False, False, True]).bl) == '[False, False, True]'
 
 	return time.time() - startTime
 

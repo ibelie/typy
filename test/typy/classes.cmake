@@ -3,6 +3,7 @@
 set(CLASSES
 	"${_TYPY_DIR}/Fighter.cc"
 	"${_TYPY_DIR}/Vector2.cc"
+	"${_TYPY_DIR}/BooleanList.cc"
 	"${_TYPY_DIR}/Fighter_Part2.cc"
 	"${_TYPY_DIR}/Fighter_Part1.cc"
 	"${_TYPY_DIR}/playSoundVO_2.cc"
