@@ -416,10 +416,7 @@ PyObject* TypyDict_ToJson(TypyMetaDict* type, TypyDict** value, bool slim) {
 			register TypyDictMap item = (TypyDictMap)iter;
 			register PyObject* k = MetaKey_TOJSON(type, &item->key, false);
 			register PyObject* key = PyObject_Str(k);
-			register PyObject* value = NULL;
-			if (item->value) {
-				value = MetaValue_TOJSON(type, &item->value, slim);
-			}
+			register PyObject* value = MetaValue_TOJSON(type, &item->value, slim);
 			if (!value) {
 				Py_INCREF(Py_None);
 				value = Py_None;

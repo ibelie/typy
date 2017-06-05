@@ -352,10 +352,7 @@ PyObject* TypyList_ToJson(TypyMetaList* type, TypyList** value, bool slim) {
 		register PyObject* list = PyList_New((*value)->list_length);
 		if (!list) { return NULL; }
 		for (i = 0; i < (*value)->list_length; i++) {
-			register PyObject* item = NULL;
-			if ((*value)->list_items[i]) {
-				item = MetaList_TOJSON(type, &(*value)->list_items[i], slim);
-			}
+			register PyObject* item = MetaList_TOJSON(type, &(*value)->list_items[i], slim);
 			if (!item) {
 				Py_INCREF(Py_None);
 				item = Py_None;
