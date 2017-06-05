@@ -93,7 +93,7 @@ size_t TypyPython_Write(TypyPython* type, PyObject** value, int tag, byte* outpu
 #ifdef TYPY_EXTENSION_PROTOBUF
 		} else if (Protobuf_TypeCheck((PyTypeObject*)type->python_type)) {
 			size += IblPutUvarint(output + size, Protobuf_CachedSize(*value));
-			return Protobuf_Write(*value, output + size);
+			return size + Protobuf_Write(*value, output + size);
 #endif
 		}
 		register PyObject* data = PyObject_CallMethod(*value, "Serialize", NULL);
