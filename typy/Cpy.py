@@ -3,7 +3,7 @@
 # Use of this source code is governed by The MIT License
 # that can be found in the LICENSE file.
 
-from Proto import CompareWrite, RecordNesting
+from Proto import SortedMessage, CompareWrite, RecordNesting
 
 TYPE_ENUM       = 0
 TYPE_INT32      = 1
@@ -26,7 +26,6 @@ MAX_FIELD_TYPE  = 16
 def _GenerateVariant(name, properties, codes, types):
 	from typy.google.protobuf.internal.encoder import _TagSize
 	from typy.google.protobuf.internal.wire_format import PackTag
-	from Object import SortedMessage
 	from Type import Type
 
 	fields = []
@@ -120,7 +119,6 @@ PyObject = _typyd.Python('PyObject')""")
 def _GenerateObject(name, cls, codes, types):
 	from typy.google.protobuf.internal.encoder import _TagSize
 	from typy.google.protobuf.internal.wire_format import PackTag
-	from Object import SortedMessage
 	from Type import pb
 
 	fields = []

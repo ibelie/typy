@@ -9,7 +9,7 @@ SWITCH_GENERATE_OBJECT = SWITCH_GENERATE_ALL and True
 SWITCH_GENERATE_ENUM = SWITCH_GENERATE_ALL and True
 SWITCH_DELETE_CPP = False
 
-from Proto import CompareWrite, ShortName, RecordNesting
+from Proto import SortedMessage, CompareWrite, ShortName, RecordNesting
 
 def _VariantSetter(properties):
 	from Object import MetaObject
@@ -220,7 +220,6 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 
 def _GenerateVariant(path, name, properties, container_inits, enums, pythons, variants):
 	from typy.google.protobuf.internal.encoder import _TagSize
-	from Object import SortedMessage
 	from Type import Type
 
 	ref_types = set()
@@ -306,7 +305,6 @@ def _GenerateEnum(path, name, cls):
 
 def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 	from typy.google.protobuf.internal.encoder import _TagSize
-	from Object import SortedMessage
 	from Type import pb, Enum, List, Dict
 	from Type import Integer, Float, Double, FixedPoint, Boolean, String, Bytes
 
