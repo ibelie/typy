@@ -536,7 +536,6 @@ cpptime = 0
 cpytime = 0
 
 def test_cpp():
-	return
 	import os
 	import test_case
 	from typy import GenerateExtention
@@ -551,13 +550,16 @@ def test_cpp():
 
 def test_cpy():
 	import os
-	from typy import Increment
+	from typy import Increment, ClearTypes
 	path = os.path.dirname(__file__)
 	Increment(path, path + '/test_case.proto', ('typy', 'prop_debug.py', 'typy_test.py'))
 	from typy import GenerateDescriptor
 	GenerateDescriptor(path)
 	import _typy
 	import test_case
+	import imp
+	ClearTypes()
+	imp.reload(test_case)
 	test_case.setup(globals(), _typy)
 	global cpptime, cpytime
 	cpytime = _build(_typy)

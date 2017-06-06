@@ -81,8 +81,13 @@ def _GetProtoFromTypy(p, codes, types):
 	from Type import Instance, List, Dict, FixedPoint, Python
 	if isinstance(p, Enum):
 		if p.pyType.__name__ not in types:
+			values = []
+			for i, e in sorted(p.pyType.__enum__.iteritems()):
+				values.append("""
+	'%s': %d,""" % (e.name, i))
 			codes.append("""
-%s = type('%s', (typy.Enum, ), {'DEFAULT': 0})""" % (p.pyType.__name__, p.pyType.__name__))
+%s = type('%s', (typy.Enum, ), {%s
+})""" % (p.pyType.__name__, p.pyType.__name__, ''.join(values)))
 			types.add(p.pyType.__name__)
 		return _ProtoFormat(p, p.pyType.__name__)
 	elif isinstance(p, (Integer, Float, Double, Boolean, String, Bytes)):
@@ -105,7 +110,7 @@ def _GetProtoFromTypy(p, codes, types):
 				if t.__name__ not in types:
 					_GenerateObject(t.__name__, MetaObject.Objects[t.__name__], codes, types)
 			else:
-				pyType.append(_ProtoFormat(toType(t)))
+				pyType.append(_GetProtoFromTypy(toType(t), codes, types))
 		return _ProtoFormat(p, *sorted(pyType))
 	elif isinstance(p, List):
 		return _ProtoFormat(p, _GetProtoFromTypy(p.elementType, codes, types))
@@ -211,6 +216,5 @@ import typy
 timestamps = {
 	%s
 }
-
 %s
 """
