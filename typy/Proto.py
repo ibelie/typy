@@ -141,12 +141,13 @@ def Object(name, *fields):
 	return type(name, (), attrs)
 
 
-def Increment(path, proto_file, ignore):
+def Increment(forceReload, path, proto_file, ignore):
 	import os
 	import sys
 	import imp
 	import codecs
 
+	forceReload and ClearTypes()
 	path = path.replace('\\', '/')
 	if os.path.isfile(proto_file):
 		with codecs.open(proto_file, 'r', 'utf-8') as f:
@@ -179,7 +180,7 @@ def Increment(path, proto_file, ignore):
 				proto.timestamps[fp] = os.stat(fp).st_mtime
 				m = n if not sub else '%s.%s' % (sub.replace('/', '.'), n)
 				print '\n[Typy] Incremental proto:', m
-				if m in sys.modules:
+				if forceReload and m in sys.modules:
 					imp.reload(__import__(m))
 				else:
 					__import__(m)
