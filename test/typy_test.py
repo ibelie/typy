@@ -550,10 +550,9 @@ def test_cpp():
 
 def test_cpy():
 	import os
-	from typy import Increment, ClearTypes
+	from typy import Increment, ClearTypes, GenerateDescriptor
 	path = os.path.dirname(__file__)
 	Increment(path, path + '/test_case.proto', ('typy', 'prop_debug.py', 'typy_test.py'))
-	from typy import GenerateDescriptor
 	GenerateDescriptor(path)
 	import _typy
 	import test_case
