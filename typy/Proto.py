@@ -49,3 +49,6 @@ def RecordNesting(prefix, types):
 			names.append(name)
 	name = ShortName(prefix, '%s%s' % (prefix, ''.join(names)))
 	return name, properties
+
+def Increment(path, proto, ignore):
+	pass
