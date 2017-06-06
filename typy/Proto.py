@@ -99,7 +99,11 @@ def _GetProtoFromTypy(p, codes, types):
 		return _ProtoFormat(p, '%d, %d' % (p.precision, p.floor))
 	elif isinstance(p, Python):
 		if p.pyType.__name__ not in types:
-			codes.append("""
+			if p.pyType.__name__ == 'PyObject':
+				codes.append("""
+PyObject = typy.Proto.PyObject""")
+			else:
+				codes.append("""
 %s = type('%s', (), {})""" % (p.pyType.__name__, p.pyType.__name__))
 			types.add(p.pyType.__name__)
 		return _ProtoFormat(p, p.pyType.__name__)
@@ -153,6 +157,8 @@ def Increment(forceReload, path, proto_file, ignore):
 	import codecs
 
 	forceReload and ClearTypes()
+	import Type
+	Type.PythonTypes = {}
 	path = path.replace('\\', '/')
 	if os.path.isfile(proto_file):
 		with codecs.open(proto_file, 'r', 'utf-8') as f:
