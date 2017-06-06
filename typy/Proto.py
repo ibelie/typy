@@ -77,7 +77,7 @@ def _ProtoFormat(t, *args):
 def _GetProtoFromTypy(p, codes, types):
 	from Object import MetaObject
 	import Type
-	from Type import pb, Enum, Integer, Float, Double, Boolean, String, Bytes
+	from Type import pb, toType, Enum, Integer, Float, Double, Boolean, String, Bytes
 	from Type import Instance, List, Dict, FixedPoint, Python
 	if isinstance(p, Enum):
 		if p.pyType.__name__ not in types:
@@ -104,9 +104,9 @@ def _GetProtoFromTypy(p, codes, types):
 				pyType.append(t.__name__)
 				if t.__name__ not in types:
 					_GenerateObject(t.__name__, MetaObject.Objects[t.__name__], codes, types)
-			elif hasattr(Type, t.__name__):
-				pyType.append('typy.%s' % t.__name__)
-		return _ProtoFormat(p, *pyType)
+			else:
+				pyType.append(_ProtoFormat(toType(t)))
+		return _ProtoFormat(p, *sorted(pyType))
 	elif isinstance(p, List):
 		return _ProtoFormat(p, _GetProtoFromTypy(p.elementType, codes, types))
 	elif isinstance(p, Dict):
