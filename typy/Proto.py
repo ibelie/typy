@@ -147,7 +147,6 @@ def Increment(path, proto_file, ignore):
 	import imp
 	import codecs
 
-	ClearTypes()
 	path = path.replace('\\', '/')
 	if os.path.isfile(proto_file):
 		with codecs.open(proto_file, 'r', 'utf-8') as f:
