@@ -542,7 +542,6 @@ def test_cpp():
 	global SETUP_TYPYC
 	SETUP_TYPYC and GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
 	from typy import _typy
-	import test_case
 	test_case.setup(globals(), _typy)
 	global cpptime, cpytime
 	cpptime = _build(_typy)
@@ -551,11 +550,13 @@ def test_cpp():
 
 def test_cpy():
 	import os
+	from typy import Increment
+	path = os.path.dirname(__file__)
+	Increment(path, path + 'test_case.proto', ('typy', 'prop_debug.py', 'typy_test.py'))
 	import test_case
 	from typy import GenerateDescriptor
-	GenerateDescriptor(os.path.dirname(__file__))
+	GenerateDescriptor(path)
 	import _typy
-	import test_case
 	test_case.setup(globals(), _typy)
 	global cpptime, cpytime
 	cpytime = _build(_typy)

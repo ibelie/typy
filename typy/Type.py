@@ -27,7 +27,7 @@ class MetaType(type):
 			attrs['____realType__'] = True
 		attrs['__name__'] = clsname
 		cls = super(MetaType, mcs).__new__(mcs, clsname, bases, attrs)
-		if cls.____realType__:
+		if cls.____realType__ and (cls.__name__ not in mcs.typesDict or cls.__name__ != 'Enum'):
 			mcs.typesDict[cls.__name__] = cls
 		return cls
 

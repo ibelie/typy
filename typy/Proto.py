@@ -13,12 +13,14 @@ def CompareWrite(path, content):
 	with codecs.open(path, 'w', 'utf-8') as f:
 		f.write(content)
 
+
 def ShortName(prefix, name):
 	import hashlib
 	import base64
 	if len(name) > 25:
 		name = prefix + base64.b64encode(hashlib.md5(name).digest())[:-2].replace('+', '__').replace('/', '_')
 	return name
+
 
 def RecordNesting(prefix, types):
 	from Type import toType, isEnum, List, Dict, Instance
@@ -50,10 +52,63 @@ def RecordNesting(prefix, types):
 	name = ShortName(prefix, '%s%s' % (prefix, ''.join(names)))
 	return name, properties
 
-def Increment(path, proto, ignore):
+
+def ClearTypes():
+	from Object import MetaObject
+	MetaObject.Objects = {}
+	from Enum import MetaEnum
+	MetaEnum.Enums = {}
+	import Type
+	Type.PythonTypes = {}
+
+
+def Increment(path, proto_file, ignore):
 	import os
-	for p, ds, fs in os.walk(path):
-		for d in ds:
-			print p, d
-		for f in fs:
-			print p, f
+	import sys
+	import imp
+	if os.path.isfile(proto_file):
+		with codecs.open(proto_file, 'r', 'utf-8') as f:
+			proto = imp.new_module('typy.proto')
+			proto.__package__ = 'typy'
+			exec f.read() in proto.__dict__
+	else:
+		class _Proto(object): pass
+		proto = _Proto()
+		proto.timestamps = {}
+		proto.protos = {}
+
+	def _scanScripts(sub):
+		fs = set()
+		for i in os.listdir('%s/%s' % (path, sub)):
+			p = '%s/%s' % (sub, i) if sub else i
+			fp = '%s/%s' % (path, p)
+			if p in ignore or p.replace('.pyc', '.py') in ignore:
+				continue
+			elif os.path.isdir(fp):
+				_scanScripts(p)
+			elif fp in proto.timestamps and os.stat(fp).st_mtime <= proto.timestamps[fp]:
+				continue
+			elif i.endswith(('.py', '.pyc')):
+				n = i.rpartition('.')[0]
+				if n == '__init__' or (i.endswith('.pyc') and n in fs) or (sub and \
+					not os.path.isfile('%s/%s/__init__.py' % (path, sub)) and \
+					not os.path.isfile('%s/%s/__init__.pyc' % (path, sub))):
+					continue
+				fs.add(n)
+				proto.timestamps[fp] = os.stat(fp).st_mtime
+				m = n if not sub else "%s.%s" % (sub.replace('/', '.'), n)
+				if m in sys.modules:
+					imp.reload(__import__(m))
+				else:
+					__import__(m)
+
+	ClearTypes()
+	if os.path.isfile(path) and path.endswith('.py'):
+		with codecs.open(path, 'r', 'utf-8') as f:
+			exec f.read() in {}
+		proto.timestamps[path] = os.stat(path).st_mtime
+	elif os.path.isdir(path):
+		_scanScripts('')
+
+	from Object import MetaObject
+	print MetaObject.Objects.keys()
