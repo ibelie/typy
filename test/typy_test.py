@@ -552,7 +552,7 @@ def test_cpy():
 	import os
 	from typy import Increment
 	path = os.path.dirname(__file__)
-	Increment(path, path + 'test_case.proto', ('typy', 'prop_debug.py', 'typy_test.py'))
+	Increment(path, path + '/test_case.proto', ('typy', 'prop_debug.py', 'typy_test.py'))
 	import test_case
 	from typy import GenerateDescriptor
 	GenerateDescriptor(path)
