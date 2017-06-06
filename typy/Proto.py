@@ -112,7 +112,7 @@ def _GetProtoFromTypy(p, codes, types):
 				pyType.append(t.__name__)
 				if t.__name__ not in types:
 					_GenerateObject(t.__name__, MetaObject.Objects[t.__name__], codes, types)
-			elif hasattr(Type, t.__name__):
+			elif not isinstance(t, type) or (isinstance(t, type) and issubclass(t, (Type.Type, Type._Enum))):
 				pyType.append(_GetProtoFromTypy(toType(t), codes, types))
 			else:
 				pyType.append(_GetProtoFromTypy(Python(PyObject), codes, types))
