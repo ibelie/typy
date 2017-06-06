@@ -74,7 +74,7 @@ def _ProtoFormat(t, *args):
 	return '.'.join(['typy'] + sorted([k.__name__ for k in t.____keywords__]) + [t.__class__.__name__]) + ('(%s)' % ', '.join(args))
 
 
-def _GetProtoFromTypy(p, codes, types):
+def _GetProtoFromTypy(p, codes, types, nesting = False):
 	from Object import MetaObject
 	import Type
 	from Type import pb, toType, Enum, Integer, Float, Double, Boolean, String, Bytes
@@ -101,6 +101,12 @@ def _GetProtoFromTypy(p, codes, types):
 			types.add(p.pyType.__name__)
 		return _ProtoFormat(p, p.pyType.__name__)
 	elif isinstance(p, Instance):
+		if len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
+			if 'PyObject' not in types:
+				codes.append("""
+PyObject = type('PyObject', (), {})""")
+				types.add('PyObject')
+			return _ProtoFormat(p, 'PyObject')
 		pyType = []
 		for t in p.pyType:
 			if t is None:
@@ -110,12 +116,12 @@ def _GetProtoFromTypy(p, codes, types):
 				if t.__name__ not in types:
 					_GenerateObject(t.__name__, MetaObject.Objects[t.__name__], codes, types)
 			else:
-				pyType.append(_GetProtoFromTypy(toType(t), codes, types))
+				pyType.append(_GetProtoFromTypy(toType(t), codes, types, True))
 		return _ProtoFormat(p, *sorted(pyType))
 	elif isinstance(p, List):
-		return _ProtoFormat(p, _GetProtoFromTypy(p.elementType, codes, types))
+		return _ProtoFormat(p, _GetProtoFromTypy(p.elementType, codes, types, True))
 	elif isinstance(p, Dict):
-		return _ProtoFormat(p, _GetProtoFromTypy(p.keyType, codes, types), _GetProtoFromTypy(p.valueType, codes, types))
+		return _ProtoFormat(p, _GetProtoFromTypy(p.keyType, codes, types, True), _GetProtoFromTypy(p.valueType, codes, types, True))
 
 
 def _GenerateObject(name, cls, codes, types):

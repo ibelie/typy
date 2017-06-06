@@ -22,6 +22,7 @@ Corpus = type('Corpus', (typy.Enum, ), {
 	'VIDEO': 6,
 })
 PyType = type('PyType', (), {})
+PyObject = type('PyObject', (), {})
 Vector2 = typy.Proto.Object('Vector2', 
 	('x', typy.pb.Float(default = 0.0, label = '\xe5\x9d\x90\xe6\xa0\x87X')),
 	('y', typy.pb.FixedPoint(1, -10, default = 0.0, label = '\xe5\x9d\x90\xe6\xa0\x87Y')),
@@ -30,7 +31,7 @@ Vector2 = typy.Proto.Object('Vector2',
 	('i', typy.pb.Instance(Empty, label = '\xe7\xa9\xba')),
 	('p', typy.pb.Python(PyType, label = 'PyType')),
 	('s', typy.pb.String()),
-	('t', typy.Instance()),
+	('t', typy.Instance(PyObject)),
 )
 Fighter = typy.Proto.Object('Fighter', 
 	('bd', typy.pb.Dict(typy.String(), typy.Bytes(), label = 'bd')),
