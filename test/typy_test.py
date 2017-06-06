@@ -24,8 +24,6 @@ def setup():
 	typydFile = 'build/lib.%s-%s/typy/_typyd.%s' % (get_platform(), sys.version[0:3], suffix)
 	os.path.isfile(typydFile) and shutil.copy(typydFile, "test/")
 
-	import test_case
-
 
 def _printFighters(fighter1, fighter2, fighter3, fighter4, fighter5):
 	print "hp\t", "\t", fighter1.hp, "\t\t", fighter2.hp, "\t\t", fighter3.hp, "\t\t", fighter4.hp, "\t\t", fighter5.hp
@@ -539,6 +537,7 @@ cpytime = 0
 
 def test_cpp():
 	import os
+	import test_case
 	from typy import GenerateExtention
 	global SETUP_TYPYC
 	SETUP_TYPYC and GenerateExtention('%s/typy' % os.path.abspath(os.path.dirname(__file__)))
@@ -552,6 +551,7 @@ def test_cpp():
 
 def test_cpy():
 	import os
+	import test_case
 	from typy import GenerateDescriptor
 	GenerateDescriptor(os.path.dirname(__file__))
 	import _typy

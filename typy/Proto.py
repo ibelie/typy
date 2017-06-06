@@ -51,4 +51,9 @@ def RecordNesting(prefix, types):
 	return name, properties
 
 def Increment(path, proto, ignore):
-	pass
+	import os
+	for p, ds, fs in os.walk(path):
+		for d in ds:
+			print p, d
+		for f in fs:
+			print p, f
