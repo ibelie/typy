@@ -194,7 +194,7 @@ def Increment(forceReload, path, proto_file, ignore):
 				if forceReload and m in sys.modules:
 					imp.reload(__import__(m))
 				else:
-					__import__(m)
+					sys.modules[m] = __import__(m)
 
 	if os.path.isfile(path) and path.endswith('.py'):
 		with codecs.open(path, 'r', 'utf-8') as f:
