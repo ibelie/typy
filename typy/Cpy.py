@@ -3,7 +3,7 @@
 # Use of this source code is governed by The MIT License
 # that can be found in the LICENSE file.
 
-from Cpp import _RecordNesting
+from Proto import RecordNesting
 
 TYPE_ENUM       = 0
 TYPE_INT32      = 1
@@ -86,7 +86,7 @@ def _GetCpyFromTypy(p, codes, types, nesting = False):
 		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
 			pass
 		else:
-			variant, properties = _RecordNesting('V', p.pyType)
+			variant, properties = RecordNesting('V', p.pyType)
 			if variant not in types:
 				_GenerateVariant(variant, properties, codes, types)
 				types.add(variant)
@@ -97,7 +97,7 @@ PyObject = _typyd.Python('PyObject')""")
 			types.add('PyObject')
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_PYTHON, 'PyObject'
 	elif isinstance(p, List):
-		list_type, _ = _RecordNesting('L', [p.elementType])
+		list_type, _ = RecordNesting('L', [p.elementType])
 		if list_type not in types:
 			wire_type, field_type, typy_type = _GetCpyFromTypy(p.elementType, codes, types, True)
 			codes.append("""
@@ -105,7 +105,7 @@ PyObject = _typyd.Python('PyObject')""")
 			types.add(list_type)
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_LIST, list_type
 	elif isinstance(p, Dict):
-		dict_type, _ = _RecordNesting('D', [p.keyType, p.valueType])
+		dict_type, _ = RecordNesting('D', [p.keyType, p.valueType])
 		if dict_type not in types:
 			key_wire_type, key_field_type, key_typy_type = _GetCpyFromTypy(p.keyType, codes, types, True)
 			value_wire_type, value_field_type, value_typy_type = _GetCpyFromTypy(p.valueType, codes, types, True)

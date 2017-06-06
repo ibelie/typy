@@ -9,6 +9,8 @@ SWITCH_GENERATE_OBJECT = SWITCH_GENERATE_ALL and True
 SWITCH_GENERATE_ENUM = SWITCH_GENERATE_ALL and True
 SWITCH_DELETE_CPP = False
 
+from Proto import CompareWrite, ShortName, RecordNesting
+
 def _VariantSetter(properties):
 	from Object import MetaObject
 	from Type import Enum, List, Dict, Python, Integer, Float, Double, FixedPoint, Boolean, String, Bytes, Instance
@@ -172,60 +174,13 @@ def _VariantFromJson(properties):
 	return from_json_objects, from_json_dict, from_json_list
 
 
-def _compareWrite(path, content):
-	import os
-	import codecs
-	if os.path.isfile(path):
-		with codecs.open(path, 'r', 'utf-8') as f:
-			if f.read() == content:
-				return
-	with codecs.open(path, 'w', 'utf-8') as f:
-		f.write(content)
-
-def _shortName(prefix, name):
-	import hashlib
-	import base64
-	if len(name) > 25:
-		name = prefix + base64.b64encode(hashlib.md5(name).digest())[:-2].replace('+', '__').replace('/', '_')
-	return name
-
-def _RecordNesting(prefix, types):
-	from Type import toType, isEnum, List, Dict, Instance
-	shortName = {
-		'Integer': 'i',
-		'Float': 'f',
-		'Double': 'd',
-		'FixedPoint': 'fp',
-		'Boolean': 'b',
-		'String': 's',
-		'Bytes': 'by',
-		'Enum': 'e',
-	}
-	properties = {'Enum' if isEnum(p) else p.__name__: toType(p) for p in types if p is not None}
-	names = sorted([shortName[k] for k in properties if k in shortName])
-	for name in sorted([k for k in properties if k not in shortName]):
-		prop = properties[name]
-		if isinstance(prop, Instance):
-			if len(prop.pyType) == 1 and not isinstance(prop.pyType[0], List):
-				names.append(prop.pyType[0].__name__)
-			else:
-				names.append(_RecordNesting('V', prop.pyType)[0])
-		elif isinstance(prop, List):
-			names.append(_RecordNesting('L', [prop.elementType])[0])
-		elif isinstance(prop, Dict):
-			names.append(_RecordNesting('D', [prop.keyType, prop.valueType])[0])
-		else:
-			names.append(name)
-	name = _shortName(prefix, '%s%s' % (prefix, ''.join(names)))
-	return name, properties
-
 def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nesting = False):
 	from Object import MetaObject
 	from Type import pb, Enum, Simple, Instance, List, Dict, Collection
 	from Type import FixedPoint, Python
 	if isinstance(p, Enum):
 		enums[p.pyType.__name__] = p.pyType
-		ref_types.add('#include "%s.h"' % _shortName('E', p.pyType.__name__))
+		ref_types.add('#include "%s.h"' % ShortName('E', p.pyType.__name__))
 		return p.pyType.__name__, '', p.pyType.__name__
 	elif isinstance(p, FixedPoint):
 		fixedpoint = 'SINGLE_ARG(FixedPoint<%d, %d>)' % (p.precision, p.floor)
@@ -234,16 +189,16 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 		return p.pbType, '', p.pbType
 	elif isinstance(p, Python):
 		pythons.add(p.pyType.__name__)
-		ref_types.add('#include "%s.h"' % _shortName('P', p.pyType.__name__))
+		ref_types.add('#include "%s.h"' % ShortName('P', p.pyType.__name__))
 		return 'Python<Shadow_%s>' % p.pyType.__name__, '*', 'Python<Shadow_%s>' % p.pyType.__name__
 	elif isinstance(p, Instance):
 		if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
-			ref_types.add('#include "%s.h"' % _shortName('O', p.pyType[0].__name__))
+			ref_types.add('#include "%s.h"' % ShortName('O', p.pyType[0].__name__))
 			return p.pyType[0].__name__, '*', p.pyType[0].__name__
 		elif len(p.pyType) < 1 or (not nesting and pb not in p.____keywords__):
 			pass
 		else:
-			variant, properties = _RecordNesting('V', p.pyType)
+			variant, properties = RecordNesting('V', p.pyType)
 			variants[variant] = properties
 			ref_types.add('#include "%s.h"' % variant)
 			return variant, '*', 'Variant(%s)' % ', '.join([k for k, _ in variants[variant].iteritems()])
@@ -303,11 +258,11 @@ def _GenerateVariant(path, name, properties, container_inits, enums, pythons, va
 	read_fields.append('END_READ_CASE()')
 
 	if SWITCH_GENERATE_VARIANT:
-		_compareWrite(path + '%s.h' % name, TYPY_VARIANT_CLS_H__ % (
+		CompareWrite(path + '%s.h' % name, TYPY_VARIANT_CLS_H__ % (
 			name, name, '\n'.join(sorted(ref_types)), name, '\n\t'.join(header_fields), name))
 
 		from_json_objects, from_json_dict, from_json_list = _VariantFromJson(cppTypes)
-		_compareWrite(path + '%s.cc' % name, TYPY_VARIANT_CLS_CC__ % (name, name, name,
+		CompareWrite(path + '%s.cc' % name, TYPY_VARIANT_CLS_CC__ % (name, name, name,
 			'\n\t'.join(clear_fields), name,
 			'\n\t'.join(visit_fields), name, name,
 			'\n\t'.join(copy_fields), name, name,
@@ -337,11 +292,11 @@ def _GenerateEnum(path, name, cls):
 		enum_value_set.append('case %s:' % v.name)
 
 	if SWITCH_GENERATE_ENUM:
-		_compareWrite(path + '%s.h' % _shortName('E', name), TYPY_ENUM_H__ % (
+		CompareWrite(path + '%s.h' % ShortName('E', name), TYPY_ENUM_H__ % (
 			name, name, name, '\n\t'.join(enum_values), name, name, name))
 
-		_compareWrite(path + '%s.cc' % _shortName('E', name), TYPY_ENUM_CC__ % (
-			_shortName('E', name), name,
+		CompareWrite(path + '%s.cc' % ShortName('E', name), TYPY_ENUM_CC__ % (
+			ShortName('E', name), name,
 			'\n'.join(enum_py_values), name,
 			'\n\t\t\t'.join(enum_py_value_inits1), name, name, name, name, name, name,
 			'\n\t'.join(enum_py_value_inits2), name, name,
@@ -458,11 +413,11 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 		read_fields.append('return true;')
 
 	if SWITCH_GENERATE_OBJECT:
-		_compareWrite(path + '%s.h' % _shortName('O', name), TYPY_OBJECT_CLS_H__ % (name, name,
+		CompareWrite(path + '%s.h' % ShortName('O', name), TYPY_OBJECT_CLS_H__ % (name, name,
 			'\n'.join(sorted(ref_types)), name, '\n\t'.join(header_fields), name, name))
 
-		_compareWrite(path + '%s.cc' % _shortName('O', name), TYPY_OBJECT_CLS_CC__ % (
-			_shortName('O', name), name, name, name, name, first_fields, name,
+		CompareWrite(path + '%s.cc' % ShortName('O', name), TYPY_OBJECT_CLS_CC__ % (
+			ShortName('O', name), name, name, name, name, first_fields, name,
 			'\n\t'.join(clear_fields), name,
 			'\n\t'.join(visit_fields), name, name,
 			'\n\t'.join(merge_fields), name,
@@ -492,8 +447,8 @@ def _GenerateCpp(path):
 	variants = {}
 	pythons = set()
 	for name, cls in MetaObject.Objects.iteritems():
-		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % _shortName('O', name))
-		object_types.append('#include "%s.h"' % _shortName('O', name))
+		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % ShortName('O', name))
+		object_types.append('#include "%s.h"' % ShortName('O', name))
 		object_inits.append('Object<%s>::Init(m)' % name)
 		_GenerateObject(path, name, cls, container_inits, enums, pythons, variants)
 
@@ -505,20 +460,20 @@ def _GenerateCpp(path):
 		variants = nesting_variants
 
 	for name, cls in enums.iteritems():
-		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % _shortName('E', name))
-		object_types.append('#include "%s.h"' % _shortName('E', name))
+		ext_modules.append('"${_TYPY_DIR}/%s.cc"' % ShortName('E', name))
+		object_types.append('#include "%s.h"' % ShortName('E', name))
 		object_inits.append('Init%s(m)' % name)
 		_GenerateEnum(path, name, cls)
 
 	python_types = []
 	python_inits = []
 	for name in pythons:
-		python_types.append('#include "%s.h"' % _shortName('P', name))
+		python_types.append('#include "%s.h"' % ShortName('P', name))
 		python_inits.append('Python<Shadow_%s>::Init(m, "%s")' % (name, name))
-		_compareWrite(path + '%s.h' % _shortName('P', name), TYPY_PYTHON_CLS_H__ % (name, name, name, name))
+		CompareWrite(path + '%s.h' % ShortName('P', name), TYPY_PYTHON_CLS_H__ % (name, name, name, name))
 
 	if SWITCH_GENERATE_ALL:
-		_compareWrite(path + 'all.cc', TYPY_ALL_CC__ % (
+		CompareWrite(path + 'all.cc', TYPY_ALL_CC__ % (
 			'\n'.join(sorted(python_types) + sorted(object_types)),
 			'\n\t\t&& '.join(sorted(container_inits) + sorted(object_inits) + sorted(python_inits))))
 
@@ -536,7 +491,7 @@ def GenerateExtention(_typyDir = None, installDir = True):
 
 	ext_modules = _GenerateCpp(_typyDir)
 
-	_compareWrite(_typyDir + 'classes.cmake', TYPY_CLASSES_TXT__ % '\n\t'.join(ext_modules))
+	CompareWrite(_typyDir + 'classes.cmake', TYPY_CLASSES_TXT__ % '\n\t'.join(ext_modules))
 	path = os.path.abspath(os.path.dirname(__file__))
 	if not installDir: return
 	if not isinstance(installDir, basestring):
