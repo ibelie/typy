@@ -95,6 +95,12 @@ void TypyProperty_Changed(TypyObject* self, PropertyFlag flag, FieldType field_t
 		register TypyPropertyHandler handler = &Typy_TYPE(self)->handlers_list[i];
 		if (!IblBitmap_Get(handler->handler_flag, flag)) { continue; }
 		handler->handler_func(self, flag, handler->handler_data, field_type, typy_type, old, new);
+		if (PyErr_Occurred()) {
+			PyErr_Print();
+			if (Py_FlushLine()) {
+				PyErr_Clear();
+			}
+		}
 	}
 }
 

@@ -62,11 +62,11 @@ def RecordNesting(prefix, types):
 
 def ClearTypes():
 	from Object import MetaObject
-	MetaObject.Objects = {}
+	MetaObject.Objects.clear()
 	from typy.Enum import MetaEnum
-	MetaEnum.Enums = {}
+	MetaEnum.Enums.clear()
 	import Type
-	Type.PythonTypes = {}
+	Type.PythonTypes.clear()
 
 
 class TypeObject(object): pass

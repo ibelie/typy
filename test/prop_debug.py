@@ -29,11 +29,7 @@ def test_prop():
 	propDict = {}
 
 	def onPropertyChanged(cls, name, old, new):
-		if cls.__name__ not in propDict or name not in propDict[cls.__name__]:
-			import traceback
-			traceback.print_stack()
-			print propDict, cls.__name__, name, old, new
-			return
+		assert cls.__name__ in propDict and name in propDict[cls.__name__], (propDict, cls.__name__, name, old, new)
 		propDict[cls.__name__].remove(name)
 		if not propDict[cls.__name__]:
 			del propDict[cls.__name__]

@@ -12,6 +12,8 @@
 #endif
 #define PY_SSIZE_T_CLEAN
 
+#define IblPrint PySys_WriteStdout
+
 #include "Python.h"
 #include "map.h"
 #include "protobuf.h"
