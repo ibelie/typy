@@ -185,6 +185,8 @@ def Increment(path, proto_file, ignore):
 		proto = _Proto()
 		proto.timestamps = {}
 
+	proto.hasIncrement = False
+
 	def _scanScripts(sub):
 		for i in os.listdir('%s/%s' % (path, sub)):
 			sys.stdout.write('.')
@@ -206,11 +208,13 @@ def Increment(path, proto_file, ignore):
 				m = n if not sub else '%s.%s' % (sub.replace('/', '.'), n)
 				print '\n[Typy] Incremental proto:', m
 				__import__(m)
+				proto.hasIncrement = True
 
 	if os.path.isfile(path) and path.endswith('.py'):
 		with codecs.open(path, 'r', 'utf-8') as f:
 			exec str(f.read()) in {}
 		proto.timestamps[path] = str(os.stat(path).st_mtime)
+		proto.hasIncrement = True
 	elif os.path.isdir(path):
 		_scanScripts('')
 
@@ -222,12 +226,17 @@ def Increment(path, proto_file, ignore):
 		if hasattr(c, '____properties__') and (not isinstance(c, TypeObject) or getattr(c, 'isObject', False)):
 			MetaObject.Objects[n] = c
 
+	if not proto.hasIncrement:
+		return False
+
 	codes = []
 	types = set()
 	for name, cls in sorted(MetaObject.Objects.iteritems(), key = lambda (k, v): k):
 		if name not in types:
 			_GenerateObject(name, cls, codes, types)
 	CompareWrite(proto_file, TYPY_PROTO__ % ('\n\t'.join(['\'%s\': \'%s\',' % (p, t) for p, t in sorted(proto.timestamps.iteritems())]), ''.join(codes)))
+
+	return True
 
 
 TYPY_PROTO__ = ur"""#-*- coding: utf-8 -*-

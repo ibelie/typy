@@ -559,9 +559,6 @@ def test_cpy():
 	GenerateDescriptor(path)
 	import _typy
 	import test_case
-	import imp
-	ClearTypes()
-	imp.reload(test_case)
 	test_case.setup(globals(), _typy)
 	global cpptime, cpytime
 	cpytime = _build(_typy)
