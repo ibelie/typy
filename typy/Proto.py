@@ -80,7 +80,7 @@ def _ProtoFormat(t, *args):
 def _GetProtoFromTypy(p, codes, types):
 	from Object import MetaObject
 	import Type
-	from Type import pb, toType, Enum, Integer, Float, Double, Boolean, String, Bytes
+	from Type import toType, Enum, Integer, Float, Double, Boolean, String, Bytes
 	from Type import Instance, List, Dict, FixedPoint, Python
 	if isinstance(p, Enum):
 		if p.pyType.__name__ not in types:
@@ -150,13 +150,12 @@ def Object(name, *fields):
 	return type(name, (), attrs)
 
 
-def Increment(forceReload, path, proto_file, ignore):
+def Increment(path, proto_file, ignore):
 	import os
 	import sys
 	import imp
 	import codecs
 
-	forceReload and ClearTypes()
 	import Type
 	Type.PythonTypes = {}
 	path = path.replace('\\', '/')
@@ -184,17 +183,13 @@ def Increment(forceReload, path, proto_file, ignore):
 				continue
 			elif i.endswith(('.py', '.pyc')):
 				n = i.rpartition('.')[0]
-				if n == '__init__' or (i.endswith('.pyc') and os.path.isfile(fp[:-1])) or (sub and \
-					not os.path.isfile('%s/%s/__init__.py' % (path, sub)) and \
-					not os.path.isfile('%s/%s/__init__.pyc' % (path, sub))):
+				if n == '__init__' or (i.endswith('.pyc') and os.path.isfile(fp[:-1])) or \
+					(sub and not os.path.isfile('%s/%s/__init__.py' % (path, sub)) and not os.path.isfile('%s/%s/__init__.pyc' % (path, sub))):
 					continue
 				proto.timestamps[fp] = os.stat(fp).st_mtime
 				m = n if not sub else '%s.%s' % (sub.replace('/', '.'), n)
 				print '\n[Typy] Incremental proto:', m
-				if forceReload and m in sys.modules:
-					imp.reload(__import__(m))
-				else:
-					sys.modules[m] = __import__(m)
+				sys.modules[m] = __import__(m)
 
 	if os.path.isfile(path) and path.endswith('.py'):
 		with codecs.open(path, 'r', 'utf-8') as f:
