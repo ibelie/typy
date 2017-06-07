@@ -205,7 +205,7 @@ def Increment(path, proto_file, ignore):
 				proto.timestamps[fp] = str(os.stat(fp).st_mtime)
 				m = n if not sub else '%s.%s' % (sub.replace('/', '.'), n)
 				print '\n[Typy] Incremental proto:', m
-				sys.modules[m] = __import__(m)
+				__import__(m)
 
 	if os.path.isfile(path) and path.endswith('.py'):
 		with codecs.open(path, 'r', 'utf-8') as f:
