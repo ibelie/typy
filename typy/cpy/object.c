@@ -475,6 +475,12 @@ static PyMethodDef Methods[] = {
 		"Get Json of the object." },
 	{ "FromJson", (PyCFunction)Py_FromJson, METH_O | METH_CLASS,
 		"Get object from Json." },
+#ifdef TYPY_PROPERTY_HANDLER
+	{ "RegisterHandler", (PyCFunction)Py_RegisterHandler, METH_VARARGS | METH_CLASS,
+		"Register a property handler to the object type." },
+	{ "UnregisterHandler", (PyCFunction)Py_UnregisterHandler, METH_O | METH_CLASS,
+		"Unregister a property handler to the object type." },
+#endif
 	{ NULL, NULL}
 };
 

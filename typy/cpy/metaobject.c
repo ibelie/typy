@@ -121,6 +121,55 @@ bool Meta_HandleProperty(TypyMetaObject* type, size_t index, TypyHandlerData dat
 	return true;
 }
 
+static void onPropertyChanged(TypyObject* object, PropertyFlag flag, PyObject* handler, FieldType field_type, TypyType typy_type, TypyField old, TypyField new) {
+	if (flag >= Typy_TYPE(object)->prop_flagmax) {
+		PyErr_Format(PyExc_RuntimeError, "'%s' type onPropertyChanged flag larger than flagmax(%d).", Typy_NAME(object), flag);
+		return;
+	}
+	register size_t i;
+	for (i = Typy_SIZE(object) - 1; i >= 0 && flag < Typy_PROPFLAG(object, i); i--);
+	register PyObject* old_object = abstract_GetPyObject[field_type](typy_type, &old);
+	register PyObject* new_object = abstract_GetPyObject[field_type](typy_type, &new);
+	PyObject_CallFunction(handler, "OsOO", object, Typy_PropertyName(object, i), old_object, new_object);
+	Py_XDECREF(old_object);
+	Py_XDECREF(new_object);
+}
+
+PyObject* Py_RegisterHandler(TypyMetaObject* type, PyObject* args) {
+	char *name = NULL;
+	PyObject* handler = NULL;
+	if (!PyArg_ParseTuple(args, "O|s", &handler, &name)) {
+		return NULL;
+	} else if (!PyCallable_Check(handler)) {
+		FormatTypeError(handler, "RegisterHandler expect callable, but ");
+		return NULL;
+	} else if (name) {
+		register int index = Meta_PropertyIndex(type, name);
+		if (index < 0) {
+			PyErr_Format(PyExc_AttributeError, "'%s' type has no attribute handler '%s'.", Meta_NAME(type), name);
+			return NULL;
+		} else if (!Meta_HandleProperty(type, index, (TypyHandlerData)handler, (TypyHandlerFunc)onPropertyChanged)) {
+			PyErr_Format(PyExc_RuntimeError, "Register attribute '%s' handler for '%s' type failed.", name, Meta_NAME(type));
+			return NULL;
+		}
+		Py_RETURN_NONE;
+	}
+
+	register size_t i;
+	for (i = 0; i < type->meta_size; i++) {
+		if (!Meta_HandleProperty(type, i, (TypyHandlerData)handler, (TypyHandlerFunc)onPropertyChanged)) {
+			PyErr_Format(PyExc_RuntimeError, "Register attribute '%s' handler for '%s' type failed.", Meta_PropertyName(type, i), Meta_NAME(type));
+			return NULL;
+		}
+	}
+	Py_RETURN_NONE;
+}
+
+PyObject* Py_UnregisterHandler(TypyMetaObject* type, PyObject* handler) {
+	TypyProperty_Unregister(type, (TypyHandlerData)handler, (TypyHandlerFunc)onPropertyChanged);
+	Py_RETURN_NONE;
+}
+
 #endif
 
 //=============================================================================

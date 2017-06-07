@@ -19,7 +19,7 @@ struct _TypyObject;
 struct _TypyMetaObject;
 
 typedef void*  TypyHandlerData;
-typedef void (*TypyHandlerFunc)(struct _TypyObject *, size_t, TypyHandlerData, FieldType, TypyType, TypyField, TypyField);
+typedef void (*TypyHandlerFunc)(struct _TypyObject *, PropertyFlag, TypyHandlerData, FieldType, TypyType, TypyField, TypyField);
 
 typedef struct _TypyPropertyHandler {
 	IblBitmap       handler_flag;
@@ -123,6 +123,8 @@ PyObject*       Typy_RegisterObject    (PyObject*, PyObject*);
 	bool      Typy_READ            (TypyObject*, size_t, byte**, size_t*);
 	bool      Typy_CHECKSET        (TypyObject*, size_t, PyObject*, const char*);
 	bool      Typy_FROMJSON        (TypyObject*, size_t, PyObject*);
+	PyObject* Py_RegisterHandler   (TypyMetaObject*, PyObject*);
+	PyObject* Py_UnregisterHandler (TypyMetaObject*, PyObject*);
 #else
 #	define Meta_PROPFLAG(m, i)  0
 #	define Typy_PROPFLAG(ob, i) 0

@@ -9,47 +9,14 @@ extern void init_typyd(void);
 
 static PyObject* callback;
 
-static void onPropertyChanged(TypyObject* object, size_t flag, size_t i, FieldType field_type, TypyType typy_type, TypyField old, TypyField new) {
-	if (callback) {
-		register PyObject* old_object = abstract_GetPyObject[field_type](typy_type, &old);
-		register PyObject* new_object = abstract_GetPyObject[field_type](typy_type, &new);
-		PyObject_CallFunction(callback, "OsOO", Typy_TYPE(object), Typy_PropertyName(object, i), old_object, new_object);
-		Py_XDECREF(old_object);
-		Py_XDECREF(new_object);
-	}
-}
-
 static PyObject* RegisterCallback(PyObject* m, PyObject* arg) {
 	callback = arg;
-	Py_RETURN_NONE;
-}
-
-static PyObject* RegisterHandler(PyObject* m, TypyMetaObject* type) {
-	register size_t i;
-	for (i = 0; i < type->meta_size; i++) {
-		if (!Meta_HandleProperty(type, i, (TypyHandlerData)i, (TypyHandlerFunc)onPropertyChanged)) {
-			PyErr_Format(PyExc_RuntimeError, "Register %s handler for %s failed.", Meta_PropertyName(type, i), Meta_NAME(type));
-			return NULL;
-		}
-	}
-	Py_RETURN_NONE;
-}
-
-static PyObject* UnregisterHandler(PyObject* m, TypyMetaObject* type) {
-	register size_t i;
-	for (i = 0; i < type->meta_size; i++) {
-		TypyProperty_Unregister(type, (TypyHandlerData)i, (TypyHandlerFunc)onPropertyChanged);
-	}
 	Py_RETURN_NONE;
 }
 
 static PyMethodDef ModuleMethods[] = {
 	{"RegisterCallback", (PyCFunction)RegisterCallback, METH_O,
 		"register callback for handlers."},
-	{"RegisterHandler", (PyCFunction)RegisterHandler, METH_O,
-		"register handlers for Typy."},
-	{"UnregisterHandler", (PyCFunction)UnregisterHandler, METH_O,
-		"unregister handlers for Typy."},
 	{ NULL, NULL}
 };
 

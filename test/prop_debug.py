@@ -28,17 +28,19 @@ def test_prop():
 
 	propDict = {}
 
-	def onPropertyChanged(cls, name, old, new):
-		assert cls.__name__ in propDict and name in propDict[cls.__name__], (propDict, cls.__name__, name, old, new)
-		propDict[cls.__name__].remove(name)
-		if not propDict[cls.__name__]:
-			del propDict[cls.__name__]
+	def onPropertyChanged(obj, name, old, new):
+		cls = obj.__class__.__name__
+		assert cls in propDict and name in propDict[cls], (propDict, obj, name, old, new)
+		print cls, name, old, new
+		propDict[cls].remove(name)
+		if not propDict[cls]:
+			del propDict[cls]
+
+	_Vector2.RegisterHandler(onPropertyChanged, 'x')
+	_Vector2.RegisterHandler(onPropertyChanged, 'y')
+	_Fighter.RegisterHandler(onPropertyChanged)
 
 	print 'test_prop begin'
-	import _typyd
-	_typyd.RegisterCallback(onPropertyChanged)
-	_typyd.RegisterHandler(_Vector2)
-	_typyd.RegisterHandler(_Fighter)
 
 	propDict = {
 		'Vector2': ['x'],
@@ -427,7 +429,4 @@ def test_prop():
 	fighter.fdv[333] = 111.222
 	assert not propDict, 'fighter.fdv[333] = 111.222 %s' % repr(propDict)
 
-
-	_typyd.UnregisterHandler(_Vector2)
-	_typyd.UnregisterHandler(_Fighter)
 	print 'test_prop end'
