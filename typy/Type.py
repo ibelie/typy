@@ -27,7 +27,7 @@ class MetaType(type):
 			attrs['____realType__'] = True
 		attrs['__name__'] = clsname
 		cls = super(MetaType, mcs).__new__(mcs, clsname, bases, attrs)
-		if cls.____realType__ and (cls.__name__ not in mcs.typesDict or cls.__name__ != 'Enum'):
+		if cls.____realType__ and not cls.____keywords__:
 			mcs.typesDict[cls.__name__] = cls
 		return cls
 
@@ -239,6 +239,7 @@ class Dict(Collection):
 
 class MetaKeyword(type):
 	____keywords__ = {}
+	____types__ = {}
 
 	def __new__(mcs, clsname, bases, attrs):
 		cls = super(MetaKeyword, mcs).__new__(mcs, clsname, bases, attrs)
@@ -268,8 +269,10 @@ class Keyword(object):
 				while keyword:
 					allKeywords.add(keyword.__class__)
 					keyword = keyword.____leadingKeyword__
-				decoratedPropType = type(t.__name__, (t,), {"____keywords__": tuple(allKeywords)})
-				return decoratedPropType
+				typeName = '.'.join(sorted([k.__name__ for k in allKeywords]) + [t.__name__])
+				if typeName not in MetaKeyword.____types__:
+					MetaKeyword.____types__[typeName] = type(t.__name__, (t,), {"____keywords__": tuple(allKeywords)})
+				return MetaKeyword.____types__[typeName]
 			else:
 				raise AttributeError("%r is neither a keyword nor a property type." % item)
 
