@@ -4,7 +4,7 @@
 import typy
 
 timestamps = {
-	'E:/test/typy/test/test_case.py': 1496725714,
+	'E:/test/typy/test/test_case.py': '1496725714.42',
 }
 
 BooleanList = typy.Proto.Object('BooleanList', 

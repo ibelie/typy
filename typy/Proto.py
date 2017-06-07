@@ -180,14 +180,14 @@ def Increment(path, proto_file, ignore):
 				continue
 			elif os.path.isdir(fp):
 				_scanScripts(p)
-			elif fp in proto.timestamps and os.stat(fp).st_mtime != proto.timestamps[fp]:
+			elif fp in proto.timestamps and str(os.stat(fp).st_mtime) == proto.timestamps[fp]:
 				continue
 			elif i.endswith(('.py', '.pyc')):
 				n = i.rpartition('.')[0]
 				if n == '__init__' or (i.endswith('.pyc') and os.path.isfile(fp[:-1])) or \
 					(sub and not os.path.isfile('%s/%s/__init__.py' % (path, sub)) and not os.path.isfile('%s/%s/__init__.pyc' % (path, sub))):
 					continue
-				proto.timestamps[fp] = os.stat(fp).st_mtime
+				proto.timestamps[fp] = str(os.stat(fp).st_mtime)
 				m = n if not sub else '%s.%s' % (sub.replace('/', '.'), n)
 				print '\n[Typy] Incremental proto:', m
 				sys.modules[m] = __import__(m)
@@ -195,7 +195,7 @@ def Increment(path, proto_file, ignore):
 	if os.path.isfile(path) and path.endswith('.py'):
 		with codecs.open(path, 'r', 'utf-8') as f:
 			exec str(f.read()) in {}
-		proto.timestamps[path] = os.stat(path).st_mtime
+		proto.timestamps[path] = str(os.stat(path).st_mtime)
 	elif os.path.isdir(path):
 		_scanScripts('')
 
@@ -212,7 +212,7 @@ def Increment(path, proto_file, ignore):
 	for name, cls in sorted(MetaObject.Objects.iteritems(), key = lambda (k, v): k):
 		if name not in types:
 			_GenerateObject(name, cls, codes, types)
-	CompareWrite(proto_file, TYPY_PROTO__ % ('\n\t'.join(['\'%s\': %d,' % (p, t) for p, t in sorted(proto.timestamps.iteritems())]), ''.join(codes)))
+	CompareWrite(proto_file, TYPY_PROTO__ % ('\n\t'.join(['\'%s\': \'%s\',' % (p, t) for p, t in sorted(proto.timestamps.iteritems())]), ''.join(codes)))
 
 
 TYPY_PROTO__ = ur"""#-*- coding: utf-8 -*-
