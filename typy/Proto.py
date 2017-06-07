@@ -63,13 +63,13 @@ def RecordNesting(prefix, types):
 def ClearTypes():
 	from Object import MetaObject
 	MetaObject.Objects = {}
-	from Enum import MetaEnum
+	from typy.Enum import MetaEnum
 	MetaEnum.Enums = {}
 	import Type
 	Type.PythonTypes = {}
 
 
-class PyObject(object): pass
+class TypeObject(object): pass
 
 
 def _ProtoFormat(t, *args):
@@ -87,10 +87,10 @@ def _GetProtoFromTypy(p, codes, types):
 			values = []
 			for i, e in sorted(p.pyType.__enum__.iteritems()):
 				values.append("""
-	'%s': %d,""" % (e.name, i))
+	('%s', %d),""" % (e.name, i))
 			codes.append("""
-%s = type('%s', (typy.Enum, ), {%s
-})""" % (p.pyType.__name__, p.pyType.__name__, ''.join(values)))
+%s = typy.Proto.Enum('%s', %s
+)""" % (p.pyType.__name__, p.pyType.__name__, ''.join(values)))
 			types.add(p.pyType.__name__)
 		return _ProtoFormat(p, p.pyType.__name__)
 	elif isinstance(p, (Integer, Float, Double, Boolean, String, Bytes)):
@@ -99,12 +99,8 @@ def _GetProtoFromTypy(p, codes, types):
 		return _ProtoFormat(p, '%d, %d' % (p.precision, p.floor))
 	elif isinstance(p, Python):
 		if p.pyType.__name__ not in types:
-			if p.pyType.__name__ == 'PyObject':
-				codes.append("""
-PyObject = typy.Proto.PyObject""")
-			else:
-				codes.append("""
-%s = type('%s', (), {})""" % (p.pyType.__name__, p.pyType.__name__))
+			codes.append("""
+%s = typy.Proto.Python('%s')""" % (p.pyType.__name__, p.pyType.__name__))
 			types.add(p.pyType.__name__)
 		return _ProtoFormat(p, p.pyType.__name__)
 	elif isinstance(p, Instance):
@@ -119,7 +115,9 @@ PyObject = typy.Proto.PyObject""")
 			elif not isinstance(t, type) or (isinstance(t, type) and issubclass(t, (Type.Type, Type._Enum))):
 				pyType.append(_GetProtoFromTypy(toType(t), codes, types))
 			else:
-				pyType.append(_GetProtoFromTypy(Python(PyObject), codes, types))
+				obj = TypeObject()
+				obj.__name__ = 'PyObject'
+				pyType.append(_GetProtoFromTypy(Python(obj), codes, types))
 		return _ProtoFormat(p, *sorted(pyType))
 	elif isinstance(p, List):
 		return _ProtoFormat(p, _GetProtoFromTypy(p.elementType, codes, types))
@@ -141,13 +139,30 @@ def _GenerateObject(name, cls, codes, types):
 
 
 def Object(name, *fields):
-	obj = PyObject()
+	obj = TypeObject()
+	obj.isObject = True
 	obj.__name__ = name
 	obj.____propertySequence__ = [a for a, _ in fields]
 	obj.____properties__ = properties = {}
 	for a, p in fields:
 		properties[a] = p
 		setattr(obj, a, p)
+	return obj
+
+
+def Python(name):
+	obj = TypeObject()
+	obj.__name__ = name
+	return obj
+
+def Enum(name, *fields):
+	obj = TypeObject()
+	obj.isEnum = True
+	obj.__name__ = name
+	obj.__enum__ = {}
+	for a, p in fields:
+		obj.__enum__[p] = TypeObject()
+		obj.__enum__[p].name = a
 	return obj
 
 
@@ -204,7 +219,7 @@ def Increment(path, proto_file, ignore):
 		setattr(proto, n, c)
 	for n in dir(proto):
 		c = getattr(proto, n)
-		if hasattr(c, '____properties__'):
+		if hasattr(c, '____properties__') and (not isinstance(c, TypeObject) or getattr(c, 'isObject', False)):
 			MetaObject.Objects[n] = c
 
 	codes = []

@@ -557,7 +557,6 @@ def test_cpy():
 	path = os.path.dirname(__file__)
 	Increment(path, path + '/test_case.proto', ('typy', 'prop_debug.py', 'typy_test.py'))
 	GenerateDescriptor(path)
-	ClearTypes()
 	import _typy
 	import test_case
 	import imp

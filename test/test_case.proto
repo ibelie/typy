@@ -12,16 +12,16 @@ BooleanList = typy.Proto.Object('BooleanList',
 )
 Empty = typy.Proto.Object('Empty', 
 )
-Corpus = type('Corpus', (typy.Enum, ), {
-	'UNIVERSAL': 0,
-	'WEB': 1,
-	'IMAGES': 2,
-	'LOCAL': 3,
-	'NEWS': 4,
-	'PRODUCTS': 5,
-	'VIDEO': 6,
-})
-PyType = type('PyType', (), {})
+Corpus = typy.Proto.Enum('Corpus', 
+	('UNIVERSAL', 0),
+	('WEB', 1),
+	('IMAGES', 2),
+	('LOCAL', 3),
+	('NEWS', 4),
+	('PRODUCTS', 5),
+	('VIDEO', 6),
+)
+PyType = typy.Proto.Python('PyType')
 Vector2 = typy.Proto.Object('Vector2', 
 	('x', typy.pb.Float(default = 0.0, label = '\xe5\x9d\x90\xe6\xa0\x87X')),
 	('y', typy.pb.FixedPoint(1, -10, default = 0.0, label = '\xe5\x9d\x90\xe6\xa0\x87Y')),
@@ -106,7 +106,7 @@ Fighter_Part2 = typy.Proto.Object('Fighter_Part2',
 RPG = typy.Proto.Object('RPG', 
 	('fighter', typy.pb.Instance(Fighter, label = 'fighter')),
 )
-Vector3 = type('Vector3', (), {})
+Vector3 = typy.Proto.Python('Vector3')
 SkillParam = typy.Proto.Object('SkillParam', 
 	('buckID', typy.pb.Bytes()),
 	('destPos', typy.pb.Python(Vector3)),

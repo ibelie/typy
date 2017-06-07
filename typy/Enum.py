@@ -4,6 +4,7 @@
 # that can be found in the LICENSE file.
 
 from typy.google.protobuf import descriptor, descriptor_pb2
+from Proto import TypeObject
 
 try:
 	import _typy
@@ -42,7 +43,7 @@ class MetaEnum(type):
 		if not hasZero and clsname != 'Enum':
 			raise TypeError, "The enum '%s' must have a zero value." % clsname
 
-		if clsname in mcs.Enums:
+		if clsname in mcs.Enums and not isinstance(mcs.Enums[clsname], TypeObject):
 			raise TypeError, 'Enum name "%s" already exists.' % clsname
 
 		for k in enum:

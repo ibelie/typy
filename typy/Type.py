@@ -7,10 +7,10 @@ import sys
 _b = sys.version_info[0] < 3 and (lambda x: x) or (lambda x: x.encode('latin1'))
 
 from Enum import MetaEnum, Enum as _Enum
-from Proto import PyObject
+from Proto import TypeObject
 
 def isEnum(cls):
-	return isinstance(cls, type) and issubclass(cls, _Enum)
+	return (isinstance(cls, type) and issubclass(cls, _Enum)) or (isinstance(cls, TypeObject) and getattr(cls, 'isEnum', False))
 
 try:
 	import _typy
@@ -52,7 +52,7 @@ def toType(t):
 			return Instance(*t)
 		else:
 			t = tuple(t)[0]
-	if isinstance(t, PyObject):
+	if isinstance(t, TypeObject):
 		t = Instance(t)
 	elif isinstance(t, type):
 		if issubclass(t, Type):
@@ -150,9 +150,9 @@ class _Python(Type):
 	pbType = 'message'
 
 	def __init__(self, pyType, **metadata):
-		self.pyType = pyType if isinstance(pyType, (type, PyObject)) else type(pyType)
+		self.pyType = pyType if isinstance(pyType, (type, TypeObject)) else type(pyType)
 		self.__name__ = self.pyType.__name__
-		if self.__name__ in PythonTypes and self.pyType is not PythonTypes[self.__name__]:
+		if self.__name__ in PythonTypes and self.pyType is not PythonTypes[self.__name__] and not isinstance(PythonTypes[self.__name__], TypeObject):
 			raise TypeError, 'Python type name "%s" already exists.' % self.__name__
 		elif self.__name__ not in PythonTypes:
 			PythonTypes[self.__name__] = self.pyType
@@ -174,7 +174,7 @@ class Instance(Type):
 
 	def __init__(self, *pyType, **metadata):
 		pyType = tuple(reduce(lambda a, b: a | set(b.pyType), (p for p in pyType if isinstance(p, Instance)), set((p for p in pyType if not isinstance(p, Instance)))))
-		assert not tuple((p for p in pyType if p is not None and not isinstance(p, (type, Type, PyObject))))
+		assert not tuple((p for p in pyType if p is not None and not isinstance(p, (type, Type, TypeObject))))
 		self.pyType = pyType
 		super(Instance, self).__init__(**metadata)
 
