@@ -4,7 +4,7 @@
 # that can be found in the LICENSE file.
 
 from Type import pb, Type, PythonTypes, PythonDelegate
-from Proto import SortedMessage
+from Proto import PyObject, SortedMessage
 
 def _getProperties(mcs, bases, attrs):
 	prop = {}
@@ -232,7 +232,7 @@ if IMPLEMENTATION_TYPE == 'python':
 			cls = super(MetaObject, mcs).__new__(mcs, clsname, bases, attrs)
 
 			if clsname != 'Object':
-				if clsname in mcs.Objects:
+				if clsname in mcs.Objects and not isinstance(mcs.Objects[clsname], PyObject):
 					raise TypeError, 'Object name "%s" already exists.' % clsname
 				mcs.Objects[clsname] = cls
 
@@ -413,7 +413,7 @@ else:
 				cls.____properties__ = all_attrs['____properties__']
 
 			if clsname != 'Object':
-				if clsname in mcs.Objects:
+				if clsname in mcs.Objects and not isinstance(mcs.Objects[clsname], PyObject):
 					raise TypeError, 'Object name "%s" already exists.' % clsname
 				mcs.Objects[clsname] = cls
 

@@ -141,13 +141,14 @@ def _GenerateObject(name, cls, codes, types):
 
 
 def Object(name, *fields):
-	attrs = {}
-	attrs['____propertySequence__'] = [a for a, _ in fields]
-	attrs['____properties__'] = properties = {}
+	obj = PyObject()
+	obj.__name__ = name
+	obj.____propertySequence__ = [a for a, _ in fields]
+	obj.____properties__ = properties = {}
 	for a, p in fields:
 		properties[a] = p
-	attrs.update(properties)
-	return type(name, (), attrs)
+		setattr(obj, a, p)
+	return obj
 
 
 def Increment(path, proto_file, ignore):
