@@ -12,7 +12,9 @@
 #endif
 #define PY_SSIZE_T_CLEAN
 
-#define IblPrint PySys_WriteStdout
+#define IblPrint_Info PySys_WriteStdout
+#define IblPrint_Warn PySys_WriteStdout
+#define IblPrint_Err  PySys_WriteStderr
 
 #include "Python.h"
 #include "map.h"

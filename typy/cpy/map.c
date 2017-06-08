@@ -27,7 +27,7 @@ static void _IblMap_BuildTree(IblMap map, size_t hash) {
 			register IblTree *link, parent;
 			IblTree_Vacancy(&root, link, parent, SINGLE_ARG(map->compare(_KEY(item), _KEY(*link))));
 			if (*link) {
-				IblPrint("[Map] Duplicate key when converting list to tree.\n");
+				IblPrint_Err("[Map] Duplicate key when converting list to tree.\n");
 				continue;
 			}
 			IblTree_Insert(&root, link, parent, (IblTree)item);
@@ -55,7 +55,7 @@ static void _IblMap_Rehash(IblMap map, IblMap_Item new) {
 		register IblTree *link, parent;
 		IblTree_Vacancy(&root, link, parent, SINGLE_ARG(map->compare(_KEY(new), _KEY(*link))));
 		if (*link) {
-			IblPrint("[Map] Duplicate key in tree when expanding map.\n");
+			IblPrint_Err("[Map] Duplicate key in tree when expanding map.\n");
 			return;
 		}
 		IblTree_Insert(&root, link, parent, (IblTree)new);
@@ -65,7 +65,7 @@ static void _IblMap_Rehash(IblMap map, IblMap_Item new) {
 	for (i = 0; i < MAX_CHAIN_LENGTH && item; i++) {
 		register int cmp = map->compare(_KEY(new), _KEY(item));
 		if (cmp == 0) {
-			IblPrint("[Map] Duplicate key in list when expanding map.\n");
+			IblPrint_Err("[Map] Duplicate key in list when expanding map.\n");
 			break;
 		} else if (cmp < 0) {
 			new->left = item->left;

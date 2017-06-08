@@ -119,8 +119,14 @@ typedef uint64_t uint64;
 #define Ibl_Max(a, b) ((a) > (b) ? (a) : (b))
 #define Ibl_Min(a, b) ((a) < (b) ? (a) : (b))
 
-#ifndef IblPrint
-#	define IblPrint printf
+#ifndef IblPrint_Info
+#	define IblPrint_Info printf
+#endif
+#ifndef IblPrint_Warn
+#	define IblPrint_Warn printf
+#endif
+#ifndef IblPrint_Err
+#	define IblPrint_Err  printf
 #endif
 
 #ifdef __cplusplus
