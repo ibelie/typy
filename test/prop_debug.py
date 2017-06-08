@@ -31,7 +31,6 @@ def test_prop():
 	def onPropertyChanged(obj, name, old, new):
 		cls = obj.__class__.__name__
 		assert cls in propDict and name in propDict[cls], (propDict, obj, name, old, new)
-		print cls, name, old, new
 		propDict[cls].remove(name)
 		if not propDict[cls]:
 			del propDict[cls]
