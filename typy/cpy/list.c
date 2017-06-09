@@ -313,7 +313,7 @@ size_t TypyList_ByteSize(TypyMetaList* type, TypyList** value, int tagsize) {
 }
 
 bool TypyList_CheckAndSet(TypyMetaList* type, TypyList** value, PyObject* arg, const char* err) {
-	if (!arg || arg == Py_None) {
+	if (!arg) {
 		Py_XDECREF(*value);
 		*value = NULL;
 		return true;

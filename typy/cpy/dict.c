@@ -283,7 +283,7 @@ TypyDict* TypyDict_GetPyObject(TypyMetaDict* type, TypyDict** value) {
 
 bool TypyDict_CheckAndSet(TypyMetaDict* type, TypyDict** value, PyObject* arg, const char* err) {
 	PyObject* items;
-	if (!arg || arg == Py_None) {
+	if (!arg) {
 		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
@@ -604,7 +604,7 @@ static PyObject* dict_SetDefault(TypyDict* self, PyObject* args) {
 
 static PyObject* dict_Update(TypyDict* self, PyObject* arg) {
 	PyObject* items;
-	if (!arg || arg == Py_None) {
+	if (!arg) {
 		Py_RETURN_NONE;
 	} else if (PyDict_Check(arg)) {
 		TypyDict_MergeDict(self, arg);

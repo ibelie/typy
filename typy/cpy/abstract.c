@@ -256,7 +256,7 @@ static bool TypyBool_CheckAndSet(TypyType t, bool* value, PyObject* arg, const c
 }
 
 static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, const char* err) {
-	if (!arg || arg == Py_None) {
+	if (!arg) {
 		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
@@ -275,7 +275,7 @@ static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, con
 }
 
 static bool TypyString_CheckAndSet(TypyType t, PyString* value, PyObject* arg, const char* err) {
-	if (!arg || arg == Py_None) {
+	if (!arg) {
 		Py_XDECREF(*value);
 		*value = NULL;
 		return true;
