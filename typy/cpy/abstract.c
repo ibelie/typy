@@ -74,39 +74,47 @@ static PyObject* TypyUint32_GetPyObject (TypyType t, uint32* v) { return PyInt_F
 static PyObject* TypyBool_GetPyObject   (TypyType t, bool* v)   { return PyBool_FromLong(*v); }
 static PyObject* TypyFloat_GetPyObject  (TypyType t, float* v)  { return PyFloat_FromDouble(*v); }
 
-static PyObject* TypyUint64_GetPyObject (TypyType t, uint64* v) {
+static PyObject* TypyUint64_GetPyObject(TypyType t, uint64* value) {
 	if (sizeof(TypyField) < sizeof(uint64)) {
 		PyErr_Format(PyExc_RuntimeError, "TypyField size is %zu-bit, cannot use uint64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return NULL;
 	} else {
-		return PyLong_FromUnsignedLongLong(*v);
+		return PyLong_FromUnsignedLongLong(*value);
 	}
 }
 
-static PyObject* TypyInt64_GetPyObject  (TypyType t, int64* v)  {
+static PyObject* TypyInt64_GetPyObject(TypyType t, int64* value) {
 	if (sizeof(TypyField) < sizeof(int64)) {
 		PyErr_Format(PyExc_RuntimeError, "TypyField size is %zu-bit, cannot use int64. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return NULL;
 	} else {
-		return PyLong_FromLongLong(*v);
+		return PyLong_FromLongLong(*value);
 	}
 }
 
-static PyObject* TypyDouble_GetPyObject (TypyType t, double* v) {
+static PyObject* TypyDouble_GetPyObject(TypyType t, double* value) {
 	if (sizeof(TypyField) < sizeof(double)) {
 		PyErr_Format(PyExc_RuntimeError, "TypyField size is %zu-bit, cannot use double. Please rebuild typyd with TYPY_FIELD_SIZE_64.", 8 * sizeof(TypyField));
 		return NULL;
 	} else {
-		return PyFloat_FromDouble(*v);
+		return PyFloat_FromDouble(*value);
 	}
 }
 
-static PyObject* TypyPyObject_GetPyObject(TypyType type, PyObject** value) {
-	if (!(*value)) {
-		Py_RETURN_NONE;
+static PyObject* TypyBytes_GetPyObject(TypyType t, PyBytes* value) {
+	if (*value) {
+		Py_INCREF(*value);
+		return (PyObject*)(*value);
 	}
-	Py_INCREF(*value);
-	return *value;
+	return PyString_FromStringAndSize(NULL, 0);
+}
+
+static PyObject* TypyString_GetPyObject(TypyType t, PyString* value) {
+	if (*value) {
+		Py_INCREF(*value);
+		return (PyObject*)(*value);
+	}
+	return PyUnicode_FromStringAndSize(NULL, 0);
 }
 
 GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
@@ -119,13 +127,13 @@ GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
 	(GetPyObject)TypyDouble_GetPyObject,     /* TYPE_DOUBLE     */
 	(GetPyObject)TypyFloat_GetPyObject,      /* TYPE_FLOAT      */
 	(GetPyObject)TypyBool_GetPyObject,       /* TYPE_BOOL       */
-	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_BYTES      */
-	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_STRING     */
-	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_OBJECT     */
+	(GetPyObject)TypyBytes_GetPyObject,      /* TYPE_BYTES      */
+	(GetPyObject)TypyString_GetPyObject,     /* TYPE_STRING     */
+	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_OBJECT     */
 	(GetPyObject)TypyVariant_GetPyObject,    /* TYPE_VARIANT    */
 	(GetPyObject)TypyList_GetPyObject,       /* TYPE_LIST       */
 	(GetPyObject)TypyDict_GetPyObject,       /* TYPE_DICT       */
-	(GetPyObject)TypyPyObject_GetPyObject,   /* TYPE_PYTHON     */
+	(GetPyObject)TypyPython_GetPyObject,     /* TYPE_PYTHON     */
 };
 
 //=============================================================================
@@ -247,24 +255,6 @@ static bool TypyBool_CheckAndSet(TypyType t, bool* value, PyObject* arg, const c
 	return true;
 }
 
-static bool TypyString_CheckAndSet(TypyType t, PyString* value, PyObject* arg, const char* err) {
-	if (!arg || arg == Py_None) {
-		Py_XDECREF(*value);
-		*value = NULL;
-		return true;
-	} else if (PyUnicode_Check(arg)) {
-		Py_XDECREF(*value);
-		Py_INCREF(arg);
-		*value = (PyString)arg;
-		return true;
-	}
-	register PyString s = (PyString)PyUnicode_FromEncodedObject(arg, "utf-8", NULL);
-	if (!s) { return false; }
-	Py_XDECREF(*value);
-	*value = s;
-	return true;
-}
-
 static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, const char* err) {
 	if (!arg || arg == Py_None) {
 		Py_XDECREF(*value);
@@ -281,6 +271,24 @@ static bool TypyBytes_CheckAndSet(TypyType t, PyBytes* value, PyObject* arg, con
 	}
 	Py_XDECREF(*value);
 	*value = (PyBytes)arg;
+	return true;
+}
+
+static bool TypyString_CheckAndSet(TypyType t, PyString* value, PyObject* arg, const char* err) {
+	if (!arg || arg == Py_None) {
+		Py_XDECREF(*value);
+		*value = NULL;
+		return true;
+	} else if (PyUnicode_Check(arg)) {
+		Py_XDECREF(*value);
+		Py_INCREF(arg);
+		*value = (PyString)arg;
+		return true;
+	}
+	register PyString s = (PyString)PyUnicode_FromEncodedObject(arg, "utf-8", NULL);
+	if (!s) { return false; }
+	Py_XDECREF(*value);
+	*value = s;
 	return true;
 }
 
@@ -658,7 +666,8 @@ TO_JSON_SIMPLE(FixedPoint, TypyField);
 TO_JSON_SIMPLE(Double,     double);
 TO_JSON_SIMPLE(Float,      float);
 TO_JSON_SIMPLE(Bool,       bool);
-TO_JSON_SIMPLE(PyObject,   PyObject*);
+TO_JSON_SIMPLE(Bytes,      PyBytes);
+TO_JSON_SIMPLE(String,     PyString);
 
 #undef TO_JSON_SIMPLE
 
@@ -672,8 +681,8 @@ ToJson abstract_ToJson[MAX_FIELD_TYPE] = {
 	(ToJson)TypyDouble_ToJson,     /* TYPE_DOUBLE     */
 	(ToJson)TypyFloat_ToJson,      /* TYPE_FLOAT      */
 	(ToJson)TypyBool_ToJson,       /* TYPE_BOOL       */
-	(ToJson)TypyPyObject_ToJson,   /* TYPE_BYTES      */
-	(ToJson)TypyPyObject_ToJson,   /* TYPE_STRING     */
+	(ToJson)TypyBytes_ToJson,      /* TYPE_BYTES      */
+	(ToJson)TypyString_ToJson,     /* TYPE_STRING     */
 	(ToJson)TypyObject_ToJson,     /* TYPE_OBJECT     */
 	(ToJson)TypyVariant_ToJson,    /* TYPE_VARIANT    */
 	(ToJson)TypyList_ToJson,       /* TYPE_LIST       */

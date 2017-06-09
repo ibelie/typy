@@ -586,6 +586,14 @@ PyObject* Typy_Args(TypyObject* self) {
 
 //=============================================================================
 
+PyObject* TypyObject_GetPyObject(TypyMetaObject* type, TypyObject** value) {
+	if (*value) {
+		Py_INCREF(*value);
+		return (PyObject*)(*value);
+	}
+	Py_RETURN_NONE;
+}
+
 bool TypyObject_CheckAndSet(TypyMetaObject* type, TypyObject** value, PyObject* arg, const char* err) {
 	if (arg == Py_None) {
 		Py_XDECREF(*value);
