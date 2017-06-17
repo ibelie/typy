@@ -203,32 +203,23 @@ bool Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag, uint32 cutoff) {
 		register byte* ptr = *buffer;
 		// Hot case: buffer non_empty, buffer[0] in [1, 128).
 		if (!((b1 = *(ptr++)) & 0x80)) {
-			if (cutoff >= 0x7F || b1 <= cutoff) {
-				*tag = b1;
-				*buffer = ptr;
-				*buf_len -= 1;
-				return true;
-			} else {
-				*tag = 0;
-				return false;
-			}
+			*tag = b1;
+			*buffer = ptr;
+			*buf_len -= 1;
+			return cutoff >= 0x7F || b1 <= cutoff;
 		}
 		// Other hot case: cutoff >= 0x80, buffer has at least two bytes available,
 		// and tag is two bytes.  The latter is tested by bitwise-and-not of the
 		// first byte and the second byte.
 		if (cutoff >= 0x80 && (*buf_len) > 1 && !((b2 = *(ptr++)) & 0x80)) {
 			b1 = (b2 << 7) + (b1 - 0x80);
-			if (cutoff >= 0x3FFF || b1 <= cutoff) {
-				*tag = b1;
-				*buffer = ptr;
-				*buf_len -= 2;
-				return true;
-			} else {
-				*tag = 0;
-				return false;
-			}
+			*tag = b1;
+			*buffer = ptr;
+			*buf_len -= 2;
+			return cutoff >= 0x3FFF || b1 <= cutoff;
 		}
 	} else {
+		*tag = 0;
 		return false;
 	}
 	// Slow path
