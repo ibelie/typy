@@ -223,7 +223,11 @@ bool Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag, uint32 cutoff) {
 		return false;
 	}
 	// Slow path
-	return _Typy_ReadTag(buffer, buf_len, tag);
+	if (_Typy_ReadTag(buffer, buf_len, tag)) {
+		return *tag <= cutoff;
+	} else {
+		return false;
+	}
 }
 
 bool Typy_SkipField(byte** buffer, size_t* buf_len, uint32 tag) {
