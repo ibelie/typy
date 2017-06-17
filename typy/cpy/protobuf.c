@@ -228,7 +228,7 @@ bool Typy_ReadTag(byte** buffer, size_t* buf_len, uint32* tag, uint32 cutoff) {
 				return false;
 			}
 		}
-	} else if (buf_len <= 0) {
+	} else {
 		return false;
 	}
 	// Slow path
