@@ -38,6 +38,7 @@ extern TypyPython*  TypyPythonBuiltin;
 
 TypyPython* Typy_RegisterPython(PyObject*, PyObject*);
 
+PyObject* TypyPython_GetPyObject (TypyPython*, PyObject**);
 PyObject* TypyPython_ToJson      (TypyPython*, PyObject**, bool);
 bool      TypyPython_FromJson    (TypyPython*, PyObject**, PyObject*);
 bool      TypyPython_CheckAndSet (TypyPython*, PyObject**, PyObject*, const char*);

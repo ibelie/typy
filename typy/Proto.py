@@ -201,7 +201,7 @@ def Increment(path, proto_file, ignore):
 				continue
 			elif i.endswith(('.py', '.pyc')):
 				n = i.rpartition('.')[0]
-				if n == '__init__' or (i.endswith('.pyc') and os.path.isfile(fp[:-1])) or \
+				if not n.replace('_', '').isalnum() or n == '__init__' or (i.endswith('.pyc') and os.path.isfile(fp[:-1])) or \
 					(sub and not os.path.isfile('%s/%s/__init__.py' % (path, sub)) and not os.path.isfile('%s/%s/__init__.pyc' % (path, sub))):
 					continue
 				proto.timestamps[fp] = str(os.stat(fp).st_mtime)

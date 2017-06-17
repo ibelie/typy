@@ -410,8 +410,8 @@ def _build(_typy):
 	assert pFighter2.DeserializeProperty(pData) == 'vl'
 	print 'vl', pFighterPy0.vl, pFighter0.vl, pFighterPy1.vl, pFighterPy2.vl, pFighter1.vl, pFighter2.vl
 
-	pFighterPy0.vl = None
-	pFighter0.vl = None
+	pFighterPy0.vl = []
+	pFighter0.vl = []
 	pDataPy = pFighterPy0.SerializeProperty('vl')
 	pData = pFighter0.SerializeProperty('vl')
 	assert pFighterPy1.DeserializeProperty(pDataPy) == 'vl'

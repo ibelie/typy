@@ -177,6 +177,7 @@ PyObject* Typy_Args                (TypyObject*);
 
 
 TypyObject* Typy_New               (TypyMetaObject*, PyObject*, PyObject*);
+PyObject*   TypyObject_GetPyObject (TypyMetaObject*, TypyObject**);
 PyObject*   TypyObject_ToJson      (TypyMetaObject*, TypyObject**, bool);
 size_t      TypyObject_ByteSize    (TypyMetaObject*, TypyObject**, int);
 size_t      TypyObject_Write       (TypyMetaObject*, TypyObject**, int, byte*);

@@ -36,6 +36,18 @@ TypyPython* Typy_RegisterPython(PyObject* m, PyObject* args) {
 	return type;
 }
 
+PyObject* TypyPython_GetPyObject(TypyPython* type, PyObject** value) {
+	if (*value) {
+		Py_INCREF(*value);
+		return *value;
+	} else if (PyType_FastSubclass(type->python_type, Py_TPFLAGS_LIST_SUBCLASS)) {
+		return PyList_New(0);
+	} else if (PyType_FastSubclass(type->python_type, Py_TPFLAGS_DICT_SUBCLASS)) {
+		return PyDict_New();
+	}
+	Py_RETURN_NONE;
+}
+
 bool TypyPython_CheckAndSet(TypyPython* type, PyObject** value, PyObject* arg, const char* err) {
 	if (arg == Py_None) {
 		Py_XDECREF(*value);
