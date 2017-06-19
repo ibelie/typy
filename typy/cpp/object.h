@@ -458,7 +458,7 @@ public:
 		if (result != NULL) { return result; }
 		ScopedPyObjectPtr json(static_cast<T*>(self)->T::Json(false));
 		if (json == NULL) { return NULL; }
-		return PyObject_Repr(json.get());
+		return PyString_FromFormat("<Object '%.100s' at %p %s>", Py_TYPE(self)->tp_name, self, PyString_AsString(ScopedPyObjectPtr(PyObject_Repr(json.get())).get()));
 	}
 
 	static PyObject* tp_Str(PyObject* self) {

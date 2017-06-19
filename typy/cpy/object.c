@@ -240,8 +240,11 @@ static PyObject* object_Repr(PyObject* self) {
 	if (result) { return result; }
 	register PyObject* json = Meta_ToJson(Typy_TYPE(self), (TypyObject*)self, false);
 	if (!json) { return NULL; }
-	register PyObject* repr = PyObject_Repr(json);
+	register PyObject* str = PyObject_Repr(json);
 	Py_DECREF(json);
+	if (!str) { return NULL; }
+	register PyObject* repr = PyString_FromFormat("<Object '" FULL_MODULE_NAME ".%.100s' at %p %s>", Typy_NAME(self), self, PyString_AsString(str));
+	Py_DECREF(str);
 	return repr;
 }
 
