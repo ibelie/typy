@@ -18,9 +18,12 @@ def _getProperties(mcs, bases, attrs):
 		prop[a] = t
 	attrs['__slots__'] = tuple((k for k, p in prop.iteritems() if pb not in p.____keywords__))
 
+	parents = attrs.setdefault('____parents__', [])
 	properties = {}
 	for base in bases:
 		if base.__name__ in mcs.Objects:
+			if base.__name__ not in parents:
+				parents.append(base.__name__)
 			properties.update(mcs.Objects[base.__name__].____properties__)
 	properties.update(prop)
 

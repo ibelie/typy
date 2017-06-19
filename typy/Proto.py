@@ -133,15 +133,52 @@ def _GenerateObject(name, cls, codes, types):
 	('%s', %s),""" % (a, _GetProtoFromTypy(p, codes, types)))
 
 	codes.append("""
-%s = typy.Proto.Object('%s', %s
-)""" % (name, name, ''.join(fields)))
+%s = typy.Proto.Object('%s',
+	%s,
+	%s,%s
+)""" % (name, name, repr(cls.__module__), repr(cls.____parents__), ''.join(fields)))
 	types.add(name)
 
 
-def Object(name, *fields):
+depends = {}
+def _RecordDepends(obj, dict1, dict2):
+	global depends
+	for p in obj.____parents__:
+		if p in dict1:
+			parent = dict1[p]
+		elif p in dict2:
+			parent = dict2[p]
+		else:
+			continue
+		if parent.__module__ == obj.__module__:
+			continue
+		modules = depends.setdefault(parent.__module__, set())
+		modules.add(obj.__module__)
+
+def _ResolveDepends(imported):
+	global depends
+	resolved = set()
+	added = imported
+	while added:
+		new_added = set()
+		for m in added:
+			if m not in depends:
+				continue
+			for d in depends[m]:
+				if d in resolved:
+					continue
+				resolved.add(d)
+				new_added.add(d)
+		added = new_added
+	return resolved - imported
+
+
+def Object(name, module, parents, *fields):
 	obj = TypeObject()
 	obj.isObject = True
 	obj.__name__ = name
+	obj.__module__ = module
+	obj.____parents__ = parents
 	obj.____propertySequence__ = [a for a, _ in fields]
 	obj.____properties__ = properties = {}
 	for a, p in fields:
@@ -179,14 +216,20 @@ def Increment(path, proto_file, ignore):
 		with codecs.open(proto_file, 'r', 'utf-8') as f:
 			proto = imp.new_module('typy.proto')
 			proto.__package__ = 'typy'
-			exec str(f.read()) in proto.__dict__
+			try:
+				exec str(f.read()) in proto.__dict__
+				for obj in proto.__dict__.itervalues():
+					if hasattr(obj, "____parents__"):
+						_RecordDepends(obj, proto.__dict__, {})
+			except:
+				proto.timestamps = {}
 	else:
 		class _Proto(object): pass
 		proto = _Proto()
 		proto.timestamps = {}
 
+	imported = set()
 	proto.hasIncrement = False
-
 	def _scanScripts(sub):
 		for i in os.listdir('%s/%s' % (path, sub)):
 			sys.stdout.write('.')
@@ -208,6 +251,7 @@ def Increment(path, proto_file, ignore):
 				m = n if not sub else '%s.%s' % (sub.replace('/', '.'), n)
 				print '\n[Typy] Incremental proto:', m
 				__import__(m)
+				imported.add(m)
 				proto.hasIncrement = True
 
 	if os.path.isfile(path) and path.endswith('.py'):
@@ -219,6 +263,14 @@ def Increment(path, proto_file, ignore):
 		_scanScripts('')
 
 	from Object import MetaObject
+	for obj in MetaObject.Objects.itervalues():
+		_RecordDepends(obj, MetaObject.Objects, proto.__dict__)
+	for m in _ResolveDepends(imported):
+		print '\n[Typy] Dependent proto:', m
+		__import__(m)
+		imported.add(m)
+		proto.hasIncrement = True
+
 	for n, c in MetaObject.Objects.iteritems():
 		setattr(proto, n, c)
 	for n in dir(proto):
