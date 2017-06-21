@@ -247,7 +247,7 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 	remain = limit;
 	TypyVariant_FromValueOrNew(self, value, type, false);
 
-	for (;;) {
+	while (remain) {
 		if (!Typy_ReadTag(input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
 			goto handle_unusual;
 		}
@@ -263,6 +263,8 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 				goto handle_unusual;
 			}
 			MetaVariant_ADD_OWNER(type, self);
+			self->variant_index = index;
+			continue;
 		} else if (Meta_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Meta_TYPYTYPE(type, index))) {
 			if (self->variant_index != index) {
@@ -271,12 +273,7 @@ bool TypyVariant_Read(TypyMetaObject* type, TypyVariant** value, byte** input, s
 			if (!TypyList_ReadRepeated(Meta_TYPYTYPE(type, index), (TypyList**)&self->variant_value, input, &remain)) {
 				goto handle_unusual;
 			}
-		}
-		self->variant_index = index;
-
-		if (!remain) {
-			break;
-		} else {
+			self->variant_index = index;
 			continue;
 		}
 

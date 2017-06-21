@@ -320,7 +320,7 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 		return false;
 	}
 	remain = limit;
-	for (; remain;) {
+	while (remain) {
 		if (!Typy_ReadTag(input, &remain, &tag, 0x7F)) {
 			goto handle_unusual;
 		}
@@ -331,13 +331,14 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 			if (!MetaDict_READ(type, index, index ? &value : &key, input, &remain)) {
 				return false;
 			}
+			continue;
 		} else if (MetaDict_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(MetaDict_TYPYTYPE(type, index))) {
 			if (!TypyList_ReadRepeated(MetaDict_TYPYTYPE(type, index), (TypyList**)(index ? &value : &key), input, &remain)) {
 				return false;
 			}
+			continue;
 		}
-		continue;
 
 	handle_unusual:
 		if (tag == 0) { break; }

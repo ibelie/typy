@@ -444,7 +444,7 @@ void Typy_SerializeString(TypyObject* self, byte* output) {
 size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length) {
 	uint32 tag;
 	size_t remain = length;
-	for (;;) {
+	while (remain) {
 		if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
 			goto handle_unusual;
 		}
@@ -454,23 +454,20 @@ size_t Typy_MergeFromString(TypyObject* self, byte* input, size_t length) {
 			if (!Typy_READ(self, index, &input, &remain)) {
 				return 0;
 			}
+			continue;
 		} else if (Typy_FIELDTYPE(self, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
 			if (!TypyList_ReadRepeated(Typy_TYPYTYPE(self, index), (TypyList**)&Typy_FIELD(self, index), &input, &remain)) {
 				return 0;
 			}
-		}
-
-		if (!remain) {
-			return length;
-		} else {
 			continue;
 		}
 
 	handle_unusual:
-		if (tag == 0) { return length - remain; }
+		if (tag == 0) { break; }
 		if (!Typy_SkipField(&input, &remain, tag)) { return 0; }
 	}
+	return length - remain;
 }
 
 size_t Typy_PropertyByteSize(TypyObject* self, int index) {
@@ -498,7 +495,7 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 	size_t remain = length;
 	register int index = -1;
 	bool* clearFlags = (bool*)calloc(Typy_SIZE(self), sizeof(bool));
-	for (;;) {
+	while (remain) {
 		if (!Typy_ReadTag(&input, &remain, &tag, Typy_TYPE(self)->meta_cutoff)) {
 			goto handle_unusual;
 		} else if (index >= 0 && index != TAG_INDEX(tag)) {
@@ -513,18 +510,14 @@ int Typy_DeserializeProperty(TypyObject* self, byte* input, size_t length) {
 		if (!remain) { break; }
 		if (TAG_WIRETYPE(tag) == Typy_WIRETYPE(self, index)) {
 			if (!Typy_READ(self, index, &input, &remain)) {
-				goto handle_unusual;
+				break;
 			}
+			continue;
 		} else if (Typy_FIELDTYPE(self, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(Typy_TYPYTYPE(self, index))) {
 			if (!TypyList_ReadRepeated(Typy_TYPYTYPE(self, index), (TypyList**)&Typy_FIELD(self, index), &input, &remain)) {
-				goto handle_unusual;
+				break;
 			}
-		}
-
-		if (!remain) {
-			break;
-		} else {
 			continue;
 		}
 
