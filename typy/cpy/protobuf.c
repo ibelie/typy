@@ -239,7 +239,7 @@ bool Typy_SkipField(byte** buffer, size_t* buf_len, uint32 tag) {
 			return Typy_Read64(buffer, buf_len, &value);
 		case WIRETYPE_FIXED32:
 			return Typy_Read32(buffer, buf_len, (uint32*)&value);
-		case WIRETYPE_LENGTH_DELIMITED:
+		case WIRETYPE_BYTES:
 			if (!Typy_ReadVarint64(buffer, buf_len, &value)) { return false; }
 			register uint32 length = (uint32)value;
 			if (*buf_len < length) { return false; }

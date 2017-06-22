@@ -21,12 +21,12 @@ extern "C" {
 #endif
 
 typedef enum {
-	WIRETYPE_VARINT           = 0,
-	WIRETYPE_FIXED64          = 1,
-	WIRETYPE_LENGTH_DELIMITED = 2,
-	WIRETYPE_START_GROUP      = 3,
-	WIRETYPE_END_GROUP        = 4,
-	WIRETYPE_FIXED32          = 5,
+	WIRETYPE_VARINT  = 0,
+	WIRETYPE_FIXED64 = 1,
+	WIRETYPE_BYTES   = 2,
+	WIRETYPE_START   = 3,
+	WIRETYPE_END     = 4,
+	WIRETYPE_FIXED32 = 5,
 } WireType;
 
 bool Typy_ReadTag      (byte**, size_t*, uint32*, uint32);
