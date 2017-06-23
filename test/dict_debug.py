@@ -43,7 +43,12 @@ def test_dict():
 					f.bd[bdk] = bdv
 					assert f.bd[bdk] == bdv, 'bd %s %s %s' % (bdk, f.bd[bdk], bdv)
 				else:
-					bdk = random.choice(f.bd.keys())
+					bdi = random.randint(0, len(f.bd) - 1)
+					for k in f.bd:
+						bdi -= 1
+						if bdi < 0:
+							bdk = k
+							break
 					del f.bd[bdk]
 					assert bdk not in f.bd, 'bd %s %s' % (bdk, f.bd[bdk])
 
@@ -59,7 +64,12 @@ def test_dict():
 					f.sd[sdk] = sdv
 					assert f.sd[sdk] == sdv, 'sd %s %s %s' % (sdk, f.sd[sdk], sdv)
 				else:
-					sdk = random.choice(f.sd.keys())
+					sdi = random.randint(0, len(f.sd) - 1)
+					for k in f.sd:
+						sdi -= 1
+						if sdi < 0:
+							sdk = k
+							break
 					del f.sd[sdk]
 					assert sdk not in f.sd, 'sd %s %s' % (sdk, f.sd[sdk])
 
