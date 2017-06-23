@@ -300,6 +300,22 @@ IblTree IblTree_Prev(IblTree node) {
 	return parent;
 }
 
+IblTree IblTree_Post(IblTree node) {
+	register IblTree parent = IblTree_Parent(node);
+	if (!parent || parent == node) { return NULL; }
+
+	/* If parent has a right-hand child, go down and then left as far as we can. */
+	if (parent->right && parent->right != node) {
+		node = parent->right;
+		while (node->left) {
+			node = node->left;
+		}
+		return (IblTree)node;
+	} else {
+		return parent;
+	}
+}
+
 #ifdef __cplusplus
 }
 #endif

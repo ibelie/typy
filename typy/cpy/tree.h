@@ -30,6 +30,7 @@ IblAPI(IblTree) IblTree_Begin  (IblTree);
 IblAPI(IblTree) IblTree_End    (IblTree);
 IblAPI(IblTree) IblTree_Next   (IblTree);
 IblAPI(IblTree) IblTree_Prev   (IblTree);
+IblAPI(IblTree) IblTree_Post   (IblTree);
 
 #define IblTree_Search(ROOT, NODE, CMP) {      \
 	NODE = ROOT;                               \

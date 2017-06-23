@@ -5,7 +5,8 @@ import typy
 
 timestamps = {
 	'C:/Users/joung/Documents/project/typy/test/test_case.py': '1496795388.16',
-	'E:/test/typy/test/test_case.py': '1496725714.42',
+	'E:/test/typy/test/dict_debug.py': '1498199581.79',
+	'E:/test/typy/test/test_case.py': '1498192150.17',
 }
 
 BooleanList = typy.Proto.Object('BooleanList',
