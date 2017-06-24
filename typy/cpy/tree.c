@@ -300,6 +300,19 @@ IblTree IblTree_Prev(IblTree node) {
 	return parent;
 }
 
+IblTree IblTree_PrePost(IblTree node) {
+	if (!node) { return NULL; }
+	while (node->left || node->right) {
+		while (node->left) {
+			node = node->left;
+		}
+		if (node->right) {
+			node = node->right;
+		}
+	}
+	return node;
+}
+
 IblTree IblTree_Post(IblTree node) {
 	register IblTree parent = IblTree_Parent(node);
 	if (!parent || parent == node) { return NULL; }
@@ -307,8 +320,13 @@ IblTree IblTree_Post(IblTree node) {
 	/* If parent has a right-hand child, go down and then left as far as we can. */
 	if (parent->right && parent->right != node) {
 		node = parent->right;
-		while (node->left) {
-			node = node->left;
+		while (node->left || node->right) {
+			while (node->left) {
+				node = node->left;
+			}
+			if (node->right) {
+				node = node->right;
+			}
 		}
 		return (IblTree)node;
 	} else {
