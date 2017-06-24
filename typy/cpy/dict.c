@@ -205,7 +205,10 @@ static inline bool TypyDict_SetItem(TypyDict* self, PyObject* key, PyObject* val
 		return true;
 	}
 	register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &k);
-	if (!entry) { return false; }
+	if (!entry) {
+		PyErr_Format(PyExc_MemoryError, "Cannot allocate new entry.");
+		return false;
+	}
 	return TypyValue_CHECKSET(self, &entry->value, value, "Dict value type error: ");
 }
 

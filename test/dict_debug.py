@@ -29,7 +29,7 @@ def test_dict():
 	try:
 		while 1:
 			i = 0
-			while i < 10000:
+			while i < 1000000:
 				i += 1
 				if len(f.bd) > 10000000:
 					bk = BEHAVIOR_DEL
@@ -59,7 +59,7 @@ def test_dict():
 				else:
 					sk = random.choice(BEHAVIOR_ALL)
 				if sk == BEHAVIOR_SET:
-					sdk = random.randint(0, 1000000)
+					sdk = random.randint(0, 10000000)
 					sdv = ''.join([chr(random.randint(ord('a'), ord('z'))) for _ in xrange(random.randint(10, 50))])
 					f.sd[sdk] = sdv
 					assert f.sd[sdk] == sdv, 'sd %s %s %s' % (sdk, f.sd[sdk], sdv)

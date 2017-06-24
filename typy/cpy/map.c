@@ -109,7 +109,7 @@ static inline void _IblMap_ListRehash(IblMap map, IblMap_Item item) {
 	}
 }
 
-static bool _IblMap_Expand(IblMap map) {
+static inline void _IblMap_Expand(IblMap map) {
 	register size_t i, capacity = map->capacity;
 	register IblMap_Item* old_table = map->table;
 	map->capacity <<= 1;
@@ -117,7 +117,7 @@ static bool _IblMap_Expand(IblMap map) {
 	if (!map->table) {
 		map->table = old_table;
 		map->capacity >>= 1;
-		return false;
+		return;
 	}
 	for (i = 0; i < capacity; i += 2) {
 		register IblMap_Item item = old_table[i];
@@ -133,7 +133,6 @@ static bool _IblMap_Expand(IblMap map) {
 		}
 	}
 	free(old_table);
-	return true;
 }
 
 static IblMap_Item _IblMap_Set(IblMap map, IblMap_Key key) {
@@ -154,7 +153,7 @@ static IblMap_Item _IblMap_Set(IblMap map, IblMap_Key key) {
 		root = (IblTree)item;
 		register IblTree *link, parent;
 		IblTree_Vacancy(&root, link, parent, SINGLE_ARG(map->compare(key, _KEY(*link))));
-		if (*link) { return NULL; }
+		if (*link) { return (IblMap_Item)(*link); }
 		new = map->alloc(key);
 		if (!new) { return NULL; }
 		map->size++;
@@ -193,6 +192,7 @@ static IblMap_Item _IblMap_Set(IblMap map, IblMap_Key key) {
 		map->table[hash]->parent++;
 		return new;
 	}
+	IblPrint_Err("[Map] List length out of MAX_CHAIN_LENGTH.\n");
 	return NULL;
 }
 
@@ -297,6 +297,9 @@ IblMap_Item IblMap_Set(IblMap map, IblMap_Key key) {
 	if (!map->table) {
 		map->table = (IblMap_Item*)calloc(MIN_TABLE_SIZE, sizeof(IblMap_Item));
 		map->capacity = MIN_TABLE_SIZE;
+		if (!map->table) {
+			IblPrint_Err("[Map] Alloc map table out of memory %zu.\n", MIN_TABLE_SIZE * sizeof(IblMap_Item));
+		}
 	} else if (map->size + 1 > map->capacity * MAX_LOAD_TIMES_16 / 16 &&
 		map->capacity < (size_t)1 << (sizeof(size_t) >= 8 ? 59 : 27)) {
 		_IblMap_Expand(map);
