@@ -58,6 +58,8 @@ extern "C" {
 	MetaValue_NOTIFY((m), (ob), *_v);                                           \
 } while (0)
 
+#define MetaValue_DISCARD(m, v) TypyField_Clr(MetaValue_FIELDTYPE(m), (*v))
+
 #define MetaValue_SET(m, ob, l, r) do { \
 	register TypyField* _l = (TypyField*)(l);                                   \
 	MetaValue_RECORD((m), (ob), *_l);                                           \
@@ -194,7 +196,7 @@ TypyMetaDict* Typy_RegisterDict(PyObject* m, PyObject* args) {
 
 static inline bool TypyDict_SetItem(TypyDict* self, PyObject* key, PyObject* value) {
 	TypyField k = 0;
-	if (!MetaKey_CHECKSET(TypyDict_TYPE(self), &k, key, "Dict key type error: ")) {
+	if (!TypyKey_CHECKSET(self, &k, key, "Dict key type error: ")) {
 		return false;
 	} else if (!value) {
 		register TypyDictMap entry = (TypyDictMap)IblMap_Get(self->dict_map, &k);
@@ -332,34 +334,42 @@ bool TypyDict_Read(TypyMetaDict* type, TypyDict** dict, byte** input, size_t* le
 		if (index < 0 || index > 1) { goto handle_unusual; }
 		if (TAG_WIRETYPE(tag) == MetaDict_WIRETYPE(type, index)) {
 			if (!MetaDict_READ(type, index, index ? &value : &key, input, &remain)) {
-				return false;
+				goto dictread_failed;
 			}
 			continue;
 		} else if (MetaDict_FIELDTYPE(type, index) == FIELD_TYPE_LIST &&
 			TAG_WIRETYPE(tag) == MetaList_WIRETYPE(MetaDict_TYPYTYPE(type, index))) {
 			if (!TypyList_ReadRepeated(MetaDict_TYPYTYPE(type, index), (TypyList**)(index ? &value : &key), input, &remain)) {
-				return false;
+				goto dictread_failed;
 			}
 			continue;
 		}
 
 	handle_unusual:
 		if (tag == 0) { break; }
-		if (!Typy_SkipField(input, &remain, tag)) { return false; }
+		if (!Typy_SkipField(input, &remain, tag)) { goto dictread_failed; }
 	}
 
 	TypyDict_FromValueOrNew(self, dict, type, false);
-	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
-	if (item) {
-		MetaValue_SET(TypyDict_TYPE(self), self, &item->value, value);
-		TypyField_Clr(MetaValue_FIELDTYPE(type), value);
-	} else {
-		MetaKey_CLEAR(type, &key);
-		MetaValue_CLEAR(type, self, &value);
+	if (MetaKey_FIELDTYPE(type) >= MAX_PRIMITIVE_TYPE && !key) {
+		register PyObject* defaultKey = MetaKey_GET(type, &key);
+		if (!defaultKey) { goto dictread_failed; }
+		MetaKey_CHECKSET(type, &key, defaultKey, "");
+		Py_DECREF(defaultKey);
+		if (!key) { goto dictread_failed; }
 	}
+	register TypyDictMap item = (TypyDictMap)IblMap_Set(self->dict_map, &key);
+	if (!item) { goto dictread_failed; }
+	MetaValue_SET(TypyDict_TYPE(self), self, &item->value, value);
+	MetaValue_DISCARD(type, &value);
 	*input += remain;
 	*length -= limit;
 	return remain == 0;
+
+dictread_failed:
+	MetaKey_CLEAR(type, &key);
+	MetaValue_DISCARD(type, &value);
+	return false;
 }
 
 void TypyDict_MergeFrom(TypyMetaDict* type, TypyDict** lvalue, TypyDict* rvalue) {
@@ -444,19 +454,19 @@ bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
 	PyObject* iter = PyObject_CallMethod(json, "iteritems", NULL);
 	if (!iter) {
 		FormatTypeError(json, "FromJson expect dict, but ");
-		goto fromjson_fail;
+		goto fromjson_failed;
 	}
 	register Py_ssize_t i, size = _PyObject_LengthHint(json, 0);
 	for (i = 0; i < size; i++) {
 		item = PyIter_Next(iter);
-		if (!item) { goto fromjson_fail; }
+		if (!item) { goto fromjson_failed; }
 		if (!MetaKey_FROMJSON(type, &key, PyTuple_GET_ITEM(item, 0))) {
-			goto fromjson_fail;
+			goto fromjson_failed;
 		} else if (!MetaValue_FROMJSON(type, self, &value, PyTuple_GET_ITEM(item, 1))) {
-			goto fromjson_fail;
+			goto fromjson_failed;
 		}
 		register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &key);
-		if (!entry) { goto fromjson_fail; }
+		if (!entry) { goto fromjson_failed; }
 		MetaValue_CLEAR(type, self, &entry->value);
 		entry->value = value;
 		key = 0;
@@ -464,11 +474,11 @@ bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
 	}
 	return true;
 
-fromjson_fail:
+fromjson_failed:
 	Py_XDECREF(iter);
 	Py_XDECREF(item);
 	MetaKey_CLEAR(type, &key);
-	MetaValue_CLEAR(type, self, &value);
+	MetaValue_DISCARD(type, &value);
 	return false;
 }
 

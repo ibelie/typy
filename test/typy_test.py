@@ -530,6 +530,12 @@ def _build(_typy):
 	assert str(BooleanList(bl = [False, False, True]).bl) == '[False, False, True]'
 	assert str(_BooleanList(bl = [False, False, True]).bl) == '[False, False, True]'
 
+	fEpy = _Fighter()
+	fEpy.MergeFromString('\n\x02\x12\x00')
+	fE = _Fighter()
+	fE.MergeFromString('\n\x02\x12\x00')
+	print fEpy.bd, fE.bd
+
 	return time.time() - startTime
 
 cpptime = 0
