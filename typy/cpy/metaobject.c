@@ -912,6 +912,8 @@ static PyObject* MetaObject_Repr(TypyMetaObject* type) {
 static PyObject* MetaObject_GetAttr(TypyMetaObject* type, PyObject* arg) {
 	if (PyBytes_Check(arg) && !strcmp(PyBytes_AS_STRING(arg), "__name__")) {
 		return PyBytes_FromString(Meta_NAME(type));
+	} else if (!type->py_type || !arg) {
+		Py_RETURN_NONE;
 	}
 	register PyObject* attr = PyObject_GetAttr((PyObject*)type->py_type, arg);
 	if (attr && PyMethod_Check(attr) && PyMethod_GET_SELF(attr) == (PyObject*)type->py_type) {
@@ -933,6 +935,13 @@ static int MetaObject_SetAttr(TypyMetaObject* type, PyObject* arg, PyObject* val
 			type->py_type = TypyObjectType;
 			return -1;
 		}
+	} else if (!type->py_type || !arg) {
+		register PyObject* repr = PyObject_Repr(arg);
+		if (!repr) { return -1; }
+		PyErr_Format(PyExc_AttributeError, "'%.100s' type has no attribute %.100s",
+			Meta_NAME(type), PyString_AsString(repr));
+		Py_DECREF(repr);
+		return -1;
 	}
 	return PyObject_SetAttr((PyObject*)type->py_type, arg, value);
 }
