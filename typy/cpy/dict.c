@@ -227,14 +227,17 @@ static inline bool TypyDict_MergeDict(TypyDict* self, PyObject* dict) {
 
 static inline bool TypyDict_MergeIter(TypyDict* self, PyObject* iter, Py_ssize_t size) {
 	register Py_ssize_t i;
-	for (i = 0; i < size; i++) {
+	register bool success = true;
+	for (i = 0; i < size && success; i++) {
 		register PyObject* item = PyIter_Next(iter);
-		if (!TypyDict_SetItem(self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1))) {
-			return false;
+		if (item) {
+			success = TypyDict_SetItem(self, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1));
+			Py_DECREF(item);
+		} else {
+			success = false;
 		}
-		Py_XDECREF(item);
 	}
-	return true;
+	return success;
 }
 
 static void MetaDict_Dealloc(TypyMetaDict* type) {
@@ -465,6 +468,8 @@ bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
 		} else if (!MetaValue_FROMJSON(type, self, &value, PyTuple_GET_ITEM(item, 1))) {
 			goto fromjson_failed;
 		}
+		Py_DECREF(item);
+		item = NULL;
 		register TypyDictMap entry = (TypyDictMap)IblMap_Set(self->dict_map, &key);
 		if (!entry) { goto fromjson_failed; }
 		MetaValue_CLEAR(type, self, &entry->value);
@@ -472,6 +477,7 @@ bool TypyDict_FromJson(TypyMetaDict* type, TypyDict** dict, PyObject* json) {
 		key = 0;
 		value = 0;
 	}
+	Py_XDECREF(iter);
 	return true;
 
 fromjson_failed:
