@@ -128,12 +128,20 @@ static void onPropertyChanged(TypyObject* object, PropertyFlag flag, PyObject* h
 	}
 	register size_t i;
 	for (i = Typy_SIZE(object) - 1; i >= 0 && flag < Typy_PROPFLAG(object, i); i--);
+	register TypyField old_origin = old;
+	register TypyField new_origin = new;
 	register PyObject* old_object = abstract_GetPyObject[field_type](typy_type, &old);
 	register PyObject* new_object = abstract_GetPyObject[field_type](typy_type, &new);
 	register PyObject* result = PyObject_CallFunction(handler, "OsOO", object, Typy_PropertyName(object, i), old_object, new_object);
 	Py_XDECREF(old_object);
 	Py_XDECREF(new_object);
 	Py_XDECREF(result);
+	if (!old_origin && old) {
+		TypyField_Clr(field_type, old);
+	}
+	if (!new_origin && new) {
+		TypyField_Clr(field_type, new);
+	}
 }
 
 PyObject* Py_RegisterHandler(TypyMetaObject* type, PyObject* args) {
