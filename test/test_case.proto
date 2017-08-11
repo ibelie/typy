@@ -7,7 +7,7 @@ timestamps = {
 	'C:/Users/joung/Documents/project/typy/test/dict_debug.py': '1498264887.78',
 	'C:/Users/joung/Documents/project/typy/test/test_case.py': '1496795388.16',
 	'E:/test/typy/test/dict_debug.py': '1498438912.02',
-	'E:/test/typy/test/test_case.py': '1499056778.38',
+	'E:/test/typy/test/test_case.py': '1502272160.06',
 }
 
 BooleanList = typy.Proto.Object('BooleanList',

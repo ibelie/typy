@@ -348,7 +348,9 @@ if IMPLEMENTATION_TYPE == 'python':
 				if key == '_t': continue
 				o = getattr(self, key, None)
 				if not hasattr(o, '_key_checker'):
-					field = getattr(self, reflection.GeneratedProtocolMessageType._DESCRIPTOR_KEY).fields_by_name[key]
+					fields = getattr(self, reflection.GeneratedProtocolMessageType._DESCRIPTOR_KEY).fields_by_name
+					if key not in fields: continue
+					field = fields[key]
 					setattr(self, key, None if value is None else _FromJson(field.message_type, field.label == descriptor.FieldDescriptor.LABEL_REPEATED, value))
 				else:
 					setattr(self, key, None if value is None else _DictFromJson(o, value))
