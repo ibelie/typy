@@ -139,6 +139,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 	register int index;
 	if (PyBool_Check(arg)) {
 		if ((index = Meta_PropertyIndex(type, "Boolean")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Long")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Integer")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Enum")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Double")) >= 0) {} else
@@ -149,6 +150,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 			return false;
 		}
 	} else if (PyInt_Check(arg) || PyLong_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Long")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Integer")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Enum")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Boolean")) >= 0) {} else
@@ -163,6 +165,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 		if ((index = Meta_PropertyIndex(type, "Double")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Float")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "FixedPoint")) >= 0) {} else
+		if ((index = Meta_PropertyIndex(type, "Long")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Integer")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Enum")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Boolean")) >= 0) {
@@ -171,6 +174,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 			return false;
 		}
 	} else if (PyUnicode_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Symbol")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "String")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Bytes")) >= 0) {
 		} else {
@@ -178,6 +182,7 @@ bool TypyVariant_CheckAndSet(TypyMetaObject* type, TypyVariant** value, PyObject
 			return false;
 		}
 	} else if (PyBytes_Check(arg)) {
+		if ((index = Meta_PropertyIndex(type, "Symbol")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "Bytes")) >= 0) {} else
 		if ((index = Meta_PropertyIndex(type, "String")) >= 0) {
 		} else {

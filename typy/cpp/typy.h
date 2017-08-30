@@ -74,6 +74,10 @@ namespace typy {
 
 extern bool isDefaultEncodingUTF8;
 
+typedef struct {
+	PyBytesObject s;
+} *symbol;
+
 typedef PyBytesObject* bytes;
 typedef PyUnicodeObject* string;
 typedef ::google::protobuf::uint8 uint8;

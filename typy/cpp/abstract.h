@@ -23,6 +23,7 @@ inline PyObject* GetPyObject(const float& value) { return PyFloat_FromDouble(val
 inline PyObject* GetPyObject(const bool& value) { return PyBool_FromLong(value); }
 inline PyObject* GetPyObjectPy(const string&);
 inline PyObject* GetPyObjectPy(const bytes&);
+inline PyObject* GetPyObjectPy(const symbol&);
 PyObject* GetPyObject(const ::std::string& value);
 
 template <typename T>
@@ -141,6 +142,15 @@ template <> struct Type<string> {
 	};
 };
 
+template <> struct Type<symbol> {
+	typedef ::std::string KeyType;
+	typedef symbol ValueType;
+	enum {
+		FieldType = WireFormatLite::TYPE_BYTES,
+		WireType = WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+	};
+};
+
 inline void CopyFrom(::std::string& value, const char* s, size_t n) { value.assign(s, n); }                      \
 inline void CopyFrom(::std::string& lvalue, const ::std::string& rvalue) { lvalue = rvalue; }
 
@@ -164,6 +174,11 @@ inline int Visit(string& value, visitproc visit, void* arg) {
 	return 0;
 }
 
+inline int Visit(symbol& value, visitproc visit, void* arg) {
+	Py_VISIT(value);
+	return 0;
+}
+
 template <typename T>
 inline int Visit(T*& value, visitproc visit, void* arg) {
 	Py_VISIT(value);
@@ -183,6 +198,7 @@ inline void Clear(T*& value) {
 bool CheckAndSet(PyObject* arg, ::std::string& value, const char* err);
 bool CheckAndSet(PyObject* arg, bytes& value, const char* err);
 bool CheckAndSet(PyObject* arg, string& value, const char* err);
+bool CheckAndSet(PyObject* arg, symbol& value, const char* err);
 
 template <typename T>
 bool CheckAndSet(PyObject* arg, List<T>*& value, const char* err) {
@@ -255,6 +271,10 @@ inline void MergeFrom(string& lvalue, const string& rvalue) {
 	if (rvalue != NULL) { CopyFrom(lvalue, rvalue); }
 }
 
+inline void MergeFrom(symbol& lvalue, const symbol& rvalue) {
+	if (rvalue != NULL) { CopyFrom(lvalue, rvalue); }
+}
+
 template <typename T>
 inline void MergeFrom(List<T>*& lvalue, List<T>* rvalue) {
 	if (rvalue == NULL) { return; }
@@ -316,6 +336,16 @@ inline void ByteSize(int& total, int tagsize, const string& value) {
 	}
 }
 
+inline void ByteSize(int& total, int tagsize, const symbol& value) {
+	if (value != NULL) {
+		Py_ssize_t size = PyBytes_GET_SIZE(value);
+		if (size > 0) {
+			size = (size * 6 + 7) / 8;
+			total += tagsize + CodedOutputStream::VarintSize32(static_cast<uint32>(size)) + size;
+		}
+	}
+}
+
 template <typename T>
 inline void ByteSize(int& total, int tagsize, List<T>* value) {
 	if (value != NULL) {
@@ -361,6 +391,10 @@ inline void GetCachedSize(int& total, int tagsize, const bytes& value) {
 }
 
 inline void GetCachedSize(int& total, int tagsize, const string& value) {
+	ByteSize(total, tagsize, value);
+}
+
+inline void GetCachedSize(int& total, int tagsize, const symbol& value) {
 	ByteSize(total, tagsize, value);
 }
 
@@ -417,6 +451,81 @@ inline void Write(int field_number, const string& value, CodedOutputStream* outp
 	}
 }
 
+static const char SymbolEncodeMap[256] = {
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF /*-*/, 0xFF,     0xFF,
+	53 /*0*/, 54 /*1*/, 55 /*2*/, 56 /*3*/, 57 /*4*/, 58   /*5*/, 59 /*6*/, 60, /*7*/
+	61 /*8*/, 62 /*9*/, 0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     1  /*A*/, 2  /*B*/, 3  /*C*/, 4  /*D*/, 5    /*E*/, 6  /*F*/, 7,  /*G*/
+	8  /*H*/, 9  /*I*/, 10 /*J*/, 11 /*K*/, 12 /*L*/, 13   /*M*/, 14 /*N*/, 15, /*O*/
+	16 /*P*/, 17 /*Q*/, 18 /*R*/, 19 /*S*/, 20 /*T*/, 21   /*U*/, 22 /*V*/, 23, /*W*/
+	24 /*X*/, 25 /*Y*/, 26 /*Z*/, 0xFF,     0xFF,     0xFF,       0xFF,     63, /*_*/
+	0xFF,     27 /*a*/, 28 /*b*/, 29 /*c*/, 30 /*d*/, 31   /*e*/, 32 /*f*/, 33, /*g*/
+	34 /*h*/, 35 /*i*/, 36 /*j*/, 37 /*k*/, 38 /*l*/, 39   /*m*/, 40 /*n*/, 41, /*o*/
+	42 /*p*/, 43 /*q*/, 44 /*r*/, 45 /*s*/, 46 /*t*/, 47   /*u*/, 48 /*v*/, 49, /*w*/
+	50 /*x*/, 51 /*y*/, 52 /*z*/, 0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+};
+
+inline void Write(int field_number, const symbol& value, CodedOutputStream* output) {
+	if (value != NULL) {
+		Py_ssize_t size = PyBytes_GET_SIZE(value);
+		if (size > 0) {
+			int dstSize = (size * 6 + 7) / 8;
+			WireFormatLite::WriteTag(field_number, WireFormatLite::WireType(Type<bytes>::WireType), output);
+			GOOGLE_CHECK_LE(size, ::google::protobuf::kint32max);
+			output->WriteVarint32(dstSize);
+
+			char* dst = new char[dstSize];
+			char* src = PyBytes_AS_STRING(value);
+			int di = 0, si = 0, n = (size / 4) * 4;
+			while (si < n) {
+				// Convert 4x 6bit source bytes into 3 bytes
+				uint val = SymbolEncodeMap[src[si++]] << 18 |
+					SymbolEncodeMap[src[si++]] << 12 |
+					SymbolEncodeMap[src[si++]] << 6 |
+					SymbolEncodeMap[src[si++]];
+
+				dst[di++] = char(val >> 16);
+				dst[di++] = char(val >> 8);
+				dst[di++] = char(val >> 0);
+			}
+
+			if (size > si) {
+				uint val = 0;
+				for (int j = 0; j < size - si; j++) {
+					val |= SymbolEncodeMap[src[si + j]] << (18 - j * 6);
+				}
+				for (int j = 0; j < size - si; j++) {
+					dst[di++] = char(val >> (16 - j * 8));
+				}
+			}
+
+			output->WriteRaw(dst, dstSize);
+			delete []dst;
+		}
+	}
+}
+
 template <typename T>
 inline void Write(int field_number, List<T>* value, CodedOutputStream* output) {
 	if (value != NULL) {
@@ -465,6 +574,10 @@ inline void WriteTag(int tag, const string& value, CodedOutputStream* output) {
 	WireFormatLite::WriteTag(tag, WireFormatLite::WireType(Type<string>::WireType), output);
 }
 
+inline void WriteTag(int tag, const symbol& value, CodedOutputStream* output) {
+	WireFormatLite::WriteTag(tag, WireFormatLite::WireType(Type<symbol>::WireType), output);
+}
+
 template <typename T>
 inline void WriteTag(int tag, List<T>* value, CodedOutputStream* output) {
 	WireFormatLite::WriteTag(tag, WireFormatLite::WireType(Type<T>::WireType), output);
@@ -492,6 +605,10 @@ inline PyObject* Json(const bytes& value, bool slim) {
 
 inline PyObject* Json(const string& value, bool slim) {
 	return (!slim || (value != NULL && PyUnicode_GET_SIZE(value) > 0)) ? GetPyObject(value) : NULL;
+}
+
+inline PyObject* Json(const symbol& value, bool slim) {
+	return (!slim || (value != NULL && PyBytes_GET_SIZE(value) > 0)) ? GetPyObject(value) : NULL;
 }
 
 template <typename T>
@@ -562,6 +679,10 @@ inline bool FromJsonKey(string& value, PyObject* json) {
 	return CheckAndSet(json, value, "FromJson expect String, but ");
 }
 
+inline bool FromJsonKey(symbol& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
 inline bool FromJson(::std::string& value, PyObject* json) {
 	return CheckAndSet(json, value, "FromJson expect String, but ");
 }
@@ -571,6 +692,10 @@ inline bool FromJson(bytes& value, PyObject* json) {
 }
 
 inline bool FromJson(string& value, PyObject* json) {
+	return CheckAndSet(json, value, "FromJson expect String, but ");
+}
+
+inline bool FromJson(symbol& value, PyObject* json) {
 	return CheckAndSet(json, value, "FromJson expect String, but ");
 }
 
@@ -672,6 +797,55 @@ inline bool Read(string& value, CodedInputStream* input) {
 	}
 	Clear(o);
 	return success;
+}
+
+static const char SymbolDecodeMap[64] = "-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+
+inline bool Read(symbol& value, CodedInputStream* input) {
+	uint32 size;
+	input->ReadVarint32(&size);
+	value = reinterpret_cast<bytes>(PyBytes_FromStringAndSize(NULL, size * 4 / 3));
+	if (value == NULL) {
+		return false;
+	}
+	char* src = new char[size];
+	if (!input->ReadRaw(src, size)) {
+		delete []src;
+		return false;
+	}
+
+	int di = 0, si = 0, n = (size / 3) * 3;
+	char* dst = PyBytes_AS_STRING(value);
+	for si < n {
+		// Convert 3x 8bit source bytes into 4 bytes
+		uint val = src[si] << 16 | src[si + 1] << 8 | src[si + 2]);
+
+		dst[di + 0] = SymbolDecodeMap[val >> 18 & 0x3F];
+		dst[di + 1] = SymbolDecodeMap[val >> 12 & 0x3F];
+		dst[di + 2] = SymbolDecodeMap[val >> 6  & 0x3F];
+		dst[di + 3] = SymbolDecodeMap[val & 0x3F];
+
+		si += 3;
+		di += 4;
+	}
+
+	switch (size - si) {
+	case 1:
+		dst[di + 0] = SymbolDecodeMap[src[si] >> 2 & 0x3F];
+		break;
+	case 2:
+		uint val = src[si] << 8 | src[si + 1];
+		dst[di + 0] = SymbolDecodeMap[val >> 10 & 0x3F];
+		dst[di + 1] = SymbolDecodeMap[val >> 4  & 0x3F];
+		break;
+	}
+
+	if (dst[PyString_GET_SIZE(value) - 1] == SymbolDecodeMap[0]) {
+		dst[PyString_GET_SIZE(value) - 1] = 0;
+		PyString_GET_SIZE(value)--;
+	}
+	delete []src;
+	return true;
 }
 
 template <typename T>

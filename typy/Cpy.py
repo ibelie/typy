@@ -16,12 +16,13 @@ TYPE_FLOAT      = 7
 TYPE_BOOL       = 8
 TYPE_BYTES      = 9
 TYPE_STRING     = 10
-TYPE_OBJECT     = 11
-TYPE_VARIANT    = 12
-TYPE_LIST       = 13
-TYPE_DICT       = 14
-TYPE_PYTHON     = 15
-MAX_FIELD_TYPE  = 16
+TYPE_SYMBOL     = 11
+TYPE_OBJECT     = 12
+TYPE_VARIANT    = 13
+TYPE_LIST       = 14
+TYPE_DICT       = 15
+TYPE_PYTHON     = 16
+MAX_FIELD_TYPE  = 17
 
 def _GenerateVariant(name, properties, codes, types):
 	from typy.google.protobuf.internal.encoder import _TagSize
@@ -43,7 +44,7 @@ def _GenerateVariant(name, properties, codes, types):
 
 def _GetCpyFromTypy(p, codes, types, nesting = False):
 	from Object import MetaObject
-	from Type import pb, Enum, Integer, Float, Double, Boolean, String, Bytes
+	from Type import pb, Enum, Integer, Long, Float, Double, Boolean, String, Bytes, Symbol
 	from Type import Instance, List, Dict, FixedPoint, Python
 	from typy.google.protobuf.internal import wire_format
 	if isinstance(p, Enum):
@@ -67,6 +68,8 @@ def _GetCpyFromTypy(p, codes, types, nesting = False):
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_PYTHON, p.pyType.__name__
 	elif isinstance(p, Integer):
 		return wire_format.WIRETYPE_VARINT, TYPE_INT32, ''
+	elif isinstance(p, Long):
+		return wire_format.WIRETYPE_VARINT, TYPE_INT64, ''
 	elif isinstance(p, Float):
 		return wire_format.WIRETYPE_FIXED32, TYPE_FLOAT, ''
 	elif isinstance(p, Double):
@@ -77,6 +80,8 @@ def _GetCpyFromTypy(p, codes, types, nesting = False):
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_STRING, ''
 	elif isinstance(p, Bytes):
 		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_BYTES, ''
+	elif isinstance(p, Symbol):
+		return wire_format.WIRETYPE_LENGTH_DELIMITED, TYPE_SYMBOL, ''
 	elif isinstance(p, Instance):
 		if len(p.pyType) == 1 and p.pyType[0].__name__ in MetaObject.Objects:
 			if p.pyType[0].__name__ not in types:

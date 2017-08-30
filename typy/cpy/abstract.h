@@ -13,11 +13,11 @@ extern "C" {
 
 #define MAX_VARINT_TYPE          6
 #define MAX_PRIMITIVE_TYPE       9
-#define MAX_FIELD_TYPE          16
-#define FIELD_TYPE_OBJECT       11
-#define FIELD_TYPE_VARIANT      12
-#define FIELD_TYPE_LIST         13
-#define FIELD_TYPE_DICT         14
+#define MAX_FIELD_TYPE          17
+#define FIELD_TYPE_OBJECT       12
+#define FIELD_TYPE_VARIANT      13
+#define FIELD_TYPE_LIST         14
+#define FIELD_TYPE_DICT         15
 #define FIELD_TYPE_COMPOSITE(f) ((f) >= FIELD_TYPE_OBJECT && (f) <= FIELD_TYPE_DICT)
 
 typedef void* TypyType;

@@ -30,7 +30,7 @@ def _VariantSetter(properties):
 
 	typeDict = {t: (i + 1, p, typ, info) for i, (t, p, typ, info) in enumerate(properties)}
 
-	for t in ('Boolean', 'Integer', 'Enum', 'Double', 'Float', 'FixedPoint'):
+	for t in ('Boolean', 'Long', 'Integer', 'Enum', 'Double', 'Float', 'FixedPoint'):
 		if t not in typeDict: continue
 		tag, p, _, _ = typeDict[t]
 		from_py_fields.append("""
@@ -42,7 +42,7 @@ def _VariantSetter(properties):
 	}""" % (tag, _fromNumberPy(tag, p), tag))
 		break
 
-	for t in ('Integer', 'Enum', 'Boolean', 'Double', 'Float', 'FixedPoint'):
+	for t in ('Long', 'Integer', 'Enum', 'Boolean', 'Double', 'Float', 'FixedPoint'):
 		if t not in typeDict: continue
 		tag, p, _, _ = typeDict[t]
 		from_py_fields.append("""
@@ -54,7 +54,7 @@ def _VariantSetter(properties):
 	}""" % (tag, _fromNumberPy(tag, p), tag))
 		break
 
-	for t in ('Double', 'Float', 'FixedPoint', 'Integer', 'Enum', 'Boolean'):
+	for t in ('Double', 'Float', 'FixedPoint', 'Long', 'Integer', 'Enum', 'Boolean'):
 		if t not in typeDict: continue
 		tag, p, _, _ = typeDict[t]
 		from_py_fields.append("""
@@ -66,7 +66,7 @@ def _VariantSetter(properties):
 	}""" % (tag, _fromNumberPy(tag, p), tag))
 		break
 
-	for t in ('String', 'Bytes'):
+	for t in ('Symbol', 'String', 'Bytes'):
 		if t not in typeDict: continue
 		tag, p, _, _ = typeDict[t]
 		copyFrom = '::typy::CopyFrom(_value%d, reinterpret_cast<string>(value));' % tag
@@ -84,7 +84,7 @@ def _VariantSetter(properties):
 	}""" % (tag, copyFrom, tag))
 		break
 
-	for t in ('Bytes', 'String'):
+	for t in ('Symbol', 'Bytes', 'String'):
 		if t not in typeDict: continue
 		tag, p, _, _ = typeDict[t]
 		copyFrom = '::typy::CopyFrom(_value%d, reinterpret_cast<bytes>(value));' % tag
@@ -177,7 +177,7 @@ def _VariantFromJson(properties):
 def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nesting = False):
 	from Object import MetaObject
 	from Type import pb, Enum, Simple, Instance, List, Dict, Collection
-	from Type import FixedPoint, Python
+	from Type import FixedPoint, Symbol, Python
 	if isinstance(p, Enum):
 		enums[p.pyType.__name__] = p.pyType
 		ref_types.add('#include "%s.h"' % ShortName('E', p.pyType.__name__))
@@ -185,6 +185,8 @@ def _GetCppFromTypy(p, enums, pythons, variants, ref_types, container_inits, nes
 	elif isinstance(p, FixedPoint):
 		fixedpoint = 'SINGLE_ARG(FixedPoint<%d, %d>)' % (p.precision, p.floor)
 		return fixedpoint, '', fixedpoint
+	elif isinstance(p, Symbol):
+		return 'symbol', '', 'symbol'
 	elif isinstance(p, Simple):
 		return p.pbType, '', p.pbType
 	elif isinstance(p, Python):

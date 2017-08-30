@@ -19,6 +19,8 @@ def setVariant(obj, value):
 	elif isinstance(value, bool):
 		if hasattr(obj, 'Boolean'):
 			obj.Boolean = value
+		elif hasattr(obj, 'Long'):
+			obj.Long = value
 		elif hasattr(obj, 'Integer'):
 			obj.Integer = value
 		elif hasattr(obj, 'Enum'):
@@ -32,7 +34,9 @@ def setVariant(obj, value):
 		else:
 			raise TypeError
 	elif isinstance(value, (int, long)):
-		if hasattr(obj, 'Integer'):
+		if hasattr(obj, 'Long'):
+			obj.Long = value
+		elif hasattr(obj, 'Integer'):
 			obj.Integer = value
 		elif hasattr(obj, 'Enum'):
 			obj.Enum = value
@@ -53,6 +57,8 @@ def setVariant(obj, value):
 			obj.Float = value
 		elif hasattr(obj, 'FixedPoint'):
 			obj.FixedPoint = value
+		elif hasattr(obj, 'Long'):
+			obj.Long = value
 		elif hasattr(obj, 'Integer'):
 			obj.Integer = value
 		elif hasattr(obj, 'Enum'):
@@ -62,14 +68,18 @@ def setVariant(obj, value):
 		else:
 			raise TypeError
 	elif isinstance(value, unicode):
-		if hasattr(obj, 'String'):
+		if hasattr(obj, 'Symbol'):
+			obj.Symbol = value
+		elif hasattr(obj, 'String'):
 			obj.String = value
 		elif hasattr(obj, 'Bytes'):
 			obj.Bytes = value
 		else:
 			raise TypeError
 	elif isinstance(value, str):
-		if hasattr(obj, 'Bytes'):
+		if hasattr(obj, 'Symbol'):
+			obj.Symbol = value
+		elif hasattr(obj, 'Bytes'):
 			obj.Bytes = value
 		elif hasattr(obj, 'String'):
 			obj.String = value

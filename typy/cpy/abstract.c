@@ -129,6 +129,7 @@ GetPyObject abstract_GetPyObject[MAX_FIELD_TYPE] = {
 	(GetPyObject)TypyBool_GetPyObject,       /* TYPE_BOOL       */
 	(GetPyObject)TypyBytes_GetPyObject,      /* TYPE_BYTES      */
 	(GetPyObject)TypyString_GetPyObject,     /* TYPE_STRING     */
+	(GetPyObject)TypyBytes_GetPyObject,      /* TYPE_SYMBOL     */
 	(GetPyObject)TypyObject_GetPyObject,     /* TYPE_OBJECT     */
 	(GetPyObject)TypyVariant_GetPyObject,    /* TYPE_VARIANT    */
 	(GetPyObject)TypyList_GetPyObject,       /* TYPE_LIST       */
@@ -304,6 +305,7 @@ CheckAndSet abstract_CheckAndSet[MAX_FIELD_TYPE] = {
 	(CheckAndSet)TypyBool_CheckAndSet,       /* TYPE_BOOL       */
 	(CheckAndSet)TypyBytes_CheckAndSet,      /* TYPE_BYTES      */
 	(CheckAndSet)TypyString_CheckAndSet,     /* TYPE_STRING     */
+	(CheckAndSet)TypyBytes_CheckAndSet,      /* TYPE_SYMBOL     */
 	(CheckAndSet)TypyObject_CheckAndSet,     /* TYPE_OBJECT     */
 	(CheckAndSet)TypyVariant_CheckAndSet,    /* TYPE_VARIANT    */
 	(CheckAndSet)TypyList_CheckAndSet,       /* TYPE_LIST       */
@@ -336,6 +338,7 @@ MergeFrom abstract_MergeFrom[MAX_FIELD_TYPE] = {
 	(MergeFrom)TypyNumeric_MergeFrom,  /* TYPE_BOOL       */
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_BYTES      */
 	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_STRING     */
+	(MergeFrom)TypyPyObject_MergeFrom, /* TYPE_SYMBOL     */
 	(MergeFrom)TypyObject_MergeFrom,   /* TYPE_OBJECT     */
 	(MergeFrom)TypyVariant_MergeFrom,  /* TYPE_VARIANT    */
 	(MergeFrom)TypyList_MergeFrom,     /* TYPE_LIST       */
@@ -398,6 +401,15 @@ static bool TypyString_Read(TypyType t, PyString* value, byte** input, size_t* l
 	return true;
 }
 
+static bool TypySymbol_Read(TypyType t, PyBytes* value, byte** input, size_t* length) {
+	register PyBytes bytes = Typy_ReadBytes(input, length);
+	if (!bytes) { return false; }
+	Py_XDECREF(*value);
+	//TODO: symbol
+	*value = bytes;
+	return true;
+}
+
 Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)TypyField_Read,      /* TYPE_ENUM       */
 	(Read)TypyVarint32_Read,   /* TYPE_INT32      */
@@ -410,6 +422,7 @@ Read abstract_Read[MAX_FIELD_TYPE] = {
 	(Read)TypyBool_Read,       /* TYPE_BOOL       */
 	(Read)TypyBytes_Read,      /* TYPE_BYTES      */
 	(Read)TypyString_Read,     /* TYPE_STRING     */
+	(Read)TypySymbol_Read,     /* TYPE_SYMBOL     */
 	(Read)TypyObject_Read,     /* TYPE_OBJECT     */
 	(Read)TypyVariant_Read,    /* TYPE_VARIANT    */
 	(Read)TypyList_Read,       /* TYPE_LIST       */
@@ -498,6 +511,24 @@ static size_t TypyString_Write(TypyType t, PyString* value, int tag, byte* outpu
 	return size + 1;
 }
 
+static size_t TypySymbol_Write(TypyType t, PyBytes* value, int tag, byte* output) {
+	register size_t size = 0;
+	if (tag) {
+		size += Typy_WriteTag(output, tag);
+	}
+	if (*value) {
+		Py_ssize_t length = PyBytes_GET_SIZE(*value);
+		if (length > 0) {
+			size += IblPutUvarint(output + size, length);
+			memcpy(output + size, PyBytes_AS_STRING(*value), length);
+			return size + length;
+		}
+	}
+	output[size] = 0;
+	//TODO: symbol
+	return size + 1;
+}
+
 Write abstract_Write[MAX_FIELD_TYPE] = {
 	(Write)TypyEnum_Write,       /* TYPE_ENUM       */
 	(Write)TypyInt32_Write,      /* TYPE_INT32      */
@@ -510,6 +541,7 @@ Write abstract_Write[MAX_FIELD_TYPE] = {
 	(Write)TypyBool_Write,       /* TYPE_BOOL       */
 	(Write)TypyBytes_Write,      /* TYPE_BYTES      */
 	(Write)TypyString_Write,     /* TYPE_STRING     */
+	(Write)TypySymbol_Write,     /* TYPE_SYMBOL     */
 	(Write)TypyObject_Write,     /* TYPE_OBJECT     */
 	(Write)TypyVariant_Write,    /* TYPE_VARIANT    */
 	(Write)TypyList_Write,       /* TYPE_LIST       */
@@ -560,6 +592,14 @@ static size_t TypyString_ByteSize(TypyType t, PyString* value, int tagsize) {
 	return tagsize + IblSizeVarint(size) + size;
 }
 
+static size_t TypySymbol_ByteSize(TypyType t, PyBytes* value, int tagsize) {
+	register size_t size = 0;
+	if (*value) {
+		size = (PyBytes_GET_SIZE(*value) * 6 + 7) / 8;
+	}
+	return tagsize + IblSizeVarint((uint64)size) + size;
+}
+
 ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyEnum_ByteSize,       /* TYPE_ENUM       */
 	(ByteSize)TypyInt32_ByteSize,      /* TYPE_INT32      */
@@ -572,6 +612,7 @@ ByteSize abstract_ByteSize[MAX_FIELD_TYPE] = {
 	(ByteSize)TypyBool_ByteSize,       /* TYPE_BOOL       */
 	(ByteSize)TypyBytes_ByteSize,      /* TYPE_BYTES      */
 	(ByteSize)TypyString_ByteSize,     /* TYPE_STRING     */
+	(ByteSize)TypySymbol_ByteSize,     /* TYPE_SYMBOL     */
 	(ByteSize)TypyObject_ByteSize,     /* TYPE_OBJECT     */
 	(ByteSize)TypyVariant_ByteSize,    /* TYPE_VARIANT    */
 	(ByteSize)TypyList_ByteSize,       /* TYPE_LIST       */
@@ -596,6 +637,7 @@ IblMap_Hash abstract_Hash[MAX_FIELD_TYPE] = {
 	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_BOOL       */
 	(IblMap_Hash)TypyObject_Hash,      /* TYPE_BYTES      */
 	(IblMap_Hash)TypyObject_Hash,      /* TYPE_STRING     */
+	(IblMap_Hash)TypyObject_Hash,      /* TYPE_SYMBOL     */
 	(IblMap_Hash)TypyObject_Hash,      /* TYPE_OBJECT     */
 	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_VARIANT    */
 	(IblMap_Hash)TypyNumeric_Hash,     /* TYPE_LIST       */
@@ -643,6 +685,7 @@ IblMap_Compare abstract_Compare[MAX_FIELD_TYPE] = {
 	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_BOOL       */
 	(IblMap_Compare)TypyBytes_Compare,   /* TYPE_BYTES      */
 	(IblMap_Compare)TypyString_Compare,  /* TYPE_STRING     */
+	(IblMap_Compare)TypyBytes_Compare,   /* TYPE_SYMBOL     */
 	(IblMap_Compare)TypyObject_Compare,  /* TYPE_OBJECT     */
 	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_VARIANT    */
 	(IblMap_Compare)TypyNumeric_Compare, /* TYPE_LIST       */
@@ -683,6 +726,7 @@ ToJson abstract_ToJson[MAX_FIELD_TYPE] = {
 	(ToJson)TypyBool_ToJson,       /* TYPE_BOOL       */
 	(ToJson)TypyBytes_ToJson,      /* TYPE_BYTES      */
 	(ToJson)TypyString_ToJson,     /* TYPE_STRING     */
+	(ToJson)TypyBytes_ToJson,      /* TYPE_SYMBOL     */
 	(ToJson)TypyObject_ToJson,     /* TYPE_OBJECT     */
 	(ToJson)TypyVariant_ToJson,    /* TYPE_VARIANT    */
 	(ToJson)TypyList_ToJson,       /* TYPE_LIST       */
@@ -723,6 +767,7 @@ FromJson abstract_FromJson[MAX_FIELD_TYPE] = {
 	(FromJson)TypyBool_FromJson,       /* TYPE_BOOL       */
 	(FromJson)TypyBytes_FromJson,      /* TYPE_BYTES      */
 	(FromJson)TypyString_FromJson,     /* TYPE_STRING     */
+	(FromJson)TypyBytes_FromJson,      /* TYPE_SYMBOL     */
 	(FromJson)TypyObject_FromJson,     /* TYPE_OBJECT     */
 	(FromJson)TypyVariant_FromJson,    /* TYPE_VARIANT    */
 	(FromJson)TypyList_FromJson,       /* TYPE_LIST       */
@@ -780,6 +825,7 @@ FromJsonKey abstract_FromJsonKey[MAX_FIELD_TYPE] = {
 	(FromJsonKey)TypyBool_FromJsonKey,       /* TYPE_BOOL       */
 	(FromJsonKey)TypyBytes_FromJson,         /* TYPE_BYTES      */
 	(FromJsonKey)TypyString_FromJson,        /* TYPE_STRING     */
+	(FromJsonKey)TypyBytes_FromJson,         /* TYPE_SYMBOL     */
 	(FromJsonKey)TypyObject_FromJsonKey,     /* TYPE_OBJECT     */
 	(FromJsonKey)TypyVariant_FromJsonKey,    /* TYPE_VARIANT    */
 	(FromJsonKey)TypyList_FromJsonKey,       /* TYPE_LIST       */

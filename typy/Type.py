@@ -78,6 +78,15 @@ class Integer(Simple):
 		return '[Type:Integer%s]' % repr(self.metadata)
 
 
+class Long(Simple):
+	default = 0
+	pyType = long
+	pbType = 'int64'
+
+	def __str__(self):
+		return '[Type:Long%s]' % repr(self.metadata)
+
+
 class Float(Simple):
 	default = 0.0
 	pyType = float
@@ -139,6 +148,15 @@ class Bytes(Simple):
 
 	def __str__(self):
 		return '[Type:Bytes%s]' % repr(self.metadata)
+
+
+class Symbol(Simple):
+	default = _b("")
+	pyType = str
+	pbType = 'bytes'
+
+	def __str__(self):
+		return '[Type:Symbol%s]' % repr(self.metadata)
 
 
 PythonTypes = {}
