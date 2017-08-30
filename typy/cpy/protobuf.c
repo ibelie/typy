@@ -251,6 +251,99 @@ bool Typy_SkipField(byte** buffer, size_t* buf_len, uint32 tag) {
 	}
 }
 
+static const char SymbolEncodeMap[256] = {
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF' /*-*/, '\xFF',       '\xFF',
+	'\x35' /*0*/, '\x36' /*1*/, '\x37' /*2*/, '\x38' /*3*/, '\x39' /*4*/, '\x3A' /*5*/, '\x3B' /*6*/, '\x3C', /*7*/
+	'\x3D' /*8*/, '\x3E' /*9*/, '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\x01' /*A*/, '\x02' /*B*/, '\x03' /*C*/, '\x04' /*D*/, '\x05' /*E*/, '\x06' /*F*/, '\x07' /*G*/,
+	'\x08' /*H*/, '\x09' /*I*/, '\x0A' /*J*/, '\x0B' /*K*/, '\x0C' /*L*/, '\x0D' /*M*/, '\x0E' /*N*/, '\x0F' /*O*/,
+	'\x10' /*P*/, '\x11' /*Q*/, '\x12' /*R*/, '\x13' /*S*/, '\x14' /*T*/, '\x15' /*U*/, '\x16' /*V*/, '\x17' /*W*/,
+	'\x18' /*X*/, '\x19' /*Y*/, '\x1A' /*Z*/, '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\x3F' /*_*/,
+	'\xFF',       '\x1B' /*a*/, '\x1C' /*b*/, '\x1D' /*c*/, '\x1E' /*d*/, '\x1F' /*e*/, '\x20' /*f*/, '\x21' /*g*/,
+	'\x22' /*h*/, '\x23' /*i*/, '\x24' /*j*/, '\x25' /*k*/, '\x26' /*l*/, '\x27' /*m*/, '\x28' /*n*/, '\x29' /*o*/,
+	'\x2A' /*p*/, '\x2B' /*q*/, '\x2C' /*r*/, '\x2D' /*s*/, '\x2E' /*t*/, '\x2F' /*u*/, '\x30' /*v*/, '\x31' /*w*/,
+	'\x32' /*x*/, '\x33' /*y*/, '\x34' /*z*/, '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+};
+
+void Typy_EncodeSymbol(byte* dst, byte* src, size_t size) {
+	register size_t di = 0, si = 0, n = (size / 4) * 4;
+	while (si < n) {
+		// Convert 4x 6bit source bytes into 3 bytes
+		register unsigned int val = SymbolEncodeMap[src[si++]] << 18 |
+			SymbolEncodeMap[src[si++]] << 12 |
+			SymbolEncodeMap[src[si++]] << 6 |
+			SymbolEncodeMap[src[si++]];
+
+		dst[di++] = (byte)(val >> 16);
+		dst[di++] = (byte)(val >> 8);
+		dst[di++] = (byte)(val >> 0);
+	}
+
+	if (size > si) {
+		register size_t j;
+		register unsigned int val = 0;
+		for (j = 0; j < size - si; j++) {
+			val |= SymbolEncodeMap[src[si + j]] << (18 - j * 6);
+		}
+		for (j = 0; j < size - si; j++) {
+			dst[di++] = (byte)(val >> (16 - j * 8));
+		}
+	}
+}
+
+static const char SymbolDecodeMap[] = "-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+
+size_t Typy_DecodeSymbol(byte* dst, byte* src, size_t size) {
+	register size_t di = 0, si = 0, n = (size / 3) * 3;
+	while (si < n) {
+		// Convert 3x 8bit source bytes into 4 bytes
+		unsigned int val = src[si++] << 16 | src[si++] << 8 | src[si++];
+
+		dst[di++] = SymbolDecodeMap[val >> 18 & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 12 & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 6  & 0x3F];
+		dst[di++] = SymbolDecodeMap[val & 0x3F];
+	}
+
+	switch (size - si) {
+	case 1:
+		dst[di++] = SymbolDecodeMap[src[si] >> 2 & 0x3F];
+		break;
+	case 2:
+		unsigned int val = src[si] << 8 | src[si + 1];
+		dst[di++] = SymbolDecodeMap[val >> 10 & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 4  & 0x3F];
+		break;
+	}
+
+	if (dst[di - 1] == SymbolDecodeMap[0]) {
+		di--;
+		dst[di] = 0;
+	}
+	return di;
+}
+
 #ifdef __cplusplus
 }
 #endif

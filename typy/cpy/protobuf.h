@@ -16,6 +16,9 @@
 #define TAG_INDEX(TAG) ((size_t)(((TAG) >> TAG_TYPE_BITS) - 1))
 #define TAG_WIRETYPE(TAG) ((WireType)((TAG) & TAG_TYPE_MASK))
 
+#define Typy_SymbolEncodedLen(l) (((size_t)(l) * 6 + 7) / 8)
+#define Typy_SymbolDecodedLen(l) ((size_t)(l) * 4 / 3)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -42,6 +45,8 @@ size_t Typy_WriteTag   (byte*, uint32);
 size_t Typy_Write32    (byte*, uint32*);
 size_t Typy_Write64    (byte*, uint64*);
 
+void   Typy_EncodeSymbol(byte*, byte*, size_t);
+size_t Typy_DecodeSymbol(byte*, byte*, size_t);
 
 #ifdef __cplusplus
 }

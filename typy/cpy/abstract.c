@@ -402,11 +402,22 @@ static bool TypyString_Read(TypyType t, PyString* value, byte** input, size_t* l
 }
 
 static bool TypySymbol_Read(TypyType t, PyBytes* value, byte** input, size_t* length) {
-	register PyBytes bytes = Typy_ReadBytes(input, length);
-	if (!bytes) { return false; }
+	uint32 size;
+	if (!Typy_ReadVarint32(input, length, &size)) {
+		return false;
+	} else if (size > *length) {
+		return false;
+	}
+
+	register PyBytes symbol = (PyBytes)PyBytes_FromStringAndSize(NULL, Typy_SymbolDecodedLen(size));
+	if (!symbol) { return false; }
+
 	Py_XDECREF(*value);
-	//TODO: symbol
-	*value = bytes;
+	PyString_GET_SIZE(symbol) = Typy_DecodeSymbol(PyBytes_AS_STRING(symbol), *input, size);
+	*value = symbol;
+	*input += size;
+	*length -= size;
+
 	return true;
 }
 
@@ -519,13 +530,13 @@ static size_t TypySymbol_Write(TypyType t, PyBytes* value, int tag, byte* output
 	if (*value) {
 		Py_ssize_t length = PyBytes_GET_SIZE(*value);
 		if (length > 0) {
-			size += IblPutUvarint(output + size, length);
-			memcpy(output + size, PyBytes_AS_STRING(*value), length);
+			register size_t l = Typy_SymbolEncodedLen(length);
+			size += IblPutUvarint(output + size, (l));
+			Typy_EncodeSymbol(output + size, PyBytes_AS_STRING(*value), length);
 			return size + length;
 		}
 	}
 	output[size] = 0;
-	//TODO: symbol
 	return size + 1;
 }
 
@@ -595,7 +606,7 @@ static size_t TypyString_ByteSize(TypyType t, PyString* value, int tagsize) {
 static size_t TypySymbol_ByteSize(TypyType t, PyBytes* value, int tagsize) {
 	register size_t size = 0;
 	if (*value) {
-		size = (PyBytes_GET_SIZE(*value) * 6 + 7) / 8;
+		size = Typy_SymbolEncodedLen(PyBytes_GET_SIZE(*value));
 	}
 	return tagsize + IblSizeVarint((uint64)size) + size;
 }

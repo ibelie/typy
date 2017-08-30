@@ -505,9 +505,9 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 					SymbolEncodeMap[src[si++]] << 6 |
 					SymbolEncodeMap[src[si++]];
 
-				dst[di++] = char(val >> 16);
-				dst[di++] = char(val >> 8);
-				dst[di++] = char(val >> 0);
+				dst[di++] = (char)(val >> 16);
+				dst[di++] = (char)(val >> 8);
+				dst[di++] = (char)(val >> 0);
 			}
 
 			if (size > si) {
@@ -516,7 +516,7 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 					val |= SymbolEncodeMap[src[si + j]] << (18 - j * 6);
 				}
 				for (int j = 0; j < size - si; j++) {
-					dst[di++] = char(val >> (16 - j * 8));
+					dst[di++] = (char)(val >> (16 - j * 8));
 				}
 			}
 
@@ -828,17 +828,17 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 
 	switch (size - si) {
 	case 1:
-		dst[di + 0] = SymbolDecodeMap[src[si] >> 2 & 0x3F];
+		dst[di++] = SymbolDecodeMap[src[si] >> 2 & 0x3F];
 		break;
 	case 2:
 		unsigned int val = src[si] << 8 | src[si + 1];
-		dst[di + 0] = SymbolDecodeMap[val >> 10 & 0x3F];
-		dst[di + 1] = SymbolDecodeMap[val >> 4  & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 10 & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 4  & 0x3F];
 		break;
 	}
 
-	if (dst[PyString_GET_SIZE(value) - 1] == SymbolDecodeMap[0]) {
-		dst[PyString_GET_SIZE(value) - 1] = 0;
+	if (dst[di - 1] == SymbolDecodeMap[0]) {
+		dst[di - 1] = 0;
 		PyString_GET_SIZE(value)--;
 	}
 	delete []src;
