@@ -452,38 +452,38 @@ inline void Write(int field_number, const string& value, CodedOutputStream* outp
 }
 
 static const char SymbolEncodeMap[256] = {
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF /*-*/, 0xFF,     0xFF,
-	53 /*0*/, 54 /*1*/, 55 /*2*/, 56 /*3*/, 57 /*4*/, 58   /*5*/, 59 /*6*/, 60, /*7*/
-	61 /*8*/, 62 /*9*/, 0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     1  /*A*/, 2  /*B*/, 3  /*C*/, 4  /*D*/, 5    /*E*/, 6  /*F*/, 7,  /*G*/
-	8  /*H*/, 9  /*I*/, 10 /*J*/, 11 /*K*/, 12 /*L*/, 13   /*M*/, 14 /*N*/, 15, /*O*/
-	16 /*P*/, 17 /*Q*/, 18 /*R*/, 19 /*S*/, 20 /*T*/, 21   /*U*/, 22 /*V*/, 23, /*W*/
-	24 /*X*/, 25 /*Y*/, 26 /*Z*/, 0xFF,     0xFF,     0xFF,       0xFF,     63, /*_*/
-	0xFF,     27 /*a*/, 28 /*b*/, 29 /*c*/, 30 /*d*/, 31   /*e*/, 32 /*f*/, 33, /*g*/
-	34 /*h*/, 35 /*i*/, 36 /*j*/, 37 /*k*/, 38 /*l*/, 39   /*m*/, 40 /*n*/, 41, /*o*/
-	42 /*p*/, 43 /*q*/, 44 /*r*/, 45 /*s*/, 46 /*t*/, 47   /*u*/, 48 /*v*/, 49, /*w*/
-	50 /*x*/, 51 /*y*/, 52 /*z*/, 0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
-	0xFF,     0xFF,     0xFF,     0xFF,     0xFF,     0xFF,       0xFF,     0xFF,
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF' /*-*/, '\xFF',       '\xFF',
+	'\x35' /*0*/, '\x36' /*1*/, '\x37' /*2*/, '\x38' /*3*/, '\x39' /*4*/, '\x3A' /*5*/, '\x3B' /*6*/, '\x3C', /*7*/
+	'\x3D' /*8*/, '\x3E' /*9*/, '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\x01' /*A*/, '\x02' /*B*/, '\x03' /*C*/, '\x04' /*D*/, '\x05' /*E*/, '\x06' /*F*/, '\x07' /*G*/,
+	'\x08' /*H*/, '\x09' /*I*/, '\x0A' /*J*/, '\x0B' /*K*/, '\x0C' /*L*/, '\x0D' /*M*/, '\x0E' /*N*/, '\x0F' /*O*/,
+	'\x10' /*P*/, '\x11' /*Q*/, '\x12' /*R*/, '\x13' /*S*/, '\x14' /*T*/, '\x15' /*U*/, '\x16' /*V*/, '\x17' /*W*/,
+	'\x18' /*X*/, '\x19' /*Y*/, '\x1A' /*Z*/, '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\x3F' /*_*/,
+	'\xFF',       '\x1B' /*a*/, '\x1C' /*b*/, '\x1D' /*c*/, '\x1E' /*d*/, '\x1F' /*e*/, '\x20' /*f*/, '\x21' /*g*/,
+	'\x22' /*h*/, '\x23' /*i*/, '\x24' /*j*/, '\x25' /*k*/, '\x26' /*l*/, '\x27' /*m*/, '\x28' /*n*/, '\x29' /*o*/,
+	'\x2A' /*p*/, '\x2B' /*q*/, '\x2C' /*r*/, '\x2D' /*s*/, '\x2E' /*t*/, '\x2F' /*u*/, '\x30' /*v*/, '\x31' /*w*/,
+	'\x32' /*x*/, '\x33' /*y*/, '\x34' /*z*/, '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
+	'\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',       '\xFF',
 };
 
 inline void Write(int field_number, const symbol& value, CodedOutputStream* output) {
@@ -500,7 +500,7 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 			int di = 0, si = 0, n = (size / 4) * 4;
 			while (si < n) {
 				// Convert 4x 6bit source bytes into 3 bytes
-				uint val = SymbolEncodeMap[src[si++]] << 18 |
+				unsigned int val = SymbolEncodeMap[src[si++]] << 18 |
 					SymbolEncodeMap[src[si++]] << 12 |
 					SymbolEncodeMap[src[si++]] << 6 |
 					SymbolEncodeMap[src[si++]];
@@ -511,7 +511,7 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 			}
 
 			if (size > si) {
-				uint val = 0;
+				unsigned int val = 0;
 				for (int j = 0; j < size - si; j++) {
 					val |= SymbolEncodeMap[src[si + j]] << (18 - j * 6);
 				}
@@ -799,12 +799,12 @@ inline bool Read(string& value, CodedInputStream* input) {
 	return success;
 }
 
-static const char SymbolDecodeMap[64] = "-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+static const char SymbolDecodeMap[] = "-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 
 inline bool Read(symbol& value, CodedInputStream* input) {
 	uint32 size;
 	input->ReadVarint32(&size);
-	value = reinterpret_cast<bytes>(PyBytes_FromStringAndSize(NULL, size * 4 / 3));
+	value = reinterpret_cast<symbol>(PyBytes_FromStringAndSize(NULL, size * 4 / 3));
 	if (value == NULL) {
 		return false;
 	}
@@ -816,17 +816,14 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 
 	int di = 0, si = 0, n = (size / 3) * 3;
 	char* dst = PyBytes_AS_STRING(value);
-	for si < n {
+	while (si < n) {
 		// Convert 3x 8bit source bytes into 4 bytes
-		uint val = src[si] << 16 | src[si + 1] << 8 | src[si + 2]);
+		unsigned int val = src[si++] << 16 | src[si++] << 8 | src[si++];
 
-		dst[di + 0] = SymbolDecodeMap[val >> 18 & 0x3F];
-		dst[di + 1] = SymbolDecodeMap[val >> 12 & 0x3F];
-		dst[di + 2] = SymbolDecodeMap[val >> 6  & 0x3F];
-		dst[di + 3] = SymbolDecodeMap[val & 0x3F];
-
-		si += 3;
-		di += 4;
+		dst[di++] = SymbolDecodeMap[val >> 18 & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 12 & 0x3F];
+		dst[di++] = SymbolDecodeMap[val >> 6  & 0x3F];
+		dst[di++] = SymbolDecodeMap[val & 0x3F];
 	}
 
 	switch (size - si) {
@@ -834,7 +831,7 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 		dst[di + 0] = SymbolDecodeMap[src[si] >> 2 & 0x3F];
 		break;
 	case 2:
-		uint val = src[si] << 8 | src[si + 1];
+		unsigned int val = src[si] << 8 | src[si + 1];
 		dst[di + 0] = SymbolDecodeMap[val >> 10 & 0x3F];
 		dst[di + 1] = SymbolDecodeMap[val >> 4  & 0x3F];
 		break;
