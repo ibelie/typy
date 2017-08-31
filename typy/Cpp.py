@@ -308,7 +308,7 @@ def _GenerateEnum(path, name, cls):
 def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 	from typy.google.protobuf.internal.encoder import _TagSize
 	from Type import pb, Enum, List, Dict
-	from Type import Integer, Float, Double, FixedPoint, Boolean, String, Bytes
+	from Type import Integer, Long, Float, Double, FixedPoint, Boolean, String, Bytes, Symbol
 
 	class ReadFieldArgs(object):
 		name = None
@@ -387,9 +387,9 @@ def _GenerateObject(path, name, cls, container_inits, enums, pythons, variants):
 					read_field_args[tag].method = 'REPEATED_PRIMITIVE'
 				elif isinstance(p.elementType, FixedPoint):
 					read_field_args[tag].method = 'REPEATED_PRIMITIVE'
-				elif isinstance(p.elementType, (Integer, Float, Double, FixedPoint, Boolean)):
+				elif isinstance(p.elementType, (Integer, Long, Float, Double, FixedPoint, Boolean)):
 					read_field_args[tag].method = 'REPEATED_PRIMITIVE'
-				elif isinstance(p.elementType, (String, Bytes)):
+				elif isinstance(p.elementType, (String, Bytes, Symbol)):
 					pass
 				else:
 					read_field_args[tag].method = 'REPEATED_OBJECT'

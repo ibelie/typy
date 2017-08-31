@@ -497,8 +497,8 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 
 			char* dst = new char[dstSize];
 			char* src = PyBytes_AS_STRING(value);
-			int di = 0, si = 0, n = (size / 4) * 4;
-			while (si < n) {
+			int di = 0, n = size / 4 * 4;
+			for (int si = 0; si < n; ) {
 				// Convert 4x 6bit source bytes into 3 bytes
 				unsigned int val = SymbolEncodeMap[src[si++]] << 18 |
 					SymbolEncodeMap[src[si++]] << 12 |
@@ -510,14 +510,13 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 				dst[di++] = (char)(val >> 0);
 			}
 
-			if (size > si) {
-				unsigned int val = 0;
-				for (int j = 0; j < size - si; j++) {
-					val |= SymbolEncodeMap[src[si + j]] << (18 - j * 6);
-				}
-				for (int j = 0; j < size - si; j++) {
-					dst[di++] = (char)(val >> (16 - j * 8));
-				}
+			unsigned int val = 0;
+			int remain = size - n;
+			for (int j = 0; j < remain; j++) {
+				val |= SymbolEncodeMap[src[n + j]] << (18 - j * 6);
+			}
+			for (int j = 0; j < remain; j++) {
+				dst[di++] = (char)(val >> (16 - j * 8));
 			}
 
 			output->WriteRaw(dst, dstSize);
@@ -814,9 +813,9 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 		return false;
 	}
 
-	int di = 0, si = 0, n = (size / 3) * 3;
+	int di = 0, n = size / 3 * 3;
 	char* dst = PyBytes_AS_STRING(value);
-	while (si < n) {
+	for (int si = 0; si < n; ) {
 		// Convert 3x 8bit source bytes into 4 bytes
 		unsigned int val = src[si++] << 16 | src[si++] << 8 | src[si++];
 
@@ -826,12 +825,12 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 		dst[di++] = SymbolDecodeMap[val & 0x3F];
 	}
 
-	switch (size - si) {
+	switch (size - n) {
 	case 1:
-		dst[di++] = SymbolDecodeMap[src[si] >> 2 & 0x3F];
+		dst[di++] = SymbolDecodeMap[src[n] >> 2 & 0x3F];
 		break;
 	case 2:
-		unsigned int val = src[si] << 8 | src[si + 1];
+		unsigned int val = src[n] << 8 | src[n + 1];
 		dst[di++] = SymbolDecodeMap[val >> 10 & 0x3F];
 		dst[di++] = SymbolDecodeMap[val >> 4  & 0x3F];
 		break;

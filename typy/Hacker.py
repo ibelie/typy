@@ -10,7 +10,8 @@ from typy.google.protobuf.internal import python_message
 from typy.google.protobuf.internal import type_checkers
 from typy.google.protobuf.descriptor import FieldDescriptor
 from typy.google.protobuf import text_format
-from Type import toType, FixedPoint, List, Dict, Instance, PythonDelegate
+from Type import toType, FixedPoint, Symbol, List, Dict, Instance, PythonDelegate
+from Proto import SymbolEncodedLen, EncodeSymbol, DecodeSymbol
 from Enum import MetaEnum
 
 def setVariant(obj, value):
@@ -702,6 +703,42 @@ encoder.MessageEncoder = _MessageEncoder
 type_checkers.TYPE_TO_ENCODER[FieldDescriptor.TYPE_MESSAGE] = _MessageEncoder
 
 
+def SymbolSizer(sizer, includeZero):
+	def _SymbolSizer(value):
+		l = SymbolEncodedLen(value)
+		return (sizer(l) + l) if includeZero or value else 0
+	return _SymbolSizer
+
+def EncodeSymbol(encoder, includeZero):
+	def _EncodeSymbol(write, value):
+		if includeZero or value:
+			encoder(write, SymbolEncodedLen(value))
+			return write(EncodeSymbol(value))
+	return _EncodeSymbol
+
+def DecodeSymbol(decoder):
+	def _DecodeSymbol(buffer, pos):
+		(size, pos) = decoder(buffer, pos)
+		new_pos = pos + size
+		return DecodeSymbol(buffer[pos:new_pos]), new_pos
+	return _DecodeSymbol
+
+
+def _AttachSymbolHelpers(cls, field):
+	is_packed = False
+	is_repeated = (field.label == FieldDescriptor.LABEL_REPEATED)
+	sizer = SymbolSizer(encoder._VarintSize, is_repeated)
+	field._encoder = encoder._SimpleEncoder(wire_format.WIRETYPE_LENGTH_DELIMITED, EncodeSymbol(encoder._EncodeVarint, is_repeated), sizer)(field.number, is_repeated, is_packed)
+	field._sizer = encoder._SimpleSizer(sizer)(field.number, is_repeated, is_packed)
+	oneof_descriptor = None if field.containing_oneof is None else field
+	field_decoder = decoder._SimpleDecoder(wire_format.WIRETYPE_LENGTH_DELIMITED, DecodeSymbol(decoder._DecodeVarint))(field.number, is_repeated, is_packed, field, field._default_constructor)
+	tag_bytes = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
+	cls._decoders_by_tag[tag_bytes] = (field_decoder, oneof_descriptor)
+	if hasattr(cls, 'fields_by_tag'):
+		cls.field_tag[field] = tag_bytes
+		cls.fields_by_tag[tag_bytes] = field
+
+
 def FixedPointSizer(sizer, precision, floor, includeZero):
 	precision = 10 ** precision
 	floor = floor * precision
@@ -722,8 +759,8 @@ def EncodeFixedPoint(encoder, precision, floor, includeZero):
 def DecodeFixedPoint(decoder, precision, floor):
 	precision = 10 ** precision
 	def _DecodeFixedPoint(buffer, pos):
-		(element, new_pos) = decoder(buffer, pos)
-		return float(element) / precision + floor, new_pos
+		(value, new_pos) = decoder(buffer, pos)
+		return float(value) / precision + floor, new_pos
 	return _DecodeFixedPoint
 
 
@@ -756,25 +793,41 @@ def initObjectClass(cls, clsname, bases, attrs):
 		p = cls.____properties__[field.name]
 		if isinstance(p, FixedPoint):
 			_AttachFixedPointHelpers(cls, field, p.precision, p.floor)
-		elif isinstance(p, List) and isinstance(p.elementType, FixedPoint):
-			_AttachFixedPointHelpers(cls, field, p.elementType.precision, p.elementType.floor)
-		elif isinstance(p, Dict) and isinstance(p.valueType, FixedPoint):
-			_AttachFixedPointHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['value'], p.valueType.precision, p.valueType.floor)
+		elif isinstance(p, Symbol):
+			_AttachSymbolHelpers(cls, field)
+		elif isinstance(p, List):
+			if isinstance(p.elementType, FixedPoint):
+				_AttachFixedPointHelpers(cls, field, p.elementType.precision, p.elementType.floor)
+			elif isinstance(p.elementType, Symbol):
+				_AttachSymbolHelpers(cls, field)
+			elif isinstance(p.elementType, Instance) and len(p.elementType.pyType) > 1:
+				for vp in p.elementType.pyType:
+					if vp is None: continue
+					vp = toType(vp)
+					if isinstance(vp, FixedPoint):
+						_AttachFixedPointHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['FixedPoint'], vp.precision, vp.floor)
+					elif isinstance(vp, Symbol):
+						_AttachSymbolHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['Symbol'])
+		elif isinstance(p, Dict):
+			if isinstance(p.valueType, FixedPoint):
+				_AttachFixedPointHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['value'], p.valueType.precision, p.valueType.floor)
+			elif isinstance(p.valueType, Symbol):
+				_AttachSymbolHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['value'])
+			elif isinstance(p.valueType, Instance) and len(p.valueType.pyType) > 1:
+				for vp in p.valueType.pyType:
+					if vp is None: continue
+					vp = toType(vp)
+					if isinstance(vp, FixedPoint):
+						_AttachFixedPointHelpers(attrs[field.message_type.fields_by_name['value'].message_type.name], field.message_type.fields_by_name['value'].message_type.fields_by_name['FixedPoint'], vp.precision, vp.floor)
+					elif isinstance(vp, Symbol):
+						_AttachSymbolHelpers(attrs[field.message_type.fields_by_name['value'].message_type.name], field.message_type.fields_by_name['value'].message_type.fields_by_name['Symbol'])
+			if isinstance(p.keyType, Symbol):
+				_AttachSymbolHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['key'])
 		elif isinstance(p, Instance) and len(p.pyType) > 1:
 			for vp in p.pyType:
 				if vp is None: continue
 				vp = toType(vp)
 				if isinstance(vp, FixedPoint):
 					_AttachFixedPointHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['FixedPoint'], vp.precision, vp.floor)
-		elif isinstance(p, List) and isinstance(p.elementType, Instance) and len(p.elementType.pyType) > 1:
-			for vp in p.elementType.pyType:
-				if vp is None: continue
-				vp = toType(vp)
-				if isinstance(vp, FixedPoint):
-					_AttachFixedPointHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['FixedPoint'], vp.precision, vp.floor)
-		elif isinstance(p, Dict) and isinstance(p.valueType, Instance) and len(p.valueType.pyType) > 1:
-			for vp in p.valueType.pyType:
-				if vp is None: continue
-				vp = toType(vp)
-				if isinstance(vp, FixedPoint):
-					_AttachFixedPointHelpers(attrs[field.message_type.fields_by_name['value'].message_type.name], field.message_type.fields_by_name['value'].message_type.fields_by_name['FixedPoint'], vp.precision, vp.floor)
+				elif isinstance(vp, Symbol):
+					_AttachSymbolHelpers(attrs[field.message_type.name], field.message_type.fields_by_name['Symbol'])
