@@ -499,12 +499,12 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 			char* dst = new char[dstSize];
 			char* src = PyBytes_AS_STRING(value);
 			int di = 0, n = size / 4 * 4;
-			for (int si = 0; si < n; ) {
+			for (int si = 0; si < n; si += 4) {
 				// Convert 4x 6bit source bytes into 3 bytes
-				v = (SymbolEncodeMap[src[si++]] << 18) |
-					(SymbolEncodeMap[src[si++]] << 12) |
-					(SymbolEncodeMap[src[si++]] << 6) |
-					(SymbolEncodeMap[src[si++]] << 0);
+				v = (SymbolEncodeMap[src[si+0]] << 18) |
+					(SymbolEncodeMap[src[si+1]] << 12) |
+					(SymbolEncodeMap[src[si+2]] << 6) |
+					(SymbolEncodeMap[src[si+3]] << 0);
 
 				dst[di++] = (char)(0xFF & (v >> 16));
 				dst[di++] = (char)(0xFF & (v >> 8));
@@ -816,11 +816,11 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 	unsigned int v;
 	int di = 0, n = size / 3 * 3;
 	char* dst = PyBytes_AS_STRING(value);
-	for (int si = 0; si < n; ) {
+	for (int si = 0; si < n; si += 3) {
 		// Convert 3x 8bit source bytes into 4 bytes
-		v = (src[si++] << 16) |
-			(src[si++] << 8) |
-			(src[si++] << 0);
+		v = (src[si+0] << 16) |
+			(src[si+1] << 8) |
+			(src[si+2] << 0);
 
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 18)];
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 12)];

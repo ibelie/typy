@@ -289,12 +289,12 @@ static const char SymbolEncodeMap[256] = {
 void Typy_EncodeSymbol(byte* dst, byte* src, size_t size) {
 	register unsigned int v;
 	register size_t di = 0, n = size / 4 * 4;
-	for (register size_t si = 0; si < n; ) {
+	for (register size_t si = 0; si < n; si += 4) {
 		// Convert 4x 6bit source bytes into 3 bytes
-		v = (SymbolEncodeMap[src[si++]] << 18) |
-			(SymbolEncodeMap[src[si++]] << 12) |
-			(SymbolEncodeMap[src[si++]] << 6)|
-			(SymbolEncodeMap[src[si++]] << 0);
+		v = (SymbolEncodeMap[src[si+0]] << 18) |
+			(SymbolEncodeMap[src[si+1]] << 12) |
+			(SymbolEncodeMap[src[si+2]] << 6)|
+			(SymbolEncodeMap[src[si+3]] << 0);
 
 		dst[di++] = (byte)(0xFF & (v >> 16));
 		dst[di++] = (byte)(0xFF & (v >> 8));
@@ -316,11 +316,11 @@ static const char SymbolDecodeMap[] = "-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmn
 size_t Typy_DecodeSymbol(byte* dst, byte* src, size_t size) {
 	register unsigned int v;
 	register size_t di = 0, n = size / 3 * 3;
-	for (register size_t si = 0; si < n; ) {
+	for (register size_t si = 0; si < n; si += 3) {
 		// Convert 3x 8bit source bytes into 4 bytes
-		v = (src[si++] << 16) |
-			(src[si++] << 8) |
-			(src[si++] << 0);
+		v = (src[si+0] << 16) |
+			(src[si+1] << 8) |
+			(src[si+2] << 0);
 
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 18)];
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 12)];

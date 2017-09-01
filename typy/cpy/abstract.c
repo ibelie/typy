@@ -533,7 +533,7 @@ static size_t TypySymbol_Write(TypyType t, PyBytes* value, int tag, byte* output
 			register size_t l = Typy_SymbolEncodedLen(length);
 			size += IblPutUvarint(output + size, (l));
 			Typy_EncodeSymbol(output + size, PyBytes_AS_STRING(*value), length);
-			return size + length;
+			return size + l;
 		}
 	}
 	output[size] = 0;
