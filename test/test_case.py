@@ -74,7 +74,7 @@ class Vector2(Object):
 			'y': self.y,
 			'b': self.b,
 			's': self.s,
-			's': self.m,
+			'm': self.m,
 			'e': self.e,
 			'p': self.p,
 		})
