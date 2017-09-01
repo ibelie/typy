@@ -15,6 +15,7 @@ TypyHeaderBegin(Vector2);
 	bytes p_b;
 	Corpus p_e;
 	Empty* p_i;
+	symbol p_m;
 	Python<Shadow_PyType>* p_p;
 	string p_s;
 	Python<PyObject>* p_t;

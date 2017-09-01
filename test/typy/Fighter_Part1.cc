@@ -96,7 +96,7 @@ bool Fighter_Part1::MergePartialFromCodedStream(CodedInputStream* input) {
 	NEXT_READ_REPEATED_OBJECT_CASE(4, p_posi, SINGLE_ARG(Dict<int32, float >)::Entry, PREV_NO_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
 	NEXT_READ_REPEATED_OBJECT_CASE(5, p_posl, Vector2, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
 	NEXT_READ_REPEATED_OBJECT_CASE(6, p_posll, VLVector2, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
-	NEXT_READ_REPEATED_OBJECT_CASE(7, p_poss, SINGLE_ARG(Dict<int32, Vector2 >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
+	NEXT_READ_REPEATED_OBJECT_CASE(7, p_poss, SINGLE_ARG(Dict<int64, Vector2 >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
 	NEXT_READ_REPEATED_OBJECT_CASE(8, p_pyd, SINGLE_ARG(Dict<int32, Python<Shadow_PyType> >)::Entry, PREV_IS_REPEATED_OBJECT, NEXT_IS_REPEATED_OBJECT)
 	NEXT_READ_REPEATED_OBJECT_CASE(9, p_pyl, Python<Shadow_PyType>, PREV_IS_REPEATED_OBJECT, NEXT_NO_REPEATED_OBJECT)
 	NEXT_READ_NORMAL_CASE(10, p_pyv1, ViPyType)
@@ -333,7 +333,7 @@ bool Fighter_Part1::SetPropertySequence(PyObject* args) {
 		case 3: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 3), p_posi, "Property 'posi' expect Dict(int32 -> float), but ")) { return false; } break;
 		case 4: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 4), p_posl, "Property 'posl' expect List(Vector2), but ")) { return false; } break;
 		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_posll, "Property 'posll' expect List(VLVector2), but ")) { return false; } break;
-		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_poss, "Property 'poss' expect Dict(int32 -> Vector2), but ")) { return false; } break;
+		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_poss, "Property 'poss' expect Dict(int64 -> Vector2), but ")) { return false; } break;
 		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_pyd, "Property 'pyd' expect Dict(int32 -> Python<Shadow_PyType>), but ")) { return false; } break;
 		case 8: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 8), p_pyl, "Property 'pyl' expect List(Python<Shadow_PyType>), but ")) { return false; } break;
 		case 9: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 9), p_pyv1, "Property 'pyv1' expect Variant(Integer, PyType), but ")) { return false; } break;
@@ -369,7 +369,7 @@ TYPY_GETSET(Fighter_Part1, p_pos, Vector2);
 TYPY_GETSET(Fighter_Part1, p_posi, Dict(int32 -> float));
 TYPY_GETSET(Fighter_Part1, p_posl, List(Vector2));
 TYPY_GETSET(Fighter_Part1, p_posll, List(VLVector2));
-TYPY_GETSET(Fighter_Part1, p_poss, Dict(int32 -> Vector2));
+TYPY_GETSET(Fighter_Part1, p_poss, Dict(int64 -> Vector2));
 TYPY_GETSET(Fighter_Part1, p_pyd, Dict(int32 -> Python<Shadow_PyType>));
 TYPY_GETSET(Fighter_Part1, p_pyl, List(Python<Shadow_PyType>));
 TYPY_GETSET(Fighter_Part1, p_pyv1, Variant(Integer, PyType));

@@ -16,6 +16,7 @@ void Vector2::Clear() {
 	::typy::Clear(p_b);
 	::typy::Clear(p_e);
 	::typy::Clear(p_i);
+	::typy::Clear(p_m);
 	::typy::Clear(p_p);
 	::typy::Clear(p_s);
 	::typy::Clear(p_t);
@@ -28,6 +29,7 @@ int Vector2::Visit(visitproc visit, void* arg) {
 	if((result = ::typy::Visit(p_b, visit, arg)) != 0) { return result; }
 	if((result = ::typy::Visit(p_e, visit, arg)) != 0) { return result; }
 	if((result = ::typy::Visit(p_i, visit, arg)) != 0) { return result; }
+	if((result = ::typy::Visit(p_m, visit, arg)) != 0) { return result; }
 	if((result = ::typy::Visit(p_p, visit, arg)) != 0) { return result; }
 	if((result = ::typy::Visit(p_s, visit, arg)) != 0) { return result; }
 	if((result = ::typy::Visit(p_t, visit, arg)) != 0) { return result; }
@@ -41,6 +43,7 @@ void Vector2::MergeFrom(const Vector2& from) {
 	::typy::MergeFrom(p_b, from.p_b);
 	::typy::MergeFrom(p_e, from.p_e);
 	::typy::MergeFrom(p_i, from.p_i);
+	::typy::MergeFrom(p_m, from.p_m);
 	::typy::MergeFrom(p_p, from.p_p);
 	::typy::MergeFrom(p_s, from.p_s);
 	::typy::MergeFrom(p_t, from.p_t);
@@ -52,8 +55,9 @@ void Vector2::SerializeWithCachedSizes(CodedOutputStream* output) const {
 	::typy::Write(3, p_b, output);
 	::typy::Write(4, p_e, output);
 	::typy::Write(5, p_i, output);
-	::typy::Write(6, p_p, output);
-	::typy::Write(7, p_s, output);
+	::typy::Write(6, p_m, output);
+	::typy::Write(7, p_p, output);
+	::typy::Write(8, p_s, output);
 }
 
 int Vector2::ByteSize() const {
@@ -63,6 +67,7 @@ int Vector2::ByteSize() const {
 	::typy::ByteSize(total_size, 1, p_b);
 	::typy::ByteSize(total_size, 1, p_e);
 	::typy::ByteSize(total_size, 1, p_i);
+	::typy::ByteSize(total_size, 1, p_m);
 	::typy::ByteSize(total_size, 1, p_p);
 	::typy::ByteSize(total_size, 1, p_s);
 	GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
@@ -72,14 +77,15 @@ int Vector2::ByteSize() const {
 }
 
 bool Vector2::MergePartialFromCodedStream(CodedInputStream* input) {
-	BEGINE_READ_CASE(7)
+	BEGINE_READ_CASE(8)
 	FIRST_READ_NORMAL_CASE(1, p_x, float)
 	NEXT_READ_NORMAL_CASE(2, p_y, SINGLE_ARG(FixedPoint<1, -10>))
 	NEXT_READ_NORMAL_CASE(3, p_b, bytes)
 	NEXT_READ_NORMAL_CASE(4, p_e, Corpus)
 	NEXT_READ_NORMAL_CASE(5, p_i, Empty)
-	NEXT_READ_NORMAL_CASE(6, p_p, Python<Shadow_PyType>)
-	NEXT_READ_NORMAL_CASE(7, p_s, string)
+	NEXT_READ_NORMAL_CASE(6, p_m, symbol)
+	NEXT_READ_NORMAL_CASE(7, p_p, Python<Shadow_PyType>)
+	NEXT_READ_NORMAL_CASE(8, p_s, string)
 	END_READ_CASE()
 }
 
@@ -100,6 +106,8 @@ PyObject* Vector2::Json(bool slim) {
 	if (value != NULL) { PyDict_SetItemString(json, "e", value); Py_DECREF(value); }
 	value = ::typy::Json(p_i, slim);
 	if (value != NULL) { PyDict_SetItemString(json, "i", value); Py_DECREF(value); }
+	value = ::typy::Json(p_m, slim);
+	if (value != NULL) { PyDict_SetItemString(json, "m", value); Py_DECREF(value); }
 	value = ::typy::Json(p_p, slim);
 	if (value != NULL) { PyDict_SetItemString(json, "p", value); Py_DECREF(value); }
 	value = ::typy::Json(p_s, slim);
@@ -143,6 +151,8 @@ Vector2* Vector2::FromJson(PyObject* json) {
 	if (value != NULL) { if (!::typy::FromJson(object->p_e, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("i")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_i, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
+	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("m")).get()); PyErr_Clear();
+	if (value != NULL) { if (!::typy::FromJson(object->p_m, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("p")).get()); PyErr_Clear();
 	if (value != NULL) { if (!::typy::FromJson(object->p_p, value)) { Py_DECREF(value); return NULL; } Py_DECREF(value); }
 	value = PyObject_GetItem(json, ScopedPyObjectPtr(PyString_FromString("s")).get()); PyErr_Clear();
@@ -152,13 +162,14 @@ Vector2* Vector2::FromJson(PyObject* json) {
 
 // ===================================================================
 
-const int Vector2::PropertyCount = 7;
+const int Vector2::PropertyCount = 8;
 char* Vector2::Properties[] = {
 	"x",
 	"y",
 	"b",
 	"e",
 	"i",
+	"m",
 	"p",
 	"s"
 };
@@ -171,8 +182,9 @@ int Vector2::PropertyByteSize(int tag) const {
 	case 3: ::typy::ByteSize(size, 1, p_b); if (size == 0) { size = 1; } break;
 	case 4: ::typy::ByteSize(size, 1, p_e); if (size == 0) { size = 1; } break;
 	case 5: ::typy::ByteSize(size, 1, p_i); if (size == 0) { size = 1; } break;
-	case 6: ::typy::ByteSize(size, 1, p_p); if (size == 0) { size = 1; } break;
-	case 7: ::typy::ByteSize(size, 1, p_s); if (size == 0) { size = 1; } break;
+	case 6: ::typy::ByteSize(size, 1, p_m); if (size == 0) { size = 1; } break;
+	case 7: ::typy::ByteSize(size, 1, p_p); if (size == 0) { size = 1; } break;
+	case 8: ::typy::ByteSize(size, 1, p_s); if (size == 0) { size = 1; } break;
 	}
 	return size;
 }
@@ -210,15 +222,21 @@ void Vector2::SerializeProperty(CodedOutputStream* output, int tag) const {
 		}
 		break;
 	case 6:
-		::typy::Write(6, p_p, output);
+		::typy::Write(6, p_m, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(6, p_p, output);
+			::typy::WriteTag(6, p_m, output);
 		}
 		break;
 	case 7:
-		::typy::Write(7, p_s, output);
+		::typy::Write(7, p_p, output);
 		if (output->ByteCount() <= 0) {
-			::typy::WriteTag(7, p_s, output);
+			::typy::WriteTag(7, p_p, output);
+		}
+		break;
+	case 8:
+		::typy::Write(8, p_s, output);
+		if (output->ByteCount() <= 0) {
+			::typy::WriteTag(8, p_s, output);
 		}
 		break;
 	}
@@ -241,8 +259,9 @@ int Vector2::DeserializeProperty(CodedInputStream* input) {
 	case 3: ::typy::Clear(p_b); break;
 	case 4: ::typy::Clear(p_e); break;
 	case 5: ::typy::Clear(p_i); break;
-	case 6: ::typy::Clear(p_p); break;
-	case 7: ::typy::Clear(p_s); break;
+	case 6: ::typy::Clear(p_m); break;
+	case 7: ::typy::Clear(p_p); break;
+	case 8: ::typy::Clear(p_s); break;
 	}
 
 	if (!tagInput.ExpectAtEnd()) {
@@ -259,9 +278,10 @@ bool Vector2::SetPropertySequence(PyObject* args) {
 		case 2: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 2), p_b, "Property 'b' expect bytes, but ")) { return false; } break;
 		case 3: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 3), p_e, "Property 'e' expect Corpus, but ")) { return false; } break;
 		case 4: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 4), p_i, "Property 'i' expect Empty, but ")) { return false; } break;
-		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_p, "Property 'p' expect Python<Shadow_PyType>, but ")) { return false; } break;
-		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_s, "Property 's' expect string, but ")) { return false; } break;
-		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_t, "Property 't' expect Python<PyObject>, but ")) { return false; } break;
+		case 5: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 5), p_m, "Property 'm' expect symbol, but ")) { return false; } break;
+		case 6: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 6), p_p, "Property 'p' expect Python<Shadow_PyType>, but ")) { return false; } break;
+		case 7: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 7), p_s, "Property 's' expect string, but ")) { return false; } break;
+		case 8: if (!::typy::CheckAndSet(PyTuple_GET_ITEM(args, 8), p_t, "Property 't' expect Python<PyObject>, but ")) { return false; } break;
 		default: PyErr_Format(PyExc_TypeError, "Unsurported property number %lu.", i); return false;
 		}
 	}
@@ -269,16 +289,17 @@ bool Vector2::SetPropertySequence(PyObject* args) {
 }
 
 PyObject* Vector2::GetPropertySequence() {
-	PyObject* result = PyTuple_New(8);
+	PyObject* result = PyTuple_New(9);
 	if (result == NULL) { return result; }
 	PyTuple_SET_ITEM(result, 0, ::typy::GetPyObject(p_x));
 	PyTuple_SET_ITEM(result, 1, ::typy::GetPyObject(p_y));
 	PyTuple_SET_ITEM(result, 2, ::typy::GetPyObject(p_b));
 	PyTuple_SET_ITEM(result, 3, ::typy::GetPyObject(p_e));
 	PyTuple_SET_ITEM(result, 4, ::typy::GetPyObject(p_i));
-	PyTuple_SET_ITEM(result, 5, ::typy::GetPyObject(p_p));
-	PyTuple_SET_ITEM(result, 6, ::typy::GetPyObject(p_s));
-	PyTuple_SET_ITEM(result, 7, ::typy::GetPyObject(p_t));
+	PyTuple_SET_ITEM(result, 5, ::typy::GetPyObject(p_m));
+	PyTuple_SET_ITEM(result, 6, ::typy::GetPyObject(p_p));
+	PyTuple_SET_ITEM(result, 7, ::typy::GetPyObject(p_s));
+	PyTuple_SET_ITEM(result, 8, ::typy::GetPyObject(p_t));
 	return result;
 }
 
@@ -289,6 +310,7 @@ TYPY_GETSET(Vector2, p_y, SINGLE_ARG(FixedPoint<1, -10>));
 TYPY_GETSET(Vector2, p_b, bytes);
 TYPY_GETSET(Vector2, p_e, Corpus);
 TYPY_GETSET(Vector2, p_i, Empty);
+TYPY_GETSET(Vector2, p_m, symbol);
 TYPY_GETSET(Vector2, p_p, Python<Shadow_PyType>);
 TYPY_GETSET(Vector2, p_s, string);
 TYPY_GETSET(Vector2, p_t, Python<PyObject>);
@@ -299,6 +321,7 @@ template <> PyGetSetDef Object<Vector2>::GetSet[] = {
 	{"b", (getter)Get_p_b, (setter)Set_p_b, "Property b"},
 	{"e", (getter)Get_p_e, (setter)Set_p_e, "Property e"},
 	{"i", (getter)Get_p_i, (setter)Set_p_i, "Property i"},
+	{"m", (getter)Get_p_m, (setter)Set_p_m, "Property m"},
 	{"p", (getter)Get_p_p, (setter)Set_p_p, "Property p"},
 	{"s", (getter)Get_p_s, (setter)Set_p_s, "Property s"},
 	{"t", (getter)Get_p_t, (setter)Set_p_t, "Property t"},

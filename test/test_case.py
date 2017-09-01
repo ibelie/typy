@@ -3,7 +3,7 @@
 # Use of this source code is governed by The MIT License
 # that can be found in the LICENSE file.
 
-from typy import pb, MetaObject, Instance, Python, List, Dict, Object, Integer, Boolean, Float, Double, FixedPoint, Bytes, String, Enum
+from typy import pb, MetaObject, Instance, Long, Python, List, Dict, Object, Integer, Boolean, Float, Double, FixedPoint, Bytes, String, Enum
 
 MetaObject.Objects = {}
 
@@ -49,6 +49,7 @@ class Vector2(Object):
 	y = pb.FixedPoint(precision = 1, floor = -10, default = 0.0, label = '坐标Y')
 	b = pb.Bytes()
 	s = pb.String()
+	m = pb.Symbol()
 	e = pb.Enum(Corpus, default = 3, label = 'Corpus')
 	p = pb.Python(PyType, label = 'PyType')
 	i = pb.Instance(Empty, label = '空')
@@ -93,7 +94,7 @@ class Fighter_Part1(Object):
 	pos = pb.Instance(Vector2, label = '坐标')
 	isAwake = pb.Boolean(default = False)
 	hp = pb.Float(default = 100, label = '血量')
-	poss = pb.Dict(Integer, Vector2, label = 'poss')
+	poss = pb.Dict(Long, Vector2, label = 'poss')
 	posi = pb.Dict(Integer, Float, label = 'posi')
 	posl = pb.List(Vector2, label = 'posl')
 	posll = pb.List(List(Vector2), label = 'posll')
@@ -109,7 +110,7 @@ class Fighter_Part2(Fighter_Part1):
 	bd = pb.Dict(String, Bytes, label = 'bd')
 	sd = pb.Dict(Integer, String, label = 'sd')
 	el = pb.List(Corpus, label = 'el')
-	ed = pb.Dict(Integer, Corpus, label = 'ed')
+	ed = pb.Dict(Long, Corpus, label = 'ed')
 	ll = pb.List(List(Float), label = 'll')
 
 class Fighter(Fighter_Part2):

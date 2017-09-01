@@ -17,7 +17,7 @@ TypyHeaderBegin(Fighter_Part1);
 	SINGLE_ARG(Dict<int32, float >)* p_posi;
 	List< Vector2 >* p_posl;
 	List< VLVector2 >* p_posll;
-	SINGLE_ARG(Dict<int32, Vector2 >)* p_poss;
+	SINGLE_ARG(Dict<int64, Vector2 >)* p_poss;
 	SINGLE_ARG(Dict<int32, Python<Shadow_PyType> >)* p_pyd;
 	List< Python<Shadow_PyType> >* p_pyl;
 	ViPyType* p_pyv1;

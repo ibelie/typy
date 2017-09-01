@@ -23,7 +23,7 @@ if IMPLEMENTATION_TYPE not in ('cpp', 'cpy', 'python'):
 	IMPLEMENTATION_TYPE = 'python'
 
 from Object import Object, MetaObject, Json, FromJson
-from Type import Type, Simple, Collection, Enum, Integer, Float, Double, FixedPoint, Boolean, Bytes, String, Instance, List, Dict, Python, pb, PythonDelegate
+from Type import Type, Simple, Collection, Enum, Integer, Long, Float, Double, FixedPoint, Boolean, Bytes, String, Symbol, Instance, List, Dict, Python, pb, PythonDelegate
 from Cpp import GenerateExtention
 from Cpy import GenerateDescriptor
 from Proto import Increment, ClearTypes, SymbolEncodedLen, EncodeSymbol, DecodeSymbol
