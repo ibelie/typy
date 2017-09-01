@@ -186,8 +186,8 @@ def _build(_typy):
 	f1.pos.b = 'asdf'
 	assert ord(RPG(f1).SerializeToString()[1]) + 2 == len(RPG(f1).SerializeToString())
 
-	print vPy, vPy.x, vPy.y, vPy.s, vPy.b, vPy.e, vPy.p, vPy.i, vPy.p.pp
-	print vPy2, vPy2.x, vPy2.y, vPy2.s, vPy2.b, vPy2.e, vPy2.p, vPy2.i, vPy2.p.pp
+	print vPy, vPy.x, vPy.y, vPy.s, vPy.m, vPy.b, vPy.e, vPy.p, vPy.i, vPy.p.pp
+	print vPy2, vPy2.x, vPy2.y, vPy2.s, vPy2.m, vPy2.b, vPy2.e, vPy2.p, vPy2.i, vPy2.p.pp
 
 	fighterPy2 = Fighter()
 
@@ -215,14 +215,15 @@ def _build(_typy):
 		123,  # x
 		45.6, # y
 		s = u"哈哈哈哈",
+		m = "Hub",
 		b = u"asdf 1234",
 		e = Corpus.LOCAL,
 		p = PyType(pp = 123, ap = 'asdf'),
 		i = _Empty(),
 	)
 	print vPy.Args(), v.Args()
-	print vPy, vPy.x, vPy.y, vPy.s, vPy.b, vPy.e, vPy.p, vPy.i, vPy.p.pp
-	print v, v.x, v.y, v.s, v.b, v.e, v.p, v.i, v.p.pp
+	print vPy, vPy.x, vPy.y, vPy.s, vPy.m, vPy.b, vPy.e, vPy.p, vPy.i, vPy.p.pp
+	print v, v.x, v.y, v.s, v.m, v.b, v.e, v.p, v.i, v.p.pp
 
 	print vPy.classProp
 	print v.classProp
@@ -263,10 +264,11 @@ def _build(_typy):
 	v2.x += 1000
 	v2.y += 1000
 	v2.s += u" 吼吼吼"
+	v2.m += "Ga"
 	v2.b += " xxx"
 	v2.e += 2
-	print vPy2.x, vPy2.y, vPy2.s, vPy2.b, vPy2.e, vPy2.i
-	print v2.x, v2.y, v2.s, v2.b, v2.e, v2.i
+	print vPy2.x, vPy2.y, vPy2.s, vPy2.m, vPy2.b, vPy2.e, vPy2.i
+	print v2.x, v2.y, v2.s, v2.m, v2.b, v2.e, v2.i
 
 	print v2 == v
 	print v < v2
