@@ -709,14 +709,14 @@ def SymbolSizer(sizer, includeZero):
 		return (sizer(l) + l) if includeZero or value else 0
 	return _SymbolSizer
 
-def EncodeSymbol(encoder, includeZero):
+def SymbolEncoder(encoder, includeZero):
 	def _EncodeSymbol(write, value):
 		if includeZero or value:
 			encoder(write, SymbolEncodedLen(value))
 			return write(EncodeSymbol(value))
 	return _EncodeSymbol
 
-def DecodeSymbol(decoder):
+def SymbolDecoder(decoder):
 	def _DecodeSymbol(buffer, pos):
 		(size, pos) = decoder(buffer, pos)
 		new_pos = pos + size
@@ -728,10 +728,10 @@ def _AttachSymbolHelpers(cls, field):
 	is_packed = False
 	is_repeated = (field.label == FieldDescriptor.LABEL_REPEATED)
 	sizer = SymbolSizer(encoder._VarintSize, is_repeated)
-	field._encoder = encoder._SimpleEncoder(wire_format.WIRETYPE_LENGTH_DELIMITED, EncodeSymbol(encoder._EncodeVarint, is_repeated), sizer)(field.number, is_repeated, is_packed)
+	field._encoder = encoder._SimpleEncoder(wire_format.WIRETYPE_LENGTH_DELIMITED, SymbolEncoder(encoder._EncodeVarint, is_repeated), sizer)(field.number, is_repeated, is_packed)
 	field._sizer = encoder._SimpleSizer(sizer)(field.number, is_repeated, is_packed)
 	oneof_descriptor = None if field.containing_oneof is None else field
-	field_decoder = decoder._SimpleDecoder(wire_format.WIRETYPE_LENGTH_DELIMITED, DecodeSymbol(decoder._DecodeVarint))(field.number, is_repeated, is_packed, field, field._default_constructor)
+	field_decoder = decoder._SimpleDecoder(wire_format.WIRETYPE_LENGTH_DELIMITED, SymbolDecoder(decoder._DecodeVarint))(field.number, is_repeated, is_packed, field, field._default_constructor)
 	tag_bytes = encoder.TagBytes(field.number, wire_format.WIRETYPE_LENGTH_DELIMITED)
 	cls._decoders_by_tag[tag_bytes] = (field_decoder, oneof_descriptor)
 	if hasattr(cls, 'fields_by_tag'):

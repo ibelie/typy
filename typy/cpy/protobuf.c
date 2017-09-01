@@ -287,51 +287,56 @@ static const char SymbolEncodeMap[256] = {
 };
 
 void Typy_EncodeSymbol(byte* dst, byte* src, size_t size) {
+	register unsigned int v;
 	register size_t di = 0, n = size / 4 * 4;
 	for (register size_t si = 0; si < n; ) {
 		// Convert 4x 6bit source bytes into 3 bytes
-		register unsigned int val = SymbolEncodeMap[src[si++]] << 18 |
-			SymbolEncodeMap[src[si++]] << 12 |
-			SymbolEncodeMap[src[si++]] << 6 |
-			SymbolEncodeMap[src[si++]];
+		v = (SymbolEncodeMap[src[si++]] << 18) |
+			(SymbolEncodeMap[src[si++]] << 12) |
+			(SymbolEncodeMap[src[si++]] << 6)|
+			(SymbolEncodeMap[src[si++]] << 0);
 
-		dst[di++] = (byte)(val >> 16);
-		dst[di++] = (byte)(val >> 8);
-		dst[di++] = (byte)(val >> 0);
+		dst[di++] = (byte)(0xFF & (v >> 16));
+		dst[di++] = (byte)(0xFF & (v >> 8));
+		dst[di++] = (byte)(0xFF & (v >> 0));
 	}
 
-	register unsigned int val = 0;
+	register size_t j;
 	register size_t remain = size - n;
-	for (register size_t j = 0; j < remain; j++) {
-		val |= SymbolEncodeMap[src[n + j]] << (18 - j * 6);
+	for (j = 0, v = 0; j < remain; j++) {
+		v |= SymbolEncodeMap[src[n + j]] << (18 - j * 6);
 	}
-	for (register size_t j = 0; j < remain; j++) {
-		dst[di++] = (byte)(val >> (16 - j * 8));
+	for (j = 0; j < remain; j++) {
+		dst[di++] = (byte)(0xFF & (v >> (16 - j * 8)));
 	}
 }
 
 static const char SymbolDecodeMap[] = "-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 
 size_t Typy_DecodeSymbol(byte* dst, byte* src, size_t size) {
+	register unsigned int v;
 	register size_t di = 0, n = size / 3 * 3;
 	for (register size_t si = 0; si < n; ) {
 		// Convert 3x 8bit source bytes into 4 bytes
-		unsigned int val = src[si++] << 16 | src[si++] << 8 | src[si++];
+		v = (src[si++] << 16) |
+			(src[si++] << 8) |
+			(src[si++] << 0);
 
-		dst[di++] = SymbolDecodeMap[val >> 18 & 0x3F];
-		dst[di++] = SymbolDecodeMap[val >> 12 & 0x3F];
-		dst[di++] = SymbolDecodeMap[val >> 6  & 0x3F];
-		dst[di++] = SymbolDecodeMap[val & 0x3F];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 18)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 12)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 6)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 0)];
 	}
 
 	switch (size - n) {
 	case 1:
-		dst[di++] = SymbolDecodeMap[src[n] >> 2 & 0x3F];
+		dst[di++] = SymbolDecodeMap[0x3F & (src[n] >> 2)];
 		break;
 	case 2:
-		unsigned int val = src[n] << 8 | src[n + 1];
-		dst[di++] = SymbolDecodeMap[val >> 10 & 0x3F];
-		dst[di++] = SymbolDecodeMap[val >> 4  & 0x3F];
+		v = (src[n + 0] << 8) |
+			(src[n + 1] << 0);
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 10)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 4)];
 		break;
 	}
 

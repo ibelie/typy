@@ -16,20 +16,20 @@ def EncodeSymbol(src):
 	n = len(src) / 4 * 4
 	for si in xrange(0, n, 4):
 		# Convert 4x 6bit source bytes into 3 bytes
-		val = SymbolEncodeMap[src[si]] << 18 | \
-			SymbolEncodeMap[src[si + 1]] << 12 | \
-			SymbolEncodeMap[src[si + 2]] << 6 | \
-			SymbolEncodeMap[src[si + 3]]
+		v = (SymbolEncodeMap[src[si + 0]] << 18) | \
+			(SymbolEncodeMap[src[si + 1]] << 12) | \
+			(SymbolEncodeMap[src[si + 2]] << 6) | \
+			(SymbolEncodeMap[src[si + 3]] << 0)
 
-		dst += chr(val >> 16)
-		dst += chr(val >> 8)
-		dst += chr(val >> 0)
+		dst += chr(0xFF & (v >> 16))
+		dst += chr(0xFF & (v >> 8))
+		dst += chr(0xFF & (v >> 0))
 
-	val = 0
+	v = 0
 	for j in xrange(len(src) - n):
-		val |= SymbolEncodeMap[src[n + j]] << (18 - j * 6)
+		v |= SymbolEncodeMap[src[n + j]] << (18 - j * 6)
 	for j in xrange(len(src) - n):
-		dst += chr(val >> (16 - j * 8))
+		dst += chr(0xFF & (v >> (16 - j * 8)))
 
 	return dst
 
@@ -38,19 +38,22 @@ def DecodeSymbol(src):
 	n = len(src) / 3 * 3
 	for si in xrange(0, n, 3):
 		# Convert 3x 8bit source bytes into 4 bytes
-		val = ord(src[si]) << 16 | ord(src[si + 1]) << 8 | ord(src[si + 2])
+		v = (ord(src[si + 0]) << 16) | \
+			(ord(src[si + 1]) << 8) | \
+			(ord(src[si + 2]) << 0)
 
-		dst += SymbolDecodeMap[val >> 18 & 0x3F]
-		dst += SymbolDecodeMap[val >> 12 & 0x3F]
-		dst += SymbolDecodeMap[val >> 6  & 0x3F]
-		dst += SymbolDecodeMap[val & 0x3F]
+		dst += SymbolDecodeMap[0x3F & (v >> 18)]
+		dst += SymbolDecodeMap[0x3F & (v >> 12)]
+		dst += SymbolDecodeMap[0x3F & (v >> 6)]
+		dst += SymbolDecodeMap[0x3F & (v >> 0)]
 
 	if len(src) - n == 1:
-		dst += SymbolDecodeMap[ord(src[n]) >> 2 & 0x3F]
+		dst += SymbolDecodeMap[0x3F & (ord(src[n]) >> 2)]
 	elif len(src) - n == 2:
-		val = ord(src[n]) << 8 | ord(src[n + 1])
-		dst += SymbolDecodeMap[val >> 10 & 0x3F]
-		dst += SymbolDecodeMap[val >> 4  & 0x3F]
+		v = (ord(src[n + 0]) << 8) | \
+			(ord(src[n + 1]) << 0)
+		dst += SymbolDecodeMap[0x3F & (v >> 10)]
+		dst += SymbolDecodeMap[0x3F & (v >> 4)]
 
 	if dst[-1] == SymbolDecodeMap[0]:
 		dst = dst[:-1]

@@ -237,6 +237,7 @@ def setup(g, _typy):
 			'y': self.y,
 			'b': self.b,
 			's': self.s,
+			'm': self.m,
 			'e': self.e,
 			'p': self.p,
 		}),
@@ -254,6 +255,7 @@ def setup(g, _typy):
 		123,  # x
 		45.6, # y
 		s = u"哈哈哈哈",
+		m = "Hub",
 		b = u"asdf 1234",
 		e = Corpus.LOCAL,
 		p = PyType(pp = 123, ap = 'asdf'),
@@ -264,6 +266,7 @@ def setup(g, _typy):
 	vPy2.x += 1000
 	vPy2.y += 1000
 	vPy2.s += u" 吼吼吼"
+	vPy2.m += "Ga"
 	vPy2.b += " xxx"
 	vPy2.e += 2
 	g['vPy'] = vPy

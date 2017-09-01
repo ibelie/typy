@@ -495,28 +495,28 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 			GOOGLE_CHECK_LE(size, ::google::protobuf::kint32max);
 			output->WriteVarint32(dstSize);
 
+			unsigned int v;
 			char* dst = new char[dstSize];
 			char* src = PyBytes_AS_STRING(value);
 			int di = 0, n = size / 4 * 4;
 			for (int si = 0; si < n; ) {
 				// Convert 4x 6bit source bytes into 3 bytes
-				unsigned int val = SymbolEncodeMap[src[si++]] << 18 |
-					SymbolEncodeMap[src[si++]] << 12 |
-					SymbolEncodeMap[src[si++]] << 6 |
-					SymbolEncodeMap[src[si++]];
+				v = (SymbolEncodeMap[src[si++]] << 18) |
+					(SymbolEncodeMap[src[si++]] << 12) |
+					(SymbolEncodeMap[src[si++]] << 6) |
+					(SymbolEncodeMap[src[si++]] << 0);
 
-				dst[di++] = (char)(val >> 16);
-				dst[di++] = (char)(val >> 8);
-				dst[di++] = (char)(val >> 0);
+				dst[di++] = (char)(0xFF & (v >> 16));
+				dst[di++] = (char)(0xFF & (v >> 8));
+				dst[di++] = (char)(0xFF & (v >> 0));
 			}
 
-			unsigned int val = 0;
 			int remain = size - n;
-			for (int j = 0; j < remain; j++) {
-				val |= SymbolEncodeMap[src[n + j]] << (18 - j * 6);
+			for (int j = 0, v = 0; j < remain; j++) {
+				v |= SymbolEncodeMap[src[n + j]] << (18 - j * 6);
 			}
 			for (int j = 0; j < remain; j++) {
-				dst[di++] = (char)(val >> (16 - j * 8));
+				dst[di++] = (char)(0xFF & (v >> (16 - j * 8)));
 			}
 
 			output->WriteRaw(dst, dstSize);
@@ -813,26 +813,30 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 		return false;
 	}
 
+	unsigned int v;
 	int di = 0, n = size / 3 * 3;
 	char* dst = PyBytes_AS_STRING(value);
 	for (int si = 0; si < n; ) {
 		// Convert 3x 8bit source bytes into 4 bytes
-		unsigned int val = src[si++] << 16 | src[si++] << 8 | src[si++];
+		v = (src[si++] << 16) |
+			(src[si++] << 8) |
+			(src[si++] << 0);
 
-		dst[di++] = SymbolDecodeMap[val >> 18 & 0x3F];
-		dst[di++] = SymbolDecodeMap[val >> 12 & 0x3F];
-		dst[di++] = SymbolDecodeMap[val >> 6  & 0x3F];
-		dst[di++] = SymbolDecodeMap[val & 0x3F];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 18)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 12)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 6)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 0)];
 	}
 
 	switch (size - n) {
 	case 1:
-		dst[di++] = SymbolDecodeMap[src[n] >> 2 & 0x3F];
+		dst[di++] = SymbolDecodeMap[0x3F & (src[n] >> 2)];
 		break;
 	case 2:
-		unsigned int val = src[n] << 8 | src[n + 1];
-		dst[di++] = SymbolDecodeMap[val >> 10 & 0x3F];
-		dst[di++] = SymbolDecodeMap[val >> 4  & 0x3F];
+		v = (src[n + 0] << 8) |
+			(src[n + 1] << 0);
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 10)];
+		dst[di++] = SymbolDecodeMap[0x3F & (v >> 4)];
 		break;
 	}
 

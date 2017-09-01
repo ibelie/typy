@@ -157,6 +157,24 @@ bool CheckAndSet(PyObject* arg, bytes& value, const char* err) {
 	return true;
 }
 
+bool CheckAndSet(PyObject* arg, symbol& value, const char* err) {
+	if (arg == NULL || arg == Py_None) {
+		CopyFrom(value, reinterpret_cast<symbol>(NULL));
+		return true;
+	} else if (PyUnicode_Check(arg)) {
+		arg = PyUnicode_AsEncodedObject(arg, "utf-8", NULL);
+		if (arg == NULL) { return false; }
+	} else if (PyBytes_Check(arg)) {
+		Py_INCREF(arg);
+	} else {
+		FormatTypeError(arg, err);
+		return false;
+	}
+	CopyFrom(value, reinterpret_cast<symbol>(arg));
+	Py_DECREF(arg);
+	return true;
+}
+
 bool CheckAndSet(PyObject* arg, ::std::string& value, const char* err) {
 	if (arg == NULL || arg == Py_None) {
 		CopyFrom(value, "");
