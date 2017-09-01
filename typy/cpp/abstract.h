@@ -511,12 +511,23 @@ inline void Write(int field_number, const symbol& value, CodedOutputStream* outp
 				dst[di++] = (char)(0xFF & (v >> 0));
 			}
 
-			int remain = size - n;
-			for (int j = 0, v = 0; j < remain; j++) {
-				v |= SymbolEncodeMap[src[n + j]] << (18 - j * 6);
-			}
-			for (int j = 0; j < remain; j++) {
-				dst[di++] = (char)(0xFF & (v >> (16 - j * 8)));
+			switch (size - n) {
+			case 1:
+				dst[di++] = (char)(0xFF & (SymbolEncodeMap[src[n]] << 2));
+				break;
+			case 2:
+				dst[di++] = (char)(0xFF & ((SymbolEncodeMap[src[n]] << 2) |
+										(SymbolEncodeMap[src[n + 1]] >> 4)));
+				dst[di++] = (char)(0xFF & (SymbolEncodeMap[src[n + 1]] << 4));
+				break;
+			case 3:
+				v = (SymbolEncodeMap[src[n+0]] << 18) |
+					(SymbolEncodeMap[src[n+1]] << 12) |
+					(SymbolEncodeMap[src[n+2]] << 6);
+				dst[di++] = (char)(0xFF & (v >> 16));
+				dst[di++] = (char)(0xFF & (v >> 8));
+				dst[di++] = (char)(0xFF & (v >> 0));
+				break;
 			}
 
 			output->WriteRaw(dst, dstSize);
@@ -818,9 +829,9 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 	char* dst = PyBytes_AS_STRING(value);
 	for (int si = 0; si < n; si += 3) {
 		// Convert 3x 8bit source bytes into 4 bytes
-		v = (src[si+0] << 16) |
-			(src[si+1] << 8) |
-			(src[si+2] << 0);
+		v = ((unsigned char)(src[si+0]) << 16) |
+			((unsigned char)(src[si+1]) << 8) |
+			((unsigned char)(src[si+2]) << 0);
 
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 18)];
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 12)];
@@ -830,11 +841,11 @@ inline bool Read(symbol& value, CodedInputStream* input) {
 
 	switch (size - n) {
 	case 1:
-		dst[di++] = SymbolDecodeMap[0x3F & (src[n] >> 2)];
+		dst[di++] = SymbolDecodeMap[0x3F & ((unsigned char)(src[n]) >> 2)];
 		break;
 	case 2:
-		v = (src[n + 0] << 8) |
-			(src[n + 1] << 0);
+		v = ((unsigned char)(src[n + 0]) << 8) |
+			((unsigned char)(src[n + 1]) << 0);
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 10)];
 		dst[di++] = SymbolDecodeMap[0x3F & (v >> 4)];
 		break;
