@@ -27,7 +27,8 @@ class PyType(object):
 		return cls(**data)
 
 	def Json(self):
-		return self.__dict__
+		from copy import deepcopy
+		return deepcopy(self.__dict__)
 
 	def ByteSize(self):
 		return len(repr(self.__dict__))
