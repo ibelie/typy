@@ -46,10 +46,10 @@ ViDiVfs = _typyd.Variant('ViDiVfs', (
 ))
 Del = _typyd.Dict('Del', (0, 2, ), (0, 0, Corpus))
 Le = _typyd.List('Le', (0, 0, Corpus))
-Dfi = _typyd.Dict('Dfi', (0, 1, ), (5, 7, ))
-DiDfi = _typyd.Dict('DiDfi', (0, 1, ), (2, 15, Dfi))
-ViDfi = _typyd.Variant('ViDfi', (
-	('Dict', 10, 1, 2, 15, Dfi),
+Dif = _typyd.Dict('Dif', (0, 1, ), (5, 7, ))
+DiDif = _typyd.Dict('DiDif', (0, 1, ), (2, 15, Dif))
+ViDif = _typyd.Variant('ViDif', (
+	('Dict', 10, 1, 2, 15, Dif),
 	('Integer', 16, 1, 0, 1, ),
 ))
 Lf = _typyd.List('Lf', (5, 7, ))
@@ -113,8 +113,8 @@ Fighter = _typyd.Object('Fighter', (
 	('dv', 34, 1, 2, 13, ViDiVfs),
 	('ed', 42, 1, 2, 15, Del),
 	('el', 50, 1, 2, 14, Le),
-	('fdd', 58, 1, 2, 15, DiDfi),
-	('fdv', 66, 1, 2, 13, ViDfi),
+	('fdd', 58, 1, 2, 15, DiDif),
+	('fdv', 66, 1, 2, 13, ViDif),
 	('fl', 74, 1, 2, 14, Lf),
 	('fld', 82, 1, 2, 15, DiLf),
 	('flv', 90, 1, 2, 13, ViLf),
@@ -125,7 +125,7 @@ Fighter = _typyd.Object('Fighter', (
 	('lv', 130, 2, 2, 13, ViLVfs),
 	('nv', 138, 2, 2, 13, Vi),
 	('pos', 146, 2, 2, 12, Vector2),
-	('posi', 154, 2, 2, 15, Dfi),
+	('posi', 154, 2, 2, 15, Dif),
 	('posl', 162, 2, 2, 14, LVector2),
 	('posll', 170, 2, 2, 14, LVLVector2),
 	('poss', 178, 2, 2, 15, DlVector2),
@@ -147,7 +147,7 @@ Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('hp', 13, 1, 5, 7, ),
 	('isAwake', 16, 1, 0, 8, ),
 	('pos', 26, 1, 2, 12, Vector2),
-	('posi', 34, 1, 2, 15, Dfi),
+	('posi', 34, 1, 2, 15, Dif),
 	('posl', 42, 1, 2, 14, LVector2),
 	('posll', 50, 1, 2, 14, LVLVector2),
 	('poss', 58, 1, 2, 15, DlVector2),
@@ -166,7 +166,7 @@ Fighter_Part2 = _typyd.Object('Fighter_Part2', (
 	('isAwake', 56, 1, 0, 8, ),
 	('ll', 66, 1, 2, 14, LVLf),
 	('pos', 74, 1, 2, 12, Vector2),
-	('posi', 82, 1, 2, 15, Dfi),
+	('posi', 82, 1, 2, 15, Dif),
 	('posl', 90, 1, 2, 14, LVector2),
 	('posll', 98, 1, 2, 14, LVLVector2),
 	('poss', 106, 1, 2, 15, DlVector2),

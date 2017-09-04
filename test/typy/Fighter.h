@@ -15,8 +15,8 @@
 #include "VfisVector2.h"
 #include "VfpisVector2.h"
 #include "Vi.h"
-#include "ViDfi.h"
 #include "ViDiVfs.h"
+#include "ViDif.h"
 #include "ViLVfs.h"
 #include "ViLf.h"
 #include "ViPyType.h"
@@ -29,7 +29,7 @@ TypyHeaderBegin(Fighter);
 	SINGLE_ARG(Dict<int64, Corpus >)* p_ed;
 	List< Corpus >* p_el;
 	SINGLE_ARG(Dict<int32, SINGLE_ARG(Dict<int32, float >) >)* p_fdd;
-	ViDfi* p_fdv;
+	ViDif* p_fdv;
 	List< float >* p_fl;
 	SINGLE_ARG(Dict<int32, List< float > >)* p_fld;
 	ViLf* p_flv;
