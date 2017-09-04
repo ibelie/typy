@@ -99,14 +99,10 @@ def RecordNesting(prefix, types):
 		'Symbol': 'sy',
 		'Enum': 'e',
 	}
-	properties = {'Enum' if isEnum(p) else p.__name__: toType(p) for p in types if p is not None}
-	names = [shortName[k] for k in properties if k in shortName]
-	nested = [k for k in properties if k not in shortName]
-	if prefix == 'V':
-		names = sorted(names)
-		nested = sorted(nested)
-	for name in nested:
-		prop = properties[name]
+
+	names = []
+	properties = [('Enum' if isEnum(p) else p.__name__, toType(p)) for p in types if p is not None]
+	def _RecordNesting(name, prop):
 		if isinstance(prop, Instance):
 			if len(prop.pyType) == 1 and not isinstance(prop.pyType[0], List):
 				names.append(prop.pyType[0].__name__)
@@ -118,6 +114,19 @@ def RecordNesting(prefix, types):
 			names.append(RecordNesting('D', [prop.keyType, prop.valueType])[0])
 		else:
 			names.append(name)
+
+	if prefix == 'V':
+		properties = dict(properties)
+		names = sorted([shortName[k] for k in properties if k in shortName])
+		for name in sorted([k for k in properties if k not in shortName]):
+			_RecordNesting(name, properties[name])
+	else:
+		for name, prop in properties:
+			if name in shortName:
+				names.append(shortName[name])
+			else:
+				_RecordNesting(name, prop)
+		properties = dict(properties)
 	name = ShortName(prefix, '%s%s' % (prefix, ''.join(names)))
 	return name, properties
 

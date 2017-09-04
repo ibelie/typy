@@ -10,7 +10,7 @@ BooleanList = _typyd.Object('BooleanList', (
 ))
 Empty = _typyd.Object('Empty', (
 ))
-Dbys = _typyd.Dict('Dbys', (2, 10, ), (2, 9, ))
+Dsby = _typyd.Dict('Dsby', (2, 10, ), (2, 9, ))
 Lby = _typyd.List('Lby', (2, 9, ))
 Corpus = _typyd.Enum('Corpus')
 FixedPoint_1_s10 = _typyd.FixedPoint(1, -10)
@@ -44,7 +44,7 @@ ViDiVfs = _typyd.Variant('ViDiVfs', (
 	('Dict', 10, 1, 2, 15, DiVfs),
 	('Integer', 16, 1, 0, 1, ),
 ))
-Del = _typyd.Dict('Del', (0, 2, ), (0, 0, Corpus))
+Dle = _typyd.Dict('Dle', (0, 2, ), (0, 0, Corpus))
 Le = _typyd.List('Le', (0, 0, Corpus))
 Dif = _typyd.Dict('Dif', (0, 1, ), (5, 7, ))
 DiDif = _typyd.Dict('DiDif', (0, 1, ), (2, 15, Dif))
@@ -107,11 +107,11 @@ VfpisVector2 = _typyd.Variant('VfpisVector2', (
 ))
 LVfpisVector2 = _typyd.List('LVfpisVector2', (2, 13, VfpisVector2))
 Fighter = _typyd.Object('Fighter', (
-	('bd', 10, 1, 2, 15, Dbys),
+	('bd', 10, 1, 2, 15, Dsby),
 	('bl', 18, 1, 2, 14, Lby),
 	('dd', 26, 1, 2, 15, DiDiVdesVector2),
 	('dv', 34, 1, 2, 13, ViDiVfs),
-	('ed', 42, 1, 2, 15, Del),
+	('ed', 42, 1, 2, 15, Dle),
 	('el', 50, 1, 2, 14, Le),
 	('fdd', 58, 1, 2, 15, DiDif),
 	('fdv', 66, 1, 2, 13, ViDif),
@@ -157,9 +157,9 @@ Fighter_Part1 = _typyd.Object('Fighter_Part1', (
 	('pyv2', 90, 1, 2, 13, ViPyType),
 ))
 Fighter_Part2 = _typyd.Object('Fighter_Part2', (
-	('bd', 10, 1, 2, 15, Dbys),
+	('bd', 10, 1, 2, 15, Dsby),
 	('bl', 18, 1, 2, 14, Lby),
-	('ed', 26, 1, 2, 15, Del),
+	('ed', 26, 1, 2, 15, Dle),
 	('el', 34, 1, 2, 14, Le),
 	('fl', 42, 1, 2, 14, Lf),
 	('hp', 53, 1, 5, 7, ),
